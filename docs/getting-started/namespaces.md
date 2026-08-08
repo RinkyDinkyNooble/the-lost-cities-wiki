@@ -3,7 +3,7 @@
 !!! tip "TL;DR"
     Every Lost Cities asset has a full name: `namespace:path`. Leave the namespace off when *referencing* something, and Lost Cities assumes `lostcities:`. Get this wrong and your content just silently fails to load, no error.
 
-This trips up almost everyone starting out. Worth ten minutes now to save hours of "why isn't this working."
+No error, no crash, no log warning. The asset just isn't found. Worth understanding this before writing anything.
 
 ## What a name actually is
 
@@ -63,8 +63,8 @@ Anywhere Lost Cities expects a *name* (a profile's `worldStyle` field, a world s
 
 Most modpacks should default to their own namespace. Override only when you deliberately want to replace a specific built-in default.
 
-!!! warning "The KubeJS gotcha"
-    If you generate Lost Cities content through KubeJS and name it under the `lostcities` namespace, you are overriding the mod's built-in defaults, whether you meant to or not. This is exactly what trips people up: it works fine for you because your pack always has that override present, but it's a different setup than a plain datapack author would expect, and it's easy to forget you did it.
+!!! warning "KubeJS defaults to the lostcities namespace"
+    Generating Lost Cities content through KubeJS under the `lostcities` namespace overrides the mod's built-in defaults, by the same mechanism as above. That's a valid choice if you want it, just know it's what you're doing.
 
 ## See also
 

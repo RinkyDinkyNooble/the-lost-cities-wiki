@@ -44,4 +44,7 @@ nav:
   - Getting Started:
       - How It All Connects: getting-started/how-it-connects.md
       - Namespaces: getting-started/namespaces.md
+      - The Content Model: getting-started/content-model.md
+  - Reference:
+      - Profile: reference/profile.md
   - Glossary: glossary.md
