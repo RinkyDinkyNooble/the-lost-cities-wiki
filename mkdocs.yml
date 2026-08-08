@@ -38,3 +38,5 @@ markdown_extensions:
 
 nav:
   - Home: index.md
+  - Getting Started:
+      - How It All Connects: getting-started/how-it-connects.md
