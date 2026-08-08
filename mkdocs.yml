@@ -50,8 +50,21 @@ nav:
       - World Style: reference/worldstyle.md
       - City Style: reference/citystyle.md
       - Style: reference/style.md
+      - Building: reference/building.md
+      - Building Part: reference/part.md
+      - Palette: reference/palette.md
+      - Variant: reference/variant.md
+      - Condition: reference/condition.md
+      - Multi-Building: reference/multibuilding.md
+      - Scattered Building: reference/scattered.md
+      - Stuff Object: reference/stuff.md
+      - Predefined City & Sphere: reference/predefined.md
   - Concepts:
       - Matchers: concepts/matchers.md
+      - Streets, Highways, Rails & Monorails: concepts/infrastructure-parts.md
+  - Advanced:
+      - KubeJS Integration: advanced/kubejs.md
+      - Command Blocks: advanced/command-blocks.md
   - Tooling:
       - Editing & Tooling: tooling/editing.md
   - Glossary: glossary.md
