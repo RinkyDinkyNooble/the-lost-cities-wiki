@@ -1,0 +1,5 @@
+/research
+.venv
+site/
+__pycache__/
+*.pyc
