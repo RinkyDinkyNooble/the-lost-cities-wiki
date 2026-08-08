@@ -51,10 +51,16 @@ Weighted lists (`blocks` here, or inside a [Variant](variant.md)) fill a **fixed
     ```
     Total is 1017, not 128. In practice: 9/128 cracked, 8/128 mossy, and the remaining 111/128 slots go to stone bricks (the `1000` gets clipped down to whatever's left). This is the mod author's own idiom: give rare options small honest numbers, then a big catch-all number **last** to soak up the remainder. Put that catch-all anywhere but last, and everything after it becomes unreachable.
 
-## Known issues
+## Stairs, fences, and walls auto-correct on placement
 
-!!! warning "Corner stairs sometimes place with the wrong shape"
-    Reported from real modpack use, not yet traced to a root cause. A `block` entry pointing at a corner stair shape (`shape=outer_left`/`outer_right`) can place incorrectly. Current workaround: use the `tag` field's command-block trick described on the [Command Blocks](../advanced/command-blocks.md) page to force the exact block state directly.
+Every block placed through a part goes through a neighbor-aware correction pass before it lands, the same logic vanilla Minecraft uses when a player places these blocks by hand:
+
+- **Stairs** (`minecraft:*_stairs`): the `shape` property is always recalculated from whatever ends up next to it (matching stairs on the facing side or its opposite produce an outer/inner corner, anything else is `straight`). **Whatever `shape=` you write in a `block` string is discarded and replaced.** This isn't occasional, it happens on every stair placement. If a corner comes out wrong, it's because the recalculated shape doesn't match what the surrounding part geometry produces, not because the palette entry was ignored.
+- **Fences, walls, and similar connecting blocks**: connections to neighbors are recalculated the same way, this is expected and rarely surprising.
+- **Structure void blocks**: silently placed as nothing.
+
+!!! warning "Forcing an exact stair shape"
+    If you need a specific corner shape the auto-correction won't produce, the only reliable workaround is placing it *after* generation finishes, since the correction pass only runs during the terrain-generation call itself. The [Command Blocks](../advanced/command-blocks.md) page shows the pattern: a palette entry that places an auto-firing command block whose command forces the exact block state, bypassing the normal palette-to-block path entirely.
 
 ## See also
 

@@ -23,6 +23,9 @@
 !!! warning "The naming isn't consistent"
     Five of these use a `...blocks` suffix (`generalblocks`, `corridorblocks`, `parkblocks`, `railblocks`, `sphereblocks`, `streetblocks`), one uses `...settings` (`buildingsettings`). Not a typo on this page, that's genuinely how the mod names them. Copy exact key names, don't guess by pattern.
 
+!!! note "railmain resolves once per chunk, not once per block"
+    If `railmain` points at a weighted [Palette](palette.md) entry (`variant` or `blocks`) rather than a fixed `block`, the mod picks one random result and reuses it for the entire rail-bed strip in that chunk, it doesn't re-roll per block. On a long straight railway spanning many chunks, this shows up as solid-colored 16-block strips rather than block-by-block noise, since each chunk gets its own independent roll. The mod's own default city style points `railmain` at the `stonebrick` variant (mostly plain stone bricks, small chance of cracked or mossy), so most chunks look identical and occasionally a whole chunk-length strip stands out. This is how the resolution works, not something to work around unless you want every rail chunk to look uniform (use a fixed `block` instead of a weighted one).
+
 ## Inheritance
 
 ```json title="citystyle_desert.json"

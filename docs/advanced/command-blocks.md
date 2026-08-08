@@ -26,7 +26,7 @@
 Anything the command has access to. Two real examples, both from production use:
 
 - **Third-party mod integration**: a custom `/placeKeypad` command (defined via a command-registering mod like KubeJS server scripts) that hooks into SecurityCraft to generate a passcode-locked keypad door, something no Lost Cities palette field could do on its own.
-- **Working around placement bugs**: `/placeBlockEntity <blockstate> {}` to force an exact block state directly, bypassing whatever normal palette-to-block path might be misbehaving. See the corner-stairs issue noted on the [Palette](../reference/palette.md) page's known-issues, this is the actual workaround in use for it.
+- **Forcing an exact stair shape**: a custom `/placeBlockEntity <blockstate> {}` command (also your own, not built into Lost Cities or vanilla) to force an exact block state directly. This specifically works around the stair shape auto-correction described on the [Palette](../reference/palette.md) page: generation always recalculates a placed stair's shape from its neighbors, but a command block only fires after generation finishes, so the auto-correction pass has already run and won't touch what the command places.
 
 ## Practical notes
 
