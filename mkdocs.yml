@@ -52,4 +52,6 @@ nav:
       - Style: reference/style.md
   - Concepts:
       - Matchers: concepts/matchers.md
+  - Tooling:
+      - Editing & Tooling: tooling/editing.md
   - Glossary: glossary.md

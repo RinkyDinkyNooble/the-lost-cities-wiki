@@ -1,12 +1,19 @@
 # Lost Cities Wiki
 
-This is an in-depth guide to building custom cities with [Lost Cities](https://www.curseforge.com/minecraft/mc-mods/lost-cities), a Forge mod that generates ruined, overgrown cities during world generation.
+This is an in-depth guide to building custom cities with [Lost Cities](https://www.curseforge.com/minecraft/mc-mods/the-lost-cities), a Forge mod that generates ruined, overgrown cities during world generation.
 
-The official wiki covers the basics. This wiki exists for everything after that: the parts of the mod you only find out about by reading the source, breaking things, or asking around. If you've ever wondered why a setting doesn't seem to do anything, why a key you copied from an example doesn't work in your own file, or how any of this actually gets triggered in a world at all, that's what's covered here.
+!!! note "This is not the official wiki"
+    The mod's real docs live at [mcjty.eu/docs/mods/lost-cities](https://mcjty.eu/docs/mods/lost-cities). Worth checking there too. This site exists to go further: the parts you only find out about by reading the source, breaking things, or asking around. Why a setting doesn't seem to do anything, why a key you copied from an example doesn't work in your own file, how any of this gets triggered in a world at all, that's what's covered here.
 
 ## Who this is for
 
-Anyone building a custom city profile for their own modpack or server. You don't need Java experience. You do need to be comfortable editing JSON by hand and, eventually, running commands.
+Anyone building a custom city profile for their own modpack or server. No Java needed.
+
+**Before you start, you should know:**
+
+- Basic datapack structure (a `data/<namespace>/...` folder inside a world or resource pack)
+- How to find your Minecraft instance's `config` folder
+- How to read and write JSON by hand
 
 ## Scope
 
