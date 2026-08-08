@@ -1,53 +1,64 @@
 # How It All Connects
 
-Every guide for Lost Cities jumps straight into writing JSON for buildings and palettes. That's the wrong place to start. None of that content does anything until it's wired into a running world, and the wiring is the part nobody explains.
+!!! tip "TL;DR"
+    A dimension points at a **profile** (config). A profile picks a **world style** (datapack). A world style picks **city styles**, which pull in **buildings, parts, and palettes**. Get any name wrong along that chain and nothing crashes, your content just never loads.
 
-There are three separate layers involved, and they talk to each other through plain names, not through anything Minecraft enforces for you. Get a name wrong anywhere in this chain and nothing errors, your content just quietly never loads.
+Most guides jump straight to writing building JSON. Skip that. None of it does anything until it's wired into a world, and that wiring is what nobody explains.
 
 ## The three layers
 
-**1. Content.** Your buildings, parts, palettes, city styles, and world styles, written as JSON under `data/<namespace>/lostcities/lostcities/`. This is what most people mean when they say "custom city," and it's what most of this wiki's reference section covers. It's loaded through Minecraft's regular datapack registry system, the same mechanism vanilla uses for recipes and loot tables.
+| Layer | Where it lives | What it does |
+|---|---|---|
+| **Content** | `data/<namespace>/lostcities/lostcities/` | Your buildings, parts, palettes, city styles, world styles. Loaded as normal datapack JSON. |
+| **Profile** | `config/lostcities/profiles/<name>.json` | Picks *one* world style. Also holds ~100 behavior knobs: city frequency, building height, ruin damage, landscape type. |
+| **Dimension wiring** | `config/lostcities/common.toml` | One line mapping a dimension to a profile by name. This is the actual switch. |
 
-**2. Profile.** A profile is a separate JSON file at `config/lostcities/profiles/<name>.json`. It does two things: it names exactly one world style to use, and it carries around a hundred generation-behavior settings that live outside the datapack system entirely, things like how often cities spawn, how tall buildings get, how much ruin damage there is, and what kind of landscape it is (normal ground, floating islands, glass spheres in a void, and so on).
-
-**3. Dimension wiring.** A single line in `config/lostcities/common.toml` maps a dimension to a profile by name:
-
-```toml
+```toml title="config/lostcities/common.toml"
 dimensionsWithProfiles = [
     "lostcities:lostcity=biosphere",
     "lostworlds:abyss=biosphere_caves"
 ]
 ```
 
-The format is `<dimension id>=<profile name>`. This is the actual switch. Change this line, and a dimension starts using a different profile, which points at a different world style, which pulls in a different set of city styles, buildings, and palettes.
+Format: `<dimension id>=<profile name>`. Change this line and that dimension starts using a different profile, which points at a different world style, which pulls in different city styles, buildings, and palettes.
 
-So the full chain, in order, looks like this:
+**Full chain:**
 
 ```
-dimension  →  profile (config)  →  worldStyle name  →  WorldStyle (datapack)  →  city style selection  →  buildings, parts, palettes
+dimension → profile (config) → world style name → World Style (datapack) → city styles → buildings, parts, palettes
 ```
 
-Everything downstream of "WorldStyle" is the content layer this wiki's reference section documents in detail. Everything upstream of it is config, and it's just as necessary.
+Everything left of "World Style" is config. Everything right of it is the content this wiki's reference section covers.
 
-## Profiles are worth reading before you write your own
+!!! tip "Fastest way to test"
+    Copy an existing profile, change its `worldStyle` field, point `dimensionsWithProfiles` at your copy. No need to touch datapack content just to check the wiring works.
 
-On first launch, Lost Cities writes out its built-in profiles to `config/lostcities/profiles/` and then reloads whatever's actually sitting in that folder, including your edits. That means the shipped profiles aren't just examples, they're the live files the mod ships and maintains. Seventeen of them exist, covering things like a wasteland with no water, a drowned atlantis-style city with the sea level raised, glass biosphere domes, and a deliberately rare-cities mode. Before writing a profile from scratch, it's worth opening a few of these and seeing what a complete one actually looks like.
+## Profiles: read the built-in ones first
 
-Two profiles you'll see referenced (`bio_wasteland`, `void_outside`) aren't meant to be selected directly. They're marked private and exist only to define what generates *outside* the glass spheres in the sphere-based profiles. If you build a spheres-style profile of your own, you'll likely want a private outside-profile too.
+On first launch, Lost Cities writes its 17 built-in profiles to `config/lostcities/profiles/`, then reloads whatever's actually there, including your edits. They're not just examples, they're live files the mod ships and maintains.
 
-!!! tip "The setting you actually want to change first"
-    If you already have a `worldStyle` you want to test, the fastest path is: copy an existing profile, change its `worldStyle` field to your world style's name, then point `dimensionsWithProfiles` at your copy. You don't need to touch the datapack content at all to verify the wiring works.
+- **wasteland** — no water, high ruin chance
+- **atlantis** — drowned cities, sea level raised
+- **biosphere** — jungle in glass domes on barren land
+- **space** — glass bubbles floating in a void
 
-## Two ways to attach city generation to a world
+Two profiles (`bio_wasteland`, `void_outside`) are private, they only define what generates *outside* the glass spheres in sphere-based profiles. Build your own spheres profile, and you'll likely want a private outside-profile too.
 
-Lost Cities ships a dedicated dimension (`lostcities:lostcity`) that uses its own custom chunk generator. That's the cleanest option if you want cities in their own separate world.
+## Attaching to a world: two options
 
-But if you want city generation layered into your existing overworld instead, which is likely what you actually want for a modpack, Lost Cities also ships two Forge biome modifiers that inject its generation as a *feature* into any biome tagged `#minecraft:is_overworld`. No custom dimension required. This is almost certainly the mechanism you'd reach for if your goal is "put ruined cities into the normal world," rather than "give players a separate Lost Cities dimension to travel to."
+=== "Dedicated dimension"
 
-## About landscape types
+    Lost Cities ships `lostcities:lostcity`, its own dimension with a custom chunk generator. Clean if you want cities in a separate world.
 
-A profile's landscape type (`floating`, `space`, `cavern`, and so on) controls more than city generation, it expects a matching terrain generator underneath it. Several of the built-in profiles say as much directly: the `floating` profile expects floating-island terrain, `space` expects a void, `cavern` expects an underground world. Lost Cities does not generate that base terrain itself. That comes from **Lost Worlds**, a separate mod by the same author. If you want anything other than the default landscape, plan on pairing the two.
+=== "Inject into the existing world"
 
-## Where to go next
+    Two Forge biome modifiers ship with the mod, adding Lost Cities generation as a **feature** to any `#minecraft:is_overworld` biome. No custom dimension needed. This is almost certainly what you want if the goal is "ruined cities in my normal world," not "a separate dimension players travel to."
 
-Once you understand this page, the rest of the wiki is mostly reference material you'll come back to as needed rather than read start to finish. The content model page (coming soon) walks through how a world style, city style, and building actually compose together.
+## Landscape type needs a matching terrain mod
+
+A profile's landscape type (`floating`, `space`, `cavern`, ...) expects matching terrain underneath it, and Lost Cities doesn't generate that terrain itself. That's **Lost Worlds**, a separate mod by the same author. Want anything but the default landscape? Plan on pairing both mods.
+
+## See also
+
+- [Namespaces](namespaces.md) — how names like `worldStyle` actually resolve, and a real gotcha with KubeJS
+- [Glossary](../glossary.md) — quick definitions for any term above

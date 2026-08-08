@@ -27,9 +27,12 @@ theme:
 
 markdown_extensions:
   - admonition
+  - def_list
+  - attr_list
   - pymdownx.details
   - pymdownx.superfences
   - pymdownx.highlight
+  - pymdownx.mark
   - pymdownx.tabbed:
       alternate_style: true
   - tables
@@ -40,3 +43,5 @@ nav:
   - Home: index.md
   - Getting Started:
       - How It All Connects: getting-started/how-it-connects.md
+      - Namespaces: getting-started/namespaces.md
+  - Glossary: glossary.md
