@@ -47,4 +47,9 @@ nav:
       - The Content Model: getting-started/content-model.md
   - Reference:
       - Profile: reference/profile.md
+      - World Style: reference/worldstyle.md
+      - City Style: reference/citystyle.md
+      - Style: reference/style.md
+  - Concepts:
+      - Matchers: concepts/matchers.md
   - Glossary: glossary.md
