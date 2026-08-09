@@ -134,15 +134,59 @@ The same applies below ground: if cellars generate and no part matches a negativ
 
 ## Part references
 
-Each entry in `parts` is a part name plus the full [condition test field set](condition.md#the-shared-test-fields):
+Each entry in `parts` is a part name plus any of **thirteen** optional test fields. They are exactly the same set a [Condition](condition.md) entry uses, so anything valid there is valid here:
+
+| Key | Type | Matches when |
+|---|---|---|
+| `floor` | int | The level index is exactly this. `0` is ground, negatives are cellars |
+| `range` | string | The level index is between two comma-separated integers, **inclusive both ends** |
+| `top` | bool | This is the building's topmost level |
+| `ground` | bool | Level index is `0` |
+| `cellar` | bool | Level index is below `0` |
+| `isbuilding` | bool | There is a building in this chunk at all |
+| `issphere` | bool | This chunk is inside a city sphere |
+| `chunkx` / `chunkz` | int | Exact absolute chunk coordinate |
+| `inpart` | string or list | The current part name is in this set |
+| `belowpart` | string or list | The part directly below is in this set |
+| `inbuilding` | string or list | The current building name is in this set |
+| `inbiome` | string or list | The current biome is in this set |
 
 ```json
 { "part": "apartment_floor", "floor": 2 }
+{ "part": "apartment_mid",   "range": "9,12" }
 ```
 
 When several test fields are set on one entry, **all of them must pass** (they're AND-ed, not OR-ed). An entry with no test fields matches every level, which is what makes the catch-all pattern above work.
 
 Among all matching entries, one is picked at random with **equal probability**. There's no `factor` field here, unlike [Condition](condition.md) assets, which are weighted.
+
+### `range`, for a run of identical floors
+
+`range` is the compact way to say "floors 9 through 12 all use this part" instead of writing four separate `floor` entries.
+
+```json title="Two candidates across floors 9-12, randomly picked per floor"
+{
+  "filler": "~",
+  "parts": [
+    { "part": "building001_floor4", "range": "9,12" },
+    { "part": "building001_floor5", "range": "9,12" },
+    { "part": "building001_top", "top": true }
+  ]
+}
+```
+
+| | |
+|---|---|
+| **Format** | A **string** holding two integers separated by a comma. `"9,12"`, not `[9,12]` and not `9,12` |
+| **Bounds** | Inclusive at both ends. `"9,12"` matches 9, 10, 11 and 12 |
+| **Negatives** | Work fine, it tests the same index `floor` does. `"-2,-1"` matches the two deepest cellars |
+| **Spaces** | Untested by the mod. `"9, 12"` will throw, since the second half is parsed with a strict integer parse |
+| **Malformed** | One number, three numbers, or a non-number throws `Bad range specification: <l1>,<l2>!` |
+
+!!! note "`range` does not require you to declare `minfloors`/`maxfloors`"
+    It's a filter on the level index, nothing more. What it shares with `floor` is the [coverage rule](#floor-coverage-the-most-common-crash): every level that can actually generate still needs *something* to match it.
+
+    Declaring `minfloors`/`maxfloors` is one way to keep the generated range inside what your parts cover, and it's a reasonable habit. But remember those bounds only **clamp** the profile unless you also set `overrideFloors: true`, so `maxfloors: 13` under a profile whose `buildingMaxFloors` is `8` gives you 8, not 13. A `top: true` entry is what safely caps the stack regardless of how tall it ends up.
 
 ### Example: two candidates for the same floor
 

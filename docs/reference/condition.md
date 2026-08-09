@@ -31,13 +31,20 @@ Used by `Condition` entries and, separately, by every part reference inside a [B
 | `issphere` | bool | Is this inside a city sphere |
 | `floor` | int | Exact floor number |
 | `chunkx` / `chunkz` | int | Exact absolute chunk coordinate |
-| `range` | string `"l1,l2"` | Floor is between l1 and l2, inclusive |
+| `range` | string, e.g. `"9,12"` | Floor is between the two numbers, **inclusive both ends** |
 | `inpart` | string or list | Current part name is in this set |
 | `belowpart` | string or list | The part directly below is in this set |
 | `inbuilding` | string or list | Current building name is in this set |
 | `inbiome` | string or list | Current biome is in this set |
 
 All optional. **Setting several fields on one entry means all of them must pass** (they're AND-ed, never OR-ed). To express "either A or B", write two separate entries.
+
+!!! warning "`range` is a string of two integers, and `l1`/`l2` are not literal"
+    Write `"range": "9,12"`. Both ends are included, so that matches floors 9, 10, 11 and 12. Negatives work the same way, `"-2,-1"` matches the two deepest cellars.
+
+    If you've seen `l1,l2` written anywhere, that comes from the mod's own error message, `Bad range specification: <l1>,<l2>!`, where they're placeholder names. They are not something you type.
+
+    A single number, three numbers, a non-number, or a stray space all throw that error.
 
 No fields set at all = always matches. That's not a degenerate case, it's the standard way to write a fallback: an unconditioned entry guarantees something always matches, which is exactly what prevents the [missing-part crash](building.md#floor-coverage-the-most-common-crash) on buildings.
 
