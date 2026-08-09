@@ -107,11 +107,14 @@ Thrown by the random number generator when a range is empty. Three known causes,
 
 ## Asset lookup errors
 
-### `Can't find '<name>' in <registry>!`
+### `Can't find '<name>' in minecraft:root!`
 
 **When:** world load or chunk generation, depending on the asset type.
 
-A name didn't resolve. `<registry>` tells you which kind of asset was being looked up, for example `lostcities:citystyles`.
+A name didn't resolve.
+
+!!! note "The message doesn't tell you which kind of asset it was"
+    That trailing part looks like it should name the registry, but it prints the **root** registry name rather than `lostcities:citystyles` or `lostcities:parts`. It's the same string for every asset type, so it carries no information. To find out what was actually being looked up, read the stack trace: the frame below the lookup names the caller.
 
 The overwhelmingly common cause is a **missing namespace**. Bare names resolve to `lostcities:`, so `"mycity"` looks for `lostcities:mycity` and finds nothing. The second most common is a wrong file path: assets live at `data/<namespace>/lostcities/<type>/<name>.json`, with **one** `lostcities` segment, not two.
 
@@ -119,13 +122,13 @@ The overwhelmingly common cause is a **missing namespace**. Bare names resolve t
 
 Same situation, but the underlying failure was an exception rather than a missing entry. The wrapped cause underneath is the real message, look further down the stack trace.
 
-### `Invalid name given to <registry> getOrThrow!`
+### `Invalid name given to minecraft:root getOrThrow!`
 
 A required name field was null or absent. Check for a missing key rather than a wrong one.
 
 ### Streets that just aren't there, with a warning in the log
 
-Not a crash. Street part lookups **warn and skip** instead of throwing, so a bad street part name produces `Cannot find '<name>' in lostcities:parts!` in the log and a chunk with no street layer. Highways, railways, and monorails throw for the same mistake. See [Streets, Highways, Rails & Monorails](../concepts/infrastructure-parts.md).
+Not a crash. Street part lookups **warn and skip** instead of throwing, so a bad street part name produces `Cannot find '<name>' in minecraft:root!` as a **warning** in the log, and a chunk with no street layer. Highways, railways, and monorails throw for the same mistake. See [Streets, Highways, Rails & Monorails](../concepts/infrastructure-parts.md).
 
 ## Configuration errors
 

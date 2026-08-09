@@ -47,7 +47,7 @@ Lost Cities writes its 17 built-in profiles to `config/lostcities/profiles/`, th
 - **biosphere** — jungle in glass domes on barren land
 - **space** — glass bubbles floating in a void
 
-Two profiles (`bio_wasteland`, `void_outside`) are private, they only define what generates *outside* the glass spheres in sphere-based profiles. Build your own spheres profile, and you'll likely want a private outside-profile too.
+Three of the 17 are marked private (`public: false`) and don't appear in the in-game selector: `bio_wasteland` and `void_outside`, which only define what generates *outside* the glass spheres in sphere-based profiles, and `biosphere_caves`, which is a full profile that happens to be wired to a Lost Worlds dimension rather than chosen by hand. Build your own spheres profile and you'll likely want a private outside-profile too.
 
 ## Attaching to a world: two options
 

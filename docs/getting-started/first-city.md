@@ -134,7 +134,7 @@ Read this as a list of candidates, not a stack. For each level, the generator co
 `inherit: "citystyle_common"` is doing a lot of work: it hands you every street, park, corridor, rail and sphere block character the generator needs. Write a city style from scratch and you have to supply all of those yourself.
 
 !!! warning "Selectors add, they never replace"
-    You did **not** replace the vanilla building list. `citystyle_common` lists 8 buildings totalling about 2.0 in weight, and yours is appended to them. `factor: 20.0` is why your tower wins roughly 9 times out of 10 rather than 1 in 9.
+    You did **not** replace the vanilla building list. `citystyle_common` lists 8 buildings totalling 2.2 in weight, and yours is appended to them. `factor: 20.0` is why your tower wins about 90% of the time rather than 1 in 9.
 
     There is no way to narrow an inherited list. If you want *only* your buildings, don't inherit from a style that has any. See [Inheritance](../reference/citystyle.md#inheritance).
 

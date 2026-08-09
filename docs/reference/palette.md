@@ -170,11 +170,16 @@ Besides `rotatable`, five more tags under the `lostcities` namespace affect how 
 
 | Tag | Default contents | Affects |
 |---|---|---|
-| `lostcities:notbreakable` | Bedrock, end portal, end portal frame, end gateway | Explosion/ruin damage always skips these, regardless of `explosionMaxRadius` or ruin settings |
-| `lostcities:easybreakable` | `forge:glass` (all glass) | Breaks more readily under explosion/ruin damage than an untagged block |
-| `lostcities:needspoi` | Villager job-site blocks (barrel, smoker, blast furnace, loom, lectern, and similar) | Marks blocks that need proper point-of-interest registration when placed during generation, so villager AI linkage doesn't silently break |
-| `lostcities:foliage` | Coral, bamboo, logs, leaves, saplings, flowers | Foliage-specific placement/decay handling |
-| `lostcities:lights` | Every block with a light-emission value above 0 | Used wherever the generator needs to know "is this a light source" without a hardcoded list |
+| `lostcities:notbreakable` | 4 blocks: bedrock, end portal, end portal frame, end gateway | Explosion/ruin damage always skips these, regardless of `explosionMaxRadius` or ruin settings |
+| `lostcities:easybreakable` | 39 blocks, listed individually: glass, every stained glass and pane, tinted glass, glowstone, beacon, sea lantern, conduit | Breaks more readily under explosion/ruin damage than an untagged block |
+| `lostcities:needspoi` | 12 villager job-site blocks: barrel, smoker, blast furnace, loom, lectern, and similar | Marks blocks that need proper point-of-interest registration when placed during generation, so villager AI linkage doesn't silently break |
+| `lostcities:foliage` | 6 vanilla tags: leaves, flowers, bamboo blocks, logs, coral plants, saplings | Foliage-specific placement/decay handling |
+| `lostcities:lights` | 44 blocks, listed individually: torches, lanterns, glowstone, sea lantern, froglights, amethyst clusters, lava, fire, and so on | Used wherever the generator needs to know "is this a light source" |
+
+!!! warning "These are hand-written lists, not computed ones"
+    `lights` in particular is a fixed list of 44 vanilla blocks, **not** every block with a light level above zero. `easybreakable` likewise names each glass block individually rather than referencing a glass tag.
+
+    So a modded lamp, a modded glass, or any block added after this tag was written is simply **not** in them, and the generator treats it as an ordinary opaque block. If you build with modded light sources or glass, add them yourself with a tag merge, the same way as `rotatable` above.
 
 ## See also
 
