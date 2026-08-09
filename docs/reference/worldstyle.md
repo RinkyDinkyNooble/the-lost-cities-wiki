@@ -12,7 +12,7 @@
 | `multisettings` | no | Multibuilding placement tuning: `areasize`, `minimum`, `maximum`, `correctstylefactor` (default `0.8`), `attempts` (default `50`). |
 | `settings` | no | `railwayavoidance` (`ignore`/`block_railway`), `railpartheight6`, and `vinewest`/`vineeast`/`vinesouth`/`vinenorth` blockstates for ruin decoration. |
 | `cityspheres` | no | `centerpart`, `centertype`, `centerpartorigin`, `centerpartoffset`. |
-| `scattered` | no | `areasize`, `chance`, `weightnone`, and a `list` of named ScatteredBuilding references + weights (reference page coming soon). |
+| `scattered` | no | `areasize`, `chance`, `weightnone`, and a `list` of named [Scattered Building](scattered.md) references + weights. |
 | `parts` | no | Overrides for default monorail/highway/railway part names. |
 | `citybiomemultipliers` | no | List of `{multiplier, biomes}`, per-biome city density multiplier. |
 
@@ -34,4 +34,5 @@ In a desert biome, `citystyle_desert` is picked twice as often as `citystyle_sta
 
 - [The Content Model](../getting-started/content-model.md)
 - [Matchers](../concepts/matchers.md) for how `biomes`/`if_any`/`excluding` work
+- [Scattered Building Reference](scattered.md) for the `scattered` section
 - [Glossary](../glossary.md)

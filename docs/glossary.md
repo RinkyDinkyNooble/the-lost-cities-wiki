@@ -33,10 +33,10 @@ Profile
 :   A Lost Cities config file (not a datapack file) that picks a world style and sets ~100 generation behavior knobs. See [How It All Connects](getting-started/how-it-connects.md).
 
 World Style
-:   The top-level datapack asset a profile points to. Decides which city styles can appear and where. Full reference: coming soon.
+:   The top-level datapack asset a profile points to. Decides which city styles can appear and where. Full reference: [World Style](reference/worldstyle.md).
 
 City Style
-:   A "theme," building settings, street settings, palettes, and more, bundled together. Full reference: coming soon.
+:   A "theme," building settings, street settings, palettes, and more, bundled together. Full reference: [City Style](reference/citystyle.md).
 
 Codec
 :   The mod's internal parsing logic for a JSON file type. Not something you need to touch, mentioned here only because it's where this wiki's technical accuracy comes from.

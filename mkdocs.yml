@@ -62,9 +62,14 @@ nav:
   - Concepts:
       - Matchers: concepts/matchers.md
       - Streets, Highways, Rails & Monorails: concepts/infrastructure-parts.md
+  - Under the Hood:
+      - How a Chunk Becomes a City: under-the-hood/city-generation.md
+      - The Generation Pipeline: under-the-hood/generation-pipeline.md
+      - Damage, Ruins & Explosions: under-the-hood/damage-and-ruins.md
   - Advanced:
       - KubeJS Integration: advanced/kubejs.md
       - Command Blocks: advanced/command-blocks.md
   - Tooling:
       - Editing & Tooling: tooling/editing.md
+      - Testing & Debugging Commands: tooling/commands.md
   - Glossary: glossary.md

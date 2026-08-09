@@ -23,9 +23,9 @@
 | `blocks` | | Inline weighted list, same shape as a Variant but not reusable elsewhere. |
 | `frompalette` | | Alias to another character's resolved value. See [Namespaces](../getting-started/namespaces.md#the-default-namespace-trap) for the same "bare name" gotcha applying here. |
 | `damaged` | no | Block this maps to when ruined/damaged. Independent of the four above. |
-| `mob` | no | Spawns this mob here. |
-| `loot` | no | Loot table to use here. |
-| `torch` | no | Boolean, special-cased light-level handling. |
+| `mob` | no | **Not a literal mob ID.** Name of a [Condition](condition.md) entry. A real `mob_spawner` block is placed here, and the Condition's resolved value becomes the mob type it spawns. |
+| `loot` | no | Loot table to use here. Rolled lazily, after the whole chunk finishes placing, and only if the block at that exact position is still unmodified at that point. If a later part (a floor above, a ruin pass) overwrites this position first, the loot roll is silently skipped. |
+| `torch` | no | Boolean. A torch character never needs a `facing=` in its `block` string, this is why: torches are queued during placement and given a real attachment (checked against the four cardinal neighbors, then straight down, for the first solid block) in a separate pass after the whole chunk exists. |
 | `tag` | no | Raw NBT compound. This is the mechanism behind command-block palette tricks. |
 
 !!! note "frompalette is an alias, not inheritance"
@@ -62,8 +62,37 @@ Every block placed through a part goes through a neighbor-aware correction pass 
 !!! warning "Forcing an exact stair shape"
     If you need a specific corner shape the auto-correction won't produce, the only reliable workaround is placing it *after* generation finishes, since the correction pass only runs during the terrain-generation call itself. The [Command Blocks](../advanced/command-blocks.md) page shows the pattern: a palette entry that places an auto-firing command block whose command forces the exact block state, bypassing the normal palette-to-block path entirely.
 
+## Rotation and the `lostcities:rotatable` tag
+
+Parts get placed rotated or mirrored, not just as authored. Buildings reuse the same part on multiple sides, and streets/highways/rails reuse the same handful of shapes ([straight, bend, T, and so on](../concepts/infrastructure-parts.md)) in whatever orientation the intersection actually needs. When that happens, a block only rotates along with the part if it's in the `lostcities:rotatable` block tag, or is a rail block (`RailShape` is remapped separately, always).
+
+**Anything not in that tag keeps its original facing when the part is rotated.** By default, `lostcities:rotatable` contains exactly one thing: the vanilla `minecraft:stairs` tag (every vanilla stair block). A door, a furnace, a ladder, a banner, or a modded directional block placed in a palette will look correctly oriented on the side of the building the part was authored for, and wrong on any other side or rotation the same part gets reused on.
+
+!!! tip "Fixing it"
+    Add the block to `lostcities:rotatable` yourself with a normal datapack tag merge, no code or Lost Cities file needed:
+    ```json title="data/<namespace>/tags/blocks/rotatable.json"
+    {
+      "values": ["minecraft:ladder", "minecraft:furnace"]
+    }
+    ```
+    This merges into the existing tag rather than replacing it (same merge behavior as any vanilla block tag).
+
+## Block tags Lost Cities checks
+
+Besides `rotatable`, five more tags under the `lostcities` namespace affect how palette blocks behave. All are ordinary datapack tags, extendable the same way as above.
+
+| Tag | Default contents | Affects |
+|---|---|---|
+| `lostcities:notbreakable` | Bedrock, end portal, end portal frame, end gateway | Explosion/ruin damage always skips these, regardless of `explosionMaxRadius` or ruin settings |
+| `lostcities:easybreakable` | `forge:glass` (all glass) | Breaks more readily under explosion/ruin damage than an untagged block |
+| `lostcities:needspoi` | Villager job-site blocks (barrel, smoker, blast furnace, loom, lectern, and similar) | Marks blocks that need proper point-of-interest registration when placed during generation, so villager AI linkage doesn't silently break |
+| `lostcities:foliage` | Coral, bamboo, logs, leaves, saplings, flowers | Foliage-specific placement/decay handling |
+| `lostcities:lights` | Every block with a light-emission value above 0 | Used wherever the generator needs to know "is this a light source" without a hardcoded list |
+
 ## See also
 
 - [Variant Reference](variant.md)
 - [Style Reference](style.md) for how multiple palettes combine
+- [Condition Reference](condition.md) for what a `mob` field's value actually points at
+- [Streets, Highways, Rails & Monorails](../concepts/infrastructure-parts.md) for where part rotation comes from
 - [Namespaces](../getting-started/namespaces.md)

@@ -35,4 +35,5 @@ Each roll happens once per generated building. All buildings using the same city
 
 ## See also
 
-- [The Content Model](../getting-started/content-model.md) — Palette reference coming soon
+- [The Content Model](../getting-started/content-model.md)
+- [Palette Reference](palette.md) for what a resolved palette actually contains

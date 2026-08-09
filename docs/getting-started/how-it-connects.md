@@ -50,6 +50,8 @@ Two profiles (`bio_wasteland`, `void_outside`) are private, they only define wha
 
     Lost Cities ships `lostcities:lostcity`, its own dimension with a custom chunk generator. Clean if you want cities in a separate world.
 
+    **Getting players in and out**: the mod includes its own two-way gateway, no portal item or command needed. A bed matching a specific block set in the mod's own config (not a profile field), surrounded by skull blocks on both sides and both far corners (any skull type), works as a sleep-to-teleport gateway. Sleeping in it while in the Lost Cities dimension sends you to the Overworld; sleeping in it anywhere else sends you into the Lost Cities dimension (which must already be loaded on the server). This is a real, shipped mechanic, not something you need to build yourself, just place the bed and skulls.
+
 === "Inject into the existing world"
 
     Two Forge biome modifiers ship with the mod, adding Lost Cities generation as a **feature** to any `#minecraft:is_overworld` biome. No custom dimension needed. This is almost certainly what you want if the goal is "ruined cities in my normal world," not "a separate dimension players travel to."

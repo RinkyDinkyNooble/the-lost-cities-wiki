@@ -9,7 +9,7 @@
 |---|---|---|
 | `inherit` | no | Name of another city style. Any field left unset here falls back to that one's value. |
 | `style` | no | Name of a [Style](style.md) (palette combinator). |
-| `stuff_tags` | no | List of tags controlling which StuffObjects can appear (reference page coming soon). Note the underscore, `"all"` is always included automatically. |
+| `stuff_tags` | no | List of tags controlling which [Stuff Objects](stuff.md) can appear. Note the underscore, `"all"` is always included automatically. |
 | `explosionchance` | no | Float. |
 | `generalblocks` | no | Ironbars/glowstone/leaves/rubbledirt override chars. |
 | `buildingsettings` | no | `minfloors`, `mincellars`, `maxfloors`, `maxcellars`, `buildingchance`. Overrides the matching [Profile](profile.md) fields. |
@@ -40,5 +40,6 @@ Everything except `leaves` comes from `citystyle_standard`. Only what you set he
 ## See also
 
 - [Profile Reference](profile.md) for what these fields override
+- [Stuff Object Reference](stuff.md) for `stuff_tags`
 - [The Content Model](../getting-started/content-model.md)
 - [Glossary](../glossary.md)

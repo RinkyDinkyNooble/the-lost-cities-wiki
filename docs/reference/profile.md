@@ -23,6 +23,9 @@
 
 Tables below: **Range** is the valid input window, values outside it get clamped or rejected. A blank Range means it's not a number (text, block ID, list, or true/false).
 
+!!! tip "There's also an in-game screen for this"
+    The "Cities" button on the world-creation screen exposes about 40 of the more common fields from `lostcity`, `explosions`, and `cityspheres` below (chances, floor/cellar counts, explosion tuning, highway/rail toggles) without touching JSON. Handy for quick experiments, but it's session-only, nothing is written to `config/lostcities/profiles/` until the world is actually created. Anything not shown there, including every `spawn*` field, is JSON-only.
+
 ## `lostcity`
 
 ### Identity & terrain
@@ -62,6 +65,9 @@ Tables below: **Range** is the valid input window, values outside it get clamped
 | `spawnCheckRadius` | `200` | 1 – 100000 | Starting search radius (blocks). |
 | `spawnRadiusIncrease` | `100` | 1 – 100000 | Radius growth per failed search pass. |
 | `spawnCheckAttempts` | `20000` | 1 – 1000000 | Max chunks checked before spawn search fails. |
+
+!!! warning "A bad combination of these fields is a hard error, not a fallback"
+    Setting any of `spawnBiome`/`spawnCity`/`spawnSphere`/`spawnNotInBuilding`/`forceSpawnInBuilding`/`forceSpawnBuildings`/`forceSpawnParts` replaces vanilla's spawn search entirely, it doesn't layer on top of it. If the combination you set can't actually be satisfied anywhere within `spawnCheckAttempts` chunks (a `spawnCity`/`spawnSphere` name that doesn't match any [Predefined City/Sphere](predefined.md), or filters that contradict each other), world creation throws and fails outright instead of silently picking an imperfect spot. If a world with custom spawn settings won't generate, check these fields first.
 
 ### Buildings, streets, parks
 

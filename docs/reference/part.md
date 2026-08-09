@@ -44,9 +44,13 @@ One layer, a 4×4 hollow box made of whatever block character `α` maps to in th
 }
 ```
 
-Each entry is a `key` plus exactly one typed value: `boolean`, `char`, `string`, `integer`, or `float`. What actually reads these values isn't confirmed yet, it's flagged for the deeper "how generation behaves" pass, but the field itself is real and safe to set.
+Each entry is a `key` plus exactly one typed value: `boolean`, `char`, `string`, `integer`, or `float`. What actually reads these values is still unconfirmed, a full read of the generation code and its supporting packages turned up no consumer of `meta` anywhere. The field itself is real, parses fine, and is safe to set, it just doesn't appear to do anything in 7.4.12 as far as this wiki has traced. Worth retesting against a future mod version before assuming that's permanent.
+
+## Rotation
+
+A part isn't always placed the way it's authored. Buildings reuse one part on multiple sides of the same structure, and streets/highways/rails reuse a small set of shapes in whatever orientation an intersection needs, so the same part JSON commonly gets placed rotated or mirrored. Most blocks don't reorient when that happens, only stairs and rails do by default. See [Palette Reference: Rotation and the `lostcities:rotatable` tag](palette.md#rotation-and-the-lostcitiesrotatable-tag) if a part uses doors, furnaces, or any other block whose facing matters.
 
 ## See also
 
 - [Building Reference](building.md) for how parts get selected
-- [Palette Reference](palette.md) for what the characters resolve to
+- [Palette Reference](palette.md) for what the characters resolve to, and for the rotation tag
