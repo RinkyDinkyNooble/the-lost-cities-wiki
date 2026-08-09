@@ -31,4 +31,4 @@ Everything in this wiki is verified against Lost Cities **7.4.12** for **Minecra
 
 New to this entirely? Read [How It All Connects](getting-started/how-it-connects.md) first, then follow the tutorial. Nothing else in this wiki will make much sense until you understand that first piece.
 
-Complete working files for everything the tutorial builds are in [`examples/`](https://github.com/RinkyDinkyNooble/lostcities-wiki/tree/main/examples), along with a validator that checks a datapack against the rules documented here.
+Complete working files for everything the tutorial builds are in [Examples](examples/index.md), along with a validator that checks a datapack against the rules documented here.

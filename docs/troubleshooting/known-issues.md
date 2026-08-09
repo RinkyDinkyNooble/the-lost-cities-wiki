@@ -82,7 +82,7 @@ Every numeric profile field has a documented range, and **none of them are enfor
 
 The same is true of every number in every asset file: there is no range validation anywhere in the mod.
 
-**Fix:** treat the ranges on [Profile](../reference/profile.md) as rules you enforce yourself. [`examples/validate.py`](https://github.com/RinkyDinkyNooble/lostcities-wiki/tree/main/examples) checks the ones this wiki documents.
+**Fix:** treat the ranges on [Profile](../reference/profile.md) as rules you enforce yourself. [`validate.py`](../examples/index.md#validatepy) checks the ones this wiki documents.
 
 ## Edits to built-in profiles disappear on restart
 

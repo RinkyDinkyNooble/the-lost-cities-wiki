@@ -4,7 +4,7 @@
 Every check below corresponds to a documented rule. If a check fails here, either
 the datapack is wrong or the wiki page it came from is wrong. Usage:
 
-    python examples/validate.py examples/first-city
+    python docs/examples/validate.py docs/examples/first-city
 """
 import json
 import sys
@@ -110,7 +110,7 @@ def check_stuff(path: Path, data) -> None:
 
 
 def main() -> int:
-    root = Path(sys.argv[1] if len(sys.argv) > 1 else "examples/first-city")
+    root = Path(sys.argv[1] if len(sys.argv) > 1 else Path(__file__).parent / "first-city")
     data_dir = root / "data"
     if not data_dir.is_dir():
         print(f"no data/ directory under {root}")

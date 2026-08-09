@@ -3,7 +3,7 @@
 !!! tip "TL;DR"
     Six files plus one config line gets a building of your own generating in a real world. This page writes all seven, in the order you'd actually write them, and ends with a command that proves it worked.
 
-Everything here is in the repo as a complete, working datapack: [`examples/first-city/`](https://github.com/RinkyDinkyNooble/lostcities-wiki/tree/main/examples/first-city). Copy that if you'd rather read finished files than build them up.
+Everything here is in the repo as a complete, working datapack: [the example bundle](../examples/index.md). Copy that if you'd rather read finished files than build them up.
 
 ## What you're making
 
@@ -89,7 +89,7 @@ A part is one chunk footprint, one floor tall: **16 wide, 16 deep, 6 layers**. `
 }
 ```
 
-The full file is in [`examples/first-city/`](https://github.com/RinkyDinkyNooble/lostcities-wiki/tree/main/examples/first-city). Its layers are: a solid `γ` floor slab, then five layers of `α` wall with a band of `β` windows through the middle two, hollow inside.
+The full file is in [the example bundle](../examples/index.md). Its layers are: a solid `γ` floor slab, then five layers of `α` wall with a band of `β` windows through the middle two, hollow inside.
 
 !!! danger "Count characters, not letters"
     Nothing checks row lengths. A row one character short doesn't error, it shifts every block after it in that layer and comes out as a diagonal smear. And length is counted in UTF-16 units, so an emoji counts as **two** even though your editor and your script both say one. Generate these files with a script and count carefully. See [Part](../reference/part.md).

@@ -95,7 +95,7 @@ Whatever tool you use has to get these right, and none of them are checked by th
 | One code unit per palette character, no emoji | Two different failures at once |
 | A character for every distinct block state used | Crash during generation |
 
-[`examples/validate.py`](https://github.com/RinkyDinkyNooble/lostcities-wiki/tree/main/examples) checks all of these against a finished datapack, so it works as a post-conversion check regardless of which tool produced the files.
+[`validate.py`](../examples/index.md#validatepy) checks all of these against a finished datapack, so it works as a post-conversion check regardless of which tool produced the files.
 
 !!! info "A dedicated converter is in progress"
     A schematic-to-JSON converter is being built alongside this wiki, aimed squarely at the rules above: correct sizing, automatic palette extraction, and validation before you ever load the world. This section will be replaced with a proper guide, including its own limitations, once it's ready to share.
