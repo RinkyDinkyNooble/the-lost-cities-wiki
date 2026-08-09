@@ -31,6 +31,27 @@
 !!! note "frompalette is an alias, not inheritance"
     It copies the *entire* resolved value (one block, or a whole weighted list) from another character, wholesale. There's no partial override, you can't inherit the block but change the loot. Only the first character of the string is used as the lookup, and it resolves once when palettes are merged, not per-placement. `tag`/`mob`/`loot`/`torch`/`damaged` on a `frompalette` entry are still independent, they don't come from the aliased character.
 
+### How aliases resolve, and where it bites
+
+Aliases are resolved after every concrete entry is in place, by repeatedly sweeping the palette set until nothing new can be resolved. Three consequences:
+
+**Chains work, in any order.** `A` aliasing `B` aliasing a real block resolves fine, and it doesn't matter which palette in the merge each link lives in, or what order they're listed.
+
+**An alias follows overrides.** It resolves against the **final merged** value of the target character, not the value it had in the file where the alias was written. If a later palette redefines the target, the alias silently picks up the new block. Usually what you want, occasionally a surprise.
+
+**A concrete definition beats an alias, regardless of order.** This one inverts the normal rule. Everywhere else in palette merging, later wins. But if character `X` is concretely defined in *any* palette in the set, an `X` alias in a *later* palette is skipped entirely. You cannot override a real block with a `frompalette` alias.
+
+!!! warning "Circular references don't hang, they leave the characters undefined"
+    `A` → `B` → `A`, or `A` → `A`, is not an infinite loop and not a stack overflow. The resolver only makes progress when it can attach a character to a value that already exists, so a cycle simply never resolves and the sweep stops.
+
+    The characters are then **missing from the compiled palette**, which surfaces later as a generation crash the first time a part uses one:
+
+    ```
+    Could not find entry 'A' in the palette for part 'mypack:my_part'!
+    ```
+
+    Nothing is logged at load time, so the message points at the part rather than at the palette that's actually broken. If you get that error on a character you're certain you defined, check whether it's an alias in a cycle.
+
 ## What counts as a valid character
 
 Short answer: **almost any character you can type, as long as it's a single UTF-16 code unit (U+0000 to U+FFFF).** Files are read as UTF-8, so Greek, Cyrillic, CJK, box-drawing, arrows, and accented Latin all work, and you can paste them into the JSON literally rather than escaping them.

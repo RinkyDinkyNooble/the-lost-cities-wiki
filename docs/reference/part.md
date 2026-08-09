@@ -52,15 +52,56 @@ Each floor of a building occupies **6 blocks** of vertical space, and parts are 
 
 ## `meta`
 
-```json
-{
-  "meta": [
-    { "key": "loot_tier", "string": "rare" }
-  ]
-}
+Each entry is a `key` plus exactly one typed value: `boolean`, `char`, `string`, `integer`, or `float`. Unknown keys are accepted and ignored, but **five keys are real and read by the generator.** Two of them are mandatory for certain kinds of part, so this is not optional decoration.
+
+| Key | Type | Applies to | Effect |
+|---|---|---|---|
+| `support` | char | Highway and bridge parts | Palette character for the support pillars underneath. |
+| `z1` / `z2` | integer | Stair parts | The Z range along the part's edge that the staircase occupies. |
+| `dontconnect` | boolean | Building floor parts | `true` blocks doorways to the neighbouring chunk. |
+| `nowater` | boolean | Any part | `true` keeps "hard air" dry below sea level instead of flooding. |
+
+### `support`
+
+```json title="highway_bridge.json, as shipped"
+{ "meta": [ { "key": "support", "char": "v" } ] }
 ```
 
-Each entry is a `key` plus exactly one typed value: `boolean`, `char`, `string`, `integer`, or `float`. What actually reads these values is still unconfirmed, a full read of the generation code and its supporting packages turned up no consumer of `meta` anywhere. The field itself is real, parses fine, and is safe to set, it just doesn't appear to do anything in 7.4.12 as far as this wiki has traced. Worth retesting against a future mod version before assuming that's permanent.
+Where the highway or bridge crosses open space, the generator drops pillars of this character downward until it hits something solid (up to 40 blocks). Suppressed by the profile's `highwaySupports` / `bridgeSupports`. All eight shipped highway and bridge parts use `v`.
+
+!!! danger "An undefined `support` character crashes chunk generation"
+    `Cannot find support block 'v' for highway part '<name>'!` Omitting `support` entirely is safe, you just get a highway with nothing holding it up.
+
+### `z1` / `z2`
+
+```json title="stairsnormal.json, as shipped"
+{ "meta": [ { "key": "z1", "integer": 5 }, { "key": "z2", "integer": 10 } ] }
+```
+
+Marks where the staircase meets the chunk edge, so the street border in the **adjacent** chunk leaves a gap there instead of walling the stairs off. Both are Z coordinates in the 0–15 range. The four shipped stair parts use `0/2`, `13/15`, `4/11`, and `5/10`.
+
+!!! danger "A stair part without `z1` and `z2` crashes chunk generation"
+    The neighbouring chunk reads both values with no null check while deciding its border. Any part you put in a city style's `stairs` selector **must** define both.
+
+### `dontconnect`
+
+```json
+{ "meta": [ { "key": "dontconnect", "boolean": true } ] }
+```
+
+Set on a floor part to suppress doorways between it and neighbouring chunks, in both directions. All 14 shipped `shopping*` parts use it: they're interior mall sections that should connect only through their own openings, not have generic doorways punched through.
+
+### `nowater`
+
+```json
+{ "meta": [ { "key": "nowater", "boolean": true } ] }
+```
+
+"Hard air" below the water level normally fills with water. `nowater` keeps it dry. All three shipped `monorails_*` parts use it, so a monorail crossing an ocean stays an open tube.
+
+### Any other key
+
+Parses, is stored, and nothing in 7.4.12 reads it. Companion mods can read it through the API, so it's a reasonable place to hang your own data. Just don't expect Lost Cities to act on it.
 
 ## Rotation
 

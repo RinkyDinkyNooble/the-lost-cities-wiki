@@ -6,6 +6,24 @@
 !!! note "In-game editing isn't covered here"
     Lost Cities also ships commands for live in-world editing (`createpart`, `editpart`, `resumeedit`, `exportpart`, `listparts`, `locatepart`). That workflow isn't documented on this wiki yet.
 
+    There's one more, `testfill`, which drops a 5×5×5 blob of random block states around you. It's a developer scratch command with no authoring use.
+
+## Seeing your changes
+
+**There is no regenerate command.** Lost Cities ships nothing that rebuilds an existing chunk, and it registers no datapack reload listener, so:
+
+| What you do | Does it pick up edited assets? |
+|---|---|
+| `/reload` | **No.** These registries are read once at world load. Vanilla doesn't reload them either. |
+| Leave the world, rejoin (single player) | **Yes.** Logging out clears the mod's asset cache, so the next world load re-reads every file. |
+| Restart the dedicated server | **Yes.** |
+| Fly back to an already-generated chunk | **No, ever.** That chunk is saved to disk. Nothing regenerates it. |
+
+So the loop is: edit files, quit to title, rejoin, **travel somewhere new** (or delete the region files, or start a fresh world). Testing in a throwaway world is usually faster than trying to invalidate an existing one.
+
+!!! tip "Use `createbuilding` to skip the loop for a single building"
+    [`/lostcities createbuilding`](#placing-a-specific-building-on-demand) places a building on the spot without waiting for city generation to roll it. It still reads the assets loaded at world load, so you'd rejoin first, but you don't have to go hunting for a chunk that happens to pick your building.
+
 ## Getting a real profile template
 
 ```
