@@ -1,13 +1,22 @@
+---
+status: in-progress
+---
+
 # Editing & Tooling
+
+!!! info "This page is still being written"
+    A full write-up of the recommended authoring workflow is planned. What's here is accurate, just not complete yet.
 
 Two ways to actually build content: edit in-game, or build in Minecraft normally and convert.
 
 ## In-game edit mode
 
-Set `editMode: true` in your [profile](../reference/profile.md)'s `lostcity` section. This puts the world in a special editing state where you build directly and the mod has commands to save what you built back out to JSON.
+Set `editMode: true` in your [profile](../reference/profile.md)'s `lostcity` section. This puts the world in a special editing state where you build directly and the mod has commands to save what you built back out to JSON. It has to be set **before the world is created**, it can't be turned on for an existing world and work retroactively.
 
-!!! warning "Not fully verified yet"
-    We haven't traced the editor's actual behavior in code yet, only confirmed the flag exists and does something. Treat this section as a pointer, not a full guide, until it's been tested and written up properly.
+!!! warning "Deliberately not documented here yet"
+    The editor's behavior has been traced in the mod's code, and the workflow has some sharp edges worth knowing about before relying on it: the active editing session lives only in server memory and doesn't survive a restart, and the two commands for resuming an edit behave very differently (one silently discards your unsaved in-world changes before reopening). There's also a case where two palette characters that map to the same block get collapsed into one on export, losing a distinction you authored deliberately.
+
+    None of that makes it useless, but it does mean a half-explained guide would cost people work. A proper write-up with the specific pitfalls is planned rather than a quick pointer. Until then, export early and often, and keep your JSON as the source of truth.
 
 ## Building normally, then converting
 

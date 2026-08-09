@@ -25,6 +25,13 @@ theme:
     - content.code.copy
     - toc.follow
 
+extra:
+  status:
+    in-progress: Still being written, more content planned
+
+extra_css:
+  - stylesheets/extra.css
+
 markdown_extensions:
   - admonition
   - def_list

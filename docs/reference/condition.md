@@ -15,6 +15,9 @@
 
 All matching entries get collected, then one `value` is picked at random, weighted by `factor`.
 
+!!! note "Weighted here, unweighted in a Building"
+    These same test fields are reused by [Building](building.md) part references, but the selection isn't the same. A `Condition` asset weights its candidates by `factor`. A Building's `parts` list has no `factor` at all, every matching part is equally likely.
+
 ## The shared test fields
 
 Used by `Condition` entries and, separately, by every part reference inside a [Building](building.md).
@@ -34,7 +37,9 @@ Used by `Condition` entries and, separately, by every part reference inside a [B
 | `inbuilding` | string or list | Current building name is in this set |
 | `inbiome` | string or list | Current biome is in this set |
 
-All optional. No fields set = always matches.
+All optional. **Setting several fields on one entry means all of them must pass** (they're AND-ed, never OR-ed). To express "either A or B", write two separate entries.
+
+No fields set at all = always matches. That's not a degenerate case, it's the standard way to write a fallback: an unconditioned entry guarantees something always matches, which is exactly what prevents the [missing-part crash](building.md#floor-coverage-the-most-common-crash) on buildings.
 
 ## Example
 

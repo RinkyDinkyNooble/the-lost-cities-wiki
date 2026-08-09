@@ -7,7 +7,7 @@
 
 | Key | Required | Meaning |
 |---|---|---|
-| `xsize` / `zsize` | **yes** | Footprint size in blocks. Almost always `16`/`16`. |
+| `xsize` / `zsize` | **yes** | Footprint size in blocks. Should be `16`/`16`, see the warning below. |
 | `slices` | **yes** | List of layers (bottom to top), each a list of row strings. |
 | `refpalette` | no | Shared palette name. |
 | `palette` | no | Embedded palette instead. |
@@ -33,6 +33,15 @@ One entry per Y layer. Each layer is `zsize` strings, each string `xsize` charac
 ```
 
 One layer, a 4×4 hollow box made of whatever block character `α` maps to in the palette.
+
+!!! warning "Sizes other than 16×16 are accepted but not safe"
+    A part declaring e.g. `xsize: 32` loads without complaint, then generates wrong. Rotation math assumes a 16-wide footprint, and writes past column 15 wrap back into the same chunk rather than continuing into the next one, so an oversized part silently overwrites its own first columns. There's no error and nothing in the log.
+
+    Parts are meant to fill exactly one chunk footprint. To cover a larger area, use a [Multi-Building](multibuilding.md), which is the supported way to span several chunks. Smaller-than-16 parts have the same rotation problem and are equally unsupported.
+
+## Slices, floors, and height
+
+Each floor of a building occupies **6 blocks** of vertical space, and parts are stacked at 6-block intervals. A part with more than 6 slices will have its upper slices overwritten by the floor above; one with fewer leaves a gap. Match your slice count to 6 unless you know exactly what you're doing.
 
 ## `meta`
 
