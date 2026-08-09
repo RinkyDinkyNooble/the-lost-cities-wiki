@@ -1,7 +1,7 @@
 # Building Part Reference
 
 !!! tip "TL;DR"
-    `parts/<name>.json`. The actual 16×16×N block grid. This is what [main.py](https://github.com/RinkyDinkyNooble/abza3) in this wiki's companion tooling generates from a schematic.
+    `parts/<name>.json`. The actual 16×16×6 block grid, one chunk footprint and one floor level. This is the file a schematic converter produces. See [Editing & Tooling](../tooling/editing.md) for ways to generate one without typing it by hand, and [Examples](../examples/index.md) for a complete working part.
 
 ## Fields
 
