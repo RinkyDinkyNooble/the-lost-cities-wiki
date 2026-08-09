@@ -15,7 +15,7 @@ status: in-progress
 Confirmed from the mod's own source: every Lost Cities asset type (world styles, city styles, buildings, and the rest) is registered as a real Minecraft dynamic registry entry, loaded the same way as vanilla recipes or loot tables, not through some Lost-Cities-specific file loader. Anything that can inject datapack JSON can add Lost Cities content. KubeJS's `data` folder is one of the simplest ways to do that inside a single modpack, since it needs no separate datapack zip or folder structure.
 
 ```
-kubejs/data/<namespace>/lostcities/lostcities/worldstyles/mystyle.json
+kubejs/data/<namespace>/lostcities/worldstyles/mystyle.json
 ```
 
 Same file, same content, same rules as writing it directly into a datapack. No JS required, it's a plain JSON file KubeJS picks up automatically.
