@@ -17,7 +17,7 @@
 
 | Key | Required | Meaning |
 |---|---|---|
-| `char` | **yes** | Single character. Must be unique within the merged palette set it's used in. |
+| `char` | **yes** | Single character. Must be unique within the merged palette set it's used in. See [What counts as a valid character](#what-counts-as-a-valid-character). |
 | `block` | one of these four | A fixed block state string. |
 | `variant` | | Name of a [Variant](variant.md), a shared weighted block list. |
 | `blocks` | | Inline weighted list, same shape as a Variant but not reusable elsewhere. |
@@ -30,6 +30,72 @@
 
 !!! note "frompalette is an alias, not inheritance"
     It copies the *entire* resolved value (one block, or a whole weighted list) from another character, wholesale. There's no partial override, you can't inherit the block but change the loot. Only the first character of the string is used as the lookup, and it resolves once when palettes are merged, not per-placement. `tag`/`mob`/`loot`/`torch`/`damaged` on a `frompalette` entry are still independent, they don't come from the aliased character.
+
+## What counts as a valid character
+
+Short answer: **almost any character you can type, as long as it's a single UTF-16 code unit (U+0000 to U+FFFF).** Files are read as UTF-8, so Greek, Cyrillic, CJK, box-drawing, arrows, and accented Latin all work, and you can paste them into the JSON literally rather than escaping them.
+
+`char` is declared as a JSON *string*, not a character, and the mod keeps only its **first UTF-16 code unit**. Nothing validates the rest:
+
+| You write | What actually gets registered |
+|---|---|
+| `"α"` | `α`. Normal case. |
+| `"ab"` | `a`. The `b` is silently discarded, no warning. |
+| `"字"` | `字`. Any Basic Multilingual Plane character is fine. |
+| `""` | Crash at datapack load (string index out of range). |
+| `"😀"` | **Not the emoji.** See below. |
+
+Every "character" field in every Lost Cities file behaves this way, not just palettes: `filler`, `rubble`, and the city style block characters all take the first code unit of a string.
+
+!!! danger "Emoji and other characters above U+FFFF are broken, in two separate ways"
+    Java strings are UTF-16, so anything above U+FFFF (emoji, most rare CJK, musical symbols) is stored as a **surrogate pair**: two code units for one character.
+
+    1. **In a palette**, only the first half is kept. Every emoji in the same 1024-code-point range collapses onto the *same* key, so 🚗 and 🚙 would overwrite each other.
+    2. **In a part's `slices`**, that character occupies **two** positions instead of one, shifting every block after it in that layer by one column.
+
+    The second one is the dangerous one for anyone generating parts with a script. Python and JavaScript count an emoji as length 1, so your generator writes what it thinks is a 16-character row while the mod reads 17 code units. The output looks correct in the file and comes out diagonally smeared in-game.
+
+    **Stay inside U+0000 to U+FFFF and this can't happen.**
+
+### Which characters to actually pick
+
+The mod's own `/lc exportpart` command assigns characters to new blocks from a fixed pool, exhausting each tier before moving to the next. It's a reasonable list to copy:
+
+| Tier | Range | Count |
+|---|---|---|
+| 1 | Printable ASCII, except space, `"` and `\` (listed below) | 92 |
+| 2 | U+0370 to U+03FF, Greek and Coptic (`α β γ Δ Ω`) | 144 |
+| 3 | U+0400 to U+04FF, Cyrillic (`а б в Я Ж`) | 256 |
+
+```text title="Tier 1, in the exact order the exporter tries them"
+abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{}|;:'<>,.?/`~
+```
+
+492 characters total, far more than any part will need. The two ASCII omissions are deliberate: `"` and `\` both need escaping inside a JSON string, which is an easy way to break a hand-written generator. Space is omitted because it already means air.
+
+!!! tip "Prefer non-ASCII for your own entries"
+    Your palette gets merged with the mod's, and a collision silently replaces the other entry rather than erroring. A merged palette for the standard style already claims **56 characters**, mostly ASCII. Starting your custom entries in the Greek or Cyrillic range keeps you clear of anything the mod adds later.
+
+### Collisions and merge order
+
+`char` only has to be unique within the **merged** palette a part actually sees, which is built in this order, each step overwriting the one before it:
+
+1. The [Style](style.md)'s palettes, merged in the order the `randompalettes` groups are listed
+2. The [Building](building.md)'s own `palette`, if it has one
+3. The [Part](part.md)'s `palette` or `refpalette`, if it has one
+
+So a part-local palette always wins, and a later `randompalettes` group beats an earlier one. There is no warning on collision, the newer entry just replaces the older one.
+
+An undefined character is not silently ignored. It throws during chunk generation:
+
+```
+Could not find entry 'ß' in the palette for part 'mypack:my_part'!
+```
+
+!!! note "Space is not hardcoded to air"
+    `" "` maps to `minecraft:air` because the shipped `common` palette says so, and every shipped style lists `common` first. It is not a rule in the code.
+
+    There is one genuine special case: a column that is **entirely** spaces from top to bottom is skipped without ever being looked up. So a part full of spaces won't crash even with no space entry, but a wall with a doorway in it will. If you write a style from scratch, include `common` or define `" "` yourself.
 
 ## The 128-slot rule for `blocks` and `variant`
 

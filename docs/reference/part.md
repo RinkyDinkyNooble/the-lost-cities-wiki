@@ -15,7 +15,7 @@
 
 ## `slices` shape
 
-One entry per Y layer. Each layer is `zsize` strings, each string `xsize` characters long. Every character is a palette lookup, space (`" "`) always means air.
+One entry per Y layer. Each layer is `zsize` strings, each string `xsize` characters long. Every character is a [palette](palette.md) lookup, and space (`" "`) means air in practice because the shipped `common` palette defines it that way.
 
 ```json
 {
@@ -33,6 +33,13 @@ One entry per Y layer. Each layer is `zsize` strings, each string `xsize` charac
 ```
 
 One layer, a 4×4 hollow box made of whatever block character `α` maps to in the palette.
+
+!!! warning "Row lengths are never checked"
+    The rows of a layer are **concatenated into one flat string** at load, then indexed as `row * xsize + column`. Nothing verifies that a row is `xsize` long or that a layer has `zsize` rows.
+
+    A row that's one character short doesn't error, it pulls the next row's first character into its last slot and shifts **everything after it in that layer** by one. The result is a diagonal smear that looks like a generation bug rather than a typo. If the layer ends up shorter than `xsize × zsize` in total, you get a string index crash during chunk generation instead.
+
+    Count in **UTF-16 code units**, not characters. An emoji counts as two, which is the same off-by-one from a source your editor won't show you. See [Palette: what counts as a valid character](palette.md#what-counts-as-a-valid-character).
 
 !!! warning "Sizes other than 16×16 are accepted but not safe"
     A part declaring e.g. `xsize: 32` loads without complaint, then generates wrong. Rotation math assumes a 16-wide footprint, and writes past column 15 wrap back into the same chunk rather than continuing into the next one, so an oversized part silently overwrites its own first columns. There's no error and nothing in the log.
