@@ -48,7 +48,7 @@ mkdocs build --strict && python docs/examples/validate.py
 
 Corrections are very welcome, especially ones backed by the mod's actual behaviour. If a page is wrong, saying **what you observed** and **which version** is more useful than anything else.
 
-Four pages are marked in-progress in the navigation. Each says what's still missing rather than pretending to be complete.
+Four pages are marked in-progress in the navigation. Each says what's still missing.
 
 ## Licence
 
