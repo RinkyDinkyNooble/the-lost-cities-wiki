@@ -1,5 +1,10 @@
 site_name: Lost Cities Wiki
 site_description: An in-depth, community-facing guide to building custom cities with the Lost Cities Minecraft mod.
+site_url: https://rinkydinkynoble.github.io/the-lost-cities-wiki/
+repo_url: https://github.com/RinkyDinkyNooble/the-lost-cities-wiki
+repo_name: the-lost-cities-wiki
+edit_uri: edit/main/docs/
+copyright: Released under CC0 1.0. Lost Cities is by McJty; this is an unofficial guide.
 
 theme:
   name: material
@@ -23,7 +28,10 @@ theme:
     - search.suggest
     - search.highlight
     - content.code.copy
+    - content.action.edit
     - toc.follow
+  icon:
+    repo: fontawesome/brands/github
 
 extra:
   status:
