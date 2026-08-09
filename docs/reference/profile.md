@@ -54,9 +54,30 @@ Tables below: **Range** is the window the mod was designed and tested against, a
 | `terrainFixLowerMaxOffset` | `-3` | -40 – 40 | Upper end of that same offset range. |
 | `terrainFixUpperMinOffset` | `-1` | -40 – 40 | Upper-mesh offset for lowering adjacent terrain. |
 | `terrainFixUpperMaxOffset` | `1` | -40 – 40 | Upper end of that same offset range. |
-| `avoidWater` | `false` | | Replace all water with air. |
-| `editMode` | `false` | | Enables the in-game edit mode. |
-| `generateNether` | `false` | | Generate the Nether using the cavern-style generator. |
+| `avoidWater` | `false` | | If `true`, any block a **part** places that is the profile's liquid becomes air instead. Narrower than it sounds, see the note below. |
+| `editMode` | `false` | | If `true`, the world records which part it placed where, enabling the [editor commands](../tooling/editing.md). Must be set before the world is created. |
+| `generateNether` | `false` | | If `true`, the Nether is generated with the cavern-style generator instead of vanilla. |
+
+!!! warning "`avoidWater` is narrower than its name and its official description"
+    The mod's own config comment says *"all water will be avoided (replaced with air)"*. In 7.4.12 it has **exactly one** effect: while a part is being placed, a block that resolves to the profile's liquid becomes air instead.
+
+    | | |
+    |---|---|
+    | Palette characters mapping to water, inside your parts | **Removed** |
+    | Natural oceans, rivers, lakes, aquifers | **Untouched** |
+    | The water that fills "hard air" below sea level | **Untouched by this flag**, see below |
+
+    So it drains *your buildings*, not *the world*. If you want a dry world you need terrain settings, not this.
+
+!!! warning "`avoidFoliage` also controls water, which its name doesn't suggest"
+    "Hard air" is a special palette result that becomes water when it sits below the chunk's water level, which is what floods the lower storeys of a coastal building.
+
+    The check that decides this reads **`avoidFoliage`**, not `avoidWater`:
+
+    - `avoidFoliage: true` → hard air stays air, even below sea level
+    - `avoidFoliage: false` → hard air floods, regardless of `avoidWater`
+
+    That looks like a mix-up in the mod rather than a deliberate design, but it is what 7.4.12 does. If you're trying to stop buildings flooding, `avoidFoliage: true` is the flag that works, at the cost of trees and flowers in parks. The per-part [`nowater` meta](part.md#nowater) does the same thing for one part without that cost.
 
 ### Spawn
 
@@ -65,8 +86,8 @@ Tables below: **Range** is the window the mod was designed and tested against, a
 | `spawnBiome` | `""` | | Force spawn in this biome. Empty = no restriction. |
 | `spawnCity` | `""` | | Force spawn in this predefined city. |
 | `spawnSphere` | `""` | | Force spawn in this predefined sphere. `<in>` = any sphere, `<out>` = outside every sphere. |
-| `spawnNotInBuilding` | `false` | | Never spawn inside a building. |
-| `forceSpawnInBuilding` | `false` | | Always spawn inside a building. |
+| `spawnNotInBuilding` | `false` | | If `true`, the spawn search rejects any position inside a building. |
+| `forceSpawnInBuilding` | `false` | | If `true`, the spawn search only accepts positions inside a building. |
 | `forceSpawnBuildings` | `[]` | | Restrict to these building names. Empty = any. |
 | `forceSpawnParts` | `[]` | | Restrict to these part names. Empty = any. |
 | `spawnCheckRadius` | `200` | 1 – 100000 | Starting search radius (blocks). |
@@ -93,15 +114,15 @@ Tables below: **Range** is the window the mod was designed and tested against, a
 | `buildingDoorwayChance` | `0.6` | 0 – 1 | Chance of a doorway per eligible side/level. |
 | `buildingFrontChance` | `0.2` | 0 – 1 | Chance a building uses its "front" part next to a street. |
 | `parkChance` | `0.2` | 0 – 1 | Chance a non-building section is a park. |
-| `parkElevation` | `true` | | Parks get an extra elevation layer. |
-| `parkBorder` | `true` | | Park border uses the street block. |
+| `parkElevation` | `true` | | If `true`, parks get an extra layer of elevation. `false` leaves them flush with the street. |
+| `parkBorder` | `true` | | If `true`, a park's border uses the street block as its base. |
 | `parkStreetThreshold` | `3` | 0 – 8 | Surrounding-street count needed for a park. |
 | `fountainChance` | `0.05` | 0 – 1 | Chance a street section has a fountain. |
 | `corridorChance` | `0.7` | 0 – 1 | Chance a chunk can be a corridor (also needs adjacent corridors). |
 | `bridgeChance` | `0.7` | 0 – 1 | Chance a chunk can be a bridge. |
-| `bridgeSupports` | `true` | | Generate bridge supports. |
-| `multiUseCorner` | `false` | | Multi-buildings use only their top-left corner's level, not a surrounding average. |
-| `useAvgHeightmap` | `false` | | Sample surrounding heightmaps for city level (slower, more accurate). |
+| `bridgeSupports` | `true` | | If `true`, bridges get support pillars where needed. Set `false` for bridges that span void. |
+| `multiUseCorner` | `false` | | If `true`, a multi-building takes its level from its top-left corner only. `false` averages the surrounding level. |
+| `useAvgHeightmap` | `false` | | If `true`, city level is averaged from surrounding heightmaps. More accurate, and slower, since it has to fetch neighbouring chunks. |
 | `scatteredChanceMultiplier` | `1.0` | 0 – 100 | Multiplier on scattered-building chance. `0` disables them. |
 
 !!! example "The floor-count formula"
@@ -120,8 +141,8 @@ Tables below: **Range** is the window the mod was designed and tested against, a
 | `vineChance` | `0.009` | 0 – 1 | Chance an exterior block gets a vine. |
 | `randomLeafBlockChance` | `0.1` | 0 – 1 | Chance of leaf blocks at building/street borders. |
 | `randomLeafBlockThickness` | `2` | 1 – 8 | How thick that leaf border looks. |
-| `avoidFoliage` | `false` | | Remove trees/flowers from parks. |
-| `rubbleLayer` | `true` | | Enable the overgrown dirt/stone/sand + leaf rubble layer. |
+| `avoidFoliage` | `false` | | If `true`, parks generate with no trees or flowers. **Also stops hard-air filling with water**, see the note below. |
+| `rubbleLayer` | `true` | | If `true`, the alternative dirt/stone/sand plus leaves layer generates, making cities look more overgrown. |
 | `rubbleDirtScale` | `3.0` | 0 – 100 | Noise scale for the dirt rubble layer. Smaller = broader coverage. `0` disables it. |
 | `rubbleLeaveScale` | `6.0` | 0 – 100 | Same, for the leaf rubble layer. |
 | `ruinChance` | `0.05` | 0 – 1 | Chance a building is ruined. |
@@ -132,26 +153,26 @@ Tables below: **Range** is the window the mod was designed and tested against, a
 
 | Key | Default | Range | Meaning |
 |---|---|---|---|
-| `highwayRequiresTwoCities` | `true` | | `false` allows a highway with only one valid city end. |
+| `highwayRequiresTwoCities` | `true` | | If `true`, a highway needs a valid city at **both** ends. `false` lets one city be enough. |
 | `highwayLevelFromCities` | `0` | 0 – 3 | `0` top-left city's height, `1` min of both, `2` max of both, `3` average. |
 | `highwayDistanceMask` | `7` | ≥ 0 | Spacing bitmask, must be a power of two minus one (`0`, `1`, `3`, `7`, `15`...). `0` disables highways. |
 | `highwayMainPerlinScale` | `50.0` | 1 – 1000 | Noise scale, main axis. |
 | `highwaySecondaryPerlinScale` | `10.0` | 1 – 1000 | Noise scale, cross axis. |
 | `highwayPerlinFactor` | `2.0` | -100 – 100 | Noise threshold. `0` ≈ 50% chance. Higher suppresses highways. |
-| `highwaySupports` | `true` | | Generate highway supports. |
+| `highwaySupports` | `true` | | If `true`, highways get support pillars where needed. Set `false` for highways that span void. |
 | `railwayDungeonChance` | `0.01` | 0 – 1 | Chance a chunk next to a railway gets a dungeon. |
-| `railwaysCanEnd` | `false` | | Allow a dead-end rail part where a station would've been. |
-| `railwaysEnabled` | `true` | | Enable rail lines (stations are separate). |
-| `railwayStationsEnabled` | `true` | | Enable stations. |
-| `railwaySurfaceStationsEnabled` | `true` | | Allow surface (not just underground) stations. |
+| `railwaysCanEnd` | `false` | | If `true`, a spot that would have been a station but has no city above gets a dead-end rail part instead. Useful when cities are rare. |
+| `railwaysEnabled` | `true` | | If `false`, no rail lines generate. Stations still do, they're gated separately. |
+| `railwayStationsEnabled` | `true` | | If `false`, no railway stations generate. |
+| `railwaySurfaceStationsEnabled` | `true` | | If `false`, only underground stations generate, never surface ones. |
 
 ### Loot & misc
 
 | Key | Default | Range | Meaning |
 |---|---|---|---|
-| `generateSpawners` | `true` | | Buildings can contain spawners. |
-| `generateLoot` | `true` | | Chests can contain loot. |
-| `generateLighting` | `false` | | Add minimal building lighting. |
+| `generateSpawners` | `true` | | If `false`, no spawners are placed even where a palette asks for them. |
+| `generateLoot` | `true` | | If `false`, chests generate empty even where a palette sets a `loot` table. |
+| `generateLighting` | `false` | | If `true`, torch palette entries are actually placed. **If `false`, every `torch` entry becomes air**, so buildings are unlit. |
 | `chestWithoutLootChance` | `0.2` | 0 – 1 | Chance an eligible chest is empty. |
 | `buildingWithoutLootChance` | `0.2` | 0 – 1 | Chance a building has neither loot nor spawners. |
 
@@ -172,7 +193,7 @@ Tables below: **Range** is the window the mod was designed and tested against, a
 | `citySpawnMultiplier2` | `1.0` | 0 – 1 | City factor at the second distance. |
 | `cityStyleThreshold` | `-1.0` | disabled at -1, else 0 – 1 | Below this city factor, use `cityStyleAlternative` instead. |
 | `cityStyleAlternative` | `""` | | The alternative city style name. |
-| `cityAvoidVoid` | `true` | | Floating landscape only: skip cities detected over void. |
+| `cityAvoidVoid` | `true` | | `floating` landscape only. If `true`, a chunk detected as void gets no city, which stops cities hanging off island edges. |
 | `cityLevel0Height` … `cityLevel7Height` | `75, 83, 91, 99, 107, 115, 123, 131` | 1 – 384 each | Terrain-height cutoffs assigning a city to level 0–7. |
 | `cityMinHeight` | `50` | -1024 – 2048 | No cities below this Y. |
 | `cityMaxHeight` | `150` | -1024 – 2048 | No cities above this Y. |
@@ -194,7 +215,7 @@ Normal and mini explosions are independent settings.
 | `miniExplosionMaxRadius` | `12` | 1 – 3000 | Max radius. |
 | `miniExplosionMinHeight` | `60` | 1 – 256 | Min Y. |
 | `miniExplosionMaxHeight` | `100` | 1 – 256 | Max Y. |
-| `explosionsInCitiesOnly` | `true` | | Blast center must be in a city (blast itself can still reach outside). |
+| `explosionsInCitiesOnly` | `true` | | If `true`, an explosion's centre can only be in a city chunk. The blast radius reaches outside it either way. |
 | `debrisToNearbyChunkFactor` | `200` | 1 – 10000 | Debris spillover from nearby damaged chunks. Higher = less spillover. |
 
 ## `cityspheres`
@@ -207,16 +228,16 @@ Mostly relevant to `space`, `spheres`, and `cavernspheres` landscape types.
 | `citySphereChance` | `0.7` | 0 – 1 | Chance a city gets a sphere. |
 | `citySphereClearAbove` | `0` | 0 – 1024 | Blocks cleared above the sphere. `0` disables. |
 | `citySphereClearBelow` | `0` | 0 – 1024 | Blocks cleared below the sphere. `0` disables. |
-| `citySphereClearAboveUntilAir` | `false` | | Keep clearing above past the fixed amount until air. |
-| `citySphereClearBelowUntilAir` | `false` | | Same, below. |
+| `citySphereClearAboveUntilAir` | `false` | | If `true`, clearing continues above whatever `citySphereClearAbove` removed, until it reaches air. |
+| `citySphereClearBelowUntilAir` | `false` | | If `true`, the same downward, continuing past `citySphereClearBelow` until it reaches air. |
 | `sphereSurfaceVariation` | `1.0` | 0 – 1 | Terrain variation inside spheres. Smaller = more varied. |
 | `outsideSurfaceVariation` | `1.0` | 0 – 1 | Same, outside spheres. |
 | `monorailChance` | `0.8` | 0 – 1 | Chance a sphere requests a monorail connection each direction (needs a matching neighbor). |
 | `monorailOffset` | `-2` | -100 – 100 | Monorail height offset relative to the sphere. |
-| `onlyPredefined` | `false` | | Only generate spheres from predefined assets, no random ones. |
+| `onlyPredefined` | `false` | | If `true`, only [predefined](predefined.md) spheres generate and none are placed randomly. |
 | `outsideProfile` | `""` | | Profile used for terrain outside the spheres. See [connects page](../getting-started/how-it-connects.md). |
 | `outsideGroundLevel` | `-1` | -1 – 256 | **Deprecated**, use `groundLevel` on `outsideProfile` instead. |
-| `grid32` | `false` | | Align spheres to a 32×32 grid instead of 16×16. |
+| `grid32` | `false` | | If `true`, city spheres align to a 32×32 chunk grid. `false` uses 16×16. |
 
 ## `client`
 

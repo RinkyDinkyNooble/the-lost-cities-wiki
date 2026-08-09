@@ -80,6 +80,15 @@ Floor numbering:
 | Ground floor | `0` |
 | Top floor | `floors` |
 
+!!! important "`maxfloors: 3` is a four-storey building"
+    The count is the **top index**, not the number of levels. Levels run `-cellars` up to `floors` inclusive, and `0` is the ground floor, so `floors: 3` gives you indices 0, 1, 2, 3, which is **ground plus three above it**. Same for cellars: `maxcellars: 1` adds one level at index `-1`.
+
+    `top: true` does **not** add a level on top of that. It's a test that passes on whichever index is currently highest, so with `floors: 3` it matches index 3, the exact same level `"floor": 3` matches.
+
+    That has a consequence worth knowing: if you write both a `"floor": 3` part and a `top: true` part, **both match at index 3** and one is picked at random, 50/50. If you meant the top part to win there, either drop the `"floor": 3` entry or narrow it with `"floor": 3, "top": false`.
+
+    You **can** combine `top` with a number. The fields are AND-ed, so `{"part": "roof", "top": true, "floor": 3}` means "the top level, but only when the building is exactly four storeys tall". Handy for a roof that only suits one height.
+
 Every level from `-cellars` up to and including `floors` is filled in one pass. For each one, the mod collects every entry in `parts` whose conditions match that level and picks one at random. **If nothing matches, generation throws:**
 
 ```
