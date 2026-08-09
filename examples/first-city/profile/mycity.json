@@ -1,0 +1,12 @@
+{
+  "lostcity": {
+    "worldStyle": "mycity:mycity",
+    "description": "First custom city example",
+    "buildingMinFloors": 2,
+    "buildingMaxFloors": 5,
+    "ruinChance": 0.2
+  },
+  "cities": {
+    "cityChance": 0.05
+  }
+}

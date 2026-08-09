@@ -1,0 +1,25 @@
+{
+  "palette": [
+    {
+      "char": "α",
+      "block": "minecraft:light_gray_concrete",
+      "damaged": "minecraft:cracked_stone_bricks"
+    },
+    {
+      "char": "β",
+      "block": "minecraft:light_blue_stained_glass"
+    },
+    {
+      "char": "γ",
+      "block": "minecraft:smooth_stone"
+    },
+    {
+      "char": "δ",
+      "block": "minecraft:cobblestone"
+    },
+    {
+      "char": "ε",
+      "block": "minecraft:bookshelf"
+    }
+  ]
+}

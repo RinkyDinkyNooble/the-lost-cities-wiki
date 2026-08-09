@@ -97,4 +97,5 @@ Ordinary datapack rules, with one consequence worth spelling out:
 
 ## See also
 
-[Glossary](../glossary.md) for `namespace`, `resource location`, and `registry` if any of those were new.
+- [Your First Custom City](first-city.md) for these paths in a working datapack
+- [Glossary](../glossary.md) for `namespace`, `resource location`, and `registry` if any of those were new.

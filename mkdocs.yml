@@ -50,6 +50,7 @@ nav:
   - Home: index.md
   - Getting Started:
       - How It All Connects: getting-started/how-it-connects.md
+      - Your First Custom City: getting-started/first-city.md
       - Namespaces: getting-started/namespaces.md
       - The Content Model: getting-started/content-model.md
   - Reference:
@@ -79,4 +80,7 @@ nav:
   - Tooling:
       - Editing & Tooling: tooling/editing.md
       - Testing & Debugging Commands: tooling/commands.md
+  - Troubleshooting:
+      - Error Messages: troubleshooting/errors.md
+      - Known Issues & Workarounds: troubleshooting/known-issues.md
   - Glossary: glossary.md

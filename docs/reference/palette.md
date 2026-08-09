@@ -178,6 +178,7 @@ Besides `rotatable`, five more tags under the `lostcities` namespace affect how 
 
 ## See also
 
+- [Error Messages](../troubleshooting/errors.md) for the palette errors above, with causes
 - [Variant Reference](variant.md)
 - [Style Reference](style.md) for how multiple palettes combine
 - [Condition Reference](condition.md) for what a `mob` field's value actually points at

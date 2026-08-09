@@ -21,4 +21,14 @@ Everything in this wiki is verified against Lost Cities **7.4.12** for **Minecra
 
 ## Where to start
 
-New to this entirely? Start with [How It All Connects](getting-started/how-it-connects.md). Nothing else in this wiki will make much sense until you understand that piece.
+| You want to | Go to |
+|---|---|
+| Understand how any of this reaches a world | [How It All Connects](getting-started/how-it-connects.md) |
+| Get a building of your own generating, today | [Your First Custom City](getting-started/first-city.md) |
+| Look up a field | the **Reference** section |
+| Fix an error you're staring at | [Error Messages](troubleshooting/errors.md) |
+| Work out why nothing happens at all | [When nothing happens](getting-started/first-city.md#when-nothing-happens) |
+
+New to this entirely? Read [How It All Connects](getting-started/how-it-connects.md) first, then follow the tutorial. Nothing else in this wiki will make much sense until you understand that first piece.
+
+Complete working files for everything the tutorial builds are in [`examples/`](https://github.com/RinkyDinkyNooble/lostcities-wiki/tree/main/examples), along with a validator that checks a datapack against the rules documented here.

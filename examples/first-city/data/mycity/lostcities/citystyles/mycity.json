@@ -1,0 +1,15 @@
+{
+  "inherit": "citystyle_common",
+  "style": "standard",
+  "buildingsettings": {
+    "buildingchance": 0.6
+  },
+  "selectors": {
+    "buildings": [
+      {
+        "factor": 20.0,
+        "value": "mycity:tower"
+      }
+    ]
+  }
+}

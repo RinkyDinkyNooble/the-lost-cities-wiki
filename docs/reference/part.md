@@ -111,3 +111,5 @@ A part isn't always placed the way it's authored. Buildings reuse one part on mu
 
 - [Building Reference](building.md) for how parts get selected
 - [Palette Reference](palette.md) for what the characters resolve to, and for the rotation tag
+- [Editing & Tooling](../tooling/editing.md) for ways to produce these files without hand-typing them
+- [Error Messages](../troubleshooting/errors.md) if a part is crashing generation

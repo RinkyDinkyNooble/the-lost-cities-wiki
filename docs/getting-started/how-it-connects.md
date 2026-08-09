@@ -35,7 +35,12 @@ Everything left of "World Style" is config. Everything right of it is the conten
 
 ## Profiles: read the built-in ones first
 
-On first launch, Lost Cities writes its 17 built-in profiles to `config/lostcities/profiles/`, then reloads whatever's actually there, including your edits. They're not just examples, they're live files the mod ships and maintains.
+Lost Cities writes its 17 built-in profiles to `config/lostcities/profiles/`, then reads back whatever is actually in that folder. They're not just examples, they're live files the mod ships and maintains.
+
+!!! danger "Don't edit them in place, your changes will vanish"
+    That write happens on **every launch**, not just the first, and it overwrites unconditionally. Any edit to `wasteland.json`, `default.json`, or any other shipped profile is silently gone next time the game starts.
+
+    Files the mod doesn't ship are read and left alone, so **always use your own file name**. `/lostcities saveprofile <name>` is the intended way to get a fully populated starting point.
 
 - **wasteland** — no water, high ruin chance
 - **atlantis** — drowned cities, sea level raised
@@ -62,5 +67,6 @@ A profile's landscape type (`floating`, `space`, `cavern`, ...) expects matching
 
 ## See also
 
+- [Your First Custom City](first-city.md) — the whole chain above, built one file at a time
 - [Namespaces](namespaces.md) — how names like `worldStyle` actually resolve, and a real gotcha with KubeJS
 - [Glossary](../glossary.md) — quick definitions for any term above

@@ -26,6 +26,9 @@
 !!! warning "Casing isn't consistent here"
     `allowDoors`, `allowFillers`, `overrideFloors` are camelCase. `filler`, `rubble`, `preferslonely`, `minfloors`, `maxfloors`, `mincellars`, `maxcellars` are all lowercase, in the same file. That's genuinely how the mod names them. Copy the exact key, don't guess by pattern.
 
+!!! tip "Building your first one?"
+    [Your First Custom City](../getting-started/first-city.md) walks through a complete working building, palette and all, and links to the finished files.
+
 ## Filler: what it is, and why it's required
 
 `filler` is one palette character, and it's the only required field besides `parts`. It isn't part of your building's design, it's what makes the building sit in the ground correctly. It gets used in two distinct places:

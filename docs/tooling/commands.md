@@ -3,8 +3,8 @@
 !!! tip "TL;DR"
     `/lostcities <command>` (alias `/lost`). Six commands here are useful for checking your custom city actually works: `locate`, `debug`, `map`, `stats`, `createbuilding`, `saveprofile`. All need server op, except `map` and `stats`.
 
-!!! note "In-game editing isn't covered here"
-    Lost Cities also ships commands for live in-world editing (`createpart`, `editpart`, `resumeedit`, `exportpart`, `listparts`, `locatepart`). That workflow isn't documented on this wiki yet.
+!!! note "The in-game editor has its own page"
+    Lost Cities also ships six commands for live in-world editing (`createpart`, `editpart`, `resumeedit`, `exportpart`, `listparts`, `locatepart`). They need a world created with `editMode: true` and have some sharp edges, so they're covered on [Editing & Tooling](editing.md) instead.
 
     There's one more, `testfill`, which drops a 5×5×5 blob of random block states around you. It's a developer scratch command with no authoring use.
 
@@ -75,5 +75,6 @@ Force-places a registered [Building](../reference/building.md) at an exact posit
 
 ## See also
 
+- [Error Messages](../troubleshooting/errors.md) if a command or a chunk throws
 - [Profile Reference](../reference/profile.md)
 - [Building Reference](../reference/building.md)

@@ -1,0 +1,13 @@
+{
+  "filler": "δ",
+  "rubble": "δ",
+  "parts": [
+    {
+      "part": "mycity:tower_top",
+      "top": true
+    },
+    {
+      "part": "mycity:tower_floor"
+    }
+  ]
+}
