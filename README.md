@@ -2,7 +2,7 @@
 
 An in-depth, unofficial guide to building custom cities with [The Lost Cities](https://www.curseforge.com/minecraft/mc-mods/the-lost-cities), a Minecraft mod by McJty.
 
-**Read it at [rinkydinkynoble.github.io/the-lost-cities-wiki](https://rinkydinkynoble.github.io/the-lost-cities-wiki/)**
+**Read it [(https://rinkydinkynoble.github.io/the-lost-cities-wiki/)](https://rinkydinkynooble.github.io/the-lost-cities-wiki/)**
 
 ## What this is
 
