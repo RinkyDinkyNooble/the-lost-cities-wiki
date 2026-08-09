@@ -4,6 +4,9 @@ status: in-progress
 
 # Command Blocks & Third-Party Mod Integration
 
+!!! info "More integration patterns are planned"
+    Everything below is accurate and works today. What's still to come is the wider mod-integration side: more worked patterns for reaching behaviour no Lost Cities field exposes.
+
 !!! tip "TL;DR"
     A palette entry's `tag` field is raw NBT. Point `block` at `minecraft:command_block` and set `tag.Command`, and a palette character can run any command the moment that chunk generates. Everything on this page works in vanilla, no other mods required.
 

@@ -54,6 +54,7 @@ nav:
       - Namespaces: getting-started/namespaces.md
       - The Content Model: getting-started/content-model.md
   - Reference:
+      - Overview: reference/index.md
       - Profile: reference/profile.md
       - World Style: reference/worldstyle.md
       - City Style: reference/citystyle.md

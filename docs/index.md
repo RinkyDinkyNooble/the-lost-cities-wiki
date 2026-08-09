@@ -25,7 +25,7 @@ Everything in this wiki is verified against Lost Cities **7.4.12** for **Minecra
 |---|---|
 | Understand how any of this reaches a world | [How It All Connects](getting-started/how-it-connects.md) |
 | Get a building of your own generating, today | [Your First Custom City](getting-started/first-city.md) |
-| Look up a field | the **Reference** section |
+| Look up a field | [Reference](reference/index.md) |
 | Fix an error you're staring at | [Error Messages](troubleshooting/errors.md) |
 | Work out why nothing happens at all | [When nothing happens](getting-started/first-city.md#when-nothing-happens) |
 
