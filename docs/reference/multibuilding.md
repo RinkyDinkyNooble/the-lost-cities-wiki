@@ -5,10 +5,22 @@
 
 ## Fields
 
-| Key | Required | Meaning |
-|---|---|---|
-| `dimx` / `dimz` | **yes** | Grid size, in chunks. |
-| `buildings` | **yes** | 2D list of building names, `dimx` rows of `dimz` entries each. |
+| Key | Required | Limits | Meaning |
+|---|---|---|---|
+| `dimx` / `dimz` | **yes** | ≥ 1, and **≤ the `areasize` it's placed with** | Grid size, in chunks. |
+| `buildings` | **yes** | | 2D list of building names, `dimx` rows of `dimz` entries each. |
+
+!!! danger "A multi-building larger than its placement area crashes generation"
+    Placement picks a random offset inside a square area of chunks, using `random(areasize - dimx + 1)`. If `dimx` or `dimz` exceeds `areasize`, that bound goes to zero or negative and generation throws.
+
+    Two different `areasize` values apply, depending on how the multi-building is reached:
+
+    | Reached via | Setting | Shipped default |
+    |---|---|---|
+    | A city style's `multibuildings` selector | [World Style](worldstyle.md) `multisettings.areasize` | `10` |
+    | A [Scattered Building](scattered.md)'s `multibuilding` | [World Style](worldstyle.md) `scattered.areasize` | `8` |
+
+    A multi-building used both ways has to fit the smaller of the two. Nothing checks this at load, only at the moment a chunk in that area generates.
 
 ## Example
 

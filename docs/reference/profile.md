@@ -21,7 +21,14 @@
 
 `public` is root-level, not inside a category. Defaults to `true`. Set `false` to hide a profile from the in-game selector (used for the "private" outside-sphere profiles mentioned on the [connects page](../getting-started/how-it-connects.md)).
 
-Tables below: **Range** is the valid input window, values outside it get clamped or rejected. A blank Range means it's not a number (text, block ID, list, or true/false).
+Tables below: **Range** is the window the mod was designed and tested against, and the window the in-game screen enforces. A blank Range means it's not a number (text, block ID, list, or true/false).
+
+!!! danger "Nothing validates a JSON profile"
+    The ranges below are **not enforced** when a profile is loaded from `config/lostcities/profiles/`. `"buildingMaxFloors": 9999` or `"cityChance": -50` load without a warning and are used exactly as written, which shows up as broken generation rather than a clear error.
+
+    Only the in-game config screen clamps: the clamp function has three callers, all of them GUI slider widgets. The load path never calls it, and the real bounds aren't even registered by then, since the raw JSON values are read in first.
+
+    Treat every range on this page as a rule you have to follow yourself.
 
 !!! tip "There's also an in-game screen for this"
     The "Cities" button on the world-creation screen exposes about 40 of the more common fields from `lostcity`, `explosions`, and `cityspheres` below (chances, floor/cellar counts, explosion tuning, highway/rail toggles) without touching JSON. Handy for quick experiments, but it's session-only, nothing is written to `config/lostcities/profiles/` until the world is actually created. Anything not shown there, including every `spawn*` field, is JSON-only.

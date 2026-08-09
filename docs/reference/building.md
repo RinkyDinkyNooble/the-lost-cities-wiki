@@ -11,14 +11,17 @@
 | `rubble` | no | | Single palette character used for rubble when this building is ruined. If the character isn't defined in the palette, `filler` is used instead. |
 | `refpalette` | no | | Shared palette name. |
 | `palette` | no | | Embedded palette, instead of `refpalette`. |
-| `minfloors` / `maxfloors` | no | unset | Bounds on floors above ground. **By default these only narrow the range the profile already computed, they don't replace it.** See [Floor counts](#how-floor-and-cellar-counts-are-decided). |
-| `mincellars` / `maxcellars` | no | unset | Same, for levels below ground. |
+| `minfloors` / `maxfloors` | no | unset | Bounds on floors above ground, `0`–`60`. **By default these only narrow the range the profile already computed, they don't replace it.** See [Floor counts](#how-floor-and-cellar-counts-are-decided). |
+| `mincellars` / `maxcellars` | no | unset | Same, for levels below ground, `0`–`20`. |
 | `allowDoors` | no | `true` | Whether doorways to adjacent city chunks are generated on this building's floors. `false` produces a sealed building with no side connections. Doors are never generated on the top floor regardless. |
 | `allowFillers` | no | `true` | Whether the outer filler skirt is generated around a building **that has cellars**. See [Filler](#filler-what-it-is-and-why-its-required). No effect on a building with zero cellars. |
 | `overrideFloors` | no | `false` | Changes how this building's own floor/cellar bounds are applied: `false` clamps, `true` replaces outright. See [Floor counts](#how-floor-and-cellar-counts-are-decided). |
 | `preferslonely` | no | `0` | Chance (0–1) that this building suppresses buildings in each **neighbouring** chunk. See [preferslonely](#preferslonely). |
 | `parts` | **yes** | | List of part references, one entry per candidate part. |
 | `parts2` | no | | A second, independent list. Optional overlay, see [parts2](#parts2). |
+
+!!! note "Unset is `-1`, not `0`"
+    Internally the four floor/cellar bounds default to `-1`, and `-1` is what the code checks for "not set." So `"minfloors": 0` is **not** the same as leaving `minfloors` out: `0` is a real bound that participates in the clamping, omitting it means the profile's value passes through untouched. Same for the other three.
 
 !!! warning "Casing isn't consistent here"
     `allowDoors`, `allowFillers`, `overrideFloors` are camelCase. `filler`, `rubble`, `preferslonely`, `minfloors`, `maxfloors`, `mincellars`, `maxcellars` are all lowercase, in the same file. That's genuinely how the mod names them. Copy the exact key, don't guess by pattern.
