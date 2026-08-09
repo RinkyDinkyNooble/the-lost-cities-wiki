@@ -1,0 +1,60 @@
+name: Docs
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docs-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Gate. Runs on every push and every PR, including forks.
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      # --strict turns any broken internal link or missing nav target into a
+      # build failure, which is what catches the mechanical class of error.
+      - name: Build site (strict)
+        run: mkdocs build --strict
+
+      # The example datapack has to keep satisfying the rules the wiki
+      # documents. If this fails, either the example broke or a documented
+      # rule changed and the validator wasn't updated with it.
+      - name: Validate example datapack
+        run: python docs/examples/validate.py docs/examples/first-city
+
+      - name: Upload site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  # Publish. Only on main, only after the gate passes.
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: check
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
