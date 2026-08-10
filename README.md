@@ -6,52 +6,58 @@ An in-depth, unofficial guide to building custom cities with [The Lost Cities](h
 
 ## What this is
 
-The mod's own documentation lives at [mcjty.eu](https://mcjty.eu/docs/mods/lost-cities) and is worth reading. This site exists to go further: the parts you only find out by reading the decompiled source, breaking things, or asking around.
+The mod has its own documentation at [mcjty.eu](https://mcjty.eu/docs/mods/lost-cities). Read it first. This site covers what that documentation does not: the behaviour you otherwise find only by reading the decompiled source or by breaking a world and working out why.
 
-Everything here is verified against **Lost Cities 7.4.12 / Minecraft 1.20.1 (Forge)**, against the mod's actual code and shipped content rather than against other documentation. Where a claim comes from a specific behaviour, the page says what that behaviour is and what happens when you get it wrong.
+Every claim here is verified against **Lost Cities 7.4.12, Minecraft 1.20.1, Forge**. The source of truth is the mod's own code and shipped content, not other documentation. Where a page states a behaviour, it also states what happens when you get it wrong.
 
-Some things you won't find elsewhere:
+Some things you will not find elsewhere:
 
-- Why buildings crash chunk generation with `Misconfiguration! Floor were generated...`, and the real rule behind it
-- That city style `inherit` is **additive** for selectors, so you cannot narrow an inherited building list
-- That street part names accept a **list**, and the mod ships zero examples of it
-- What a palette `char` may legally be, and why emoji break in two separate ways
-- An [index of every error message](https://rinkydinkynooble.github.io/the-lost-cities-wiki/troubleshooting/errors/) the mod throws, with causes and fixes
+- Why a building crashes world generation with `Misconfiguration! Floor were generated for a building where no part condition matches!`, and the rule behind it
+- That a city style inherits selectors **additively**, so a child style cannot narrow the building list it inherits
+- That street part names accept a **list**, and that no shipped file uses one
+- What a palette `char` may legally be, and why an emoji fails in two separate ways
+- An [index of every error message](https://rinkydinkynooble.github.io/the-lost-cities-wiki/troubleshooting/errors/) the mod throws, with the cause and the fix for each
 
 ## Layout
 
-| Path | What's in it |
+| Path | Contents |
 |---|---|
-| `docs/` | The wiki itself, MkDocs Material |
-| `docs/examples/first-city/` | A complete, working example datapack |
+| `docs/` | The wiki itself, built with MkDocs Material |
+| `docs/examples/first-city/` | A complete example datapack that loads as it is |
 | `docs/examples/validate.py` | Checks a datapack against the rules the wiki documents |
+| `STYLE.md` | The writing rules this wiki follows |
 | `.github/workflows/docs.yml` | Strict build gate, then deploy to Pages |
 
 ## Running it locally
 
 ```bash
 pip install -r requirements.txt
+```
+
+```bash
 mkdocs serve
 ```
 
 Then open <http://127.0.0.1:8000>.
 
-To check a change the way CI does:
+To run the same checks CI runs:
 
 ```bash
 mkdocs build --strict && python docs/examples/validate.py
 ```
 
-`--strict` turns any broken internal link into a build failure. The validator checks the example datapack still satisfies every rule the wiki states, which is how the docs and the example are kept from drifting apart.
+`--strict` turns any broken internal link into a build failure. The validator checks that the example datapack still satisfies every rule the wiki states. Together they stop the docs and the example from drifting apart.
 
 ## Contributing
 
-Corrections are very welcome, especially ones backed by the mod's actual behaviour. If a page is wrong, saying **what you observed** and **which version** is more useful than anything else.
+Corrections are welcome, especially ones backed by observed behaviour. If a page is wrong, state **what you observed** and **which mod version** you observed it on. That is more useful than anything else you can send.
 
-Four pages are marked in-progress in the navigation. Each says what's still missing.
+Read [STYLE.md](STYLE.md) before writing prose. The wiki uses one approved term per concept and a deliberately plain register, so a correction written in a different voice needs rewriting before it can be merged.
+
+Four pages are marked in-progress in the navigation. Each one states what is still missing.
 
 ## Licence
 
-[CC0 1.0](LICENSE). Use it however you like, no attribution required.
+[CC0 1.0](LICENSE). Use it however you like. No attribution required.
 
-Not affiliated with or endorsed by McJty. The Lost Cities is McJty's work; this is an independent guide to it.
+Not affiliated with or endorsed by McJty. The Lost Cities is McJty's work. This is an independent guide to it.
