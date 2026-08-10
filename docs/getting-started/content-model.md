@@ -34,7 +34,7 @@ Every step above is a name lookup. Every name lookup respects [namespacing](name
 
 ## See also
 
-- [Your First Custom City](first-city.md) — this chain as six real files
+- [Your First Custom City](first-city.md) for this chain as six real files
 - [Namespaces](namespaces.md)
 - [Glossary](../glossary.md)
 - Individual reference pages for each asset type (linked from the sidebar as they're written)

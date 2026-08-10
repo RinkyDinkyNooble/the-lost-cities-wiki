@@ -50,7 +50,7 @@ Three pages carry most of the traps worth reading before you write anything:
 
 ## See also
 
-- [Your First Custom City](../getting-started/first-city.md) — these types as six real files
-- [Examples](../examples/index.md) — a complete working datapack
-- [Error Messages](../troubleshooting/errors.md) — when one of these files is wrong
+- [Your First Custom City](../getting-started/first-city.md) for these types as six real files
+- [Examples](../examples/index.md) for a complete working datapack
+- [Error Messages](../troubleshooting/errors.md) for when one of these files is wrong
 - [Glossary](../glossary.md)

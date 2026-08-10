@@ -42,10 +42,10 @@ Lost Cities writes its 17 built-in profiles to `config/lostcities/profiles/`, th
 
     Files the mod doesn't ship are read and left alone, so **always use your own file name**. `/lostcities saveprofile <name>` is the intended way to get a fully populated starting point.
 
-- **wasteland** — no water, high ruin chance
-- **atlantis** — drowned cities, sea level raised
-- **biosphere** — jungle in glass domes on barren land
-- **space** — glass bubbles floating in a void
+- **wasteland**: no water, high ruin chance
+- **atlantis**: drowned cities, sea level raised
+- **biosphere**: jungle in glass domes on barren land
+- **space**: glass bubbles floating in a void
 
 Three of the 17 are marked private (`public: false`) and don't appear in the in-game selector: `bio_wasteland` and `void_outside`, which only define what generates *outside* the glass spheres in sphere-based profiles, and `biosphere_caves`, which is a full profile that happens to be wired to a Lost Worlds dimension rather than chosen by hand. Build your own spheres profile and you'll likely want a private outside-profile too.
 
@@ -67,6 +67,6 @@ A profile's landscape type (`floating`, `space`, `cavern`, ...) expects matching
 
 ## See also
 
-- [Your First Custom City](first-city.md) — the whole chain above, built one file at a time
-- [Namespaces](namespaces.md) — how names like `worldStyle` actually resolve, and a real gotcha with KubeJS
-- [Glossary](../glossary.md) — quick definitions for any term above
+- [Your First Custom City](first-city.md) for the whole chain above, built one file at a time
+- [Namespaces](namespaces.md) for how names like `worldStyle` actually resolve, and a real gotcha with KubeJS
+- [Glossary](../glossary.md) for quick definitions of any term above
