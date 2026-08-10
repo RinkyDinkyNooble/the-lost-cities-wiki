@@ -76,20 +76,136 @@ Greek letters on purpose. Your palette is merged with the mod's, collisions sile
 
 A part is one chunk footprint, one floor tall: **16 wide, 16 deep, 6 layers**. `slices` runs bottom to top. Every row must be exactly 16 characters. A space is air.
 
-```json title="data/mycity/lostcities/parts/tower_floor.json (abridged)"
+This is the whole file, exactly as it ships in [the example bundle](../examples/index.md). Nothing is left out, because the row lengths are the part of this you most need to see.
+
+```json title="data/mycity/lostcities/parts/tower_floor.json"
 {
   "xsize": 16,
   "zsize": 16,
   "refpalette": "mycity:tower",
   "slices": [
-    ["γγγγγγγγγγγγγγγγ", "…15 more rows…"],
-    ["αααααααααααααααα", "α              α", "…"],
-    "…4 more layers…"
+    [
+      "γγγγγγγγγγγγγγγγ",
+      "γγγγγγγγγγγγγγγγ",
+      "γγγγγγγγγγγγγγγγ",
+      "γγγγγγγγγγγγγγγγ",
+      "γγγγγγγγγγγγγγγγ",
+      "γγγγγγγγγγγγγγγγ",
+      "γγγγγγγγγγγγγγγγ",
+      "γγγγγγγγγγγγγγγγ",
+      "γγγγγγγγγγγγγγγγ",
+      "γγγγγγγγγγγγγγγγ",
+      "γγγγγγγγγγγγγγγγ",
+      "γγγγγγγγγγγγγγγγ",
+      "γγγγγγγγγγγγγγγγ",
+      "γγγγγγγγγγγγγγγγ",
+      "γγγγγγγγγγγγγγγγ",
+      "γγγγγγγγγγγγγγγγ"
+    ],
+    [
+      "αααααααααααααααα",
+      "α              α",
+      "α              α",
+      "α  εε          α",
+      "α              α",
+      "α              α",
+      "α              α",
+      "α              α",
+      "α              α",
+      "α              α",
+      "α              α",
+      "α              α",
+      "α              α",
+      "α              α",
+      "α              α",
+      "αααααααααααααααα"
+    ],
+    [
+      "ααααββββββββαααα",
+      "α              α",
+      "α              α",
+      "α              α",
+      "β              β",
+      "β              β",
+      "β              β",
+      "β              β",
+      "β              β",
+      "β              β",
+      "β              β",
+      "β              β",
+      "α              α",
+      "α              α",
+      "α              α",
+      "ααααββββββββαααα"
+    ],
+    [
+      "ααααββββββββαααα",
+      "α              α",
+      "α              α",
+      "α              α",
+      "β              β",
+      "β              β",
+      "β              β",
+      "β              β",
+      "β              β",
+      "β              β",
+      "β              β",
+      "β              β",
+      "α              α",
+      "α              α",
+      "α              α",
+      "ααααββββββββαααα"
+    ],
+    [
+      "αααααααααααααααα",
+      "α              α",
+      "α              α",
+      "α              α",
+      "α              α",
+      "α              α",
+      "α              α",
+      "α              α",
+      "α              α",
+      "α              α",
+      "α              α",
+      "α              α",
+      "α              α",
+      "α              α",
+      "α              α",
+      "αααααααααααααααα"
+    ],
+    [
+      "αααααααααααααααα",
+      "α              α",
+      "α              α",
+      "α              α",
+      "α              α",
+      "α              α",
+      "α              α",
+      "α              α",
+      "α              α",
+      "α              α",
+      "α              α",
+      "α              α",
+      "α              α",
+      "α              α",
+      "α              α",
+      "αααααααααααααααα"
+    ]
   ]
 }
 ```
 
-The full file is in [the example bundle](../examples/index.md). Its layers are: a solid `γ` floor slab, then five layers of `α` wall with a band of `β` windows through the middle two, hollow inside.
+Reading it bottom to top:
+
+| Layer | What it is |
+|---|---|
+| 0 | A solid `γ` slab. This is the floor you stand on. |
+| 1 | The `α` perimeter wall, hollow inside, with two `ε` bookshelves as interior detail. |
+| 2 and 3 | The `α` wall with a band of `β` glass, which is the window strip. |
+| 4 and 5 | Plain `α` wall again, closing the storey off. |
+
+Each layer is 16 rows, and each row is 16 characters. Count one and you have counted them all.
 
 !!! danger "Count characters, not letters"
     Nothing checks row lengths. A row one character short does not error, it shifts every block after it in that layer and comes out as a diagonal smear. And length is counted in UTF-16 units, so an emoji counts as **two** even though your editor and your script both say one. Generate these files with a script and count carefully. See [Part](../reference/part.md).

@@ -109,6 +109,39 @@ def check_stuff(path: Path, data) -> None:
         err(path.name, "attempts must be at least 1 or nothing is ever placed")
 
 
+# Wiki pages that reproduce a shipped example file in full, as page -> asset.
+# Keeping these byte-identical is the point: a reader copying from the page and a
+# reader copying from the bundle must end up with the same file.
+EMBEDDED_COPIES = {
+    "docs/getting-started/first-city.md":
+        "data/mycity/lostcities/parts/tower_floor.json",
+}
+
+
+def check_embedded_copies(root: Path) -> None:
+    """Any page that inlines a whole example file must match it exactly."""
+    import re
+
+    repo = Path(__file__).resolve().parents[2]
+    for page_rel, asset_rel in EMBEDDED_COPIES.items():
+        page = repo / page_rel
+        asset = root / asset_rel
+        if not page.is_file() or not asset.is_file():
+            # Only meaningful when validating the bundle these pages document.
+            continue
+        fence = re.search(
+            r'```json title="[^"]*%s"\n(.*?)\n```' % re.escape(asset_rel.split("/")[-1]),
+            page.read_text(encoding="utf-8"),
+            re.S,
+        )
+        if fence is None:
+            err(page_rel, f"no fenced copy of {asset_rel} found; the page and the bundle "
+                          "are meant to carry the same file")
+            continue
+        if fence.group(1) != asset.read_text(encoding="utf-8").rstrip("\n"):
+            err(page_rel, f"the inlined copy of {asset_rel} has drifted from the real file")
+
+
 def main() -> int:
     root = Path(sys.argv[1] if len(sys.argv) > 1 else Path(__file__).parent / "first-city")
     data_dir = root / "data"
@@ -140,6 +173,8 @@ def main() -> int:
                     check_building(f, data)
                 elif kind == "stuff":
                     check_stuff(f, data)
+
+    check_embedded_copies(root)
 
     # A space is air only because the shipped 'common' palette says so.
     unknown = used_chars - declared_chars - {" "}
