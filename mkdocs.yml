@@ -6,6 +6,15 @@ repo_name: the-lost-cities-wiki
 edit_uri: edit/main/docs/
 copyright: Released under CC0 1.0. Lost Cities is by McJty; this is an unofficial guide.
 
+# With --strict these become build failures. Anchors default to "info",
+# which let a renamed heading silently break every link pointing at it.
+validation:
+  links:
+    not_found: warn
+    anchors: warn
+    absolute_links: warn
+    unrecognized_links: warn
+
 theme:
   name: material
   palette:

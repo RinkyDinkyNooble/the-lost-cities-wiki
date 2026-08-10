@@ -118,7 +118,7 @@ Read this as a list of candidates, not a stack. For each level, the generator co
 
     Always keep at least one part reference with no condition fields. Full explanation at [Floor coverage](../reference/building.md#floor-coverage-the-most-common-crash).
 
-`filler` seats the building into uneven terrain and skirts its cellars. It must be a character your palette defines. See [Filler](../reference/building.md#filler-what-it-is-and-why-its-required).
+`filler` seats the building into uneven terrain and skirts its cellars. It must be a character your palette defines. See [Filler](../reference/building.md#filler-what-it-is-and-why-it-is-required).
 
 ## 4. The city style
 
