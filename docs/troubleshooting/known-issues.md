@@ -32,7 +32,7 @@ Whatever `shape=` you write in a palette's `block` string is **discarded**. Ever
 
     ```json title="Palette entry"
     {
-      "char": "Á",
+      "char": "ω",
       "block": "minecraft:command_block[conditional=false,facing=west]",
       "tag": {
         "Command": "setblock ~ ~ ~ minecraft:smooth_quartz_stairs[facing=east,half=bottom,shape=outer_left] replace",
@@ -88,7 +88,7 @@ The same is true of every number in every asset file: there is no range validati
 
 **Status:** working as designed.
 
-Lost Cities rewrites all 17 built-in profile files **on every launch**, not just the first. Editing `wasteland.json` or `default.json` in place means losing that edit the next time the game starts.
+The mod rewrites all 17 built-in profile files **on every launch**, not just the first. Editing `wasteland.json` or `default.json` in place means losing that edit the next time the game starts.
 
 **Fix:** always use a file name the mod does not ship, like `mycity.json`. Files it does not recognise are read and left alone. `/lostcities saveprofile <name>` is the intended way to get a starting point.
 
@@ -119,7 +119,7 @@ See [Seeing your changes](../tooling/commands.md#seeing-your-changes) for the fu
 
 Some of the above cannot be fixed from JSON at all, because the behaviour is fixed in compiled code. A small companion Forge mod is planned to address that class of problem.
 
-**What it could reasonably fix**, based on what is been traced so far:
+**What it could reasonably fix**, based on what has been traced so far:
 
 | Issue | Why a mod can fix it |
 |---|---|
@@ -127,7 +127,7 @@ Some of the above cannot be fixed from JSON at all, because the behaviour is fix
 | Validation at load time | Nothing currently checks ranges, row lengths, or floor coverage. A mod could fail loudly at load instead of mid-generation |
 | Better error messages | Several errors name the wrong file. A mod could report the palette rather than the part |
 
-The mod's own API is unusually good for this: it exposes a mutable characteristics hook posted before caching, which is enough to override building choice, city style, and floor counts per chunk from outside.
+The mod's own API is unusually good for this. It posts `LostCityEvent.CharacteristicsEvent` **before** it caches the result, and every key on the characteristics object is a public mutable one. A companion mod can therefore change, per chunk and from outside: whether the chunk is a city at all, whether it could hold a building, the city level, the city style, the building type, and the multi-building. That is enough to redirect most placement decisions without touching the mod's own code.
 
 !!! info "Not written yet"
     This section is a statement of intent, not a release. It will be replaced with real documentation once the mod exists. Nothing on this page depends on it, every workaround above works today with vanilla Lost Cities.
