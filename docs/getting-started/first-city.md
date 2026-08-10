@@ -1,9 +1,9 @@
 # Your First Custom City
 
 !!! tip "TL;DR"
-    Six files plus one config line gets a building of your own generating in a real world. This page writes all seven, in the order you'd actually write them, and ends with a command that proves it worked.
+    Six files plus one config line gets a building of your own generating in a real world. This page writes all seven, in the order you would actually write them, and ends with a command that proves it worked.
 
-Everything here is in the repo as a complete, working datapack: [the example bundle](../examples/index.md). Copy that if you'd rather read finished files than build them up.
+Everything here is in the repo as a complete, working datapack: [the example bundle](../examples/index.md). Copy that if you would rather read finished files than build them up.
 
 ## What you are making
 
@@ -116,7 +116,7 @@ Read this as a list of candidates, not a stack. For each level, the generator co
 !!! danger "The unconditioned entry is what stops the most common crash"
     Your building's height comes from the [Profile](../reference/profile.md), not from your building. If a level ever has no matching part, generation throws `Misconfiguration! Floor were generated for a building where no part condition matches!`.
 
-    Always keep at least one part reference with no condition fields. Full explanation at [Floor coverage](../reference/building.md#floor-coverage-the-most-common-crash).
+    Always keep at least one part reference with no condition keys. Full explanation at [Floor coverage](../reference/building.md#floor-coverage-the-most-common-crash).
 
 `filler` seats the building into uneven terrain and skirts its cellars. It must be a character your palette defines. See [Filler](../reference/building.md#filler-what-it-is-and-why-it-is-required).
 
@@ -147,7 +147,7 @@ Read this as a list of candidates, not a stack. For each level, the generator co
 }
 ```
 
-Only two fields are required. `multisettings`, `settings`, and `parts` all fall back to working defaults, and `scattered` and `cityspheres` are simply off when absent.
+Only two keys are required. `multisettings`, `settings`, and `parts` all fall back to working defaults, and `scattered` and `cityspheres` are simply off when absent.
 
 Note `mycity:mycity`: the namespace **and** the file name. A bare `mycity` would be read as `lostcities:mycity` and silently find nothing. This is the single most common way custom content fails to load.
 
@@ -168,15 +168,15 @@ Profiles are **config, not datapack**. This one goes in `config/lostcities/profi
 }
 ```
 
-Every field is optional except, in practice, `worldStyle`. `cityChance: 0.05` is five times the default, so you do not have to fly far to find a city.
+Every key is optional except, in practice, `worldStyle`. `cityChance: 0.05` is five times the default, so you do not have to fly far to find a city.
 
 !!! danger "Never edit a built-in profile file"
-    Lost Cities **rewrites all 17 built-in profiles on every single launch**, not just the first. Any edit you make to `wasteland.json` or `default.json` is silently gone next time the game starts.
+    The mod **rewrites all 17 built-in profiles on every single launch**, not just the first. Any edit you make to `wasteland.json` or `default.json` is silently gone next time the game starts.
 
     Files with names the mod does not ship are left alone. Always use your own name, like `mycity.json` here.
 
 !!! tip "Start from a real one"
-    `/lostcities saveprofile <name>` writes a fully populated profile with every field at its default, which beats typing one from scratch. See [Commands](../tooling/commands.md).
+    `/lostcities saveprofile <name>` writes a fully populated profile with every key at its default, which beats typing one from scratch. See [Commands](../tooling/commands.md).
 
 ## 7. Wire it to a dimension
 

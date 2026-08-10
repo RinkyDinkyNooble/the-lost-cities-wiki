@@ -5,14 +5,14 @@ status: in-progress
 # Command Blocks & Third-Party Mod Integration
 
 !!! info "More integration patterns are planned"
-    Everything below is accurate and works today. What is still to come is the wider mod-integration side: more worked patterns for reaching behaviour no Lost Cities field exposes.
+    Everything below is accurate and works today. What is still to come is the wider mod-integration side: more worked patterns for reaching behaviour no Lost Cities key exposes.
 
 !!! tip "TL;DR"
-    A palette entry's `tag` field is raw NBT. Point `block` at `minecraft:command_block` and set `tag.Command`, and a palette character can run any command the moment that chunk generates. Everything on this page works in vanilla, no other mods required.
+    A palette entry's `tag` key is raw NBT. Point `block` at `minecraft:command_block` and set `tag.Command`, and a palette character can run any command the moment that chunk generates. Everything on this page works in vanilla, no other mods required.
 
 ## Why this works
 
-[Palette entries](../reference/palette.md) support an optional `tag` field: arbitrary NBT attached to the placed block. A command block's NBT includes a `Command` string. Combine them, and every place that character appears in a part generates a working, pre-configured command block.
+[Palette entries](../reference/palette.md) support an optional `tag` key: arbitrary NBT attached to the placed block. A command block's NBT includes a `Command` string. Combine them, and every place that character appears in a part generates a working, pre-configured command block.
 
 `auto: 1` and `conditionMet: 1` are what make it fire on its own, with no redstone and no player nearby.
 
@@ -58,7 +58,7 @@ Anything a command can do, on generation, with no player involved:
 
 ## Extending it with commands from other mods
 
-The same mechanism works with commands that do not exist in vanilla, as long as **whatever provides that command is installed and loaded when the block fires**. A modpack can register its own commands (KubeJS server scripts are the usual way) and then call them from a generated command block, which is how you reach behaviour no Lost Cities field exposes.
+The same mechanism works with commands that do not exist in vanilla, as long as **whatever provides that command is installed and loaded when the block fires**. A modpack can register its own commands (KubeJS server scripts are the usual way) and then call them from a generated command block, which is how you reach behaviour no Lost Cities key exposes.
 
 A worked case: placing another mod's block entity **pre-configured**, for example a passcode-locked door with its code already set. Nothing in Lost Cities can create and configure another mod's block entity, but a command that mod provides can.
 
@@ -97,11 +97,11 @@ This covers most of what people reach for a custom command to do: multiple block
 
 ## Practical notes
 
-- `auto` and `conditionMet` are vanilla command block NBT fields, not Lost Cities ones. Anything vanilla command blocks support works here.
+- `auto` and `conditionMet` are vanilla command block NBT keys, not Lost Cities ones. Anything vanilla command blocks support works here.
 - Command blocks need `enable-command-block=true` in `server.properties` on a dedicated server. If your generated command blocks do nothing on a server but work in singleplayer, check that first.
 - The command runs with the command block's own permission level, not a player's.
 
 ## See also
 
-- [Palette Reference](../reference/palette.md) for the `tag` field and the stair-shape mechanic
+- [Palette Reference](../reference/palette.md) for the `tag` key and the stair-shape mechanic
 - [KubeJS Integration](kubejs.md)

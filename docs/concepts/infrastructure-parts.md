@@ -30,7 +30,7 @@ The single most common assumption is that each street shape is locked to exactly
 Passing a list to a monorail key is a datapack load error, not a silent fallback.
 
 !!! note "There is no weighting"
-    Unlike [building selectors](../reference/citystyle.md) or [Conditions](../reference/condition.md), these lists have no `factor` field. Every entry in the list is equally likely. If you want one variant to be rare, you cannot express that here, list it once among many common ones, or use a [Variant](../reference/variant.md) inside the palette instead (see [below](#often-a-better-answer-vary-the-material-not-the-part)).
+    Unlike [building selectors](../reference/citystyle.md) or [Conditions](../reference/condition.md), these lists have no `factor` key. Every entry in the list is equally likely. If you want one variant to be rare, you cannot express that here, list it once among many common ones, or use a [Variant](../reference/variant.md) inside the palette instead (see [below](#often-a-better-answer-vary-the-material-not-the-part)).
 
 Adjacent chunks roll independently, with no attempt to match neighbours. Two touching straight-street chunks can and often will pick different variants, so **variants need to line up seamlessly at chunk edges** or the seams will be obvious. Do not count on predicting which variant a given chunk gets before you visit it; once a chunk is generated it is saved, so it will not change afterward.
 

@@ -31,11 +31,11 @@ dimension → profile (config) → world style name → World Style (datapack) �
 Everything left of "World Style" is config. Everything right of it is the content this wiki's reference section covers.
 
 !!! tip "Fastest way to test"
-    Copy an existing profile, change its `worldStyle` field, point `dimensionsWithProfiles` at your copy. No need to touch datapack content just to check the wiring works.
+    Copy an existing profile, change its `worldStyle` key, point `dimensionsWithProfiles` at your copy. No need to touch datapack content just to check the wiring works.
 
 ## Profiles: read the built-in ones first
 
-Lost Cities writes its 17 built-in profiles to `config/lostcities/profiles/`, then reads back whatever is actually in that folder. They are not just examples, they are live files the mod ships and maintains.
+The mod writes its 17 built-in profiles to `config/lostcities/profiles/`, then reads back whatever is actually in that folder. They are not just examples, they are live files the mod ships and maintains.
 
 !!! danger "Do not edit them in place, your changes will vanish"
     That write happens on **every launch**, not just the first, and it overwrites unconditionally. Any edit to `wasteland.json`, `default.json`, or any other shipped profile is silently gone next time the game starts.
@@ -53,9 +53,9 @@ Three of the 17 are marked private (`public: false`) and do not appear in the in
 
 === "Dedicated dimension"
 
-    Lost Cities ships `lostcities:lostcity`, its own dimension with a custom chunk generator. Clean if you want cities in a separate world.
+    The mod ships `lostcities:lostcity`, its own dimension with a custom chunk generator. Clean if you want cities in a separate world.
 
-    **Getting players in and out**: the mod includes its own two-way gateway, no portal item or command needed. A bed matching a specific block set in the mod's own config (not a profile field), surrounded by skull blocks on both sides and both far corners (any skull type), works as a sleep-to-teleport gateway. Sleeping in it while in the Lost Cities dimension sends you to the Overworld; sleeping in it anywhere else sends you into the Lost Cities dimension (which must already be loaded on the server). This is a real, shipped mechanic, not something you need to build yourself, just place the bed and skulls.
+    **Getting players in and out**: the mod includes its own two-way gateway, no portal item or command needed. A bed matching a specific block set in the mod's own config (not a profile key), surrounded by skull blocks on both sides and both far corners (any skull type), works as a sleep-to-teleport gateway. Sleeping in it while in the Lost Cities dimension sends you to the Overworld; sleeping in it anywhere else sends you into the Lost Cities dimension (which must already be loaded on the server). This is a real, shipped mechanic, not something you need to build yourself, just place the bed and skulls.
 
 === "Inject into the existing world"
 
@@ -63,7 +63,7 @@ Three of the 17 are marked private (`public: false`) and do not appear in the in
 
 ## Landscape type needs a matching terrain mod
 
-A profile's landscape type (`floating`, `space`, `cavern`, ...) expects matching terrain underneath it, and Lost Cities does not generate that terrain itself. That is **Lost Worlds**, a separate mod by the same author. Want anything but the default landscape? Plan on pairing both mods.
+A profile's landscape type (`floating`, `space`, `cavern`, ...) expects matching terrain underneath it, and the mod does not generate that terrain itself. That is **Lost Worlds**, a separate mod by the same author. Want anything but the default landscape? Plan on pairing both mods.
 
 ## See also
 

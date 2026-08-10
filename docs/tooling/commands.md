@@ -27,7 +27,7 @@
 So the loop is: edit files, quit to title, rejoin, **travel somewhere new** (or delete the region files, or start a fresh world). Testing in a throwaway world is usually faster than trying to invalidate an existing one.
 
 !!! tip "Use `createbuilding` to skip the loop for a single building"
-    [`/lostcities createbuilding`](#placing-a-specific-building-on-demand) places a building on the spot without waiting for city generation to roll it. It still reads the assets loaded at world load, so you'd rejoin first, but you do not have to go hunting for a chunk that happens to pick your building.
+    [`/lostcities createbuilding`](#placing-a-specific-building-on-demand) places a building on the spot without waiting for city generation to roll it. It still reads the assets loaded at world load, so you would rejoin first, but you do not have to go hunting for a chunk that happens to pick your building.
 
 ## Getting a real profile template
 
@@ -35,7 +35,7 @@ So the loop is: edit files, quit to title, rejoin, **travel somewhere new** (or 
 /lostcities saveprofile <name>
 ```
 
-Writes one of the mod's built-in presets (not your world's active profile) to `<name>.json` in the server's working directory, fully populated with every field at its default value. No op requirement. This is the fastest way to get a complete, valid starting point instead of typing a [Profile](../reference/profile.md) from scratch, copy the fields you actually want to change into your own file.
+Writes one of the mod's built-in presets (not your world's active profile) to `<name>.json` in the server's working directory, fully populated with every key at its default value. No op requirement. This is the fastest way to get a complete, valid starting point instead of typing a [Profile](../reference/profile.md) from scratch, copy the keys you actually want to change into your own file.
 
 ## Finding out why a chunk looks the way it does
 

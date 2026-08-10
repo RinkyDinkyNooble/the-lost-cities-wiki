@@ -1,7 +1,7 @@
 # Damage, Ruins & Explosions
 
 !!! info "You do not need this page to build a custom city"
-    Everything required to author content lives in [Reference](../reference/profile.md) and [Concepts](../concepts/matchers.md). This page explains the mechanism behind fields you are already setting on the Profile page, useful for tuning them with intent instead of by trial and error.
+    Everything required to author content lives in [Reference](../reference/profile.md) and [Concepts](../concepts/matchers.md). This page explains the mechanism behind keys you are already setting on the Profile page, useful for tuning them with intent instead of by trial and error.
 
 !!! tip "TL;DR"
     Each chunk independently rolls for explosions, then breaks blocks around each explosion's center. `notbreakable`-tagged blocks never break; `easybreakable`-tagged ones break more easily. Ruins are a separate, similarly-rolled destruction pass on top of a fully-placed building. Both run after part selection is already finished.
@@ -20,7 +20,7 @@ Whether a given block breaks under nearby damage is not a flat roll, block ident
 | `lostcities:easybreakable` | Breaks more readily than an untagged block. `forge:glass` by default. |
 | *(untagged)* | Normal odds, roughly proportional to distance from the explosion center and its strength. |
 
-When a block does break, the palette entry's `damaged` field (see [Palette Reference](../reference/palette.md)) decides what it becomes, rubble, a broken variant, or whatever else was authored there. A character with no `damaged` value set just breaks to air.
+When a block does break, the palette entry's `damaged` key (see [Palette Reference](../reference/palette.md)) decides what it becomes, rubble, a broken variant, or whatever else was authored there. A character with no `damaged` value set just breaks to air.
 
 ## Debris spreads into neighbouring chunks
 
@@ -32,6 +32,6 @@ Ruin generation (`ruinChance`, destruction range `ruinMinlevelPercent`–`ruinMa
 
 ## See also
 
-- [Profile Reference](../reference/profile.md#explosions) for every field named above
-- [Palette Reference](../reference/palette.md) for the `damaged` field and block tags
+- [Profile Reference](../reference/profile.md#explosions) for every key named above
+- [Palette Reference](../reference/palette.md) for the `damaged` key and block tags
 - [The Generation Pipeline](generation-pipeline.md)

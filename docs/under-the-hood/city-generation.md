@@ -1,7 +1,7 @@
 # How a Chunk Becomes a City
 
 !!! info "You do not need this page to build a custom city"
-    Everything required to author content lives in [Reference](../reference/profile.md) and [Concepts](../concepts/matchers.md). This section explains *why* the generator behaves the way it does, for readers who want the mental model behind the fields they are already setting, or who are debugging something that does not look right.
+    Everything required to author content lives in [Reference](../reference/profile.md) and [Concepts](../concepts/matchers.md). This section explains *why* the generator behaves the way it does, for readers who want the mental model behind the keys they are already setting, or who are debugging something that does not look right.
 
 !!! tip "TL;DR"
     Every chunk's city/building decision is made once, the first time that chunk generates, from the world seed and chunk coordinates. It is cached for that chunk forever after. Changing a profile or city style has zero effect on chunks that already exist, only on chunks generated from then on.
@@ -24,7 +24,7 @@ Controlled by the sign of a profile's `cityChance` (see [Profile Reference](../r
 
 === "Continuous noise (cityChance = -1)"
 
-    No discrete centers or radius at all. A 4-octave Perlin noise field, shaped by `cityPerlinScale`/`cityPerlinOffset`/`cityPerlinInnerScale`, covers the whole map, and `cityThreshold` gates it the same way. The result reads as organic, uneven city coverage instead of clean circles, useful for a wasteland/sprawl theme where "the whole region is basically city, with pockets that are not" is the goal rather than distinct, separated cities.
+    No discrete centers or radius at all. A 4-octave Perlin noise key, shaped by `cityPerlinScale`/`cityPerlinOffset`/`cityPerlinInnerScale`, covers the whole map, and `cityThreshold` gates it the same way. The result reads as organic, uneven city coverage instead of clean circles, useful for a wasteland/sprawl theme where "the whole region is basically city, with pockets that are not" is the goal rather than distinct, separated cities.
 
 Either mode, being near spawn can also scale the effective city factor down via `citySpawnDistance1`/`2` and `citySpawnMultiplier1`/`2`, e.g. to keep the immediate spawn area less city-dense.
 
@@ -46,7 +46,7 @@ Relevant to `space`, `spheres`, and `cavernspheres` [landscape types](../referen
 
 ## Highways
 
-Two independent Perlin noise fields, one per axis, decide where highway lines run, shaped by `highwayMainPerlinScale`/`highwaySecondaryPerlinScale`/`highwayPerlinFactor`. `highwayDistanceMask` is a bitmask (must be `0`, `1`, `3`, `7`, `15`, and so on, a power of two minus one) that spaces candidate lines to regular intervals rather than letting the noise field produce them anywhere, this is why it jumps in specific increments rather than scaling smoothly. A candidate line only actually generates if it is at least 5 chunks long and touches two cities (unless `highwayRequiresTwoCities` is `false`), and its level (height) comes from whichever endpoint-combination rule `highwayLevelFromCities` selects.
+Two independent Perlin noise keys, one per axis, decide where highway lines run, shaped by `highwayMainPerlinScale`/`highwaySecondaryPerlinScale`/`highwayPerlinFactor`. `highwayDistanceMask` is a bitmask (must be `0`, `1`, `3`, `7`, `15`, and so on, a power of two minus one) that spaces candidate lines to regular intervals rather than letting the noise key produce them anywhere, this is why it jumps in specific increments rather than scaling smoothly. A candidate line only actually generates if it is at least 5 chunks long and touches two cities (unless `highwayRequiresTwoCities` is `false`), and its level (height) comes from whichever endpoint-combination rule `highwayLevelFromCities` selects.
 
 ## Multi-chunk buildings
 
@@ -54,6 +54,6 @@ Two independent Perlin noise fields, one per axis, decide where highway lines ru
 
 ## See also
 
-- [Profile Reference](../reference/profile.md) for every field named above
+- [Profile Reference](../reference/profile.md) for every key named above
 - [The Generation Pipeline](generation-pipeline.md) for what happens once a chunk's decisions are made
 - [Damage, Ruins & Explosions](damage-and-ruins.md)

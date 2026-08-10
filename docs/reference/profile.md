@@ -1,10 +1,10 @@
 # Profile Reference
 
 !!! tip "TL;DR"
-    A profile is `config/lostcities/profiles/<name>.json`. Five sections: `lostcity`, `cities`, `explosions`, `cityspheres`, `client`, plus a root `public` flag. Every field below is optional, omit it and the default applies.
+    A profile is `config/lostcities/profiles/<name>.json`. Five sections: `lostcity`, `cities`, `explosions`, `cityspheres`, `client`, plus a root `public` flag. Every key below is optional, omit it and the default applies.
 
 !!! warning "Version note"
-    The official docs (checked for comparison while writing this) describe a newer mod version with a hierarchical street/highway grid system (`streetGenerationMode`, `highwayGenerationMode`, hub-based intercity highways, and related fields). **None of that exists in 7.4.12.** Every field below was verified against the actual 7.4.12 class, not copied from the newer docs. On a different version, check for a changes-only update to this page before trusting it.
+    The official docs (checked for comparison while writing this) describe a newer mod version with a hierarchical street/highway grid system (`streetGenerationMode`, `highwayGenerationMode`, hub-based intercity highways, and related keys). **None of that exists in 7.4.12.** Every key below was verified against the actual 7.4.12 class, not copied from the newer docs. On a different version, check for a changes-only update to this page before trusting it.
 
 ## File shape
 
@@ -31,7 +31,7 @@ Tables below: **Range** is the window the mod was designed and tested against, a
     Treat every range on this page as a rule you have to follow yourself.
 
 !!! tip "There is also an in-game screen for this"
-    The "Cities" button on the world-creation screen exposes about 40 of the more common fields from `lostcity`, `explosions`, and `cityspheres` below (chances, floor/cellar counts, explosion tuning, highway/rail toggles) without touching JSON. Handy for quick experiments, but it is session-only, nothing is written to `config/lostcities/profiles/` until the world is actually created. Anything not shown there, including every `spawn*` field, is JSON-only.
+    The "Cities" button on the world-creation screen exposes about 40 of the more common keys from `lostcity`, `explosions`, and `cityspheres` below (chances, floor/cellar counts, explosion tuning, highway/rail toggles) without touching JSON. Handy for quick experiments, but it is session-only, nothing is written to `config/lostcities/profiles/` until the world is actually created. Anything not shown there, including every `spawn*` key, is JSON-only.
 
 ## `lostcity`
 
@@ -94,8 +94,8 @@ Tables below: **Range** is the window the mod was designed and tested against, a
 | `spawnRadiusIncrease` | `100` | 1 – 100000 | Radius growth per failed search pass. |
 | `spawnCheckAttempts` | `20000` | 1 – 1000000 | Max chunks checked before spawn search fails. |
 
-!!! warning "A bad combination of these fields is a hard error, not a fallback"
-    Setting any of `spawnBiome`/`spawnCity`/`spawnSphere`/`spawnNotInBuilding`/`forceSpawnInBuilding`/`forceSpawnBuildings`/`forceSpawnParts` replaces vanilla's spawn search entirely, it does not layer on top of it. If the combination you set cannot actually be satisfied anywhere within `spawnCheckAttempts` chunks (a `spawnCity`/`spawnSphere` name that does not match any [Predefined City/Sphere](predefined.md), or filters that contradict each other), world creation throws and fails outright instead of silently picking an imperfect spot. If a world with custom spawn settings will not generate, check these fields first.
+!!! warning "A bad combination of these keys is a hard error, not a fallback"
+    Setting any of `spawnBiome`/`spawnCity`/`spawnSphere`/`spawnNotInBuilding`/`forceSpawnInBuilding`/`forceSpawnBuildings`/`forceSpawnParts` replaces vanilla's spawn search entirely, it does not layer on top of it. If the combination you set cannot actually be satisfied anywhere within `spawnCheckAttempts` chunks (a `spawnCity`/`spawnSphere` name that does not match any [Predefined City/Sphere](predefined.md), or filters that contradict each other), world creation throws and fails outright instead of silently picking an imperfect spot. If a world with custom spawn settings will not generate, check these keys first.
 
 ### Buildings, streets, parks
 

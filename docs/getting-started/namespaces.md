@@ -1,7 +1,7 @@
 # Namespaces
 
 !!! tip "TL;DR"
-    Every Lost Cities asset has a full name: `namespace:path`. Leave the namespace off when *referencing* something, and Lost Cities assumes `lostcities:`. Get this wrong and your content just silently fails to load, no error.
+    Every Lost Cities asset has a full name: `namespace:path`. Leave the namespace off when *referencing* something, and the mod assumes `lostcities:`. Get this wrong and your content just silently fails to load, no error.
 
 No error, no crash, no log warning. The asset just is not found. Worth understanding this before writing anything.
 
@@ -39,7 +39,7 @@ The `lostcities` in the middle is **not** your namespace, it is part of the regi
 
 ## The default namespace trap
 
-Anywhere Lost Cities expects a *name* (a profile's `worldStyle` field, a world style's list of city styles, a building's `refpalette`, and so on), a bare name with no colon is assumed to mean `lostcities:<name>`.
+Anywhere the mod expects a *name* (a profile's `worldStyle` key, a world style's list of city styles, a building's `refpalette`, and so on), a bare name with no colon is assumed to mean `lostcities:<name>`.
 
 ```json title="Fails silently if your file isn't actually in the lostcities namespace"
 {
@@ -84,11 +84,11 @@ Most modpacks should default to their own namespace. Override only when you deli
 Ordinary datapack rules, with one consequence worth spelling out:
 
 - The pack **latest in load order wins**, and it wins **whole file**. There is no key-by-key merging between two files with the same name, unlike block tags (which do merge) or a city style's own [`inherit`](../reference/citystyle.md#inheritance) (which merges within one file's chain).
-- So overriding `citystyle_config` to change one setting means restating everything else that file contained, not just the field you care about.
+- So overriding `citystyle_config` to change one setting means restating everything else that file contained, not just the key you care about.
 - Nothing warns you when an override happens. The losing file is simply never seen.
 
 !!! warning "`/reload` does not pick up Lost Cities asset changes"
-    These registries are read **once, when the world loads**. Lost Cities registers no reload listener at all, and vanilla does not reload datapack registries on `/reload` either. Editing a part or palette and running `/reload` changes nothing.
+    These registries are read **once, when the world loads**. The mod registers no reload listener at all, and vanilla does not reload datapack registries on `/reload` either. Editing a part or palette and running `/reload` changes nothing.
 
     In single player, leaving the world and rejoining does clear the mod's asset cache, so the next chunks generated use your edits. On a dedicated server it takes a full server restart. See [Seeing your changes](../tooling/commands.md#seeing-your-changes).
 

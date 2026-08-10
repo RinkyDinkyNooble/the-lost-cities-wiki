@@ -18,7 +18,7 @@ Anything that produces an actual error message belongs on [Error Messages](error
 
 **Status:** working as designed. Workaround available, no extra mods needed.
 
-Whatever `shape=` you write in a palette's `block` string is **discarded**. Every block placed through a part goes through the same neighbour-aware correction pass vanilla uses when a player places a stair by hand, and the `shape` property is recalculated from whatever ends up adjacent. This is unconditional in the compiled code, and there is no JSON field anywhere that turns it off.
+Whatever `shape=` you write in a palette's `block` string is **discarded**. Every block placed through a part goes through the same neighbour-aware correction pass vanilla uses when a player places a stair by hand, and the `shape` property is recalculated from whatever ends up adjacent. This is unconditional in the compiled code, and there is no JSON key anywhere that turns it off.
 
 === "Fix A: let the geometry do it (try this first)"
 
@@ -70,7 +70,7 @@ Nothing to randomize means nothing to stripe. One palette edit, pure JSON.
 
 **Status:** confirmed dead in 7.4.12.
 
-The field parses, inherits correctly, and is readable through the mod's API, but **no generation code reads it**. Street width is not configurable in this version.
+The key parses, inherits correctly, and is readable through the mod's API, but **no generation code reads it**. Street width is not configurable in this version.
 
 This is confusing because the shipped `citystyle_config` exists solely to set it, which makes it look load-bearing. It is not. Do not spend time on it. See [City Style](../reference/citystyle.md).
 
@@ -78,7 +78,7 @@ This is confusing because the shipped `citystyle_config` exists solely to set it
 
 **Status:** working as designed, and a real trap.
 
-Every numeric profile field has a documented range, and **none of them are enforced when the profile is loaded from JSON**. Only the in-game config screen clamps. `"buildingMaxFloors": 9999` loads without a warning and is used exactly as written.
+Every numeric profile key has a documented range, and **none of them are enforced when the profile is loaded from JSON**. Only the in-game config screen clamps. `"buildingMaxFloors": 9999` loads without a warning and is used exactly as written.
 
 The same is true of every number in every asset file: there is no range validation anywhere in the mod.
 

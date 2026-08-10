@@ -60,7 +60,7 @@ Both `editpart` and `resumeedit` find the part by looking at your Y position: th
     **Use `resumeedit` unless you specifically want to throw your changes away and start from the saved file.**
 
 !!! danger "The editing session lives in server memory only"
-    It is a map keyed by player UUID, held in RAM. It is not written to disk and does not survive a server restart, a world reload, or a crash. Restarting means re-running `resumeedit` to re-attach, and if you'd been editing without exporting, the world still has your blocks but the mod no longer knows they belong to a part.
+    It is a map keyed by player UUID, held in RAM. It is not written to disk and does not survive a server restart, a world reload, or a crash. Restarting means re-running `resumeedit` to re-attach, and if you had been editing without exporting, the world still has your blocks but the mod no longer knows they belong to a part.
 
     **Export early and often.** `exportpart` is the only thing that makes work durable.
 
