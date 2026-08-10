@@ -76,7 +76,7 @@ Both `editpart` and `resumeedit` find the part by looking at your Y position: th
 - `exportedpart`, the part itself, ready to drop into `parts/`
 - `missingpalette`, only when it found block states not in the palette, listing them as ready-made palette entries with auto-assigned characters
 
-That second key is genuinely useful: it means you can build with any blocks you like and the export tells you exactly what palette entries you still need. Characters are assigned from ASCII first, then Greek, then Cyrillic, skipping anything already taken. Same pool documented at [Which characters to actually pick](../reference/palette.md#which-characters-to-actually-pick).
+That second key is genuinely useful: it means you can build with any blocks you like and the export tells you exactly what palette entries you still need. Characters are assigned from ASCII first, then Greek, then Cyrillic, skipping anything already taken. Same pool documented at [Which characters to actually pick](../reference/palette.md#which-characters-to-pick).
 
 The output is not a drop-in file: you still need to move `exportedpart` into `data/<namespace>/lostcities/parts/<name>.json` and merge `missingpalette` into a real palette.
 

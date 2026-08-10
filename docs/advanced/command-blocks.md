@@ -32,7 +32,7 @@ The most useful version of this trick has the command block **overwrite itself**
 }
 ```
 
-This is the reliable workaround for the stair-shape problem described on the [Palette page](../reference/palette.md#stairs-fences-and-walls-auto-correct-on-placement). Normal generation always recalculates a stair's `shape` from its neighbors and discards whatever you wrote. A command block does not run during generation, it runs after, once the chunk is already placed and that correction pass has finished. Vanilla `/setblock` writes the block state you give it verbatim, with no neighbor-based recalculation, so the exact shape survives.
+This is the reliable workaround for the stair-shape problem described on the [Palette page](../reference/palette.md#stairs-fences-and-walls-correct-themselves-on-placement). Normal generation always recalculates a stair's `shape` from its neighbors and discards whatever you wrote. A command block does not run during generation, it runs after, once the chunk is already placed and that correction pass has finished. Vanilla `/setblock` writes the block state you give it verbatim, with no neighbor-based recalculation, so the exact shape survives.
 
 !!! warning "Clean up after yourself"
     If your command does not replace the command block, the command block **stays in the world**, visible and interactable. Either end with a self-replacing `setblock` like above, or replace it with air:
