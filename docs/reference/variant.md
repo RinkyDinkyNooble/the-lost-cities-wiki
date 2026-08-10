@@ -1,17 +1,17 @@
 # Variant Reference
 
 !!! tip "TL;DR"
-    `variants/<name>.json`. A named, reusable weighted block list. Referenced from a palette entry's `variant` field. Same 128-slot rule as inline `blocks`.
+    `variants/<name>.json` is a named, reusable weighted block list. A palette entry references it through its `variant` key. The same 128-slot rule applies as for an inline `blocks` list.
 
-## Fields
+## Keys
 
 | Key | Required | Meaning |
 |---|---|---|
-| `blocks` | **yes** | List of `{random, block}`. See the [128-slot rule](palette.md#the-128-slot-rule-for-blocks-and-variant). |
+| `blocks` | **yes** | A list of `{random, block}` entries. See the [128-slot rule](palette.md#the-128-slot-rule-for-blocks-and-variant). |
 
 ## Example
 
-```json title="variants/stonebrick.json (real, shipped with the mod)"
+```json title="variants/stonebrick.json, shipped with the mod"
 {
   "blocks": [
     { "random": 9, "block": "minecraft:cracked_stone_bricks" },
@@ -21,16 +21,20 @@
 }
 ```
 
-Mostly plain stone bricks, occasionally cracked or mossy. Referenced from a palette like:
+That gives mostly plain stone bricks, and occasionally cracked or mossy ones. A palette references it like this:
 
 ```json
 { "char": "θ", "variant": "stonebrick" }
 ```
 
-## Why use a Variant instead of inline `blocks`?
+## Why use a Variant instead of an inline `blocks` list
 
-Reuse. Ten palettes can all reference `stonebrick` instead of copy-pasting the same weighted list ten times. Change the variant once, every palette using it updates.
+Reuse. Ten palettes can reference `stonebrick` instead of repeating the same weighted list ten times. Change the variant once and every palette that uses it changes with it.
+
+!!! warning "A `variant` name that does not resolve throws"
+    The mod throws `Invalid palette entry for '<char>'!` when the named variant does not exist. Check the namespace as well as the spelling. See [Namespaces](../getting-started/namespaces.md).
 
 ## See also
 
-[Palette Reference](palette.md)
+- [Palette Reference](palette.md)
+- [Error Messages](../troubleshooting/errors.md)

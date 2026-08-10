@@ -1,13 +1,13 @@
 # Style Reference
 
 !!! tip "TL;DR"
-    `styles/<name>.json`. Not a visual theme, a **random palette picker**. Each "slot" rolls one palette from a weighted list, then all rolled palettes merge.
+    `styles/<name>.json` is not a visual theme. It is a **random palette picker**. Each slot rolls one palette from a weighted list, and the mod then merges every rolled palette.
 
-## Fields
+## Keys
 
 | Key | Required | Meaning |
 |---|---|---|
-| `randompalettes` | **yes** | List of lists. Each inner list is one "slot": `{factor, palette}` weighted choices. |
+| `randompalettes` | **yes** | A list of lists. Each inner list is one slot, holding weighted `{factor, palette}` choices. |
 
 ## Example: two independent slots
 
@@ -26,14 +26,24 @@
 }
 ```
 
-Two slots, rolled independently, then merged:
+The mod rolls the two slots independently, then merges the results.
 
-- **Wall slot**: 50/50 between `bricks_standard` and `bricks_gray`.
-- **Glass slot**: `glass_pane` is 3× as likely as `glass_full`.
+- **The wall slot** picks `bricks_standard` or `bricks_gray`, with equal probability.
+- **The glass slot** picks `glass_pane` 3 times as often as `glass_full`.
 
-Each roll happens once per generated building. All buildings using the same city style do not necessarily match each other, that is the point, it is what gives a city visual variety without hand-authoring every combination.
+## When the roll happens
+
+The mod rolls every slot **once per chunk**, from a random source seeded by the chunk coordinate. The result is therefore stable: the same chunk in the same world always produces the same palette.
+
+For a normal building, which occupies one chunk, that is the same as once per building. Two neighbouring buildings in the same city style do not have to match, and that is the point. It gives a city visual variety without you authoring every combination.
+
+!!! note "A multi-building rolls once per chunk, not once per structure"
+    Because the roll is per chunk, each chunk of a [Multi-Building](multibuilding.md) rolls its palette independently. The quarters of a large structure can land on different palettes.
+
+    If you need a multi-chunk structure to be uniform, do not rely on the Style layer to keep it consistent. Give its parts a `refpalette` of their own, which takes precedence over the Style's palettes. See [Collisions and merge order](palette.md#collisions-and-merge-order).
 
 ## See also
 
 - [The Content Model](../getting-started/content-model.md)
-- [Palette Reference](palette.md) for what a resolved palette actually contains
+- [Palette Reference](palette.md) for what a resolved palette contains
+- [City Style Reference](citystyle.md) for what points at a Style
