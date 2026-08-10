@@ -135,7 +135,7 @@ Sixteen keys. Note they are all lowercase with no separators, while the default 
 | `railsdown1` | `rails_down1` |
 | `railsdown2` | `rails_down2` |
 
-Surface stations additionally get a 50/50 coin flip between the `stationopen` and `stationopenroof` lists before a variant is drawn from whichever list won.
+A surface station gets one extra step. The mod flips a fair coin between the `stationopen` and `stationopenroof` lists, then draws a variant at random from whichever list won.
 
 ### Monorails
 
@@ -150,10 +150,17 @@ Surface stations additionally get a 50/50 coin flip between the `stationopen` an
 !!! danger "A typo in a part name fails in two very different ways"
     | Category | If the named part does not exist |
     |---|---|
-    | **Streets** | A warning is logged, and **that chunk simply gets no street layer**. No crash, no fallback to the default part, just a gap in the road. In a list of 3 where one name is wrong, roughly 1 in 3 of those street chunks silently comes out broken. |
-    | **Highways, railways, monorails** | Chunk generation throws. Loud, but at least obvious. |
+    | **Streets** | The mod logs a warning, and **that chunk simply gets no street layer**. There is no crash and no fallback, just a gap in the road. In a list of 3 where one name is wrong, roughly 1 in 3 of those street chunks silently comes out broken. |
+    | **Highways, railways, monorails** | The mod throws and world generation stops. Loud, but at least obvious. |
 
-    There is never a fallback to the default part name. Check your spelling, and remember a bare name means `lostcities:<name>`, so your own parts need your namespace (see [Namespaces](../getting-started/namespaces.md)).
+    There is never a fallback to the default part name. Check your spelling, and remember that a bare name means `lostcities:<name>`, so your own parts need your namespace. See [Namespaces](../getting-started/namespaces.md).
+
+!!! warning "The silent warn-and-skip is wider than streets"
+    Streets are the case people meet first, but the mod uses the same warn-and-skip lookup for every one of these:
+
+    fountains, parks, stairs, rail dungeons, building fronts, and a city sphere's `centerpart`.
+
+    A wrong name in any of them produces `Cannot find '<name>' in minecraft:root!` as a log **warning** and then nothing at that spot. If a park or a fountain never appears and no error is raised, check the log before you check your selectors.
 
 **Parts must be exactly 16×16.** `xsize` and `zsize` other than 16 parse without complaint but generate corrupted output: rotation math assumes 16, and writes past column 15 wrap back around into the same chunk instead of spilling into the next one. All 32 default infrastructure parts are 16×16.
 
