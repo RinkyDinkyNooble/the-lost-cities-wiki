@@ -7,7 +7,7 @@
 
 | Key | Required | Limits | Meaning |
 |---|---|---|---|
-| `dimx` / `dimz` | **yes** | ≥ 1, and **≤ the `areasize` it's placed with** | Grid size, in chunks. |
+| `dimx` / `dimz` | **yes** | ≥ 1, and **≤ the `areasize` it is placed with** | Grid size, in chunks. |
 | `buildings` | **yes** | | 2D list of building names, `dimx` rows of `dimz` entries each. |
 
 !!! danger "A multi-building larger than its placement area crashes generation"

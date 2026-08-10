@@ -3,7 +3,7 @@
 !!! tip "TL;DR"
     A dimension points at a **profile** (config). A profile picks a **world style** (datapack). A world style picks **city styles**, which pull in **buildings, parts, and palettes**. Get any name wrong along that chain and nothing crashes, your content just never loads.
 
-Most guides jump straight to writing building JSON. Skip that. None of it does anything until it's wired into a world, and that wiring is what nobody explains.
+Most guides jump straight to writing building JSON. Skip that. None of it does anything until it is wired into a world, and that wiring is what nobody explains.
 
 ## The three layers
 
@@ -35,19 +35,19 @@ Everything left of "World Style" is config. Everything right of it is the conten
 
 ## Profiles: read the built-in ones first
 
-Lost Cities writes its 17 built-in profiles to `config/lostcities/profiles/`, then reads back whatever is actually in that folder. They're not just examples, they're live files the mod ships and maintains.
+Lost Cities writes its 17 built-in profiles to `config/lostcities/profiles/`, then reads back whatever is actually in that folder. They are not just examples, they are live files the mod ships and maintains.
 
-!!! danger "Don't edit them in place, your changes will vanish"
+!!! danger "Do not edit them in place, your changes will vanish"
     That write happens on **every launch**, not just the first, and it overwrites unconditionally. Any edit to `wasteland.json`, `default.json`, or any other shipped profile is silently gone next time the game starts.
 
-    Files the mod doesn't ship are read and left alone, so **always use your own file name**. `/lostcities saveprofile <name>` is the intended way to get a fully populated starting point.
+    Files the mod does not ship are read and left alone, so **always use your own file name**. `/lostcities saveprofile <name>` is the intended way to get a fully populated starting point.
 
 - **wasteland**: no water, high ruin chance
 - **atlantis**: drowned cities, sea level raised
 - **biosphere**: jungle in glass domes on barren land
 - **space**: glass bubbles floating in a void
 
-Three of the 17 are marked private (`public: false`) and don't appear in the in-game selector: `bio_wasteland` and `void_outside`, which only define what generates *outside* the glass spheres in sphere-based profiles, and `biosphere_caves`, which is a full profile that happens to be wired to a Lost Worlds dimension rather than chosen by hand. Build your own spheres profile and you'll likely want a private outside-profile too.
+Three of the 17 are marked private (`public: false`) and do not appear in the in-game selector: `bio_wasteland` and `void_outside`, which only define what generates *outside* the glass spheres in sphere-based profiles, and `biosphere_caves`, which is a full profile that happens to be wired to a Lost Worlds dimension rather than chosen by hand. Build your own spheres profile and you will likely want a private outside-profile too.
 
 ## Attaching to a world: two options
 
@@ -63,7 +63,7 @@ Three of the 17 are marked private (`public: false`) and don't appear in the in-
 
 ## Landscape type needs a matching terrain mod
 
-A profile's landscape type (`floating`, `space`, `cavern`, ...) expects matching terrain underneath it, and Lost Cities doesn't generate that terrain itself. That's **Lost Worlds**, a separate mod by the same author. Want anything but the default landscape? Plan on pairing both mods.
+A profile's landscape type (`floating`, `space`, `cavern`, ...) expects matching terrain underneath it, and Lost Cities does not generate that terrain itself. That is **Lost Worlds**, a separate mod by the same author. Want anything but the default landscape? Plan on pairing both mods.
 
 ## See also
 

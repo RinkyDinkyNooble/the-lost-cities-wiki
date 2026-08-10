@@ -30,11 +30,11 @@ Say a world generates a chunk and decides "this is a city, floor 2 of a building
 Every step above is a name lookup. Every name lookup respects [namespacing](namespaces.md) rules.
 
 !!! note "Style ≠ visual theme"
-    Despite the name, a `Style` doesn't describe a look. It's a weighted **palette picker**: each "slot" in a style randomly resolves to one palette from a list, then all the resolved palettes get merged. Full reference on the Style page.
+    Despite the name, a `Style` does not describe a look. It is a weighted **palette picker**: each "slot" in a style randomly resolves to one palette from a list, then all the resolved palettes get merged. Full reference on the Style page.
 
 ## See also
 
 - [Your First Custom City](first-city.md) for this chain as six real files
 - [Namespaces](namespaces.md)
 - [Glossary](../glossary.md)
-- Individual reference pages for each asset type (linked from the sidebar as they're written)
+- Individual reference pages for each asset type (linked from the sidebar as they are written)

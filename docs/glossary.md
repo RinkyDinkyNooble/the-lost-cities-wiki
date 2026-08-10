@@ -39,7 +39,7 @@ City Style
 :   A "theme," building settings, street settings, palettes, and more, bundled together. Full reference: [City Style](reference/citystyle.md).
 
 Codec
-:   The mod's internal parsing logic for a JSON file type. Not something you need to touch, mentioned here only because it's where this wiki's technical accuracy comes from.
+:   The mod's internal parsing logic for a JSON file type. Not something you need to touch, mentioned here only because it is where this wiki's technical accuracy comes from.
 
 Forge
 :   The mod loader Lost Cities and this wiki's target version run on.

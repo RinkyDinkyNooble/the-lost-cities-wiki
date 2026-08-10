@@ -3,7 +3,7 @@
 !!! tip "TL;DR"
     Every Lost Cities asset has a full name: `namespace:path`. Leave the namespace off when *referencing* something, and Lost Cities assumes `lostcities:`. Get this wrong and your content just silently fails to load, no error.
 
-No error, no crash, no log warning. The asset just isn't found. Worth understanding this before writing anything.
+No error, no crash, no log warning. The asset just is not found. Worth understanding this before writing anything.
 
 ## What a name actually is
 
@@ -35,7 +35,7 @@ data/<your namespace>/lostcities/<asset type>/<name>.json
                                                   predefinedspheres
 ```
 
-The `lostcities` in the middle is **not** your namespace, it's part of the registry's identity, and it's there no matter whose pack the file is in. That's why the mod's own files sit at `data/lostcities/lostcities/parts/...`: the first `lostcities` is the pack, the second is the registry. Only the mod's own files get that doubled-up look. Yours will not.
+The `lostcities` in the middle is **not** your namespace, it is part of the registry's identity, and it is there no matter whose pack the file is in. That is why the mod's own files sit at `data/lostcities/lostcities/parts/...`: the first `lostcities` is the pack, the second is the registry. Only the mod's own files get that doubled-up look. Yours will not.
 
 ## The default namespace trap
 
@@ -65,7 +65,7 @@ Anywhere Lost Cities expects a *name* (a profile's `worldStyle` field, a world s
     data/lostcities/lostcities/worldstyles/standard.json
     ```
 
-    Your version replaces the mod's shipped one entirely. Simple, but global: anything else that expects the original `lostcities:standard` behavior breaks too. If two datapacks both try to override the same file, whichever loads last wins, and that order isn't obvious.
+    Your version replaces the mod's shipped one entirely. Simple, but global: anything else that expects the original `lostcities:standard` behavior breaks too. If two datapacks both try to override the same file, whichever loads last wins, and that order is not obvious.
 
 === "Use your own namespace"
 
@@ -88,12 +88,12 @@ Ordinary datapack rules, with one consequence worth spelling out:
 - Nothing warns you when an override happens. The losing file is simply never seen.
 
 !!! warning "`/reload` does not pick up Lost Cities asset changes"
-    These registries are read **once, when the world loads**. Lost Cities registers no reload listener at all, and vanilla doesn't reload datapack registries on `/reload` either. Editing a part or palette and running `/reload` changes nothing.
+    These registries are read **once, when the world loads**. Lost Cities registers no reload listener at all, and vanilla does not reload datapack registries on `/reload` either. Editing a part or palette and running `/reload` changes nothing.
 
     In single player, leaving the world and rejoining does clear the mod's asset cache, so the next chunks generated use your edits. On a dedicated server it takes a full server restart. See [Seeing your changes](../tooling/commands.md#seeing-your-changes).
 
 !!! warning "KubeJS defaults to the lostcities namespace"
-    Generating Lost Cities content through KubeJS under the `lostcities` namespace overrides the mod's built-in defaults, by the same mechanism as above. That's a valid choice if you want it, just know it's what you're doing.
+    Generating Lost Cities content through KubeJS under the `lostcities` namespace overrides the mod's built-in defaults, by the same mechanism as above. That is a valid choice if you want it, just know it is what you are doing.
 
 ## See also
 

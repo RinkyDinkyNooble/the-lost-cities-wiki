@@ -5,7 +5,7 @@ status: in-progress
 # KubeJS Integration
 
 !!! info "This page is still being written"
-    What's here is accurate and enough to get content loading. Deeper KubeJS integration (scripted generation, custom commands called from generated content) is planned.
+    What is here is accurate and enough to get content loading. Deeper KubeJS integration (scripted generation, custom commands called from generated content) is planned.
 
 !!! tip "TL;DR"
     Lost Cities content is loaded through Minecraft's normal datapack registry system, and KubeJS auto-merges anything under `kubejs/data/` into that same system. Drop your Lost Cities JSON there, no scripting, no separate datapack folder to manage.
@@ -18,11 +18,11 @@ Confirmed from the mod's own source: every Lost Cities asset type (world styles,
 kubejs/data/<namespace>/lostcities/worldstyles/mystyle.json
 ```
 
-Same file, same content, same rules as writing it directly into a datapack. No JS required, it's a plain JSON file KubeJS picks up automatically.
+Same file, same content, same rules as writing it directly into a datapack. No JS required, it is a plain JSON file KubeJS picks up automatically.
 
 ## The namespace gotcha still applies
 
-Whatever `<namespace>` you use here still follows the same [namespacing rules](../getting-started/namespaces.md) as everywhere else. Use `lostcities` and you override the mod's built-in defaults. Use your own pack's namespace and you don't. Neither is wrong, just know which one you're doing.
+Whatever `<namespace>` you use here still follows the same [namespacing rules](../getting-started/namespaces.md) as everywhere else. Use `lostcities` and you override the mod's built-in defaults. Use your own pack's namespace and you do not. Neither is wrong, just know which one you are doing.
 
 ## See also
 

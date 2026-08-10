@@ -31,7 +31,7 @@ Two slots, rolled independently, then merged:
 - **Wall slot**: 50/50 between `bricks_standard` and `bricks_gray`.
 - **Glass slot**: `glass_pane` is 3× as likely as `glass_full`.
 
-Each roll happens once per generated building. All buildings using the same city style don't necessarily match each other, that's the point, it's what gives a city visual variety without hand-authoring every combination.
+Each roll happens once per generated building. All buildings using the same city style do not necessarily match each other, that is the point, it is what gives a city visual variety without hand-authoring every combination.
 
 ## See also
 

@@ -5,15 +5,15 @@
 
 Everything here is in the repo as a complete, working datapack: [the example bundle](../examples/index.md). Copy that if you'd rather read finished files than build them up.
 
-## What you're making
+## What you are making
 
-A glass-and-concrete tower that takes over most of the buildings in a city, in a namespace called `mycity`. It's deliberately plain, the point is the wiring, not the architecture.
+A glass-and-concrete tower that takes over most of the buildings in a city, in a namespace called `mycity`. It is deliberately plain, the point is the wiring, not the architecture.
 
 ## The minimum viable set
 
 This is the part nobody states, so: to get one custom building into a world you need **six** content files and **one** config line.
 
-| # | File | Why it's needed |
+| # | File | Why it is needed |
 |---|---|---|
 | 1 | a **Palette** | maps characters to blocks |
 | 2 | a **Part** | the actual 16×16×6 block grid |
@@ -27,7 +27,7 @@ Skip any one and nothing happens, usually with no error at all. That silence is 
 
 !!! warning "Two things worth knowing before you start"
     - **Assets load once, when the world loads.** `/reload` does nothing. See [Seeing your changes](../tooling/commands.md#seeing-your-changes).
-    - **Already-generated chunks never change.** Test in a fresh world, or travel somewhere you've never been.
+    - **Already-generated chunks never change.** Test in a fresh world, or travel somewhere you have never been.
 
 ## Where the files go
 
@@ -70,7 +70,7 @@ Characters to blocks. Five entries is enough.
 
 Greek letters on purpose. Your palette is merged with the mod's, collisions silently overwrite each other, and the mod already claims most printable ASCII. See [What counts as a valid character](../reference/palette.md#what-counts-as-a-valid-character).
 
-`damaged` is what `α` turns into when this building is ruined. Optional, but it's one line and ruins look much better with it.
+`damaged` is what `α` turns into when this building is ruined. Optional, but it is one line and ruins look much better with it.
 
 ## 2. The part
 
@@ -92,9 +92,9 @@ A part is one chunk footprint, one floor tall: **16 wide, 16 deep, 6 layers**. `
 The full file is in [the example bundle](../examples/index.md). Its layers are: a solid `γ` floor slab, then five layers of `α` wall with a band of `β` windows through the middle two, hollow inside.
 
 !!! danger "Count characters, not letters"
-    Nothing checks row lengths. A row one character short doesn't error, it shifts every block after it in that layer and comes out as a diagonal smear. And length is counted in UTF-16 units, so an emoji counts as **two** even though your editor and your script both say one. Generate these files with a script and count carefully. See [Part](../reference/part.md).
+    Nothing checks row lengths. A row one character short does not error, it shifts every block after it in that layer and comes out as a diagonal smear. And length is counted in UTF-16 units, so an emoji counts as **two** even though your editor and your script both say one. Generate these files with a script and count carefully. See [Part](../reference/part.md).
 
-Make a second part, `tower_top.json`, the same way, with a solid roof layer at the top. That's the one that caps the building.
+Make a second part, `tower_top.json`, the same way, with a solid roof layer at the top. That is the one that caps the building.
 
 ## 3. The building
 
@@ -136,7 +136,7 @@ Read this as a list of candidates, not a stack. For each level, the generator co
 !!! warning "Selectors add, they never replace"
     You did **not** replace the vanilla building list. `citystyle_common` lists 8 buildings totalling 2.2 in weight, and yours is appended to them. `factor: 20.0` is why your tower wins about 90% of the time rather than 1 in 9.
 
-    There is no way to narrow an inherited list. If you want *only* your buildings, don't inherit from a style that has any. See [Inheritance](../reference/citystyle.md#inheritance).
+    There is no way to narrow an inherited list. If you want *only* your buildings, do not inherit from a style that has any. See [Inheritance](../reference/citystyle.md#inheritance).
 
 ## 5. The world style
 
@@ -168,12 +168,12 @@ Profiles are **config, not datapack**. This one goes in `config/lostcities/profi
 }
 ```
 
-Every field is optional except, in practice, `worldStyle`. `cityChance: 0.05` is five times the default, so you don't have to fly far to find a city.
+Every field is optional except, in practice, `worldStyle`. `cityChance: 0.05` is five times the default, so you do not have to fly far to find a city.
 
 !!! danger "Never edit a built-in profile file"
     Lost Cities **rewrites all 17 built-in profiles on every single launch**, not just the first. Any edit you make to `wasteland.json` or `default.json` is silently gone next time the game starts.
 
-    Files with names the mod doesn't ship are left alone. Always use your own name, like `mycity.json` here.
+    Files with names the mod does not ship are left alone. Always use your own name, like `mycity.json` here.
 
 !!! tip "Start from a real one"
     `/lostcities saveprofile <name>` writes a fully populated profile with every field at its default, which beats typing one from scratch. See [Commands](../tooling/commands.md).
@@ -213,7 +213,7 @@ In the order worth checking:
 1. **Did you restart?** `/reload` does not reload these files.
 2. **Are you in new chunks?** Existing ones are saved and never regenerate.
 3. **Did you leave a namespace off?** `"mycity"` means `lostcities:mycity`. Missing content is silent.
-4. **Is the profile actually attached?** `/lostcities debug` prints the profile name it's using.
+4. **Is the profile actually attached?** `/lostcities debug` prints the profile name it is using.
 5. **Did the profile file survive?** If you named it after a built-in, it was overwritten on launch.
 
 An actual error message instead of silence is good news. Look it up in [Error Messages](../troubleshooting/errors.md).

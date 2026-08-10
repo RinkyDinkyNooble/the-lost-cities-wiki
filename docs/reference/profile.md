@@ -21,17 +21,17 @@
 
 `public` is root-level, not inside a category. Defaults to `true`. Set `false` to hide a profile from the in-game selector (used for the "private" outside-sphere profiles mentioned on the [connects page](../getting-started/how-it-connects.md)).
 
-Tables below: **Range** is the window the mod was designed and tested against, and the window the in-game screen enforces. A blank Range means it's not a number (text, block ID, list, or true/false).
+Tables below: **Range** is the window the mod was designed and tested against, and the window the in-game screen enforces. A blank Range means it is not a number (text, block ID, list, or true/false).
 
 !!! danger "Nothing validates a JSON profile"
     The ranges below are **not enforced** when a profile is loaded from `config/lostcities/profiles/`. `"buildingMaxFloors": 9999` or `"cityChance": -50` load without a warning and are used exactly as written, which shows up as broken generation rather than a clear error.
 
-    Only the in-game config screen clamps: the clamp function has three callers, all of them GUI slider widgets. The load path never calls it, and the real bounds aren't even registered by then, since the raw JSON values are read in first.
+    Only the in-game config screen clamps: the clamp function has three callers, all of them GUI slider widgets. The load path never calls it, and the real bounds are not even registered by then, since the raw JSON values are read in first.
 
     Treat every range on this page as a rule you have to follow yourself.
 
-!!! tip "There's also an in-game screen for this"
-    The "Cities" button on the world-creation screen exposes about 40 of the more common fields from `lostcity`, `explosions`, and `cityspheres` below (chances, floor/cellar counts, explosion tuning, highway/rail toggles) without touching JSON. Handy for quick experiments, but it's session-only, nothing is written to `config/lostcities/profiles/` until the world is actually created. Anything not shown there, including every `spawn*` field, is JSON-only.
+!!! tip "There is also an in-game screen for this"
+    The "Cities" button on the world-creation screen exposes about 40 of the more common fields from `lostcity`, `explosions`, and `cityspheres` below (chances, floor/cellar counts, explosion tuning, highway/rail toggles) without touching JSON. Handy for quick experiments, but it is session-only, nothing is written to `config/lostcities/profiles/` until the world is actually created. Anything not shown there, including every `spawn*` field, is JSON-only.
 
 ## `lostcity`
 
@@ -69,7 +69,7 @@ Tables below: **Range** is the window the mod was designed and tested against, a
 
     So it drains *your buildings*, not *the world*. If you want a dry world you need terrain settings, not this.
 
-!!! warning "`avoidFoliage` also controls water, which its name doesn't suggest"
+!!! warning "`avoidFoliage` also controls water, which its name does not suggest"
     "Hard air" is a special palette result that becomes water when it sits below the chunk's water level, which is what floods the lower storeys of a coastal building.
 
     The check that decides this reads **`avoidFoliage`**, not `avoidWater`:
@@ -77,7 +77,7 @@ Tables below: **Range** is the window the mod was designed and tested against, a
     - `avoidFoliage: true` → hard air stays air, even below sea level
     - `avoidFoliage: false` → hard air floods, regardless of `avoidWater`
 
-    That looks like a mix-up in the mod rather than a deliberate design, but it is what 7.4.12 does. If you're trying to stop buildings flooding, `avoidFoliage: true` is the flag that works, at the cost of trees and flowers in parks. The per-part [`nowater` meta](part.md#nowater) does the same thing for one part without that cost.
+    That looks like a mix-up in the mod rather than a deliberate design, but it is what 7.4.12 does. If you are trying to stop buildings flooding, `avoidFoliage: true` is the flag that works, at the cost of trees and flowers in parks. The per-part [`nowater` meta](part.md#nowater) does the same thing for one part without that cost.
 
 ### Spawn
 
@@ -95,7 +95,7 @@ Tables below: **Range** is the window the mod was designed and tested against, a
 | `spawnCheckAttempts` | `20000` | 1 – 1000000 | Max chunks checked before spawn search fails. |
 
 !!! warning "A bad combination of these fields is a hard error, not a fallback"
-    Setting any of `spawnBiome`/`spawnCity`/`spawnSphere`/`spawnNotInBuilding`/`forceSpawnInBuilding`/`forceSpawnBuildings`/`forceSpawnParts` replaces vanilla's spawn search entirely, it doesn't layer on top of it. If the combination you set can't actually be satisfied anywhere within `spawnCheckAttempts` chunks (a `spawnCity`/`spawnSphere` name that doesn't match any [Predefined City/Sphere](predefined.md), or filters that contradict each other), world creation throws and fails outright instead of silently picking an imperfect spot. If a world with custom spawn settings won't generate, check these fields first.
+    Setting any of `spawnBiome`/`spawnCity`/`spawnSphere`/`spawnNotInBuilding`/`forceSpawnInBuilding`/`forceSpawnBuildings`/`forceSpawnParts` replaces vanilla's spawn search entirely, it does not layer on top of it. If the combination you set cannot actually be satisfied anywhere within `spawnCheckAttempts` chunks (a `spawnCity`/`spawnSphere` name that does not match any [Predefined City/Sphere](predefined.md), or filters that contradict each other), world creation throws and fails outright instead of silently picking an imperfect spot. If a world with custom spawn settings will not generate, check these fields first.
 
 ### Buildings, streets, parks
 
@@ -162,7 +162,7 @@ Tables below: **Range** is the window the mod was designed and tested against, a
 | `highwaySupports` | `true` | | If `true`, highways get support pillars where needed. Set `false` for highways that span void. |
 | `railwayDungeonChance` | `0.01` | 0 – 1 | Chance a chunk next to a railway gets a dungeon. |
 | `railwaysCanEnd` | `false` | | If `true`, a spot that would have been a station but has no city above gets a dead-end rail part instead. Useful when cities are rare. |
-| `railwaysEnabled` | `true` | | If `false`, no rail lines generate. Stations still do, they're gated separately. |
+| `railwaysEnabled` | `true` | | If `false`, no rail lines generate. Stations still do, they are gated separately. |
 | `railwayStationsEnabled` | `true` | | If `false`, no railway stations generate. |
 | `railwaySurfaceStationsEnabled` | `true` | | If `false`, only underground stations generate, never surface ones. |
 

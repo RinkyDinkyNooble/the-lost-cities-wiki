@@ -31,7 +31,7 @@ Controls how [Multi-Buildings](multibuilding.md) are placed. The world is tiled 
 !!! warning "`areasize` has to fit your largest multi-building"
     Placement uses `random(areasize - dimx + 1)`, so a multi-building wider than the area throws during chunk generation. See [Multi-Building Reference](multibuilding.md).
 
-!!! note "Multi-buildings don't cross style boundaries well"
+!!! note "Multi-buildings do not cross style boundaries well"
     The multi-building is drawn from whichever city style covers the most chunks in the area, then `correctstylefactor` requires that much of its own footprint to share that style. Raising it toward `1` forces multi-buildings fully inside one style; lowering it toward `0` lets them straddle. Above `1` makes placement impossible.
 
 ## `scattered`

@@ -37,18 +37,18 @@ One layer, a 4×4 hollow box made of whatever block character `α` maps to in th
 !!! warning "Row lengths are never checked"
     The rows of a layer are **concatenated into one flat string** at load, then indexed as `row * xsize + column`. Nothing verifies that a row is `xsize` long or that a layer has `zsize` rows.
 
-    A row that's one character short doesn't error, it pulls the next row's first character into its last slot and shifts **everything after it in that layer** by one. The result is a diagonal smear that looks like a generation bug rather than a typo. If the layer ends up shorter than `xsize × zsize` in total, you get a string index crash during chunk generation instead.
+    A row that is one character short does not error, it pulls the next row's first character into its last slot and shifts **everything after it in that layer** by one. The result is a diagonal smear that looks like a generation bug rather than a typo. If the layer ends up shorter than `xsize × zsize` in total, you get a string index crash during chunk generation instead.
 
-    Count in **UTF-16 code units**, not characters. An emoji counts as two, which is the same off-by-one from a source your editor won't show you. See [Palette: what counts as a valid character](palette.md#what-counts-as-a-valid-character).
+    Count in **UTF-16 code units**, not characters. An emoji counts as two, which is the same off-by-one from a source your editor will not show you. See [Palette: what counts as a valid character](palette.md#what-counts-as-a-valid-character).
 
 !!! warning "Sizes other than 16×16 are accepted but not safe"
-    A part declaring e.g. `xsize: 32` loads without complaint, then generates wrong. Rotation math assumes a 16-wide footprint, and writes past column 15 wrap back into the same chunk rather than continuing into the next one, so an oversized part silently overwrites its own first columns. There's no error and nothing in the log.
+    A part declaring e.g. `xsize: 32` loads without complaint, then generates wrong. Rotation math assumes a 16-wide footprint, and writes past column 15 wrap back into the same chunk rather than continuing into the next one, so an oversized part silently overwrites its own first columns. There is no error and nothing in the log.
 
     Parts are meant to fill exactly one chunk footprint. To cover a larger area, use a [Multi-Building](multibuilding.md), which is the supported way to span several chunks. Smaller-than-16 parts have the same rotation problem and are equally unsupported.
 
 ## Slices, floors, and height
 
-Each floor of a building occupies **6 blocks** of vertical space, and parts are stacked at 6-block intervals. A part with more than 6 slices will have its upper slices overwritten by the floor above; one with fewer leaves a gap. Match your slice count to 6 unless you know exactly what you're doing.
+Each floor of a building occupies **6 blocks** of vertical space, and parts are stacked at 6-block intervals. A part with more than 6 slices will have its upper slices overwritten by the floor above; one with fewer leaves a gap. Match your slice count to 6 unless you know exactly what you are doing.
 
 ## `meta`
 
@@ -89,7 +89,7 @@ Marks where the staircase meets the chunk edge, so the street border in the **ad
 { "meta": [ { "key": "dontconnect", "boolean": true } ] }
 ```
 
-Set on a floor part to suppress doorways between it and neighbouring chunks, in both directions. All 14 shipped `shopping*` parts use it: they're interior mall sections that should connect only through their own openings, not have generic doorways punched through.
+Set on a floor part to suppress doorways between it and neighbouring chunks, in both directions. All 14 shipped `shopping*` parts use it: they are interior mall sections that should connect only through their own openings, not have generic doorways punched through.
 
 ### `nowater`
 
@@ -101,11 +101,11 @@ Set on a floor part to suppress doorways between it and neighbouring chunks, in 
 
 ### Any other key
 
-Parses, is stored, and nothing in 7.4.12 reads it. Companion mods can read it through the API, so it's a reasonable place to hang your own data. Just don't expect Lost Cities to act on it.
+Parses, is stored, and nothing in 7.4.12 reads it. Companion mods can read it through the API, so it is a reasonable place to hang your own data. Just do not expect Lost Cities to act on it.
 
 ## Rotation
 
-A part isn't always placed the way it's authored. Buildings reuse one part on multiple sides of the same structure, and streets/highways/rails reuse a small set of shapes in whatever orientation an intersection needs, so the same part JSON commonly gets placed rotated or mirrored. Most blocks don't reorient when that happens, only stairs and rails do by default. See [Palette Reference: Rotation and the `lostcities:rotatable` tag](palette.md#rotation-and-the-lostcitiesrotatable-tag) if a part uses doors, furnaces, or any other block whose facing matters.
+A part is not always placed the way it is authored. Buildings reuse one part on multiple sides of the same structure, and streets/highways/rails reuse a small set of shapes in whatever orientation an intersection needs, so the same part JSON commonly gets placed rotated or mirrored. Most blocks do not reorient when that happens, only stairs and rails do by default. See [Palette Reference: Rotation and the `lostcities:rotatable` tag](palette.md#rotation-and-the-lostcitiesrotatable-tag) if a part uses doors, furnaces, or any other block whose facing matters.
 
 ## See also
 

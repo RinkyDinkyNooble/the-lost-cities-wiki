@@ -5,7 +5,7 @@ status: in-progress
 # Command Blocks & Third-Party Mod Integration
 
 !!! info "More integration patterns are planned"
-    Everything below is accurate and works today. What's still to come is the wider mod-integration side: more worked patterns for reaching behaviour no Lost Cities field exposes.
+    Everything below is accurate and works today. What is still to come is the wider mod-integration side: more worked patterns for reaching behaviour no Lost Cities field exposes.
 
 !!! tip "TL;DR"
     A palette entry's `tag` field is raw NBT. Point `block` at `minecraft:command_block` and set `tag.Command`, and a palette character can run any command the moment that chunk generates. Everything on this page works in vanilla, no other mods required.
@@ -32,10 +32,10 @@ The most useful version of this trick has the command block **overwrite itself**
 }
 ```
 
-This is the reliable workaround for the stair-shape problem described on the [Palette page](../reference/palette.md#stairs-fences-and-walls-auto-correct-on-placement). Normal generation always recalculates a stair's `shape` from its neighbors and discards whatever you wrote. A command block doesn't run during generation, it runs after, once the chunk is already placed and that correction pass has finished. Vanilla `/setblock` writes the block state you give it verbatim, with no neighbor-based recalculation, so the exact shape survives.
+This is the reliable workaround for the stair-shape problem described on the [Palette page](../reference/palette.md#stairs-fences-and-walls-auto-correct-on-placement). Normal generation always recalculates a stair's `shape` from its neighbors and discards whatever you wrote. A command block does not run during generation, it runs after, once the chunk is already placed and that correction pass has finished. Vanilla `/setblock` writes the block state you give it verbatim, with no neighbor-based recalculation, so the exact shape survives.
 
 !!! warning "Clean up after yourself"
-    If your command doesn't replace the command block, the command block **stays in the world**, visible and interactable. Either end with a self-replacing `setblock` like above, or replace it with air:
+    If your command does not replace the command block, the command block **stays in the world**, visible and interactable. Either end with a self-replacing `setblock` like above, or replace it with air:
     ```
     setblock ~ ~ ~ minecraft:air replace
     ```
@@ -47,7 +47,7 @@ Anything a command can do, on generation, with no player involved:
 
 | Goal | Command shape |
 |---|---|
-| Force an exact block state the palette can't express | `setblock ~ ~ ~ <state> replace` |
+| Force an exact block state the palette cannot express | `setblock ~ ~ ~ <state> replace` |
 | Fill a small region | `fill ~ ~ ~ ~2 ~2 ~2 <block> replace` |
 | Place something and clean up | `setblock ~ ~1 ~ <block>` then a second block air-ing the first |
 | Run a datapack function | `function <namespace>:<path>` |
@@ -58,12 +58,12 @@ Anything a command can do, on generation, with no player involved:
 
 ## Extending it with commands from other mods
 
-The same mechanism works with commands that don't exist in vanilla, as long as **whatever provides that command is installed and loaded when the block fires**. A modpack can register its own commands (KubeJS server scripts are the usual way) and then call them from a generated command block, which is how you reach behavior no Lost Cities field exposes.
+The same mechanism works with commands that do not exist in vanilla, as long as **whatever provides that command is installed and loaded when the block fires**. A modpack can register its own commands (KubeJS server scripts are the usual way) and then call them from a generated command block, which is how you reach behavior no Lost Cities field exposes.
 
 A worked case: placing another mod's block entity **pre-configured**, for example a passcode-locked door with its code already set. Nothing in Lost Cities can create and configure another mod's block entity, but a command that mod provides can.
 
 !!! warning "Custom commands are not portable"
-    A command that exists only because one modpack defined it silently does nothing anywhere else. The command block fires, the command fails, generation carries on, and you get an empty spot with no error. If you're following an example that uses an unfamiliar command, check whether it's vanilla before assuming it will work for you.
+    A command that exists only because one modpack defined it silently does nothing anywhere else. The command block fires, the command fails, generation carries on, and you get an empty spot with no error. If you are following an example that uses an unfamiliar command, check whether it is vanilla before assuming it will work for you.
 
     Prefer the function approach below wherever it can do the job, since it travels with your datapack.
 
@@ -91,7 +91,7 @@ setblock ~ ~ ~ minecraft:smooth_quartz_stairs[facing=east,half=bottom,shape=oute
 
 A function run from a command block inherits that block's position, so `~ ~ ~` inside the function is the command block itself. Put the line that replaces the command block **last**, so the rest has already run by the time it disappears.
 
-Note the folder is `functions` (plural) on 1.20.1. It was renamed to `function` in 1.21, so a function copied from a newer pack won't be found.
+Note the folder is `functions` (plural) on 1.20.1. It was renamed to `function` in 1.21, so a function copied from a newer pack will not be found.
 
 This covers most of what people reach for a custom command to do: multiple blocks, entities, NBT, all in one palette character, and it works in any pack that has your datapack.
 

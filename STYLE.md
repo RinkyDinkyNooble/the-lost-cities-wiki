@@ -15,7 +15,7 @@ that something is broken. What it drops is idiom, metaphor, hedging and variatio
 | Active voice, named actor | "The mod overwrites the profile." | "The profile gets overwritten." |
 | Imperative for instructions | "Set `maxfloors` to 3." | "You would want to set `maxfloors` to 3." |
 | Present tense for behaviour | "The palette resolves aliases last." | "The palette will resolve aliases last." |
-| No contractions | "does not", "cannot", "it is" | "doesn't", "can't", "it's" |
+| No contractions | `does not`, `cannot`, `it is` | `doesn't`, `can't`, `it's` |
 | Digits for numbers | "6 blocks", "3 floors" | "six blocks", "three floors" |
 | No idiom or metaphor | "This is where the rule is easy to get wrong." | "This is where it bites." |
 

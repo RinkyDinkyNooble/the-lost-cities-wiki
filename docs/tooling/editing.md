@@ -31,9 +31,9 @@ Set `editMode: true` in your [profile](../reference/profile.md)'s `lostcity` sec
 ```
 
 !!! warning "It has to be set before the world is created"
-    Turning `editMode` on for an existing world doesn't work retroactively. Edit mode makes the generator record which part it placed at which position as it generates; a world built without it has no such record, and every editor command below will refuse with *"Could not find a part to edit in this chunk!"*
+    Turning `editMode` on for an existing world does not work retroactively. Edit mode makes the generator record which part it placed at which position as it generates; a world built without it has no such record, and every editor command below will refuse with *"Could not find a part to edit in this chunk!"*
 
-    Make a separate throwaway world for editing. That's the intended workflow, not a limitation to route around.
+    Make a separate throwaway world for editing. That is the intended workflow, not a limitation to route around.
 
 ### The commands
 
@@ -42,32 +42,32 @@ All require op (permission level 1) and all refuse outright unless the world was
 | Command | What it does |
 |---|---|
 | `/lostcities createpart <name> <pos>` | Creates a new empty part at a position and starts editing it |
-| `/lostcities editpart` | Edits the part you're standing inside. **Repaints it from the saved JSON first**, see below |
-| `/lostcities resumeedit` | Re-attaches to the part you're standing inside **without** repainting |
+| `/lostcities editpart` | Edits the part you are standing inside. **Repaints it from the saved JSON first**, see below |
+| `/lostcities resumeedit` | Re-attaches to the part you are standing inside **without** repainting |
 | `/lostcities listparts` | Lists the parts recorded in your current chunk |
 | `/lostcities locatepart <name>` | Finds where a given part generated |
 | `/lostcities exportpart <file>` | Writes the current editing session out to JSON |
 
-Both `editpart` and `resumeedit` find the part by looking at your Y position: they pick whichever recorded part's vertical range contains you. Stand at the wrong height and you'll edit the floor above or below.
+Both `editpart` and `resumeedit` find the part by looking at your Y position: they pick whichever recorded part's vertical range contains you. Stand at the wrong height and you will edit the floor above or below.
 
 ### The three things that will cost you work
 
-!!! danger "`editpart` discards your unsaved in-world changes. `resumeedit` doesn't."
-    The two commands look interchangeable and are not. `editpart` **overwrites the entire part volume with the contents of the saved JSON** before it hands control back, so anything you built and hadn't exported is gone with no confirmation prompt.
+!!! danger "`editpart` discards your unsaved in-world changes. `resumeedit` does not."
+    The two commands look interchangeable and are not. `editpart` **overwrites the entire part volume with the contents of the saved JSON** before it hands control back, so anything you built and had not exported is gone with no confirmation prompt.
 
     `resumeedit` re-attaches to the same part and leaves the world exactly as it is.
 
     **Use `resumeedit` unless you specifically want to throw your changes away and start from the saved file.**
 
 !!! danger "The editing session lives in server memory only"
-    It's a map keyed by player UUID, held in RAM. It is not written to disk and does not survive a server restart, a world reload, or a crash. Restarting means re-running `resumeedit` to re-attach, and if you'd been editing without exporting, the world still has your blocks but the mod no longer knows they belong to a part.
+    It is a map keyed by player UUID, held in RAM. It is not written to disk and does not survive a server restart, a world reload, or a crash. Restarting means re-running `resumeedit` to re-attach, and if you'd been editing without exporting, the world still has your blocks but the mod no longer knows they belong to a part.
 
     **Export early and often.** `exportpart` is the only thing that makes work durable.
 
 !!! danger "Export collapses two characters that map to the same block"
     `exportpart` works backwards from block states to characters using a reverse lookup, one block state to one character. If your palette deliberately maps two different characters to the same block, for example one plain and one carrying a `loot` table, a `mob`, or an NBT `tag`, the export cannot tell them apart and picks one.
 
-    You lose the distinction silently, and the exported part looks correct. If your part depends on such a pair, re-apply it to the exported JSON by hand, or don't round-trip that part through the editor at all.
+    You lose the distinction silently, and the exported part looks correct. If your part depends on such a pair, re-apply it to the exported JSON by hand, or do not round-trip that part through the editor at all.
 
 ### What export actually produces
 
@@ -98,11 +98,11 @@ Whatever tool you use has to get these right, and none of them are checked by th
 [`validate.py`](../examples/index.md#validatepy) checks all of these against a finished datapack, so it works as a post-conversion check regardless of which tool produced the files.
 
 !!! info "A dedicated converter is in progress"
-    A schematic-to-JSON converter is being built alongside this wiki, aimed squarely at the rules above: correct sizing, automatic palette extraction, and validation before you ever load the world. This section will be replaced with a proper guide, including its own limitations, once it's ready to share.
+    A schematic-to-JSON converter is being built alongside this wiki, aimed squarely at the rules above: correct sizing, automatic palette extraction, and validation before you ever load the world. This section will be replaced with a proper guide, including its own limitations, once it is ready to share.
 
 ## See also
 
-- [Building Part Reference](../reference/part.md) for the format you're producing
+- [Building Part Reference](../reference/part.md) for the format you are producing
 - [Palette Reference](../reference/palette.md) for characters and merge order
-- [Testing & Debugging Commands](commands.md), including why `/reload` won't show your changes
+- [Testing & Debugging Commands](commands.md), including why `/reload` will not show your changes
 - [Known Issues & Workarounds](../troubleshooting/known-issues.md)

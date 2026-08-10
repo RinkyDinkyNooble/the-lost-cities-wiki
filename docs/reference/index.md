@@ -24,7 +24,7 @@ Break any link in that chain and your content silently never loads. That failure
 
 Optional. Reach for these once the chain above works.
 
-| Page | Folder | What it's for |
+| Page | Folder | What it is for |
 |---|---|---|
 | [Variant](variant.md) | `variants/` | A reusable weighted block list, referenced from a palette |
 | [Condition](condition.md) | `conditions/` | A weighted "pick a value based on where you are" table |
@@ -35,7 +35,7 @@ Optional. Reach for these once the chain above works.
 
 ## Reading these pages
 
-Each starts with a TL;DR, then a field table, then the behaviour that isn't obvious from the fields.
+Each starts with a TL;DR, then a field table, then the behaviour that is not obvious from the fields.
 
 !!! warning "No number in any of these files is validated"
     There is no range checking anywhere in the mod, in assets or in profiles. Every range these pages document is the window the mod was designed around, not a rule it enforces. Out-of-range values load silently and are used as written.

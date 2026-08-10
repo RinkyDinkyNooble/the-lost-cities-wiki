@@ -3,11 +3,11 @@
 !!! tip "TL;DR"
     Streets, highways, rails, and monorails each expect a set of default **part names** to exist. You can point any of those names at your own part instead, and for streets, highways, and railways you can supply a **list** of parts to pick from at random. Monorails accept only one.
 
-This is a contract, not a suggestion. If a part named `street_full` doesn't exist and nothing overrides that name, that piece of infrastructure doesn't generate.
+This is a contract, not a suggestion. If a part named `street_full` does not exist and nothing overrides that name, that piece of infrastructure does not generate.
 
 ## Yes, you can have more than one variation
 
-The single most common assumption is that each street shape is locked to exactly one part. It isn't. **Streets, highways, and railways accept either a single name or a list of names**, and the mod picks one at random each time it places that piece:
+The single most common assumption is that each street shape is locked to exactly one part. It is not. **Streets, highways, and railways accept either a single name or a list of names**, and the mod picks one at random each time it places that piece:
 
 ```json title="Both forms are valid in the same object"
 {
@@ -29,10 +29,10 @@ The single most common assumption is that each street shape is locked to exactly
 
 Passing a list to a monorail key is a datapack load error, not a silent fallback.
 
-!!! note "There's no weighting"
-    Unlike [building selectors](../reference/citystyle.md) or [Conditions](../reference/condition.md), these lists have no `factor` field. Every entry in the list is equally likely. If you want one variant to be rare, you can't express that here, list it once among many common ones, or use a [Variant](../reference/variant.md) inside the palette instead (see [below](#often-a-better-answer-vary-the-material-not-the-part)).
+!!! note "There is no weighting"
+    Unlike [building selectors](../reference/citystyle.md) or [Conditions](../reference/condition.md), these lists have no `factor` field. Every entry in the list is equally likely. If you want one variant to be rare, you cannot express that here, list it once among many common ones, or use a [Variant](../reference/variant.md) inside the palette instead (see [below](#often-a-better-answer-vary-the-material-not-the-part)).
 
-Adjacent chunks roll independently, with no attempt to match neighbours. Two touching straight-street chunks can and often will pick different variants, so **variants need to line up seamlessly at chunk edges** or the seams will be obvious. Don't count on predicting which variant a given chunk gets before you visit it; once a chunk is generated it's saved, so it won't change afterward.
+Adjacent chunks roll independently, with no attempt to match neighbours. Two touching straight-street chunks can and often will pick different variants, so **variants need to line up seamlessly at chunk edges** or the seams will be obvious. Do not count on predicting which variant a given chunk gets before you visit it; once a chunk is generated it is saved, so it will not change afterward.
 
 ## Where each override goes
 
@@ -114,7 +114,7 @@ The key is literally `"t"`, not `"tsplit"`.
 
 ### Railways
 
-Sixteen keys. Note they're all lowercase with no separators, while the default part names they map to are snake_case, an easy source of silent typos.
+Sixteen keys. Note they are all lowercase with no separators, while the default part names they map to are snake_case, an easy source of silent typos.
 
 | Key | Default part |
 |---|---|
@@ -148,7 +148,7 @@ Surface stations additionally get a 50/50 coin flip between the `stationopen` an
 ## Rules your custom parts must follow
 
 !!! danger "A typo in a part name fails in two very different ways"
-    | Category | If the named part doesn't exist |
+    | Category | If the named part does not exist |
     |---|---|
     | **Streets** | A warning is logged, and **that chunk simply gets no street layer**. No crash, no fallback to the default part, just a gap in the road. In a list of 3 where one name is wrong, roughly 1 in 3 of those street chunks silently comes out broken. |
     | **Highways, railways, monorails** | Chunk generation throws. Loud, but at least obvious. |
@@ -159,7 +159,7 @@ Surface stations additionally get a 50/50 coin flip between the `stationopen` an
 
 **Author variants in the same orientation as the part they replace.** The mod picks the rotation from the road layout, not from your part, so a `street_bend` variant gets rotated by the same rule the built-in one does. If your bend is drawn facing a different way than the original, it will be rotated wrongly at three quarters of the corners in your world. `full`, `none`, and `all` are never rotated, so those can safely be asymmetric.
 
-**Reuse the palette characters the category expects.** Street parts use the street/streetbase/streetvariant characters, highways expect their support character, rail parts expect the rail palette. A part referencing a character its palette doesn't define throws during generation.
+**Reuse the palette characters the category expects.** Street parts use the street/streetbase/streetvariant characters, highways expect their support character, rail parts expect the rail palette. A part referencing a character its palette does not define throws during generation.
 
 ## Often a better answer: vary the material, not the part
 
@@ -175,14 +175,14 @@ If the goal is "my streets look too repetitive," authoring several near-identica
 }
 ```
 
-That gives per-block variation with weighting, which flat part lists can't do, and it costs one file instead of several parts. Use part lists when the *shape* differs (a roundabout, a collapsed section, a checkpoint), and variants when only the *material* differs.
+That gives per-block variation with weighting, which flat part lists cannot do, and it costs one file instead of several parts. Use part lists when the *shape* differs (a roundabout, a collapsed section, a checkpoint), and variants when only the *material* differs.
 
 !!! note "The mod ships zero examples of the list form"
-    None of the built-in world styles or city styles override these part names at all, they all run on exactly one variant per slot. The feature is real and present in the code, it just has no demonstration in the default content, which is why it's widely assumed not to exist.
+    None of the built-in world styles or city styles override these part names at all, they all run on exactly one variant per slot. The feature is real and present in the code, it just has no demonstration in the default content, which is why it is widely assumed not to exist.
 
 ## An inheritance trap for street parts
 
-City style `inherit` handles `streetblocks.parts` as one unit: writing **any** `parts` block at all, even a partial one, stops the parent's `parts` from being inherited. Keys you didn't list fall back to the hardcoded defaults, not to the parent's overrides.
+City style `inherit` handles `streetblocks.parts` as one unit: writing **any** `parts` block at all, even a partial one, stops the parent's `parts` from being inherited. Keys you did not list fall back to the hardcoded defaults, not to the parent's overrides.
 
 If a parent city style overrides `full` and `bend`, and your child overrides only `full`, the child's `bend` reverts to the built-in `street_bend`, it does not keep the parent's. Restate every key you want to keep. See [City Style: Inheritance](../reference/citystyle.md#inheritance).
 
