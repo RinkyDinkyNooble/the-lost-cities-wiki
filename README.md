@@ -2,7 +2,7 @@
 
 An in-depth, unofficial guide to building custom cities with [The Lost Cities](https://www.curseforge.com/minecraft/mc-mods/the-lost-cities), a Minecraft mod by McJty.
 
-**Read it at [https://rinkydinkynoble.github.io/the-lost-cities-wiki/](https://rinkydinkynooble.github.io/the-lost-cities-wiki/)**
+**Read it at [rinkydinkynooble.github.io/the-lost-cities-wiki](https://rinkydinkynooble.github.io/the-lost-cities-wiki/)**
 
 ## What this is
 
@@ -16,7 +16,7 @@ Some things you won't find elsewhere:
 - That city style `inherit` is **additive** for selectors, so you cannot narrow an inherited building list
 - That street part names accept a **list**, and the mod ships zero examples of it
 - What a palette `char` may legally be, and why emoji break in two separate ways
-- An [index of every error message](https://rinkydinkynoble.github.io/the-lost-cities-wiki/troubleshooting/errors/) the mod throws, with causes and fixes
+- An [index of every error message](https://rinkydinkynooble.github.io/the-lost-cities-wiki/troubleshooting/errors/) the mod throws, with causes and fixes
 
 ## Layout
 
