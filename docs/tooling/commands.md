@@ -9,7 +9,7 @@
     | `locate`, `createbuilding` | **Yes**, permission level 1 |
 
 !!! note "The in-game editor has its own page"
-    Lost Cities also ships six commands for live in-world editing (`createpart`, `editpart`, `resumeedit`, `exportpart`, `listparts`, `locatepart`). They need a world created with `editMode: true` and have some sharp edges, so they are covered on [Editing & Tooling](editing.md) instead.
+    The mod also ships six commands for live in-world editing: `createpart`, `editpart`, `resumeedit`, `exportpart`, `listparts` and `locatepart`. All six need permission level 1. They also need a world created with `editMode: true`, and they have some sharp edges, so [Editing and Tooling](editing.md) covers them instead.
 
     There is one more, `testfill`, which drops a 5×5×5 blob of random block states around you. It is a developer scratch command with no authoring use.
 
