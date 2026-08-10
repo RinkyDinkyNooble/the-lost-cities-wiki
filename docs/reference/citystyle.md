@@ -1,48 +1,54 @@
 # City Style Reference
 
 !!! tip "TL;DR"
-    `citystyles/<name>.json`. A "theme": picks a [Style](style.md), sets building/street/park/rail behavior, and can inherit from another city style. **Inheritance behaves differently for selectors than for everything else**, see [Inheritance](#inheritance).
+    `citystyles/<name>.json` is the theme layer. It picks a [Style](style.md), sets building, street, park and rail behaviour, and can inherit from another city style. **Inheritance behaves differently for selectors than for everything else.** See [Inheritance](#inheritance).
 
-## Fields
+## Keys
 
 | Key | Required | Meaning |
 |---|---|---|
-| `inherit` | no | Name of another city style to build on. See [Inheritance](#inheritance). |
-| `style` | no | Name of a [Style](style.md) (palette combinator). This is what decides how the city *looks*. |
-| `stuff_tags` | no | List of tags controlling which [Stuff Objects](stuff.md) can appear. Note the underscore, `"all"` is always included automatically. |
-| `explosionchance` | no | Float, **0 – 1**. Overrides the [Profile](profile.md)'s `explosionChance`. |
-| `generalblocks` | no | Palette characters for `ironbars`, `glowstone`, `leaves`, `rubbledirt`. Used by the damage and ruin passes. |
-| `buildingsettings` | no | `minfloors`/`maxfloors` (**0 – 60**), `mincellars`/`maxcellars` (**0 – 20**), `buildingchance` (**0 – 1**). Overrides the matching [Profile](profile.md) fields, and is in turn narrowed by each [Building](building.md)'s own bounds. |
-| `corridorblocks` | no | `corridorchance` (**0 – 1**), plus `roof`/`glass` chars. |
-| `parkblocks` | no | `parkchance` (**0 – 1**), `parkstreetthreshold` (**0 – 8**, it is a count of surrounding street chunks), `avoidfoliage`, `parkborder`, `parkelevation`, plus `elevation`/`grass` chars. |
-| `railblocks` | no | `railmain` char. |
-| `sphereblocks` | no | `inner`/`border`/`glass` chars for city spheres. |
-| `streetblocks` | no | `fountainchance` and `frontchance` (**0 – 1**), `width` (see the note below), `street`/`streetbase`/`streetvariant`/`border`/`wall` chars, plus a nested `parts` block for [street part-name overrides](../concepts/infrastructure-parts.md). |
-| `selectors` | no | Eight weighted lists: `buildings`, `bridges`, `parks`, `fountains`, `stairs`, `fronts`, `raildungeons`, `multibuildings`. See [Selectors](#selectors-and-distance-gating). |
+| `inherit` | no | The name of another city style to build on. See [Inheritance](#inheritance). |
+| `style` | no | The name of a [Style](style.md), which is the palette combinator. This decides how the city looks. |
+| `stuff_tags` | no | A list of tags controlling which [Stuff Objects](stuff.md) can appear. Note the underscore. The tag `"all"` is always included. |
+| `explosionchance` | no | Float, 0 to 1. Overrides the [Profile](profile.md)'s `explosionChance`. |
+| `generalblocks` | no | Palette characters for `ironbars`, `glowstone`, `leaves` and `rubbledirt`. The damage and ruin passes use them. |
+| `buildingsettings` | no | `minfloors`, `maxfloors`, `mincellars`, `maxcellars` and `buildingchance`. Overrides the matching [Profile](profile.md) values, and is in turn narrowed by each [Building](building.md)'s own bounds. |
+| `corridorblocks` | no | `corridorchance`, plus the `roof` and `glass` characters. |
+| `parkblocks` | no | `parkchance`, `parkstreetthreshold` (a count of surrounding street chunks, 0 to 8), `avoidfoliage`, `parkborder`, `parkelevation`, plus the `elevation` and `grass` characters. |
+| `railblocks` | no | The `railmain` character. |
+| `sphereblocks` | no | The `inner`, `border` and `glass` characters for city spheres. |
+| `streetblocks` | no | `fountainchance` and `frontchance`, `width` (see the warning below), the `street`, `streetbase`, `streetvariant`, `border` and `wall` characters, plus a nested `parts` block for [street part-name overrides](../concepts/infrastructure-parts.md). |
+| `selectors` | no | Eight weighted lists: `buildings`, `bridges`, `parks`, `fountains`, `stairs`, `fronts`, `raildungeons` and `multibuildings`. See [Selectors](#selectors-and-distance-gating). |
 
-!!! warning "None of these ranges are enforced"
-    Same as the [Profile](profile.md), nothing validates an asset JSON number. A `buildingchance` of `4.0` loads fine and just means "always." The ranges above are the windows the mod is built around, not checks it performs.
+!!! warning "None of these numbers are validated"
+    Nothing validates a number in an asset JSON, exactly as in the [Profile](profile.md). A `buildingchance` of `4.0` loads and simply means always. The ranges this page mentions are the windows the mod is built around, not checks it performs.
 
-!!! warning "`streetblocks.width` has no effect in 7.4.12"
-    The field parses, inherits, and is readable by companion mods through the API, but **nothing in the generation code reads it**. Street width is not configurable in this version. It is mentioned here only because the shipped `citystyle_config` sets it, which makes it look load-bearing.
+!!! warning "`streetblocks.width` does nothing in 7.4.12"
+    The key parses, inherits, and is readable by a companion mod through `ILostCityCityStyle.getStreetWidth()`. **No generation code reads it.** Street width is not configurable in this version.
+
+    It is documented here only because the shipped `citystyle_config` sets it to 8, which makes it look load-bearing. It is not.
 
 !!! warning "The naming is not consistent"
-    Five of these use a `...blocks` suffix (`generalblocks`, `corridorblocks`, `parkblocks`, `railblocks`, `sphereblocks`, `streetblocks`), one uses `...settings` (`buildingsettings`). Not a typo on this page, that is genuinely how the mod names them. Copy exact key names, do not guess by pattern.
+    Six of these keys use a `...blocks` suffix: `generalblocks`, `corridorblocks`, `parkblocks`, `railblocks`, `sphereblocks` and `streetblocks`. One uses a `...settings` suffix: `buildingsettings`. That is genuinely how the mod names them. Copy the exact key. Do not guess from the pattern.
 
-!!! note "railmain resolves once per chunk, not once per block"
-    If `railmain` points at a weighted [Palette](palette.md) entry (`variant` or `blocks`) rather than a fixed `block`, the mod picks one random result and reuses it for the entire rail-bed strip in that chunk, it does not re-roll per block. On a long straight railway spanning many chunks, this shows up as solid-colored 16-block strips rather than block-by-block noise, since each chunk gets its own independent roll. The mod's own default city style points `railmain` at the `stonebrick` variant (mostly plain stone bricks, small chance of cracked or mossy), so most chunks look identical and occasionally a whole chunk-length strip stands out. This is how the resolution works, not something to work around unless you want every rail chunk to look uniform (use a fixed `block` instead of a weighted one).
+!!! note "`railmain` resolves once per chunk, not once per block"
+    If `railmain` points at a weighted [Palette](palette.md) entry, that is a `variant` or a `blocks` list rather than a fixed `block`, the mod picks one result and reuses it for the whole rail-bed strip in that chunk. It does not re-roll per block.
+
+    On a long straight railway this appears as solid-coloured strips 16 blocks long, because each chunk gets its own independent roll. The mod's own default city style points `railmain` at the `stonebrick` variant, which is mostly plain stone bricks with a small chance of cracked or mossy, so most chunks look identical and occasionally a whole chunk-length strip stands out.
+
+    This is how the resolution works, not a fault. If you want every rail chunk to look uniform, use a fixed `block` instead of a weighted one.
 
 ## Selectors and distance gating
 
-All eight selector lists take the same entry shape. Two fields are the common case, three more exist and are almost unknown:
+All eight selector lists take the same entry shape. Two keys are the common case. Three more exist and are almost unknown.
 
 | Key | Required | Limits | Meaning |
 |---|---|---|---|
-| `factor` | **yes** | float, > 0 | Relative weight. |
-| `value` | **yes** | | Name of the building, park, bridge, and so on. |
-| `minSpawnDistance` | no | ≥ 0, blocks | Weight is `0` closer to the origin than this. Default `0`. |
-| `maxSpawnDistance` | no | ≥ 0, blocks | Weight is `0` further out than this. Default: unlimited. |
-| `feather` | no | ≥ 0, blocks | Width of a fade band on both edges. `0` (the default) means a hard cutoff. |
+| `factor` | **yes** | float above 0 | The relative weight. |
+| `value` | **yes** | | The name of the building, park, bridge and so on. |
+| `minSpawnDistance` | no | blocks, 0 or more | The weight is 0 closer to the origin than this. Defaults to `0`. |
+| `maxSpawnDistance` | no | blocks, 0 or more | The weight is 0 further out than this. Defaults to unlimited. |
+| `feather` | no | blocks, 0 or more | The width of a fade band on both edges. `0`, the default, means a hard cutoff. |
 
 Note the **camelCase** on those three, unlike nearly every other key in the mod.
 
@@ -58,30 +64,32 @@ Note the **camelCase** on those three, unlike nearly every other key in the mod.
 }
 ```
 
-Inside the allowed band the entry weighs its full `factor`. Within `feather` blocks of an edge it ramps linearly between `0` and `factor`. Outside that, `0`.
+Inside the allowed band the entry carries its full `factor`. Within `feather` blocks of an edge the mod ramps it linearly between 0 and `factor`. Outside that band the weight is 0.
 
-!!! warning "Three things the names do not tell you"
-    - **Distance is measured from world origin (0, 0), not from world spawn.** The code squares the chunk's own block coordinates. If your spawn is not near 0,0, this will not behave the way the name suggests.
-    - **It stops working past roughly 46,340 blocks from origin.** The squared distance is held in a 32-bit int and overflows at that radius, after which it goes negative and every test flips. Treat this as a feature for the first ~46k blocks only.
-    - **If every entry in a list is excluded, the first entry is picked anyway.** The weighted picker sums to zero and returns element one rather than nothing, so a fully-gated list quietly falls back instead of erroring.
+!!! warning "Three things the key names do not tell you"
+    **Distance is measured from the world origin, not from world spawn.** The mod squares the chunk's own block coordinates, so the centre of the effect is always 0, 0. If your spawn is not near the origin, this does not behave the way the name suggests.
+
+    **It stops working beyond about 46,340 blocks from the origin.** The mod holds the squared distance in a 32-bit integer, which overflows past that radius. The value goes negative and every comparison flips. The same overflow applies to `minSpawnDistance` and `maxSpawnDistance` themselves, because the mod squares those as integers too. Treat the whole feature as usable only within the first 46,000 blocks.
+
+    **If every entry in a list is excluded, the mod picks the first one anyway.** The weighted picker sums the weights to zero and then returns the first element rather than nothing, so a fully gated list falls back silently instead of reporting an error.
 
 ## Inheritance
 
-`inherit` names one other city style. Chains work: a style can inherit from a style that inherits from another, and the whole chain resolves.
+`inherit` names one other city style. Chains work, so a style can inherit from a style that inherits from another, and the whole chain resolves.
 
-**The important part: there are two completely different merge behaviours depending on the field.**
+**There are two completely different merge behaviours, depending on the key.**
 
-| Field group | Behaviour |
+| Key group | Behaviour |
 |---|---|
-| `selectors` (all eight lists) and `stuff_tags` | **Additive.** The parent's entries are appended to yours. You end up with both. |
-| Everything else (`style`, all the `...blocks` chars, `buildingsettings`, all the chances) | **Child wins per field.** Any individual value you do not set is taken from the parent. |
-| `streetblocks.parts` | **All or nothing**, see the warning below. |
+| `selectors`, all eight lists, and `stuff_tags` | **Additive.** The mod appends the parent's entries to yours. You end up with both. |
+| Everything else: `style`, all the `...blocks` characters, `buildingsettings`, all the chances | **The child wins, key by key.** Any individual value you do not set is taken from the parent. |
+| `streetblocks.parts` | **All or nothing.** See the warning below. |
 
 ### Selectors accumulate, they do not replace
 
-This surprises nearly everyone. If a parent lists eight buildings and your child lists three, the resulting pool is **eleven entries**, not three. There is no way to remove or narrow a parent's selector list, only to add to it.
+This surprises nearly everyone. If a parent lists eight buildings and your child lists three, the resulting pool holds **eleven entries**, not three. There is no way to remove or narrow a parent's selector list. You can only add to it.
 
-Worse, if your three entries name buildings the parent also names, those buildings appear **twice** in the pool, so their effective weight is the sum of both factors, not your value.
+If your three entries name buildings the parent also names, those buildings appear **twice** in the pool. Their effective weight is the sum of both factors, not your value.
 
 ```json title="Parent"
 { "selectors": { "buildings": [
@@ -94,27 +102,30 @@ Worse, if your three entries name buildings the parent also names, those buildin
   { "factor": 5.0, "value": "house" }
 ] } }
 ```
-The child's pool is `house` at 5.0, `house` at 1.0, and `tower` at 1.0. `house` is effectively weight 6.0 against `tower`'s 1.0, not 5-to-1.
 
-**If you need a genuinely different building list, do not inherit from a style that has one.** Inherit from a minimal base (or nothing) and declare the full list yourself.
+The child's pool is `house` at 5.0, `house` at 1.0, and `tower` at 1.0. So `house` carries an effective weight of 6.0 against `tower`'s 1.0, not 5 to 1.
 
-!!! warning "`streetblocks.parts` is the exception: it is all-or-nothing"
-    Every other nested field merges key by key, so setting `streetblocks.border` alone keeps the parent's `streetblocks.wall`. **`streetblocks.parts` does not work that way.** Writing any `parts` block at all, even one with a single key, discards the parent's entire `parts` block. Keys you did not restate fall back to the mod's hardcoded defaults, not the parent's values. Restate every key you want to keep.
+**If you need a genuinely different building list, do not inherit from a style that has one.** Inherit from a minimal base, or from nothing, and declare the full list yourself.
 
-## How the shipped city styles are organized
+!!! warning "`streetblocks.parts` is the exception, and it is all or nothing"
+    Every other nested key merges key by key, so setting `streetblocks.border` alone keeps the parent's `streetblocks.wall`.
 
-The five city styles the mod ships are worth reading before writing your own, because the layering is deliberate:
+    **`streetblocks.parts` does not work that way.** Writing any `parts` block at all, even one holding a single key, discards the parent's entire `parts` block. Every key you did not restate falls back to the mod's built-in default, not to the parent's value. Restate every key you want to keep.
+
+## How the shipped city styles are organised
+
+The five city styles the mod ships are worth reading before you write your own, because the layering is deliberate.
 
 ```
-citystyle_config          ← only { "streetblocks": { "width": 8 } }
-      ↑
-citystyle_common          ← all block characters, all eight selectors, stuff_tags
-      ↑           ↑              ↑
+citystyle_config          only { "streetblocks": { "width": 8 } }
+      ^
+citystyle_common          all block characters, all eight selectors, stuff_tags
+      ^           ^              ^
 citystyle_    citystyle_    citystyle_border
-standard      desert        (adds buildingsettings + its own selectors)
+standard      desert        (adds buildingsettings and its own selectors)
 ```
 
-And the two most-used ones are two lines each:
+The two most used styles are two lines each.
 
 ```json title="citystyle_standard.json, in full"
 {
@@ -129,28 +140,34 @@ And the two most-used ones are two lines each:
 }
 ```
 
-Three things worth taking from this:
+Three things are worth taking from this.
 
-**1. A "desert city" is not made of different buildings.** `citystyle_standard` and `citystyle_desert` differ by exactly one field: which [Style](style.md) they point at. Same buildings, same street rules, same selectors, different palettes. The visual identity of a city comes from the palette layer, not from authoring a separate set of buildings. If you want a themed city, your first move should be a new Style plus palettes, not new buildings.
+**1. A desert city is not made of different buildings.** `citystyle_standard` and `citystyle_desert` differ by exactly one key: which [Style](style.md) they point at. Same buildings, same street rules, same selectors, different palettes.
 
-**2. `citystyle_config` exists to be overridden.** It sits at the bottom of the chain and contains one setting, so a modpack can replace one tiny file (via the [`lostcities` namespace](../getting-started/namespaces.md)) and have it apply to every city style, without copying anything else. The *pattern* is worth stealing: put the knobs you expect people to tweak in their own small file at the base of the chain. The specific setting it holds, `streetblocks.width`, happens to do nothing in 7.4.12 (see the warning above), so do not read the file as proof that street width is adjustable.
+A city's visual identity comes from the palette layer, not from authoring a separate set of buildings. If you want a themed city, write a new Style and new palettes first, not new buildings.
 
-**3. `citystyle_border` is what city edges use.** It inherits `citystyle_common` but adds `buildingsettings` with `maxfloors: 1`, `maxcellars: 1`, `buildingchance: 0.2`, low, sparse buildings. This is the style paired with the [`cityStyleThreshold`/`cityStyleAlternative`](profile.md#cities) profile fields to fade a dense downtown out into low outskirts. If you want that effect, this is the working example to copy.
+**2. `citystyle_config` exists to be overridden.** It sits at the bottom of the chain and holds one setting, so a modpack can replace one small file through the [`lostcities` namespace](../getting-started/namespaces.md) and have it apply to every city style, without copying anything else.
 
-Note that `citystyle_border` also restates all the block characters it would have inherited anyway. That is harmless duplication, not something you need to imitate.
+The pattern is worth copying: put the settings you expect people to change in their own small file at the base of the chain. The particular setting this file holds, `streetblocks.width`, does nothing in 7.4.12, so do not read the file as evidence that street width is adjustable.
+
+**3. `citystyle_border` is what city edges use.** It inherits `citystyle_common` and adds `buildingsettings` with `maxfloors: 1`, `maxcellars: 1` and `buildingchance: 0.2`, which gives low, sparse buildings.
+
+This is the style to pair with the [`cityStyleThreshold` and `cityStyleAlternative`](profile.md#cities) profile keys to fade a dense downtown out into low outskirts. If you want that effect, copy this working example.
+
+`citystyle_border` also restates all the block characters it would have inherited anyway. That is harmless duplication. You do not need to imitate it.
 
 ### Writing your own
 
-The practical decision is what to inherit from:
+The practical decision is what to inherit from.
 
 | Goal | Approach |
 |---|---|
-| Retheme an existing city (different materials, same content) | `inherit: "citystyle_common"`, set `style` to your own [Style](style.md). Two lines, exactly like `citystyle_desert`. |
-| Add a few buildings on top of the defaults | `inherit: "citystyle_common"` and list only your additions in `selectors.buildings`, they get appended to the built-in ones. |
-| Use *only* your own buildings | **Do not inherit from `citystyle_common`.** Its selectors would be merged in and you'd keep getting vanilla buildings. Declare everything yourself. |
-| Change only street width globally | Override `citystyle_config` in the `lostcities` namespace. |
+| Retheme an existing city, with different materials and the same content | Set `inherit: "citystyle_common"` and point `style` at your own [Style](style.md). Two lines, exactly like `citystyle_desert`. |
+| Add a few buildings on top of the defaults | Set `inherit: "citystyle_common"` and list only your additions in `selectors.buildings`. The mod appends them to the built-in ones. |
+| Use only your own buildings | **Do not inherit from `citystyle_common`.** Its selectors would be merged in and you would keep getting the built-in buildings. Declare everything yourself. |
+| Apply one setting across every city style | Override `citystyle_config` in the `lostcities` namespace. Note that the only key it currently holds, `width`, has no effect, so this is a pattern to copy rather than a working knob. |
 
-## Example: minimal retheme
+## Example: a minimal retheme
 
 ```json title="citystyle_wasteland.json"
 {
@@ -162,13 +179,13 @@ The practical decision is what to inherit from:
 }
 ```
 
-Everything comes from `citystyle_common` except the palette Style and the building density. Note `buildingsettings` merges per field here, so setting only `buildingchance` leaves the parent's floor and cellar bounds intact.
+Everything comes from `citystyle_common` except the Style and the building density. `buildingsettings` merges key by key here, so setting only `buildingchance` leaves the parent's floor and cellar bounds intact.
 
 ## See also
 
 - [Style Reference](style.md) for the palette layer that gives a city style its look
-- [Profile Reference](profile.md) for what these fields override
+- [Profile Reference](profile.md) for the values these keys override
 - [Building Reference](building.md) for the bounds that narrow `buildingsettings` further
-- [Streets, Highways, Rails & Monorails](../concepts/infrastructure-parts.md) for `streetblocks.parts`
+- [Streets, Highways, Rails and Monorails](../concepts/infrastructure-parts.md) for `streetblocks.parts`
 - [Stuff Object Reference](stuff.md) for `stuff_tags`
 - [Glossary](../glossary.md)
