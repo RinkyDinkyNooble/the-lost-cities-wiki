@@ -22,7 +22,7 @@ The most useful version of this trick has the command block **overwrite itself**
 
 ```json title="A palette entry that becomes a stair with an exact, forced shape"
 {
-  "char": "Á",
+  "char": "ω",
   "block": "minecraft:command_block[conditional=false,facing=west]",
   "tag": {
     "Command": "setblock ~ ~ ~ minecraft:smooth_quartz_stairs[facing=east,half=bottom,shape=outer_left] replace",
@@ -32,7 +32,7 @@ The most useful version of this trick has the command block **overwrite itself**
 }
 ```
 
-This is the reliable workaround for the stair-shape problem described on the [Palette page](../reference/palette.md#stairs-fences-and-walls-correct-themselves-on-placement). Normal generation always recalculates a stair's `shape` from its neighbors and discards whatever you wrote. A command block does not run during generation, it runs after, once the chunk is already placed and that correction pass has finished. Vanilla `/setblock` writes the block state you give it verbatim, with no neighbor-based recalculation, so the exact shape survives.
+This is the reliable workaround for the stair-shape problem described on the [Palette page](../reference/palette.md#stairs-fences-and-walls-correct-themselves-on-placement). Normal generation always recalculates a stair's `shape` from its neighbours and discards whatever you wrote. A command block does not run during generation, it runs after, once the chunk is already placed and that correction pass has finished. Vanilla `/setblock` writes the block state you give it verbatim, with no neighbour-based recalculation, so the exact shape survives.
 
 !!! warning "Clean up after yourself"
     If your command does not replace the command block, the command block **stays in the world**, visible and interactable. Either end with a self-replacing `setblock` like above, or replace it with air:
@@ -58,7 +58,7 @@ Anything a command can do, on generation, with no player involved:
 
 ## Extending it with commands from other mods
 
-The same mechanism works with commands that do not exist in vanilla, as long as **whatever provides that command is installed and loaded when the block fires**. A modpack can register its own commands (KubeJS server scripts are the usual way) and then call them from a generated command block, which is how you reach behavior no Lost Cities field exposes.
+The same mechanism works with commands that do not exist in vanilla, as long as **whatever provides that command is installed and loaded when the block fires**. A modpack can register its own commands (KubeJS server scripts are the usual way) and then call them from a generated command block, which is how you reach behaviour no Lost Cities field exposes.
 
 A worked case: placing another mod's block entity **pre-configured**, for example a passcode-locked door with its code already set. Nothing in Lost Cities can create and configure another mod's block entity, but a command that mod provides can.
 
@@ -79,7 +79,7 @@ setblock ~ ~ ~ minecraft:smooth_quartz_stairs[facing=east,half=bottom,shape=oute
 
 ```json title="The palette entry that calls it"
 {
-  "char": "Â",
+  "char": "ψ",
   "block": "minecraft:command_block[conditional=false,facing=west]",
   "tag": {
     "Command": "function mycity:place_corner",

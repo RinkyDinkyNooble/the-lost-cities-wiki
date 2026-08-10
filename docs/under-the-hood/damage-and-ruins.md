@@ -8,7 +8,7 @@
 
 ## Explosions are per-chunk, independent rolls
 
-Every city chunk independently rolls for a normal explosion (`explosionChance`, radius from `explosionMinRadius`/`Max`, height from `explosionMinHeight`/`Max`) and, separately, a mini explosion (`miniExplosionChance` and its own radius/height range). A single chunk can end up with several overlapping explosions if it is unlucky enough to roll more than one type, or if a neighboring chunk's explosion reaches into it, damage from every overlapping source accumulates rather than only the strongest one applying. `explosionsInCitiesOnly` restricts where an explosion's *center* can roll, not how far its blast can reach, a blast centered just inside a city can still tear into non-city terrain at its edge.
+Every city chunk independently rolls for a normal explosion (`explosionChance`, radius from `explosionMinRadius`/`Max`, height from `explosionMinHeight`/`Max`) and, separately, a mini explosion (`miniExplosionChance` and its own radius/height range). A single chunk can end up with several overlapping explosions if it is unlucky enough to roll more than one type, or if a neighbouring chunk's explosion reaches into it, damage from every overlapping source accumulates rather than only the strongest one applying. `explosionsInCitiesOnly` restricts where an explosion's *center* can roll, not how far its blast can reach, a blast centered just inside a city can still tear into non-city terrain at its edge.
 
 ## What actually breaks
 
@@ -22,9 +22,9 @@ Whether a given block breaks under nearby damage is not a flat roll, block ident
 
 When a block does break, the palette entry's `damaged` field (see [Palette Reference](../reference/palette.md)) decides what it becomes, rubble, a broken variant, or whatever else was authored there. A character with no `damaged` value set just breaks to air.
 
-## Debris spreads into neighboring chunks
+## Debris spreads into neighbouring chunks
 
-Damage does not stop cleanly at a chunk border. `debrisToNearbyChunkFactor` controls how much of a damaged chunk's rubble bleeds into its neighbors, and it is an inverse relationship, **higher values mean less spillover**, not more. Seeing scattered rubble just outside the chunk that actually rolled the explosion is expected behavior, not a sign that damage settings are misconfigured.
+Damage does not stop cleanly at a chunk border. `debrisToNearbyChunkFactor` controls how much of a damaged chunk's rubble bleeds into its neighbours, and it is an inverse relationship, **higher values mean less spillover**, not more. Seeing scattered rubble just outside the chunk that actually rolled the explosion is expected behaviour, not a sign that damage settings are misconfigured.
 
 ## Ruins are a separate pass, after the building already exists
 

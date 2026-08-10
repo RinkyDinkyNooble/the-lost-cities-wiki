@@ -14,7 +14,7 @@ For a single chunk, roughly in this order:
 2. **City or non-city chunk.** See [How a Chunk Becomes a City](city-generation.md) for how this gets decided. A city chunk generates a building or street; a non-city chunk gets normal terrain, plus scattered buildings, bridges, and highways if any pass through.
 3. **City-sphere center piece**, if this chunk happens to be a sphere's center and the active World Style defines one.
 4. **Railways**, then railway dungeons.
-5. **Torch attachment fixup.** Torches placed by any part in this chunk do not get their facing decided at placement time, they are queued and resolved afterward by checking which of the four cardinal neighbors (then straight down) actually has a solid block once the whole chunk's geometry exists. This is why a palette's `torch` entries never need an explicit facing.
+5. **Torch attachment fixup.** Torches placed by any part in this chunk do not get their facing decided at placement time, they are queued and resolved afterward by checking which of the four cardinal neighbours (then straight down) actually has a solid block once the whole chunk's geometry exists. This is why a palette's `torch` entries never need an explicit facing.
 6. **Damage, ruins, and debris.** See [Damage, Ruins & Explosions](damage-and-ruins.md). This step runs against the fully-placed chunk.
 7. **Flush to the world**, then a last pass adds vine overgrowth and anything else deferred to run one tick later.
 

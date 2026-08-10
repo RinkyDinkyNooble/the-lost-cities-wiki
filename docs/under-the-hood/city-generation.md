@@ -20,7 +20,7 @@ Controlled by the sign of a profile's `cityChance` (see [Profile Reference](../r
 
     Each chunk independently rolls a chance to become a **city center**, then gets a random radius between `cityMinRadius` and `cityMaxRadius`. A chunk counts as "in a city" based on its distance to every nearby center: each center contributes a factor that fades out toward its edge, and overlapping centers' factors **add together**. `cityThreshold` is the cutoff those summed factors need to clear.
 
-    This is why bumping `cityMaxRadius` up does not just make individual cities bigger, past a point, neighboring cities' fade zones start overlapping and summing past the threshold, and what were meant to be separate cities merge into one sprawling one.
+    This is why bumping `cityMaxRadius` up does not just make individual cities bigger, past a point, neighbouring cities' fade zones start overlapping and summing past the threshold, and what were meant to be separate cities merge into one sprawling one.
 
 === "Continuous noise (cityChance = -1)"
 
@@ -42,7 +42,7 @@ City level then feeds directly into the [floor-count formula](../reference/profi
 
 Relevant to `space`, `spheres`, and `cavernspheres` [landscape types](../reference/profile.md#identity-terrain). Candidate sphere centers sit on a fixed grid (every 16 chunks, or every 32 with `grid32`), each independently chance-gated by `citySphereChance`. Overlapping spheres resolve by disabling the smaller one. A [Predefined Sphere](../reference/predefined.md) always wins over a randomly-generated one at the same spot.
 
-**Monorails need agreement from both sides**: each sphere independently rolls, per direction, whether it wants a monorail connection that way. A line only actually generates between two spheres if **both** rolled true facing each other. Setting `monorailChance: 1.0` does not mean every possible connection appears, it means every sphere always wants one, which is different from every pair of neighbors agreeing (it does mean every geometrically possible connection appears, since both sides are guaranteed to roll true, but it is worth knowing the check is per-pair, not global).
+**Monorails need agreement from both sides**: each sphere independently rolls, per direction, whether it wants a monorail connection that way. A line only actually generates between two spheres if **both** rolled true facing each other. Setting `monorailChance: 1.0` does not mean every possible connection appears, it means every sphere always wants one, which is different from every pair of neighbours agreeing (it does mean every geometrically possible connection appears, since both sides are guaranteed to roll true, but it is worth knowing the check is per-pair, not global).
 
 ## Highways
 

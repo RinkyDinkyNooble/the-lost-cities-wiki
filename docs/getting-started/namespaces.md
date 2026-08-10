@@ -65,7 +65,7 @@ Anywhere Lost Cities expects a *name* (a profile's `worldStyle` field, a world s
     data/lostcities/lostcities/worldstyles/standard.json
     ```
 
-    Your version replaces the mod's shipped one entirely. Simple, but global: anything else that expects the original `lostcities:standard` behavior breaks too. If two datapacks both try to override the same file, whichever loads last wins, and that order is not obvious.
+    Your version replaces the mod's shipped one entirely. Simple, but global: anything else that expects the original `lostcities:standard` behaviour breaks too. If two datapacks both try to override the same file, whichever loads last wins, and that order is not obvious.
 
 === "Use your own namespace"
 

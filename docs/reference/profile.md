@@ -232,7 +232,7 @@ Mostly relevant to `space`, `spheres`, and `cavernspheres` landscape types.
 | `citySphereClearBelowUntilAir` | `false` | | If `true`, the same downward, continuing past `citySphereClearBelow` until it reaches air. |
 | `sphereSurfaceVariation` | `1.0` | 0 – 1 | Terrain variation inside spheres. Smaller = more varied. |
 | `outsideSurfaceVariation` | `1.0` | 0 – 1 | Same, outside spheres. |
-| `monorailChance` | `0.8` | 0 – 1 | Chance a sphere requests a monorail connection each direction (needs a matching neighbor). |
+| `monorailChance` | `0.8` | 0 – 1 | Chance a sphere requests a monorail connection each direction (needs a matching neighbour). |
 | `monorailOffset` | `-2` | -100 – 100 | Monorail height offset relative to the sphere. |
 | `onlyPredefined` | `false` | | If `true`, only [predefined](predefined.md) spheres generate and none are placed randomly. |
 | `outsideProfile` | `""` | | Profile used for terrain outside the spheres. See [connects page](../getting-started/how-it-connects.md). |
