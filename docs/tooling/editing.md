@@ -82,6 +82,14 @@ The output is not a drop-in file: you still need to move `exportedpart` into `da
 
 ## Building normally, then converting
 
+!!! warning "The mod cannot read a schematic, a structure block file, or an `.nbt`"
+    There is no import command and no import path. The mod reads part JSON and nothing else. If you have a build you want to turn into a part, you have exactly two routes:
+
+    1. **`/lostcities exportpart`**, which reads the blocks already in the world and writes part JSON for you. This is the only conversion the mod itself performs, and it needs a world created with `editMode: true`. It is covered above.
+    2. **An external converter**, which reads your schematic and writes the JSON. Nothing about that path involves the mod.
+
+    A file named `.schem`, `.nbt` or `.litematic` will never be loaded by Lost Cities, whatever folder you put it in.
+
 The workflow most large builds end up using: build the structure in creative with WorldEdit or similar, export a schematic, and convert that schematic into part JSON with an external tool.
 
 This sidesteps every editor limitation above, since nothing round-trips through the mod. It also means you can use any editor and any workflow you already know.

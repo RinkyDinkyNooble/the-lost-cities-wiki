@@ -30,6 +30,24 @@ Damage does not stop cleanly at a chunk border. `debrisToNearbyChunkFactor` cont
 
 Ruin generation (`ruinChance`, destruction range `ruinMinlevelPercent`–`ruinMaxlevelPercent` of the building's height) runs as its own chance-gated pass, alongside explosion/debris handling, and like explosions it happens strictly **after** the building's parts have already been fully selected and placed (see [The Generation Pipeline](generation-pipeline.md)). A building's floor/part selection never knows in advance that it is about to be ruined, ruin state cannot bias which variant of a floor got picked, it only ever removes blocks from whatever was already going to generate.
 
+## You cannot exempt one building from ruin
+
+This is the first thing people look for, so it is worth stating plainly: **a Building asset has no key that protects it from the ruin pass.** There is no `preventruins`, no `noruin`, and no equivalent under another name.
+
+The full set of controls:
+
+| What you want | How to get it |
+|---|---|
+| A specific landmark left intact | Place it through a [Predefined City](../reference/predefined.md) and set `preventruins: true` on that entry. This is the only per-building exemption in the mod. |
+| Fewer ruined buildings everywhere | Lower `ruinChance` in the [Profile](../reference/profile.md). |
+| No ruined buildings at all | Set `ruinChance` to `0`. |
+| Specific blocks to survive | Add them to the `lostcities:notbreakable` tag. That protects the blocks, not the building. |
+
+!!! note "Ruin chance is profile-wide and cannot vary by city style"
+    A city style can override `explosionchance`, but there is no city style key for ruin chance. So you cannot make one district ruined and another pristine through city styles. The only per-place control is a predefined city.
+
+    This asymmetry is easy to miss, because explosions and ruins are otherwise described together and run in the same phase.
+
 ## See also
 
 - [Profile Reference](../reference/profile.md#explosions) for every key named above
