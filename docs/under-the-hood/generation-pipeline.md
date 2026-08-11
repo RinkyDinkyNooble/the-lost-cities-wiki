@@ -20,6 +20,19 @@ For a single chunk, roughly in this order:
 
 **The practical consequence of step 6 running last**: ruin and explosion damage can never influence which part, floor, or building variant got selected, that decision is long finished by the time anything breaks. A rare, expensive loot-tier part can still roll, generate in full, and then get partially blown up by an explosion in the same chunk, that is expected, not a bug in either system.
 
+### Inside step 2, for a city chunk
+
+Step 2 is not one action. A city chunk runs this sequence, and the position of `generateRuins` inside it matters:
+
+```
+generateBuilding -> generateStreet -> generateRuins -> highway levels
+  -> generateStreetDecorations -> generateHighways -> generateRubble -> generateStuff
+```
+
+Ruins therefore happen **inside step 2**, not in step 6 with the explosions. Everything after `generateRuins` in that list lands on an already-ruined building and is not itself ruined: street decorations, highways, rubble and stuff objects all survive intact.
+
+Explosion damage in step 6 is the opposite. It runs after all of the above and damages whatever it finds. That is the real difference between the two systems, and it is why the two are worth keeping apart in your head even though they are usually described together.
+
 ## From a part's characters to placed blocks
 
 Every part placement, buildings, streets, highways, railways, all of it, funnels through the same block-by-block resolution:

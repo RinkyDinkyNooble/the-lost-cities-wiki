@@ -28,7 +28,23 @@ Damage does not stop cleanly at a chunk border. `debrisToNearbyChunkFactor` cont
 
 ## Ruins are a separate pass, after the building already exists
 
-Ruin generation (`ruinChance`, destruction range `ruinMinlevelPercent`–`ruinMaxlevelPercent` of the building's height) runs as its own chance-gated pass, alongside explosion/debris handling, and like explosions it happens strictly **after** the building's parts have already been fully selected and placed (see [The Generation Pipeline](generation-pipeline.md)). A building's floor/part selection never knows in advance that it is about to be ruined, ruin state cannot bias which variant of a floor got picked, it only ever removes blocks from whatever was already going to generate.
+Ruin generation is chance-gated on `ruinChance`, and destroys a band of the building's height between `ruinMinlevelPercent` and `ruinMaxlevelPercent`. It runs strictly **after** the building's parts have been selected and placed. A building's part selection never knows it is about to be ruined, so ruin state cannot bias which variant of a floor was picked. It only removes blocks from what was already going to generate.
+
+!!! warning "Ruins and explosions are not the same phase, despite being described together"
+    This is easy to get wrong, and the distinction changes what each one can touch.
+
+    Ruins run **inside** the city-chunk pass, immediately after the building and street are placed:
+
+    ```
+    generateBuilding -> generateStreet -> generateRuins -> highways
+      -> generateStreetDecorations -> generateHighways -> generateRubble -> generateStuff
+    ```
+
+    Explosions and debris run **much later**, back in the top-level chunk pass, after railways and the torch fixup, just before the chunk is flushed.
+
+    The practical consequence: anything generated after `generateRuins` in that list is **not** ruined. Street decorations, highways, rubble and stuff objects all land on top of an already-ruined building and survive intact. Explosion damage, running later still, does affect all of them.
+
+    So a half-collapsed building with pristine street furniture around it is expected, not a bug. See [The Generation Pipeline](generation-pipeline.md).
 
 ## You cannot exempt one building from ruin
 
