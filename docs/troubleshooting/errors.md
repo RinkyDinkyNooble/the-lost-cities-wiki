@@ -5,8 +5,45 @@
 
 Messages are quoted **exactly** as the mod produces them, with `<...>` marking a value the mod substitutes. Every entry was taken from the 7.4.12 source, not from bug reports.
 
-!!! note "Where the message appears"
-    The mod throws most of these during **chunk generation**. On a client that looks like a crash while you fly into new terrain. On a server it looks like a chunk that never finishes loading, plus a stack trace in the log. A few are thrown earlier, at world load. Each entry says which.
+## Where you actually see these
+
+None of these strings are written to a file by the mod as a matter of course. They reach you in one of two ways, and the difference decides which file to open.
+
+### Thrown messages
+
+Most entries on this page are Java exceptions the mod raises and does not catch. The mod does not log them itself. It throws, the exception travels up out of the chunk generator, and Minecraft handles it from there.
+
+| Where you are | What you see | File to open |
+|---|---|---|
+| Single player | The game crashes, usually while you fly into new terrain | `crash-reports/crash-<date>-server.txt` in your instance folder, plus `logs/latest.log` |
+| Dedicated server | The chunk never finishes loading, and a stack trace is printed | `logs/latest.log` on the server |
+| World creation | World creation fails outright | `logs/latest.log` |
+
+World generation runs on the integrated server even in single player, which is why the crash report is named `...-server.txt` rather than `...-client.txt`.
+
+In the file, the message appears as the exception line at the top of the stack trace:
+
+```
+java.lang.RuntimeException: Misconfiguration! Floor were generated for a building where no part condition matches!
+	at mcjty.lostcities.worldgen.lost.BuildingInfo...
+```
+
+Search for the message text, then read **down** the trace. The frames below the mod's own classes tell you which chunk and which asset was being processed.
+
+### Logged warnings
+
+A few failures are logged instead of thrown. The mod writes these through a log4j logger named `lostcities`, so they appear only in `logs/latest.log` and in the server console. **They never produce a crash report**, and nothing in game tells you they happened.
+
+The line looks like this:
+
+```
+[Server thread/WARN] [lostcities/]: Cannot find 'mycity:my_street' in minecraft:root!
+```
+
+This is the quiet failure mode behind streets, parks, fountains, stairs, rail dungeons and building fronts that simply never appear. If content is missing and the game has not crashed, search `latest.log` for `lostcities` before you touch your JSON.
+
+!!! tip "Grep the log rather than scrolling it"
+    `latest.log` is large. On Windows, `findstr /C:"lostcities" logs\latest.log` is enough. The mod's own lines are the only ones carrying that logger name.
 
 ## Palette errors
 
