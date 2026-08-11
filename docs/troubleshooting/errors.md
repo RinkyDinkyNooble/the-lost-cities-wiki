@@ -87,11 +87,24 @@ This is not an exception, but readers search for it, so it belongs here. A `slic
 
 A city style's `multibuildings` selector, or a multi-building's grid, names something that does not exist. A missing namespace is almost always the cause, because a bare name means `lostcities:<name>`. See [Namespaces](../getting-started/namespaces.md).
 
-### `Topleft building type is not set!` and `Invalid building for multibuilding!`
+!!! note "If the message reads `Cannot find multibuilding: null`, the selector is empty"
+    A literal `null` in the message means the mod asked the city style for a multi-building name and got nothing back, which happens when the merged `multibuildings` selector is empty. It surfaces once an area rolls at least one multi-building, so the count comes from the world style's `multisettings`. Either populate the selector or set `multisettings.maximum` to `0`.
 
-**When:** chunk generation.
+### `Invalid building for multibuilding!`
 
-These are internal consistency failures while the mod assembles a multi-chunk building. In practice they follow from a multi-building whose grid does not match its `dimx` and `dimz`, or a city style that can produce a multi-building but has an empty `buildings` selector.
+**When:** chunk generation, on any chunk the mod decided to put a building on.
+
+**The name is misleading. This is the empty `buildings` selector error, and it has nothing to do with multi-buildings in the usual case.**
+
+The mod asks the city style for a random building name. When the merged `buildings` selector is empty, the weighted picker returns `null`, and the mod throws this rather than continuing.
+
+**Fix:** give the city style at least one entry in `selectors.buildings`, or inherit from a style that has some. Remember that inheritance is additive, so writing `"buildings": []` on a style that inherits `citystyle_common` still leaves you the parent's 8 entries. You only reach this error when the **merged** list is empty. See [City Style](../reference/citystyle.md#an-empty-selector-list-is-safe-for-five-of-the-eight-and-fatal-for-three).
+
+### `Topleft building type is not set!`
+
+**When:** chunk generation, on a chunk that belongs to a multi-building but is not its top-left corner.
+
+The mod looks up the top-left chunk's characteristics to find out which building this multi-chunk structure is, and that value came back null. In practice this follows from a multi-building whose grid does not match its `dimx` and `dimz`.
 
 ### `bound must be positive`
 
@@ -125,6 +138,11 @@ A missing namespace is by far the most common cause. A bare name resolves agains
 ### `Invalid name given to minecraft:root getOrThrow!`
 
 **When:** the same lookup, when the name was null rather than wrong. Look for a missing key, not a misspelled one.
+
+!!! danger "The usual cause is an empty `bridges` selector"
+    A city style with `"bridges": []` produces this on the first city chunk that has a building. The mod resolves the bridge part eagerly, alongside the door block and the stair part, and **does not test `bridgeChance` first**. Setting the chance to `0` does not protect an empty list.
+
+    Keep at least one entry in `bridges` and set `bridgeChance` to `0` if you do not want bridges. See [City Style](../reference/citystyle.md#an-empty-selector-list-is-safe-for-five-of-the-eight-and-fatal-for-three).
 
 ### Streets that are simply absent, with a warning in the log
 

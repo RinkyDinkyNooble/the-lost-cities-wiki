@@ -73,6 +73,37 @@ Inside the allowed band the entry carries its full `factor`. Within `feather` bl
 
     **If every entry in a list is excluded, the mod picks the first one anyway.** The weighted picker sums the weights to zero and then returns the first element rather than nothing, so a fully gated list falls back silently instead of reporting an error.
 
+### An empty selector list is safe for five of the eight, and fatal for three
+
+Setting a selector to `[]` is not uniformly safe. The weighted picker returns `null` for an empty list, and what happens next depends entirely on which lookup the caller used.
+
+| Selector | Empty list | What you get |
+|---|---|---|
+| `parks` | Safe | No park in that chunk. |
+| `fountains` | Safe | No fountain. |
+| `stairs` | Safe | No stairs. |
+| `fronts` | Safe | No building front. |
+| `raildungeons` | Safe | No rail dungeon. |
+| `buildings` | **Crashes** | `Invalid building for multibuilding!` |
+| `multibuildings` | **Crashes** | `Cannot find multibuilding: null` |
+| `bridges` | **Crashes** | `Invalid name given to minecraft:root getOrThrow!` |
+
+The five safe ones go through the mod's warn-and-skip lookup, which returns immediately when the name is `null`. It does not even log, because the null check happens before the registry is consulted. The feature simply does not appear.
+
+The three fatal ones reach a lookup that refuses a null name.
+
+!!! danger "`bridges` must be non-empty even when `bridgeChance` is `0`"
+    This is the trap worth knowing. The mod resolves the bridge part **eagerly**, in the same straight run of code that sets the door block and the stair part, for every city chunk that has a building. No chance value is tested first.
+
+    So `bridgeChance: 0` does **not** protect an empty `bridges` list. Setting the chance to zero and the list to `[]` still crashes world generation on the first building chunk.
+
+    If you do not want bridges, leave the list populated and set the chance to `0`. Do not empty the list.
+
+`fountains` is the opposite case: the mod tests `fountainChance` before it looks anything up, so a zero chance means the selector is never consulted. `parks` is looked up unconditionally, like bridges, but survives it because parks use the safe lookup.
+
+!!! warning "Remember that inheritance is additive, so `[]` may not mean empty"
+    Writing `"buildings": []` in a style that inherits from `citystyle_common` does not give you an empty list. You inherit the parent's 8 entries and add nothing. The crash above only happens when the **merged** list is empty, which means you either inherited nothing or inherited from a style that has none.
+
 ## Inheritance
 
 `inherit` names one other city style. Chains work, so a style can inherit from a style that inherits from another, and the whole chain resolves.
