@@ -9,10 +9,15 @@
 |---|---|---|
 | `buildings` | one of these two | A list of building names. The mod picks one at random. |
 | `multibuilding` | | A single multi-building name, used instead of `buildings`. |
-| `rotatable` | no | If `true`, the mod may place the structure at a random rotation. |
+| `rotatable` | no | **Does nothing in 7.4.12.** See the warning below. |
 | `terrainheight` | **yes** | One of `lowest`, `average`, `highest`, `ocean`. Decides which terrain height the structure is seated at. |
 | `terrainfix` | **yes** | One of `none`, `clear`, `repeatslice`. Decides what the mod does to the terrain around the structure. |
 | `heightoffset` | no | A vertical offset in blocks. Defaults to `0`. |
+
+!!! warning "`rotatable` is dropped before generation ever sees it"
+    This one is deader than the inert city style keys. Those at least reach the city style object and the public API. `rotatable` is parsed into the codec record and then **never copied into the `ScatteredBuilding` the generator uses**. The asset class has no field for it, and no API method exposes it.
+
+    Setting `"rotatable": true` has no effect and no way to have an effect. A scattered structure generates in the orientation you authored it.
 
 !!! warning "A scattered asset with neither `buildings` nor `multibuilding` throws"
     Both keys are optional in the codec, so a file with neither loads. The mod then throws `Missing buildings for scattered '<name>'!` when it tries to place the structure.

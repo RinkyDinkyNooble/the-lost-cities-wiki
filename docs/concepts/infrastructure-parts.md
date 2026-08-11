@@ -166,7 +166,9 @@ A surface station gets one extra step. The mod flips a fair coin between the `st
 
 **Author variants in the same orientation as the part they replace.** The mod picks the rotation from the road layout, not from your part, so a `street_bend` variant gets rotated by the same rule the built-in one does. If your bend is drawn facing a different way than the original, it will be rotated wrongly at three quarters of the corners in your world. `full`, `none`, and `all` are never rotated, so those can safely be asymmetric.
 
-**Reuse the palette characters the category expects.** Street parts use the street/streetbase/streetvariant characters, highways expect their support character, rail parts expect the rail palette. A part referencing a character its palette does not define throws during generation.
+**Reuse the palette characters the category expects.** A highway part expects its `support` character, and a rail part expects the rail palette. A part that references a character its palette does not define throws during generation.
+
+For streets, the character that matters is the city style's `street`. Its `streetbase` and `streetvariant` neighbours look like they belong in the same list, but neither is read during generation. See [City Style](../reference/citystyle.md#keys). What a street is actually built from is the characters inside the street **part**, resolved against the merged palette like any other part.
 
 ## Often a better answer: vary the material, not the part
 

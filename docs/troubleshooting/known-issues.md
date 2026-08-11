@@ -66,13 +66,27 @@ Nothing to randomize means nothing to stripe. One palette edit, pure JSON.
 
     This is one of the cases a companion mod would genuinely solve. See [below](#a-companion-mod-is-planned).
 
-## Setting `streetblocks.width` does nothing
+## Four keys parse and then do nothing
 
-**Status:** confirmed dead in 7.4.12.
+**Status:** confirmed dead in 7.4.12, found by sweeping every asset accessor for consumers.
 
-The key parses, inherits correctly, and is readable through the mod's API, but **no generation code reads it**. Street width is not configurable in this version.
+These keys load without complaint, survive inheritance, and never affect generation.
 
-This is confusing because the shipped `citystyle_config` exists solely to set it, which makes it look load-bearing. It is not. Do not spend time on it. See [City Style](../reference/citystyle.md).
+| Key | Where | How dead |
+|---|---|---|
+| `streetblocks.width` | City Style | Reaches the city style and the public API. No generator reads it. |
+| `streetblocks.streetbase` | City Style | The same. |
+| `streetblocks.streetvariant` | City Style | The same. |
+| `rotatable` | Scattered Building | Worse. Parsed into the codec record and never copied into the asset the generator uses. No API method exposes it either. |
+
+All four look load-bearing because the mod's own content sets them. `citystyle_config` exists solely to set `width`, and `citystyle_common` and `citystyle_border` both set `streetbase` and `streetvariant`.
+
+**Fix:** for street appearance, edit the palette characters the street part uses, or override `streetblocks.parts` with your own part. For scattered structures, author them in the orientation you want. See [City Style](../reference/citystyle.md) and [Scattered Building](../reference/scattered.md).
+
+!!! note "How these were found"
+    Every accessor on every asset class was checked for a caller outside its own class. Anything with no consumer is a candidate, and each candidate was then read by hand. The same sweep confirmed the rest of the asset surface is live, so this table is expected to be the complete set for 7.4.12 rather than a sample.
+
+    Two meta value types, `string` and `float`, are also accepted and never read, but those are storage slots rather than settings. See [Part](../reference/part.md#any-other-key).
 
 ## Out-of-range profile numbers are accepted silently
 

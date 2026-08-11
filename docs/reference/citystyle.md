@@ -17,16 +17,27 @@
 | `parkblocks` | no | `parkchance`, `parkstreetthreshold` (a count of surrounding street chunks, 0 to 8), `avoidfoliage`, `parkborder`, `parkelevation`, plus the `elevation` and `grass` characters. |
 | `railblocks` | no | The `railmain` character. |
 | `sphereblocks` | no | The `inner`, `border` and `glass` characters for city spheres. |
-| `streetblocks` | no | `fountainchance` and `frontchance`, `width` (see the warning below), the `street`, `streetbase`, `streetvariant`, `border` and `wall` characters, plus a nested `parts` block for [street part-name overrides](../concepts/infrastructure-parts.md). |
+| `streetblocks` | no | `fountainchance` and `frontchance`, the `street`, `border` and `wall` characters, plus a nested `parts` block for [street part-name overrides](../concepts/infrastructure-parts.md). Three more keys parse and do nothing: `width`, `streetbase` and `streetvariant`. See the warning below. |
 | `selectors` | no | Eight weighted lists: `buildings`, `bridges`, `parks`, `fountains`, `stairs`, `fronts`, `raildungeons` and `multibuildings`. See [Selectors](#selectors-and-distance-gating). |
 
 !!! warning "None of these numbers are validated"
     Nothing validates a number in an asset JSON, exactly as in the [Profile](profile.md). A `buildingchance` of `4.0` loads and simply means always. The ranges this page mentions are the windows the mod is built around, not checks it performs.
 
-!!! warning "`streetblocks.width` does nothing in 7.4.12"
-    The key parses, inherits, and is readable by a companion mod through `ILostCityCityStyle.getStreetWidth()`. **No generation code reads it.** Street width is not configurable in this version.
+!!! warning "Three `streetblocks` keys parse and then do nothing"
+    `width`, `streetbase` and `streetvariant` all load, all inherit, and are all readable by a companion mod through `ILostCityCityStyle`. **No generation code reads any of them.**
 
-    It is documented here only because the shipped `citystyle_config` sets it to 8, which makes it look load-bearing. It is not.
+    | Key | Reaches | Read during generation |
+    |---|---|---|
+    | `street` | City style, generator | Yes |
+    | `border` | City style, generator | Yes |
+    | `wall` | City style, generator | Yes |
+    | `width` | City style, public API only | **No** |
+    | `streetbase` | City style, public API only | **No** |
+    | `streetvariant` | City style, public API only | **No** |
+
+    All three look load-bearing because the mod's own content sets them. `citystyle_config` exists solely to set `width`, and both `citystyle_common` and `citystyle_border` set `streetbase` and `streetvariant`. Setting them changes nothing about how a street generates.
+
+    If you want to change what a street is made of, edit the palette characters the street **part** uses, or point `streetblocks.parts` at your own part. See [Streets, Highways, Rails and Monorails](../concepts/infrastructure-parts.md).
 
 !!! warning "The naming is not consistent"
     Six of these keys use a `...blocks` suffix: `generalblocks`, `corridorblocks`, `parkblocks`, `railblocks`, `sphereblocks` and `streetblocks`. One uses a `...settings` suffix: `buildingsettings`. That is genuinely how the mod names them. Copy the exact key. Do not guess from the pattern.

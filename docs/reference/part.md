@@ -105,7 +105,12 @@ This is the per-part equivalent of the profile's `avoidFoliage`, without the cos
 
 ### Any other key
 
-Any other key parses, is stored, and nothing in 7.4.12 reads it. A companion mod can read it through the API, so it is a reasonable place to keep your own data. Do not expect the mod to act on it.
+Any other key parses, is stored, and nothing in 7.4.12 reads it. A companion mod can read it, so it is a reasonable place to keep your own data. Do not expect the mod to act on it.
+
+!!! note "Two of the five value types are never read either"
+    The codec accepts `boolean`, `char`, `string`, `integer` and `float`, but the mod only ever reads three of them. The five real keys use `char` (`support`), `integer` (`z1`, `z2`) and `boolean` (`dontconnect`, `nowater`).
+
+    Nothing in the mod calls the `string` or `float` accessors at all. Those two types exist for a reader that does not currently exist, so a `string` or `float` meta value is storage and nothing more.
 
 ## Rotation
 
