@@ -54,6 +54,23 @@ The mod resolves aliases after every concrete entry is in place. It sweeps the p
 
     The message names the part rather than the palette that is actually broken. If you get it for a character you are certain you defined, check whether that character is an alias in a cycle.
 
+## Why a chest generates empty
+
+A `loot` key that looks correct and still produces an empty chest is normal, and there are five separate reasons. They are independent, so ruling one out does not rule out the rest.
+
+| Cause | Where it is decided |
+|---|---|
+| `generateLoot` is `false` in the profile. Every chest generates empty. | Profile |
+| `buildingWithoutLootChance`, default `0.2`. One building in five is chosen to get neither loot nor spawners, before any chest is considered. | Profile, applied per building |
+| `chestWithoutLootChance`, default `0.2`. Of the chests that survive the above, one in five is still left empty. | Profile, applied per chest |
+| The mod rolls loot **after** the whole chunk finishes placing, and skips the roll if anything overwrote that position first. A floor above, or the ruin pass, can take the chest away. | Generation order |
+| The `loot` value names a loot table that does not exist. | Your JSON |
+
+With both chances at their defaults, a chest in a randomly chosen building has roughly a **64%** chance of being filled, that is 0.8 multiplied by 0.8. Two empty chests in a row is not evidence of a broken palette.
+
+!!! tip "Testing whether it is your JSON or the dice"
+    Set `generateLoot: true`, `buildingWithoutLootChance: 0` and `chestWithoutLootChance: 0` in a test profile. Every eligible chest then fills. If yours is still empty after that, the fault is the loot table name or the overwrite case, not the chances.
+
 ## What counts as a valid character
 
 Almost any character you can type is valid, provided it is a single UTF-16 code unit, that is U+0000 to U+FFFF. The mod reads files as UTF-8, so Greek, Cyrillic, CJK, box-drawing, arrows and accented Latin all work. You can paste them into the JSON directly instead of escaping them.
