@@ -21,7 +21,7 @@ Biome
 :   A region type (desert, plains, ocean, and so on). Lost Cities can hook into specific biomes without needing its own dimension.
 
 Chunk
-:   A 16×16 block column, the unit Minecraft generates and loads terrain in. Lost Cities parts are sized to fit exactly one chunk footprint.
+:   A 16×16 block column, the unit Minecraft generates and loads terrain in. Most Lost Cities parts fill exactly one chunk footprint, though a building front is deliberately a narrower strip.
 
 World generation feature
 :   A piece of terrain generation logic Minecraft can inject into biomes, like ore veins or trees. Lost Cities can hook into worlds this way instead of using a dedicated dimension.

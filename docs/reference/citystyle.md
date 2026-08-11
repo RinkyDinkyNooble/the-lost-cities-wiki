@@ -115,6 +115,51 @@ The three fatal ones reach a lookup that refuses a null name.
 !!! warning "Remember that inheritance is additive, so `[]` may not mean empty"
     Writing `"buildings": []` in a style that inherits from `citystyle_common` does not give you an empty list. You inherit the parent's 8 entries and add nothing. The crash above only happens when the **merged** list is empty, which means you either inherited nothing or inherited from a style that has none.
 
+## What a building front actually is
+
+`fronts` is the least self-explanatory selector, so it is worth spelling out.
+
+A front is an extra part that belongs to a **building** but generates in the **adjacent street chunk**, along the edge facing that building. It is the shop awning, porch, step or overhang that makes a building meet the street instead of stopping dead at the chunk line.
+
+The sequence:
+
+1. When the mod builds a building's chunk, it rolls once against `frontchance` (or the profile's `buildingFrontChance`). If the roll wins, that building gets a front part, chosen from the `fronts` selector.
+2. The front is **not** drawn in the building's own chunk. Nothing happens yet.
+3. Later, when a neighbouring **street** chunk generates, it looks at each of its four neighbours in turn. For any neighbour that is a building with a front, it draws that front along the shared edge.
+
+So one building with a front can have it drawn up to four times, once by each adjacent street chunk, and a street chunk between two buildings draws both.
+
+!!! note "The front uses the building's palette, not the street's"
+    The mod generates the part with the **neighbouring building's** context, so the front resolves its characters against that building's merged palette. This is what makes a front match the building it belongs to rather than the road it sits on.
+
+    Hard air in a front resolves to real air, so a front never fills with water, whatever the sea level.
+
+### When a front does not appear
+
+All of these must hold, or the street chunk skips it:
+
+| Condition | Meaning |
+|---|---|
+| The neighbour has a building | Fronts only come from buildings. |
+| The neighbour's building rolled a front | The `frontchance` roll happened in the neighbour's chunk. |
+| This chunk's street is a normal street | An elevated park section counts as a park, not a street, and gets no fronts. |
+| This chunk sits lower than the neighbour's roof | Specifically, this chunk's city level must be below the neighbour's city level plus its floor count. |
+| This chunk is not an underground rail station, and not a rail chunk descending from the surface | Those need the space for their own geometry. |
+
+### Front parts are deliberately not 16 by 16
+
+This is the exception to the usual footprint rule, and the mod's own content relies on it.
+
+| Shipped part | `xsize` | `zsize` | Layers |
+|---|---|---|---|
+| `building_front1` | 2 | 16 | 4 |
+| `building_front2` | 3 | 16 | 4 |
+| `building_front3` | 3 | 16 | 4 |
+
+A front is a **strip**, 2 or 3 blocks deep and 16 long, running the full length of the shared edge. The mod places the same strip on each of the four sides using a different rotation, so you author it once, for one edge, and the mod turns it for the other three.
+
+Write yours the same shape. A 16 by 16 front would cover the entire street chunk.
+
 ## Inheritance
 
 `inherit` names one other city style. Chains work, so a style can inherit from a style that inherits from another, and the whole chain resolves.

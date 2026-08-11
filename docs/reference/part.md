@@ -41,10 +41,17 @@ That is one layer: a hollow 4 by 4 box made of whatever block `α` maps to.
 
     Count in **UTF-16 code units**, not characters. An emoji counts as two. See [Palette: what counts as a valid character](palette.md#what-counts-as-a-valid-character).
 
-!!! warning "A footprint other than 16 by 16 loads, then generates wrong"
-    A part declaring `xsize: 32` loads without complaint and then generates incorrectly. The rotation maths assumes a 16-wide footprint, and a write past column 15 wraps back into the same chunk instead of continuing into the next one. An oversized part silently overwrites its own first columns. There is no error and nothing in the log.
+!!! warning "A footprint larger than 16 loads, then generates wrong"
+    A part declaring `xsize: 32` loads without complaint and then generates incorrectly. A write past column 15 wraps back into the same chunk instead of continuing into the next one, so an oversized part silently overwrites its own first columns. There is no error and nothing in the log.
 
-    A part is meant to fill exactly one chunk footprint. To cover a larger area use a [Multi-Building](multibuilding.md), which is the supported way to span several chunks. A part smaller than 16 has the same rotation problem and is equally unsupported.
+    To cover a larger area use a [Multi-Building](multibuilding.md), which is the supported way to span several chunks.
+
+!!! note "Smaller than 16 is legal, and the mod relies on it"
+    The mod iterates each part over its **own** `xsize`, `zsize` and slice count, so a part smaller than the chunk simply writes a smaller area. It is not corrupted, and it is not unsupported.
+
+    The mod's own [building fronts](citystyle.md#front-parts-are-deliberately-not-16-by-16) are 2 by 16 and 3 by 16 strips, placed along one edge of a street chunk and rotated for each of the four sides.
+
+    The rule that matters is: **never exceed 16**, and match the footprint to the job. A part used where a full chunk is expected, such as a building floor or a street, should be 16 by 16, or it will cover only part of the chunk and leave the rest as it was.
 
 ## Slices, floors and height
 

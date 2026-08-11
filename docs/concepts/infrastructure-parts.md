@@ -162,7 +162,9 @@ A surface station gets one extra step. The mod flips a fair coin between the `st
 
     A wrong name in any of them produces `Cannot find '<name>' in minecraft:root!` as a log **warning** and then nothing at that spot. If a park or a fountain never appears and no error is raised, check the log before you check your selectors.
 
-**Parts must be exactly 16×16.** `xsize` and `zsize` other than 16 parse without complaint but generate corrupted output: rotation math assumes 16, and writes past column 15 wrap back around into the same chunk instead of spilling into the next one. All 32 default infrastructure parts are 16×16.
+**An infrastructure part must be exactly 16×16.** A street, highway, railway or monorail part fills its whole chunk, so anything else leaves gaps or corrupts. Larger than 16 is the dangerous case: a write past column 15 wraps back into the same chunk instead of spilling into the next one. All 32 default infrastructure parts are 16×16.
+
+This is a rule about these four families, not about parts in general. A [building front](../reference/citystyle.md#front-parts-are-deliberately-not-16-by-16) is deliberately a narrow strip, and the mod ships three of them at 2×16 and 3×16.
 
 **Author variants in the same orientation as the part they replace.** The mod picks the rotation from the road layout, not from your part, so a `street_bend` variant gets rotated by the same rule the built-in one does. If your bend is drawn facing a different way than the original, it will be rotated wrongly at three quarters of the corners in your world. `full`, `none`, and `all` are never rotated, so those can safely be asymmetric.
 

@@ -112,7 +112,7 @@ Tables below: **Range** is the window the mod was designed and tested against, a
 | `buildingMinCellars` | `0` | 0 – 20 | Min cellar count. |
 | `buildingMaxCellars` | `3` | 0 – 20 | Max cellar count. |
 | `buildingDoorwayChance` | `0.6` | 0 – 1 | Chance of a doorway per eligible side/level. |
-| `buildingFrontChance` | `0.2` | 0 – 1 | Chance a building uses its "front" part next to a street. |
+| `buildingFrontChance` | `0.2` | 0 – 1 | Chance that a building is given a front part. The front is then drawn by each adjacent street chunk, not by the building itself. See [City Style](citystyle.md#what-a-building-front-actually-is). |
 | `parkChance` | `0.2` | 0 – 1 | Chance a non-building section is a park. |
 | `parkElevation` | `true` | | If `true`, parks get an extra layer of elevation. `false` leaves them flush with the street. |
 | `parkBorder` | `true` | | If `true`, a park's border uses the street block as its base. |
