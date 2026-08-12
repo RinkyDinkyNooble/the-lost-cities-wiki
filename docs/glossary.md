@@ -30,7 +30,7 @@ Chunk generator
 :   The system that decides what terrain goes in each chunk. Lost Cities ships its own custom one (`lostcities:lostcity`) for its dedicated dimension.
 
 Profile
-:   A Lost Cities config file (not a datapack file) that picks a world style and sets ~100 generation behaviour knobs. See [How It All Connects](getting-started/how-it-connects.md).
+:   A Lost Cities config file (not a datapack file) that picks a world style and sets 131 generation settings. See [How It All Connects](getting-started/how-it-connects.md).
 
 World Style
 :   The top-level datapack asset a profile points to. Decides which city styles can appear and where. Full reference: [World Style](reference/worldstyle.md).

@@ -10,7 +10,7 @@ Most guides jump straight to writing building JSON. Skip that. None of it does a
 | Layer | Where it lives | What it does |
 |---|---|---|
 | **Content** | `data/<namespace>/lostcities/` | Your buildings, parts, palettes, city styles, world styles. Loaded as normal datapack JSON. See [Namespaces](namespaces.md#the-exact-folder-layout) for the exact layout. |
-| **Profile** | `config/lostcities/profiles/<name>.json` | Picks *one* world style. Also holds ~100 behaviour knobs: city frequency, building height, ruin damage, landscape type. |
+| **Profile** | `config/lostcities/profiles/<name>.json` | Picks *one* world style. Also holds 131 behaviour settings: city frequency, building height, ruin damage, landscape type. |
 | **Dimension wiring** | `config/lostcities/common.toml` | One line mapping a dimension to a profile by name. This is the actual switch. |
 
 ```toml title="config/lostcities/common.toml"

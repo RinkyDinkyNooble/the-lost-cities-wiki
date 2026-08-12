@@ -10,7 +10,7 @@ The Profile sits outside the datapack system and names a world style. The six da
 
 | # | Page | Folder | What it decides |
 |---|---|---|---|
-| 0 | [Profile](profile.md) | *(config)* | Which world style a dimension uses, plus about 100 generation settings |
+| 0 | [Profile](profile.md) | *(config)* | Which world style a dimension uses, plus 131 generation settings |
 | 1 | [World Style](worldstyle.md) | `worldstyles/` | Which city styles appear, and where |
 | 2 | [City Style](citystyle.md) | `citystyles/` | The theme: palettes, building, street and park settings, and which buildings exist |
 | 3 | [Style](style.md) | `styles/` | Which palettes are merged, rolled per slot |
