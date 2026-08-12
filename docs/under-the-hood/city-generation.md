@@ -40,7 +40,9 @@ City level then feeds directly into the [floor-count formula](../reference/profi
 
 ## City spheres
 
-Relevant to `space`, `spheres`, and `cavernspheres` [landscape types](../reference/profile.md#identity-terrain). Candidate sphere centers sit on a fixed grid (every 16 chunks, or every 32 with `grid32`), each independently chance-gated by `citySphereChance`. Overlapping spheres resolve by disabling the smaller one. A [Predefined Sphere](../reference/predefined.md) always wins over a randomly-generated one at the same spot.
+Relevant to the `space`, `spheres` and `cavernspheres` [landscape types](../reference/profile.md#landscape-types). Candidate sphere centres sit on a fixed grid, each independently chance-gated by `citySphereChance`.
+
+The grid test is a bitmask on the chunk coordinate. By default a chunk is a candidate when both `chunkX & 15` and `chunkZ & 15` equal 8, which is one candidate every 16 chunks, offset to the middle of each block of 16. With `grid32` the mask becomes 31, giving one every 32 chunks. The offset of 8 is why candidates sit mid-grid rather than on the corners. Overlapping spheres resolve by disabling the smaller one. A [Predefined Sphere](../reference/predefined.md) always wins over a randomly-generated one at the same spot.
 
 **Monorails need agreement from both sides**: each sphere independently rolls, per direction, whether it wants a monorail connection that way. A line only actually generates between two spheres if **both** rolled true facing each other. Setting `monorailChance: 1.0` does not mean every possible connection appears, it means every sphere always wants one, which is different from every pair of neighbours agreeing (it does mean every geometrically possible connection appears, since both sides are guaranteed to roll true, but it is worth knowing the check is per-pair, not global).
 
@@ -50,7 +52,7 @@ Two independent Perlin noise keys, one per axis, decide where highway lines run,
 
 ## Multi-chunk buildings
 
-[Multi-Building](../reference/multibuilding.md) placement is greedy and area-grid-based: each grid cell (`multisettings.areasize` on a [World Style](../reference/worldstyle.md)) rolls a random count of multibuildings to place, biggest footprint first, weighted toward whichever city style dominates that area. `correctstylefactor` (default `0.8`) can reject a placement into a chunk whose city style does not match closely enough, even if the area otherwise had room. If a multibuilding you added is not showing up where you expect, a style mismatch in that specific spot is a likely reason, not a placement-chance issue.
+[Multi-Building](../reference/multibuilding.md) placement is greedy and area-grid-based: each grid cell (`multisettings.areasize` on a [World Style](../reference/worldstyle.md)) rolls a random count of multibuildings to place, largest first, weighted toward whichever city style dominates that area. "Largest" is measured as `dimx + dimz`, not area, so a 1 by 5 multi-building sorts level with a 3 by 3. `correctstylefactor` (default `0.8`) can reject a placement into a chunk whose city style does not match closely enough, even if the area otherwise had room. If a multibuilding you added is not showing up where you expect, a style mismatch in that specific spot is a likely reason, not a placement-chance issue.
 
 ## See also
 

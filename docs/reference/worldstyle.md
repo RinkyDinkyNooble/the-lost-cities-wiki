@@ -11,7 +11,7 @@
 | `citystyles` | **yes** | A list of `{factor, citystyle, biomes}` entries. Weighted, optionally biome-limited picks of which [City Style](citystyle.md) to use. |
 | `multisettings` | no | Multi-building placement tuning. See [below](#multisettings). |
 | `settings` | no | `railwayavoidance`, `railpartheight6`, and the four vine block states. See [below](#settings). |
-| `cityspheres` | no | `centerpart`, `centertype`, `centerpartorigin` and `centerpartoffset`. |
+| `cityspheres` | no | Defines a special part placed at the exact centre chunk of every city sphere, such as a landmark or a reactor. `centerpart` names the part, `centertype` selects the variety, and `centerpartorigin` and `centerpartoffset` position it vertically. The mod looks this up only for a chunk that is a sphere centre, and skips it silently if the part name does not resolve. |
 | `scattered` | no | Where wilderness structures go. See [below](#scattered). |
 | `parts` | no | Overrides for the default monorail, highway and railway part names. See [Streets, Highways, Rails and Monorails](../concepts/infrastructure-parts.md). |
 | `citybiomemultipliers` | no | A list of `{multiplier, biomes}` entries giving a per-biome city density multiplier. A `multiplier` below 1 makes cities rarer in those biomes, and above 1 makes them denser. The shipped world style uses `0.1` for oceans and `0.3` for rivers. |
