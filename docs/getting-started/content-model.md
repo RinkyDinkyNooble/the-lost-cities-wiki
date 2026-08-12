@@ -22,7 +22,7 @@ Say a world generates a chunk and decides "this is a city, floor 2 of a building
 
 1. The dimension's **profile** says `worldStyle: "standard"`.
 2. `standard` **World Style** rolls a biome-weighted pick and lands on `citystyle_standard`.
-3. `citystyle_standard` **City Style** says `style: "standard"` and sets `buildingsettings.buildingchance: 0.3`.
+3. `citystyle_standard` **City Style** says `style: "standard"` and inherits everything else from `citystyle_common`. It sets no `buildingsettings` of its own, so the building chance stays whatever the profile chose, `0.3` by default.
 4. `standard` **Style** rolls one palette from each of its slots (say, one wall-material slot, one roof-material slot) and merges them.
 5. The **Building** chosen for this chunk lists a part for floor 2, maybe conditioned on `"inbiome"` or `"chunkx"`.
 6. That **Building Part** renders using the merged palette from step 4, unless it sets its own `refpalette` or embeds one directly, in which case that palette wins instead.
@@ -37,4 +37,4 @@ Every step above is a name lookup. Every name lookup respects [namespacing](name
 - [Your First Custom City](first-city.md) for this chain as six real files
 - [Namespaces](namespaces.md)
 - [Glossary](../glossary.md)
-- Individual reference pages for each asset type (linked from the sidebar as they are written)
+- [Reference](../reference/index.md) for a key-by-key page on each asset type
