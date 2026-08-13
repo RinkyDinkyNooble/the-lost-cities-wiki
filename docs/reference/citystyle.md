@@ -37,6 +37,25 @@
 | `streetblocks` | no | `fountainchance` and `frontchance`, the `street`, `border` and `wall` characters, plus a nested `parts` block for [street part-name overrides](../concepts/infrastructure-parts.md). Three more keys parse and do nothing: `width`, `streetbase` and `streetvariant`. A fourth, `parts.full`, parses and is never reached. See the warning below. |
 | `selectors` | no | Eight weighted lists: `buildings`, `bridges`, `parks`, `fountains`, `stairs`, `fronts`, `raildungeons` and `multibuildings`. See [Selectors](#selectors-and-distance-gating). |
 
+!!! danger "A city style that inherits nothing must define `streetblocks.street`"
+    `LostCityTerrainFeature` reads the street character at the top of generating a
+    city chunk and dereferences it without a null check. If the city style does not
+    supply one, every city chunk fails:
+
+    ```
+    java.lang.NullPointerException: Cannot invoke "java.lang.Character.charValue()"
+      because the return value of "...CityStyle.getStreetBlock()" is null
+        at mcjty.lostcities.worldgen.LostCityTerrainFeature.generate
+    ```
+
+    Almost nobody hits this, because almost every city style inherits from
+    `citystyle_common`, which sets `street` to `S`, `border` to `y` and `wall` to
+    `w`. The mod's own `citystyle_standard` has no `streetblocks` at all and works
+    only for that reason.
+
+    A standalone city style, written to empty an inherited selector for example, has
+    to set them itself. Confirmed in game: 1535 failed chunks from this alone.
+
 !!! warning "None of these numbers are validated"
     Nothing validates a number in an asset JSON, exactly as in the [Profile](profile.md). A `buildingchance` of `4.0` loads and simply means always. The ranges this page mentions are the windows the mod is built around, not checks it performs.
 
@@ -132,7 +151,7 @@ The three fatal ones reach a lookup that refuses a null name.
 !!! danger "`bridges` must be non-empty even when `bridgeChance` is `0`"
     This is the trap worth knowing. The mod resolves the bridge part **eagerly**, in the same straight run of code that sets the door block and the stair part, for every city chunk that has a building. No chance value is tested first.
 
-    So `bridgeChance: 0` does **not** protect an empty `bridges` list. Setting the chance to zero and the list to `[]` still crashes world generation on the first building chunk.
+    So `bridgeChance: 0` does **not** protect an empty `bridges` list. Setting the chance to zero and the list to `[]` still fails every building chunk. Confirmed in game: 1842 failed chunks in one session, with `bridgeChance` at `0.0`.
 
     If you do not want bridges, leave the list populated and set the chance to `0`. Do not empty the list.
 

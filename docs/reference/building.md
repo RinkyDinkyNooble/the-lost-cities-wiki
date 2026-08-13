@@ -1,7 +1,7 @@
 # Building Reference
 
 !!! tip "TL;DR"
-    `buildings/<name>.json` describes a vertical stack: cellars, ground floor, upper floors, top. Each level picks from a list of candidate parts, filtered by [conditions](condition.md). **Every level that can generate must have at least one matching part, or the mod crashes world generation.** See [Floor coverage](#floor-coverage-the-most-common-crash).
+    `buildings/<name>.json` describes a vertical stack: cellars, ground floor, upper floors, top. Each level picks from a list of candidate parts, filtered by [conditions](condition.md). **Every level that can generate must have at least one matching part, or that chunk fails to generate.** See [Floor coverage](#floor-coverage-the-most-common-crash).
 
 !!! note "Some keys here do not exist on every version"
     `overrideFloors` and the part reference key `belowpart` were added in 7.4.12,

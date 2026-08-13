@@ -27,7 +27,7 @@ sentence needs a second comma to survive, split it.
 State the consequence, then the action. The reader must learn the risk before the instruction.
 
 ```
-!!! danger "Undefined `support` crashes world generation"
+!!! danger "Undefined `support` fails the chunk"
     The mod throws `NullPointerException` when a part references a `support` block that no
     palette defines. Define the character in a palette that is in scope for the part.
 ```
@@ -55,7 +55,7 @@ previously used interchangeably.
 | datapack | data pack, resource pack | One word. A resource pack is a different thing. |
 | silently | quietly, without warning | For behaviour that produces no error and no log line. |
 | throws | errors out | The mod raises an exception. Name the exception. |
-| crashes world generation | crashes, breaks | The user-visible effect of an uncaught throw during generation. |
+| fails the chunk | crashes, crashes world generation, breaks | An exception during chunk generation. The mod catches it, logs `Error generating chunk`, and continues, so the game does **not** crash. Reserve "crashes" for a throw during loading, which is outside that catch. |
 | fails | breaks | A non-fatal failure. Say what the observable result is. |
 | does nothing | is ignored, is a no-op | Use when a key parses but has no consumer. |
 

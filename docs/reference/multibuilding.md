@@ -43,7 +43,7 @@ The mod's own `center.json` follows this. Its entries are named `center00`, `cen
 
 This is a footprint of 2 by 2 chunks, tiling four separate building definitions into one structure. The first inner list is the western column, running from north to south. Each entry is a normal [Building](building.md) name, referenced the usual [namespaced](../getting-started/namespaces.md) way.
 
-!!! danger "A multi-building larger than its placement area crashes world generation"
+!!! danger "A multi-building larger than its placement area fails the chunk"
     The mod picks a random offset inside a square area of chunks, using `random(areasize - dimx + 1)`. If `dimx` or `dimz` exceeds `areasize`, that bound reaches zero or goes negative and the mod throws `bound must be positive`.
 
     Two different `areasize` values apply, depending on how the multi-building is reached.

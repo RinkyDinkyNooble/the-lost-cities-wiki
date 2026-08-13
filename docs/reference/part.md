@@ -76,7 +76,7 @@ Each entry is a `key` plus exactly one typed value: `boolean`, `char`, `string`,
 
 Where a highway or bridge crosses open space, the mod drops pillars of this character downward. It stops at the first non-empty block, or after 40 blocks, whichever comes first. The profile's `highwaySupports` and `bridgeSupports` suppress the pillars entirely. All 8 shipped highway and bridge parts use `v`.
 
-!!! danger "An undefined `support` character crashes world generation"
+!!! danger "An undefined `support` character fails the chunk"
     The mod throws `Cannot find support block '<char>' for highway part '<name>'!` when `support` names a character no palette in scope defines. Define the character, or remove the `support` meta. Omitting `support` is safe, and gives you a highway with nothing holding it up.
 
 ### `z1` and `z2`
@@ -87,7 +87,7 @@ Where a highway or bridge crosses open space, the mod drops pillars of this char
 
 These mark where the staircase meets the chunk edge, so the street border in the **adjacent** chunk leaves a gap there instead of walling the stairs off. Both are Z coordinates from 0 to 15. The 4 shipped stair parts use 0 and 2, 13 and 15, 4 and 11, and 5 and 10.
 
-!!! danger "A stair part without `z1` and `z2` crashes world generation"
+!!! danger "A stair part without `z1` and `z2` fails the chunk"
     The mod throws `NullPointerException` when the neighbouring chunk works out its border. It reads both values into `Integer` and passes them straight into an `int` parameter, with no null check, so an absent key unboxes a null.
 
     Any part you put in a city style's `stairs` selector **must** define both keys.

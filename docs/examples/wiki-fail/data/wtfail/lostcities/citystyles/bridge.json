@@ -1,5 +1,10 @@
 {
   "style": "standard",
+  "streetblocks": {
+    "street": "S",
+    "border": "y",
+    "wall": "w"
+  },
   "selectors": {
     "buildings": [
       {

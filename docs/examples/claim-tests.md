@@ -200,16 +200,27 @@ Then `wtfailfloors`, then `wtfailsafe`.
 
 ### What each one tests
 
-| Profile | Claim | Expected |
+| Profile | Claim | Result |
 |---|---|---|
-| `wtfailbridge` | An empty `bridges` selector crashes **even when `bridgeChance` is 0**, because the mod resolves the bridge part eagerly for every building chunk without testing the chance first | **Crash.** `Invalid name given to minecraft:root getOrThrow!` |
-| `wtfailfloors` | A building whose only part reference is gated on `top` matches nothing on lower floors | **Crash.** `Misconfiguration! Floor were generated for a building where no part condition matches!` |
-| `wtfailsafe` | `parks`, `fountains`, `stairs`, `fronts` and `raildungeons` are safe to leave empty, and the feature simply does not appear | **No crash.** A clean world with no parks, fountains, stairs, fronts or rail dungeons. |
+| `wtfailbridge` | An empty `bridges` selector fails **even when `bridgeChance` is 0**, because the bridge part is resolved eagerly for every building chunk | **Confirmed.** 1842 failed chunks, all `Invalid name given to minecraft:root getOrThrow!`, with `bridgeChance` at `0.0`. |
+| `wtfailfloors` | A building whose only part reference is gated on `top` matches nothing on lower floors | **Confirmed.** 1471 failed chunks, `Misconfiguration! Floor were generated for a building where no part condition matches!` |
+| `wtfailsafe` | `parks`, `fountains`, `stairs`, `fronts` and `raildungeons` are safe to leave empty | **Not yet proved.** The run failed for an unrelated reason the pack itself caused, described below. |
 
 The 3 city styles deliberately do **not** inherit `citystyle_common`. Selector
 inheritance is additive, so an inherited selector cannot be emptied, and emptying
 one is the whole point of the first test. That is itself a confirmation of the
 [additive inheritance rule](../reference/citystyle.md#inheritance).
+
+!!! danger "Not inheriting has a second consequence, which build 1 walked straight into"
+    A standalone city style must also define `streetblocks.street`. The mod
+    dereferences that character with no null check at the top of every city chunk.
+    Build 1 omitted it, so all 3 profiles carried a second fault, and the `safe`
+    run produced 1535 failures that had nothing to do with empty selectors.
+
+    Build 2 sets `street`, `border` and `wall` on all 3 styles. The 2 crash tests
+    still confirmed, because their own faults hit first and produced the exact
+    predicted messages. Only the `safe` test needs rerunning. See
+    [City Style](../reference/citystyle.md).
 
 !!! note "Omitting a selector and writing `[]` are the same thing"
     `Selectors` stores an omitted list as `null`, but the city style initialises

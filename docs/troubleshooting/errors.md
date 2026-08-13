@@ -11,19 +11,40 @@ Most of this page is 7.4.12. Version 7.5.1 has 36 messages that 7.4.12 does not,
 
 None of these strings are written to a file by the mod as a matter of course. They reach you in one of two ways, and the difference decides which file to open.
 
-### Thrown messages
+### Thrown during chunk generation
 
-Most entries on this page are Java exceptions the mod raises and does not catch. The mod does not log them itself. It throws, the exception travels up out of the chunk generator, and Minecraft handles it from there.
+**The game does not crash.** This is the single most important thing to know about
+every message on this page that comes from generation.
 
-| Where you are | What you see | File to open |
-|---|---|---|
-| Single player | The game crashes, usually while you fly into new terrain | `crash-reports/crash-<date>-server.txt` in your instance folder, plus `logs/latest.log` |
-| Dedicated server | The chunk never finishes loading, and a stack trace is printed | `logs/latest.log` on the server |
-| World creation | World creation fails outright | `logs/latest.log` |
+`LostCityFeature` wraps the whole generation of a chunk in a `try` block that
+catches `Exception`. When anything throws, the mod logs
+`Error generating chunk <x>,<z>: <message>`, prints the stack trace, and carries on
+with the next chunk.
 
-World generation runs on the integrated server even in single player, which is why the crash report is named `...-server.txt` rather than `...-client.txt`.
+| What actually happens | |
+|---|---|
+| The game | Keeps running. No crash report is written. |
+| That chunk | Is left partially generated. Terrain may be there with the buildings missing. |
+| Every other chunk with the same fault | Fails the same way, one log line each |
+| In game | Nothing tells you, beyond the world looking wrong |
+| File to open | `logs/latest.log`. **Not** `crash-reports/`, because none is produced. |
 
-In the file, the message appears as the exception line at the top of the stack trace:
+Verified by running it: a datapack with an empty `bridges` selector produced 1842
+`Error generating chunk` lines in a single session, and the game never crashed.
+
+!!! danger "Volume is the real symptom, and the traces run out"
+    A single misconfiguration produces one failure per affected chunk, so a short
+    session can log thousands. After the first few, the JVM stops recording stack
+    traces for a repeatedly thrown exception, and the remaining lines carry only the
+    message, or `null`.
+
+    **Read the earliest errors in the file.** The recent ones are the least useful.
+
+Generation is not the only place the mod throws. Anything thrown while a profile or
+an asset is being **loaded**, before generation starts, is outside that `try` and
+behaves like a normal crash.
+
+In the log, the message appears as the exception line at the top of the stack trace:
 
 ```
 java.lang.RuntimeException: Misconfiguration! Floor were generated for a building where no part condition matches!
@@ -129,6 +150,29 @@ The building's `filler` character did not resolve to a block.
     A log full of `Error generating chunk ...: null` with a handful of real traces near the top is this bug. **Read the earliest errors in the file**, not the most recent.
 
 The chunks still generate. Terrain and streets appear, buildings are missing or partial, and nothing tells you in game.
+
+### `NullPointerException` on `CityStyle.getStreetBlock()`
+
+**When:** every city chunk, from the start of generation. Observed in a real world.
+
+```
+java.lang.NullPointerException: Cannot invoke "java.lang.Character.charValue()"
+  because the return value of "...CityStyle.getStreetBlock()" is null
+    at mcjty.lostcities.worldgen.LostCityTerrainFeature.generate
+```
+
+The [City Style](../reference/citystyle.md) in use has no `streetblocks.street`
+character, and the mod dereferences it without checking.
+
+This only reaches you if your city style **inherits nothing**. Inheriting
+`citystyle_common` supplies `street`, `border` and `wall`, which is why the mod's own
+`citystyle_standard` sets no `streetblocks` and still works.
+
+**Fix:** either inherit a style that defines them, or set them yourself:
+
+```json
+{ "streetblocks": { "street": "S", "border": "y", "wall": "w" } }
+```
 
 ### `Cannot find support block '<char>' for highway part '<part>'!`
 
