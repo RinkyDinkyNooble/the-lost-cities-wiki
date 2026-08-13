@@ -157,6 +157,7 @@ Each entry in `parts` is a part name plus any of **13** optional test keys. They
 
 | Key | Type | Matches when |
 |---|---|---|
+| `part` | string | **Required.** Not a test. It names the [Building Part](part.md) this entry places when every test below passes. An entry without it fails to load. |
 | `floor` | int | The level index equals this number. `0` is ground, negatives are cellars. |
 | `range` | string | The level index falls between two comma-separated integers, including both ends. |
 | `top` | bool | If `true`, this is the building's topmost level. If `false`, it is any other level. |
