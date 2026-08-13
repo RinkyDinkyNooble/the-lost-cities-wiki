@@ -1,5 +1,5 @@
 {
- "_about": "Ground truth extracted from the Lost Cities jars by disassembling every mcjty class with javap and reading the mod's own constants. Codec keys come from each fieldOf and optionalFieldOf call. Profile keys come from each Configuration.get call, whose count this matches exactly. Regenerate rather than hand-edit.",
+ "_about": "Ground truth extracted from the Lost Cities jars by disassembling every mcjty class with javap and reading the mod's own constants. Codec keys come from each fieldOf and optionalFieldOf call. Profile keys come from each Configuration.get call, whose count this matches exactly, and 'section' is the config category the key is registered under, which is also the JSON object it must sit in inside a profile file. Regenerate rather than hand-edit.",
  "versions": {
   "7.4.12": {
    "codec": {
@@ -314,692 +314,833 @@
    },
    "profile": {
     "avoidFoliage": {
+     "section": "lostcity",
      "type": "Boolean",
      "default": 0
     },
     "avoidWater": {
+     "section": "lostcity",
      "type": "Boolean",
      "default": 0
     },
     "baseBlock": {
+     "section": "lostcity",
      "type": "String",
      "default": "minecraft:stone"
     },
     "bedrockLayer": {
+     "section": "lostcity",
      "type": "Int",
      "default": 1,
      "min": 0,
      "max": 10
     },
     "bridgeChance": {
+     "section": "lostcity",
      "type": "Float",
      "default": 0.7,
      "min": 0.0,
      "max": 1.0
     },
     "bridgeSupports": {
+     "section": "lostcity",
      "type": "Boolean",
      "default": 1
     },
     "buildingChance": {
+     "section": "lostcity",
      "type": "Float",
      "default": 0.3,
      "min": 0.0,
      "max": 1.0
     },
     "buildingDoorwayChance": {
+     "section": "lostcity",
      "type": "Float",
      "default": 0.6,
      "min": 0.0,
      "max": 1.0
     },
     "buildingFrontChance": {
+     "section": "lostcity",
      "type": "Float",
      "default": 0.2,
      "min": 0.0,
      "max": 1.0
     },
     "buildingMaxCellars": {
+     "section": "lostcity",
      "type": "Int",
      "default": 3,
      "min": 0,
      "max": 20
     },
     "buildingMaxFloors": {
+     "section": "lostcity",
      "type": "Int",
      "default": 8,
      "min": 0,
      "max": 60
     },
     "buildingMaxFloorsChance": {
+     "section": "lostcity",
      "type": "Int",
      "default": 6,
      "min": 1,
      "max": 60
     },
     "buildingMinCellars": {
+     "section": "lostcity",
      "type": "Int",
      "default": 0,
      "min": 0,
      "max": 20
     },
     "buildingMinFloors": {
+     "section": "lostcity",
      "type": "Int",
      "default": 0,
      "min": 0,
      "max": 60
     },
     "buildingMinFloorsChance": {
+     "section": "lostcity",
      "type": "Int",
      "default": 4,
      "min": 1,
      "max": 60
     },
     "buildingWithoutLootChance": {
+     "section": "lostcity",
      "type": "Float",
      "default": 0.2,
      "min": 0.0,
      "max": 1.0
     },
     "chestWithoutLootChance": {
+     "section": "lostcity",
      "type": "Float",
      "default": 0.2,
      "min": 0.0,
      "max": 1.0
     },
     "cityAvoidVoid": {
+     "section": "cities",
      "type": "Boolean",
      "default": 1
     },
     "cityChance": {
+     "section": "cities",
      "type": "Double",
      "default": 0.01,
      "min": -1.0,
      "max": 1.0
     },
     "cityLevel0Height": {
+     "section": "cities",
      "type": "Int",
      "default": 75,
      "min": 1,
      "max": 384
     },
     "cityLevel1Height": {
+     "section": "cities",
      "type": "Int",
      "default": 83,
      "min": 1,
      "max": 384
     },
     "cityLevel2Height": {
+     "section": "cities",
      "type": "Int",
      "default": 91,
      "min": 1,
      "max": 384
     },
     "cityLevel3Height": {
+     "section": "cities",
      "type": "Int",
      "default": 99,
      "min": 1,
      "max": 384
     },
     "cityLevel4Height": {
+     "section": "cities",
      "type": "Int",
      "default": 107,
      "min": 1,
      "max": 384
     },
     "cityLevel5Height": {
+     "section": "cities",
      "type": "Int",
      "default": 115,
      "min": 1,
      "max": 384
     },
     "cityLevel6Height": {
+     "section": "cities",
      "type": "Int",
      "default": 123,
      "min": 1,
      "max": 384
     },
     "cityLevel7Height": {
+     "section": "cities",
      "type": "Int",
      "default": 131,
      "min": 1,
      "max": 384
     },
     "cityMaxHeight": {
+     "section": "cities",
      "type": "Int",
      "default": 150,
      "min": -1024,
      "max": 2048
     },
     "cityMaxRadius": {
+     "section": "cities",
      "type": "Int",
      "default": 128,
      "min": 1,
      "max": 2000
     },
     "cityMinHeight": {
+     "section": "cities",
      "type": "Int",
      "default": 50,
      "min": -1024,
      "max": 2048
     },
     "cityMinRadius": {
+     "section": "cities",
      "type": "Int",
      "default": 50,
      "min": 1,
      "max": 2000
     },
     "cityPerlinInnerScale": {
+     "section": "cities",
      "type": "Double",
      "default": 0.1,
      "min": -1000000.0,
      "max": 1000000.0
     },
     "cityPerlinOffset": {
+     "section": "cities",
      "type": "Double",
      "default": 0.1,
      "min": -1000000.0,
      "max": 1000000.0
     },
     "cityPerlinScale": {
+     "section": "cities",
      "type": "Double",
      "default": 3.0,
      "min": -1000000.0,
      "max": 1000000.0
     },
     "citySpawnDistance1": {
+     "section": "cities",
      "type": "Int",
      "default": 0,
      "min": 0,
      "max": 10000000
     },
     "citySpawnDistance2": {
+     "section": "cities",
      "type": "Int",
      "default": 0,
      "min": 0,
      "max": 10000000
     },
     "citySpawnMultiplier1": {
+     "section": "cities",
      "type": "Double",
      "default": 1.0,
      "min": 0.0,
      "max": 1.0
     },
     "citySpawnMultiplier2": {
+     "section": "cities",
      "type": "Double",
      "default": 1.0,
      "min": 0.0,
      "max": 1.0
     },
     "citySphereChance": {
+     "section": "cityspheres",
      "type": "Float",
      "default": 0.7,
      "min": 0.0,
      "max": 1.0
     },
     "citySphereClearAbove": {
+     "section": "cityspheres",
      "type": "Int",
      "default": 0,
      "min": 0,
      "max": 1024
     },
     "citySphereClearAboveUntilAir": {
+     "section": "cityspheres",
      "type": "Boolean",
      "default": 0
     },
     "citySphereClearBelow": {
+     "section": "cityspheres",
      "type": "Int",
      "default": 0,
      "min": 0,
      "max": 1024
     },
     "citySphereClearBelowUntilAir": {
+     "section": "cityspheres",
      "type": "Boolean",
      "default": 0
     },
     "citySphereFactor": {
+     "section": "cityspheres",
      "type": "Float",
      "default": 1.2,
      "min": 0.1,
      "max": 10.0
     },
     "cityStyleAlternative": {
+     "section": "cities",
      "type": "String"
     },
     "cityStyleThreshold": {
+     "section": "cities",
      "type": "Float",
      "default": -1.0,
      "min": 0.0,
      "max": 1.0
     },
     "cityThreshold": {
+     "section": "cities",
      "type": "Float",
      "default": 0.2,
      "min": 0.0,
      "max": 1.0
     },
     "corridorChance": {
+     "section": "lostcity",
      "type": "Float",
      "default": 0.7,
      "min": 0.0,
      "max": 1.0
     },
     "debrisToNearbyChunkFactor": {
+     "section": "explosions",
      "type": "Int",
      "default": 200,
      "min": 1,
      "max": 10000
     },
     "description": {
+     "section": "lostcity",
      "type": "String",
      "default": "Default generation, common cities, explosions"
     },
     "editMode": {
+     "section": "lostcity",
      "type": "Boolean",
      "default": 0
     },
     "explosionChance": {
+     "section": "explosions",
      "type": "Float",
      "default": 0.002,
      "min": 0.0,
      "max": 1.0
     },
     "explosionMaxHeight": {
+     "section": "explosions",
      "type": "Int",
      "default": 90,
      "min": 1,
      "max": 256
     },
     "explosionMaxRadius": {
+     "section": "explosions",
      "type": "Int",
      "default": 35,
      "min": 1,
      "max": 3000
     },
     "explosionMinHeight": {
+     "section": "explosions",
      "type": "Int",
      "default": 75,
      "min": 1,
      "max": 256
     },
     "explosionMinRadius": {
+     "section": "explosions",
      "type": "Int",
      "default": 15,
      "min": 1,
      "max": 1000
     },
     "explosionsInCitiesOnly": {
+     "section": "explosions",
      "type": "Boolean",
      "default": 1
     },
     "extraDescription": {
+     "section": "lostcity",
      "type": "String"
     },
     "fogBlue": {
+     "section": "client",
      "type": "Float",
      "default": -1.0,
      "min": -1.0,
      "max": 1.0
     },
     "fogDensity": {
+     "section": "client",
      "type": "Float",
      "default": -1.0,
      "min": -1.0,
      "max": 1.0
     },
     "fogGreen": {
+     "section": "client",
      "type": "Float",
      "default": -1.0,
      "min": -1.0,
      "max": 1.0
     },
     "fogRed": {
+     "section": "client",
      "type": "Float",
      "default": -1.0,
      "min": -1.0,
      "max": 1.0
     },
     "forceSpawnBuildings": {
+     "section": "lostcity",
      "type": "StringList"
     },
     "forceSpawnInBuilding": {
+     "section": "lostcity",
      "type": "Boolean",
      "default": 0
     },
     "forceSpawnParts": {
+     "section": "lostcity",
      "type": "StringList"
     },
     "fountainChance": {
+     "section": "lostcity",
      "type": "Float",
      "default": 0.05,
      "min": 0.0,
      "max": 1.0
     },
     "generateLighting": {
+     "section": "lostcity",
      "type": "Boolean",
      "default": 0
     },
     "generateLoot": {
+     "section": "lostcity",
      "type": "Boolean",
      "default": 1
     },
     "generateNether": {
+     "section": "lostcity",
      "type": "Boolean",
      "default": 0
     },
     "generateSpawners": {
+     "section": "lostcity",
      "type": "Boolean",
      "default": 1
     },
     "grid32": {
+     "section": "cityspheres",
      "type": "Boolean",
      "default": 0
     },
     "groundLevel": {
+     "section": "lostcity",
      "type": "Int",
      "default": 71,
      "min": 2,
      "max": 256
     },
     "highwayDistanceMask": {
+     "section": "lostcity",
      "type": "Int",
      "default": 7,
      "min": 0,
      "max": 2147483647
     },
     "highwayLevelFromCities": {
+     "section": "lostcity",
      "type": "Int",
      "default": 0,
      "min": 0,
      "max": 3
     },
     "highwayMainPerlinScale": {
+     "section": "lostcity",
      "type": "Float",
      "default": 50.0,
      "min": 1.0,
      "max": 1000.0
     },
     "highwayPerlinFactor": {
+     "section": "lostcity",
      "type": "Float",
      "default": 2.0,
      "min": -100.0,
      "max": 100.0
     },
     "highwayRequiresTwoCities": {
+     "section": "lostcity",
      "type": "Boolean",
      "default": 1
     },
     "highwaySecondaryPerlinScale": {
+     "section": "lostcity",
      "type": "Float",
      "default": 10.0,
      "min": 1.0,
      "max": 1000.0
     },
     "highwaySupports": {
+     "section": "lostcity",
      "type": "Boolean",
      "default": 1
     },
     "horizon": {
+     "section": "client",
      "type": "Enum(LandscapeType)",
-     "default": -1.0
+     "default": -1.0,
+     "values": [
+      "DEFAULT",
+      "DEFAULT"
+     ]
     },
     "icon": {
+     "section": "lostcity",
      "type": "String"
     },
     "landscapeType": {
+     "section": "lostcity",
      "type": "Enum(LandscapeType)",
-     "default": "DEFAULT"
+     "default": "DEFAULT",
+     "values": [
+      "DEFAULT",
+      "FLOATING",
+      "SPACE",
+      "CAVERN"
+     ]
     },
     "liquidBlock": {
+     "section": "lostcity",
      "type": "String",
      "default": "minecraft:water"
     },
     "miniExplosionChance": {
+     "section": "explosions",
      "type": "Float",
      "default": 0.03,
      "min": 0.0,
      "max": 1.0
     },
     "miniExplosionMaxHeight": {
+     "section": "explosions",
      "type": "Int",
      "default": 100,
      "min": 1,
      "max": 256
     },
     "miniExplosionMaxRadius": {
+     "section": "explosions",
      "type": "Int",
      "default": 12,
      "min": 1,
      "max": 3000
     },
     "miniExplosionMinHeight": {
+     "section": "explosions",
      "type": "Int",
      "default": 60,
      "min": 1,
      "max": 256
     },
     "miniExplosionMinRadius": {
+     "section": "explosions",
      "type": "Int",
      "default": 5,
      "min": 1,
      "max": 1000
     },
     "monorailChance": {
+     "section": "cityspheres",
      "type": "Float",
      "default": 0.8,
      "min": 0.0,
      "max": 1.0
     },
     "monorailOffset": {
+     "section": "cityspheres",
      "type": "Int",
      "default": -2,
      "min": -100,
      "max": 100
     },
     "multiUseCorner": {
+     "section": "lostcity",
      "type": "Boolean",
      "default": 0
     },
     "oceanCorrectionBorder": {
+     "section": "cities",
      "type": "Int",
      "default": 4,
      "min": -255,
      "max": 255
     },
     "onlyPredefined": {
+     "section": "cityspheres",
      "type": "Boolean",
      "default": 0
     },
     "outsideGroundLevel": {
+     "section": "cityspheres",
      "type": "Int",
      "default": -1,
      "min": -1,
      "max": 256
     },
     "outsideProfile": {
+     "section": "cityspheres",
      "type": "String"
     },
     "outsideSurfaceVariation": {
+     "section": "cityspheres",
      "type": "Float",
      "default": 1.0,
      "min": 0.0,
      "max": 1.0
     },
     "parkBorder": {
+     "section": "lostcity",
      "type": "Boolean",
      "default": 1
     },
     "parkChance": {
+     "section": "lostcity",
      "type": "Float",
      "default": 0.2,
      "min": 0.0,
      "max": 1.0
     },
     "parkElevation": {
+     "section": "lostcity",
      "type": "Boolean",
      "default": 1
     },
     "parkStreetThreshold": {
+     "section": "lostcity",
      "type": "Int",
      "default": 3,
      "min": 0,
      "max": 8
     },
     "railwayDungeonChance": {
+     "section": "lostcity",
      "type": "Float",
      "default": 0.01,
      "min": 0.0,
      "max": 1.0
     },
     "railwayStationsEnabled": {
+     "section": "lostcity",
      "type": "Boolean",
      "default": 1
     },
     "railwaySurfaceStationsEnabled": {
+     "section": "lostcity",
      "type": "Boolean",
      "default": 1
     },
     "railwaysCanEnd": {
+     "section": "lostcity",
      "type": "Boolean",
      "default": 0
     },
     "railwaysEnabled": {
+     "section": "lostcity",
      "type": "Boolean",
      "default": 1
     },
     "randomLeafBlockChance": {
+     "section": "lostcity",
      "type": "Float",
      "default": 0.1,
      "min": 0.0,
      "max": 1.0
     },
     "randomLeafBlockThickness": {
+     "section": "lostcity",
      "type": "Int",
      "default": 2,
      "min": 1,
      "max": 8
     },
     "rubbleDirtScale": {
+     "section": "lostcity",
      "type": "Float",
      "default": 3.0,
      "min": 0.0,
      "max": 100.0
     },
     "rubbleLayer": {
+     "section": "lostcity",
      "type": "Boolean",
      "default": 1
     },
     "rubbleLeaveScale": {
+     "section": "lostcity",
      "type": "Float",
      "default": 6.0,
      "min": 0.0,
      "max": 100.0
     },
     "ruinChance": {
+     "section": "lostcity",
      "type": "Float",
      "default": 0.05,
      "min": 0.0,
      "max": 1.0
     },
     "ruinMaxlevelPercent": {
+     "section": "lostcity",
      "type": "Float",
      "default": 1.0,
      "min": 0.0,
      "max": 1.0
     },
     "ruinMinlevelPercent": {
+     "section": "lostcity",
      "type": "Float",
      "default": 0.8,
      "min": 0.0,
      "max": 1.0
     },
     "scatteredChanceMultiplier": {
+     "section": "lostcity",
      "type": "Float",
      "default": 1.0,
      "min": 0.0,
      "max": 100.0
     },
     "seaLevel": {
+     "section": "lostcity",
      "type": "Int",
      "default": -1,
      "min": -1,
      "max": 256
     },
     "spawnBiome": {
+     "section": "lostcity",
      "type": "String"
     },
     "spawnCheckAttempts": {
+     "section": "lostcity",
      "type": "Int",
      "default": 20000,
      "min": 1,
      "max": 1000000
     },
     "spawnCheckRadius": {
+     "section": "lostcity",
      "type": "Int",
      "default": 200,
      "min": 1,
      "max": 100000
     },
     "spawnCity": {
+     "section": "lostcity",
      "type": "String"
     },
     "spawnNotInBuilding": {
+     "section": "lostcity",
      "type": "Boolean",
      "default": 0
     },
     "spawnRadiusIncrease": {
+     "section": "lostcity",
      "type": "Int",
      "default": 100,
      "min": 1,
      "max": 100000
     },
     "spawnSphere": {
+     "section": "lostcity",
      "type": "String"
     },
     "sphereSurfaceVariation": {
+     "section": "cityspheres",
      "type": "Float",
      "default": 1.0,
      "min": 0.0,
      "max": 1.0
     },
     "terrainFixLowerMaxOffset": {
+     "section": "lostcity",
      "type": "Int",
      "default": -3,
      "min": -40,
      "max": 40
     },
     "terrainFixLowerMinOffset": {
+     "section": "lostcity",
      "type": "Int",
      "default": -4,
      "min": -40,
      "max": 40
     },
     "terrainFixUpperMaxOffset": {
+     "section": "lostcity",
      "type": "Int",
      "default": 1,
      "min": -40,
      "max": 40
     },
     "terrainFixUpperMinOffset": {
+     "section": "lostcity",
      "type": "Int",
      "default": -1,
      "min": -40,
      "max": 40
     },
     "useAvgHeightmap": {
+     "section": "lostcity",
      "type": "Boolean",
      "default": 0
     },
     "vineChance": {
+     "section": "lostcity",
      "type": "Float",
      "default": 0.009,
      "min": 0.0,
      "max": 1.0
     },
     "warning": {
+     "section": "lostcity",
      "type": "String"
     },
     "worldStyle": {
+     "section": "lostcity",
      "type": "String",
      "default": "standard"
     }
@@ -1327,860 +1468,1049 @@
    },
    "profile": {
     "avoidFoliage": {
+     "section": "lostcity",
      "type": "Boolean",
      "default": 0
     },
     "avoidWater": {
+     "section": "lostcity",
      "type": "Boolean",
      "default": 0
     },
     "baseBlock": {
+     "section": "lostcity",
      "type": "String",
      "default": "minecraft:stone"
     },
     "bedrockLayer": {
+     "section": "lostcity",
      "type": "Int",
      "default": 1,
      "min": 0,
      "max": 10
     },
     "bridgeChance": {
+     "section": "lostcity",
      "type": "Float",
      "default": 0.7,
      "min": 0.0,
      "max": 1.0
     },
     "bridgeSupports": {
+     "section": "lostcity",
      "type": "Boolean",
      "default": 1
     },
     "buildingChance": {
+     "section": "lostcity",
      "type": "Float",
      "default": 0.3,
      "min": 0.0,
      "max": 1.0
     },
     "buildingDoorwayChance": {
+     "section": "lostcity",
      "type": "Float",
      "default": 0.6,
      "min": 0.0,
      "max": 1.0
     },
     "buildingFrontChance": {
+     "section": "lostcity",
      "type": "Float",
      "default": 0.2,
      "min": 0.0,
      "max": 1.0
     },
     "buildingMaxCellars": {
+     "section": "lostcity",
      "type": "Int",
      "default": 3,
      "min": 0,
      "max": 20
     },
     "buildingMaxFloors": {
+     "section": "lostcity",
      "type": "Int",
      "default": 8,
      "min": 0,
      "max": 60
     },
     "buildingMaxFloorsChance": {
+     "section": "lostcity",
      "type": "Int",
      "default": 6,
      "min": 1,
      "max": 60
     },
     "buildingMinCellars": {
+     "section": "lostcity",
      "type": "Int",
      "default": 0,
      "min": 0,
      "max": 20
     },
     "buildingMinFloors": {
+     "section": "lostcity",
      "type": "Int",
      "default": 0,
      "min": 0,
      "max": 60
     },
     "buildingMinFloorsChance": {
+     "section": "lostcity",
      "type": "Int",
      "default": 4,
      "min": 1,
      "max": 60
     },
     "buildingWithoutLootChance": {
+     "section": "lostcity",
      "type": "Float",
      "default": 0.2,
      "min": 0.0,
      "max": 1.0
     },
     "chestWithoutLootChance": {
+     "section": "lostcity",
      "type": "Float",
      "default": 0.2,
      "min": 0.0,
      "max": 1.0
     },
     "cityAvoidVoid": {
+     "section": "cities",
      "type": "Boolean",
      "default": 1
     },
     "cityChance": {
+     "section": "cities",
      "type": "Double",
      "default": 0.01,
      "min": -1.0,
      "max": 1.0
     },
     "cityLevel0Height": {
+     "section": "cities",
      "type": "Int",
      "default": 75,
      "min": 1,
      "max": 384
     },
     "cityLevel1Height": {
+     "section": "cities",
      "type": "Int",
      "default": 83,
      "min": 1,
      "max": 384
     },
     "cityLevel2Height": {
+     "section": "cities",
      "type": "Int",
      "default": 91,
      "min": 1,
      "max": 384
     },
     "cityLevel3Height": {
+     "section": "cities",
      "type": "Int",
      "default": 99,
      "min": 1,
      "max": 384
     },
     "cityLevel4Height": {
+     "section": "cities",
      "type": "Int",
      "default": 107,
      "min": 1,
      "max": 384
     },
     "cityLevel5Height": {
+     "section": "cities",
      "type": "Int",
      "default": 115,
      "min": 1,
      "max": 384
     },
     "cityLevel6Height": {
+     "section": "cities",
      "type": "Int",
      "default": 123,
      "min": 1,
      "max": 384
     },
     "cityLevel7Height": {
+     "section": "cities",
      "type": "Int",
      "default": 131,
      "min": 1,
      "max": 384
     },
     "cityMaxHeight": {
+     "section": "cities",
      "type": "Int",
      "default": 150,
      "min": -1024,
      "max": 2048
     },
     "cityMaxRadius": {
+     "section": "cities",
      "type": "Int",
      "default": 128,
      "min": 1,
      "max": 2000
     },
     "cityMinHeight": {
+     "section": "cities",
      "type": "Int",
      "default": 50,
      "min": -1024,
      "max": 2048
     },
     "cityMinRadius": {
+     "section": "cities",
      "type": "Int",
      "default": 50,
      "min": 1,
      "max": 2000
     },
     "cityPerlinInnerScale": {
+     "section": "cities",
      "type": "Double",
      "default": 0.1,
      "min": -1000000.0,
      "max": 1000000.0
     },
     "cityPerlinOffset": {
+     "section": "cities",
      "type": "Double",
      "default": 0.1,
      "min": -1000000.0,
      "max": 1000000.0
     },
     "cityPerlinScale": {
+     "section": "cities",
      "type": "Double",
      "default": 3.0,
      "min": -1000000.0,
      "max": 1000000.0
     },
     "citySpawnDistance1": {
+     "section": "cities",
      "type": "Int",
      "default": 0,
      "min": 0,
      "max": 10000000
     },
     "citySpawnDistance2": {
+     "section": "cities",
      "type": "Int",
      "default": 0,
      "min": 0,
      "max": 10000000
     },
     "citySpawnMultiplier1": {
+     "section": "cities",
      "type": "Double",
      "default": 1.0,
      "min": 0.0,
      "max": 1.0
     },
     "citySpawnMultiplier2": {
+     "section": "cities",
      "type": "Double",
      "default": 1.0,
      "min": 0.0,
      "max": 1.0
     },
     "citySphereChance": {
+     "section": "cityspheres",
      "type": "Float",
      "default": 0.7,
      "min": 0.0,
      "max": 1.0
     },
     "citySphereClearAbove": {
+     "section": "cityspheres",
      "type": "Int",
      "default": 0,
      "min": 0,
      "max": 1024
     },
     "citySphereClearAboveUntilAir": {
+     "section": "cityspheres",
      "type": "Boolean",
      "default": 0
     },
     "citySphereClearBelow": {
+     "section": "cityspheres",
      "type": "Int",
      "default": 0,
      "min": 0,
      "max": 1024
     },
     "citySphereClearBelowUntilAir": {
+     "section": "cityspheres",
      "type": "Boolean",
      "default": 0
     },
     "citySphereFactor": {
+     "section": "cityspheres",
      "type": "Float",
      "default": 1.2,
      "min": 0.1,
      "max": 10.0
     },
     "cityStyleAlternative": {
+     "section": "cities",
      "type": "String"
     },
     "cityStyleThreshold": {
+     "section": "cities",
      "type": "Float",
      "default": -1.0,
      "min": 0.0,
      "max": 1.0
     },
     "cityThreshold": {
+     "section": "cities",
      "type": "Float",
      "default": 0.2,
      "min": 0.0,
      "max": 1.0
     },
     "corridorChance": {
+     "section": "lostcity",
      "type": "Float",
      "default": 0.7,
      "min": 0.0,
      "max": 1.0
     },
     "debrisToNearbyChunkFactor": {
+     "section": "explosions",
      "type": "Int",
      "default": 200,
      "min": 1,
      "max": 10000
     },
     "description": {
+     "section": "lostcity",
      "type": "String",
      "default": "Default generation, common cities, explosions"
     },
     "editMode": {
+     "section": "lostcity",
      "type": "Boolean",
      "default": 0
     },
     "explosionChance": {
+     "section": "explosions",
      "type": "Float",
      "default": 0.002,
      "min": 0.0,
      "max": 1.0
     },
     "explosionMaxHeight": {
+     "section": "explosions",
      "type": "Int",
      "default": 90,
      "min": 1,
      "max": 256
     },
     "explosionMaxRadius": {
+     "section": "explosions",
      "type": "Int",
      "default": 35,
      "min": 1,
      "max": 3000
     },
     "explosionMinHeight": {
+     "section": "explosions",
      "type": "Int",
      "default": 75,
      "min": 1,
      "max": 256
     },
     "explosionMinRadius": {
+     "section": "explosions",
      "type": "Int",
      "default": 15,
      "min": 1,
      "max": 1000
     },
     "explosionsInCitiesOnly": {
+     "section": "explosions",
      "type": "Boolean",
      "default": 1
     },
     "extraDescription": {
+     "section": "lostcity",
      "type": "String"
     },
     "fogBlue": {
+     "section": "client",
      "type": "Float",
      "default": -1.0,
      "min": -1.0,
      "max": 1.0
     },
     "fogDensity": {
+     "section": "client",
      "type": "Float",
      "default": -1.0,
      "min": -1.0,
      "max": 1.0
     },
     "fogGreen": {
+     "section": "client",
      "type": "Float",
      "default": -1.0,
      "min": -1.0,
      "max": 1.0
     },
     "fogRed": {
+     "section": "client",
      "type": "Float",
      "default": -1.0,
      "min": -1.0,
      "max": 1.0
     },
     "forceSpawnBuildings": {
+     "section": "lostcity",
      "type": "StringList"
     },
     "forceSpawnInBuilding": {
+     "section": "lostcity",
      "type": "Boolean",
      "default": 0
     },
     "forceSpawnParts": {
+     "section": "lostcity",
      "type": "StringList"
     },
     "fountainChance": {
+     "section": "lostcity",
      "type": "Float",
      "default": 0.05,
      "min": 0.0,
      "max": 1.0
     },
     "generateLighting": {
+     "section": "lostcity",
      "type": "Boolean",
      "default": 0
     },
     "generateLoot": {
+     "section": "lostcity",
      "type": "Boolean",
      "default": 1
     },
     "generateNether": {
+     "section": "lostcity",
      "type": "Boolean",
      "default": 0
     },
     "generateSpawners": {
+     "section": "lostcity",
      "type": "Boolean",
      "default": 1
     },
     "grid32": {
+     "section": "cityspheres",
      "type": "Boolean",
      "default": 0
     },
     "groundLevel": {
+     "section": "lostcity",
      "type": "Int",
      "default": 71,
      "min": 2,
      "max": 256
     },
     "highwayDistanceMask": {
+     "section": "lostcity",
      "type": "Int",
      "default": 7,
      "min": 0,
      "max": 2147483647
     },
     "highwayGenerationMode": {
+     "section": "lostcity",
      "type": "Enum(HighwayGenerationMode)",
-     "default": "INTERCITY_NETWORK_V1"
+     "default": "INTERCITY_NETWORK_V1",
+     "values": [
+      "LEGACY",
+      "INTERCITY_NETWORK_V1"
+     ]
     },
     "highwayHubMinimumPotential": {
+     "section": "lostcity",
      "type": "Float",
      "default": 0.2,
      "min": 0.0,
      "max": 1.0
     },
     "highwayHubSampleSpacing": {
+     "section": "lostcity",
      "type": "Int",
      "default": 16,
      "min": 1,
      "max": 512
     },
     "highwayHubSearchRadiusCells": {
+     "section": "lostcity",
      "type": "Int",
      "default": 2,
      "min": 0,
      "max": 8
     },
     "highwayLevelFromCities": {
+     "section": "lostcity",
      "type": "Int",
      "default": 3,
      "min": 0,
      "max": 4
     },
     "highwayMainPerlinScale": {
+     "section": "lostcity",
      "type": "Float",
      "default": 50.0,
      "min": 1.0,
      "max": 1000.0
     },
     "highwayMaximumConnectionsPerHub": {
+     "section": "lostcity",
      "type": "Int",
      "default": 2,
      "min": 1,
      "max": 8
     },
     "highwayMaximumHubDistance": {
+     "section": "lostcity",
      "type": "Int",
      "default": 320,
      "min": 0,
      "max": 4096
     },
     "highwayMinimumHubDistance": {
+     "section": "lostcity",
      "type": "Int",
      "default": 64,
      "min": 0,
      "max": 4096
     },
     "highwayMinimumRouteLength": {
+     "section": "lostcity",
      "type": "Int",
      "default": 40,
      "min": 0,
      "max": 4096
     },
     "highwayNetworkLevel": {
+     "section": "lostcity",
      "type": "Int",
      "default": 0,
      "min": 0,
      "max": 32
     },
     "highwayPerlinFactor": {
+     "section": "lostcity",
      "type": "Float",
      "default": 2.0,
      "min": -100.0,
      "max": 100.0
     },
     "highwayPlanningCellSize": {
+     "section": "lostcity",
      "type": "Int",
      "default": 128,
      "min": 32,
      "max": 512
     },
     "highwayRequiresTwoCities": {
+     "section": "lostcity",
      "type": "Boolean",
      "default": 1
     },
     "highwayRouteCityPenalty": {
+     "section": "lostcity",
      "type": "Float",
      "default": 1.0,
      "min": 0.0,
      "max": 1000.0
     },
     "highwaySecondaryPerlinScale": {
+     "section": "lostcity",
      "type": "Float",
      "default": 10.0,
      "min": 1.0,
      "max": 1000.0
     },
     "highwaySupports": {
+     "section": "lostcity",
      "type": "Boolean",
      "default": 1
     },
     "horizon": {
+     "section": "client",
      "type": "Enum(HighwayGenerationMode)",
-     "default": -1.0
+     "default": -1.0,
+     "values": [
+      "INTERCITY_NETWORK_V1",
+      "HIERARCHICAL_GRID_V1",
+      "OVERRIDE_MINOR",
+      "DEFAULT",
+      "INTERCITY_NETWORK_V1",
+      "HIERARCHICAL_GRID_V1",
+      "OVERRIDE_MINOR",
+      "DEFAULT"
+     ]
     },
     "icon": {
+     "section": "lostcity",
      "type": "String"
     },
     "landscapeType": {
+     "section": "lostcity",
      "type": "Enum(LandscapeType)",
-     "default": "DEFAULT"
+     "default": "DEFAULT",
+     "values": [
+      "DEFAULT",
+      "FLOATING",
+      "SPACE",
+      "CAVERN"
+     ]
     },
     "liquidBlock": {
+     "section": "lostcity",
      "type": "String",
      "default": "minecraft:water"
     },
     "miniExplosionChance": {
+     "section": "explosions",
      "type": "Float",
      "default": 0.03,
      "min": 0.0,
      "max": 1.0
     },
     "miniExplosionMaxHeight": {
+     "section": "explosions",
      "type": "Int",
      "default": 100,
      "min": 1,
      "max": 256
     },
     "miniExplosionMaxRadius": {
+     "section": "explosions",
      "type": "Int",
      "default": 12,
      "min": 1,
      "max": 3000
     },
     "miniExplosionMinHeight": {
+     "section": "explosions",
      "type": "Int",
      "default": 60,
      "min": 1,
      "max": 256
     },
     "miniExplosionMinRadius": {
+     "section": "explosions",
      "type": "Int",
      "default": 5,
      "min": 1,
      "max": 1000
     },
     "minimumRoadEdgeDistance": {
+     "section": "lostcity",
      "type": "Int",
      "default": 3,
      "min": 2,
      "max": 32
     },
     "minimumRoadSeparation": {
+     "section": "lostcity",
      "type": "Int",
      "default": 4,
      "min": 2,
      "max": 32
     },
     "monorailChance": {
+     "section": "cityspheres",
      "type": "Float",
      "default": 0.8,
      "min": 0.0,
      "max": 1.0
     },
     "monorailOffset": {
+     "section": "cityspheres",
      "type": "Int",
      "default": -2,
      "min": -100,
      "max": 100
     },
     "multiBuildingStreetConflict": {
+     "section": "lostcity",
      "type": "Enum(MultiBuildingStreetConflict)",
-     "default": "OVERRIDE_MINOR"
+     "default": "OVERRIDE_MINOR",
+     "values": [
+      "BLOCK_ALL",
+      "OVERRIDE_MINOR",
+      "OVERRIDE_ALL"
+     ]
     },
     "multiUseCorner": {
+     "section": "lostcity",
      "type": "Boolean",
      "default": 0
     },
     "oceanCorrectionBorder": {
+     "section": "cities",
      "type": "Int",
      "default": 4,
      "min": -255,
      "max": 255
     },
     "onlyPredefined": {
+     "section": "cityspheres",
      "type": "Boolean",
      "default": 0
     },
     "openLotParkChance": {
+     "section": "lostcity",
      "type": "Float",
      "default": 0.8,
      "min": 0.0,
      "max": 1.0
     },
     "outsideGroundLevel": {
+     "section": "cityspheres",
      "type": "Int",
      "default": -1,
      "min": -1,
      "max": 256
     },
     "outsideProfile": {
+     "section": "cityspheres",
      "type": "String"
     },
     "outsideSurfaceVariation": {
+     "section": "cityspheres",
      "type": "Float",
      "default": 1.0,
      "min": 0.0,
      "max": 1.0
     },
     "parkBorder": {
+     "section": "lostcity",
      "type": "Boolean",
      "default": 1
     },
     "parkChance": {
+     "section": "lostcity",
      "type": "Float",
      "default": 0.2,
      "min": 0.0,
      "max": 1.0
     },
     "parkElevation": {
+     "section": "lostcity",
      "type": "Boolean",
      "default": 1
     },
     "parkStreetThreshold": {
+     "section": "lostcity",
      "type": "Int",
      "default": 3,
      "min": 0,
      "max": 8
     },
     "plannedPrimaryBridgeChance": {
+     "section": "lostcity",
      "type": "Float",
      "default": 1.0,
      "min": 0.0,
      "max": 1.0
     },
     "plannedPrimaryBridgeMaxLength": {
+     "section": "lostcity",
      "type": "Int",
      "default": 12,
      "min": 1,
      "max": 64
     },
     "primaryRoadForceEvery": {
+     "section": "lostcity",
      "type": "Int",
      "default": 4,
      "min": 1,
      "max": 16
     },
     "primaryRoadOptionalChance": {
+     "section": "lostcity",
      "type": "Float",
      "default": 0.45,
      "min": 0.0,
      "max": 1.0
     },
     "primaryRoadSpacingX": {
+     "section": "lostcity",
      "type": "Int",
      "default": 8,
      "min": 8,
      "max": 128
     },
     "primaryRoadSpacingZ": {
+     "section": "lostcity",
      "type": "Int",
      "default": 8,
      "min": 8,
      "max": 128
     },
     "railwayDungeonChance": {
+     "section": "lostcity",
      "type": "Float",
      "default": 0.01,
      "min": 0.0,
      "max": 1.0
     },
     "railwayStationsEnabled": {
+     "section": "lostcity",
      "type": "Boolean",
      "default": 1
     },
     "railwaySurfaceStationsEnabled": {
+     "section": "lostcity",
      "type": "Boolean",
      "default": 1
     },
     "railwaysCanEnd": {
+     "section": "lostcity",
      "type": "Boolean",
      "default": 0
     },
     "railwaysEnabled": {
+     "section": "lostcity",
      "type": "Boolean",
      "default": 1
     },
     "randomLeafBlockChance": {
+     "section": "lostcity",
      "type": "Float",
      "default": 0.1,
      "min": 0.0,
      "max": 1.0
     },
     "randomLeafBlockThickness": {
+     "section": "lostcity",
      "type": "Int",
      "default": 2,
      "min": 1,
      "max": 8
     },
     "rubbleDirtScale": {
+     "section": "lostcity",
      "type": "Float",
      "default": 3.0,
      "min": 0.0,
      "max": 100.0
     },
     "rubbleLayer": {
+     "section": "lostcity",
      "type": "Boolean",
      "default": 1
     },
     "rubbleLeaveScale": {
+     "section": "lostcity",
      "type": "Float",
      "default": 6.0,
      "min": 0.0,
      "max": 100.0
     },
     "ruinChance": {
+     "section": "lostcity",
      "type": "Float",
      "default": 0.05,
      "min": 0.0,
      "max": 1.0
     },
     "ruinMaxlevelPercent": {
+     "section": "lostcity",
      "type": "Float",
      "default": 1.0,
      "min": 0.0,
      "max": 1.0
     },
     "ruinMinlevelPercent": {
+     "section": "lostcity",
      "type": "Float",
      "default": 0.8,
      "min": 0.0,
      "max": 1.0
     },
     "scatteredChanceMultiplier": {
+     "section": "lostcity",
      "type": "Float",
      "default": 1.0,
      "min": 0.0,
      "max": 100.0
     },
     "seaLevel": {
+     "section": "lostcity",
      "type": "Int",
      "default": -1,
      "min": -1,
      "max": 256
     },
     "secondaryRoadMaxCountX": {
+     "section": "lostcity",
      "type": "Int",
      "default": 2,
      "min": 0,
      "max": 128
     },
     "secondaryRoadMaxCountZ": {
+     "section": "lostcity",
      "type": "Int",
      "default": 2,
      "min": 0,
      "max": 128
     },
     "secondaryRoadMinCountX": {
+     "section": "lostcity",
      "type": "Int",
      "default": 0,
      "min": 0,
      "max": 128
     },
     "secondaryRoadMinCountZ": {
+     "section": "lostcity",
      "type": "Int",
      "default": 0,
      "min": 0,
      "max": 128
     },
     "spawnBiome": {
+     "section": "lostcity",
      "type": "String"
     },
     "spawnCheckAttempts": {
+     "section": "lostcity",
      "type": "Int",
      "default": 20000,
      "min": 1,
      "max": 1000000
     },
     "spawnCheckRadius": {
+     "section": "lostcity",
      "type": "Int",
      "default": 200,
      "min": 1,
      "max": 100000
     },
     "spawnCity": {
+     "section": "lostcity",
      "type": "String"
     },
     "spawnNotInBuilding": {
+     "section": "lostcity",
      "type": "Boolean",
      "default": 0
     },
     "spawnRadiusIncrease": {
+     "section": "lostcity",
      "type": "Int",
      "default": 100,
      "min": 1,
      "max": 100000
     },
     "spawnSphere": {
+     "section": "lostcity",
      "type": "String"
     },
     "sphereSurfaceVariation": {
+     "section": "cityspheres",
      "type": "Float",
      "default": 1.0,
      "min": 0.0,
      "max": 1.0
     },
     "streetGenerationMode": {
+     "section": "lostcity",
      "type": "Enum(StreetGenerationMode)",
-     "default": "HIERARCHICAL_GRID_V1"
+     "default": "HIERARCHICAL_GRID_V1",
+     "values": [
+      "LEGACY",
+      "HIERARCHICAL_GRID_V1"
+     ]
     },
     "terrainFixLowerMaxOffset": {
+     "section": "lostcity",
      "type": "Int",
      "default": -3,
      "min": -40,
      "max": 40
     },
     "terrainFixLowerMinOffset": {
+     "section": "lostcity",
      "type": "Int",
      "default": -4,
      "min": -40,
      "max": 40
     },
     "terrainFixUpperMaxOffset": {
+     "section": "lostcity",
      "type": "Int",
      "default": 1,
      "min": -40,
      "max": 40
     },
     "terrainFixUpperMinOffset": {
+     "section": "lostcity",
      "type": "Int",
      "default": -1,
      "min": -40,
      "max": 40
     },
     "tertiaryRoadChance": {
+     "section": "lostcity",
      "type": "Float",
      "default": 0.4,
      "min": 0.0,
      "max": 1.0
     },
     "tertiaryRoadMaxLength": {
+     "section": "lostcity",
      "type": "Int",
      "default": 5,
      "min": 1,
      "max": 32
     },
     "tertiaryRoadMinLength": {
+     "section": "lostcity",
      "type": "Int",
      "default": 2,
      "min": 1,
      "max": 16
     },
     "useAvgHeightmap": {
+     "section": "lostcity",
      "type": "Boolean",
      "default": 0
     },
     "vineChance": {
+     "section": "lostcity",
      "type": "Float",
      "default": 0.009,
      "min": 0.0,
      "max": 1.0
     },
     "warning": {
+     "section": "lostcity",
      "type": "String"
     },
     "worldStyle": {
+     "section": "lostcity",
      "type": "String",
      "default": "standard"
     }

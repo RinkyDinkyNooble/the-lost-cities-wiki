@@ -253,6 +253,37 @@ def check_against_mod_keys() -> None:
                     f"but the 7.4.12 codec says it is {asset[name]}")
 
 
+def check_profiles(root: Path) -> None:
+    """A profile key must sit in the section the mod registered it under.
+
+    Sections are the mod's own config categories. A key in the wrong section is not
+    an error the mod reports: it is simply never found, so the key runs at its
+    default and the profile looks like it was ignored.
+    """
+    import json as _json
+
+    truth_file = Path(__file__).resolve().parent / "mod-keys.json"
+    profile_dir = root / "profile"
+    if not truth_file.is_file() or not profile_dir.is_dir():
+        return
+    known = _json.loads(truth_file.read_text(encoding="utf-8"))["versions"]["7.4.12"]["profile"]
+    for path in sorted(profile_dir.glob("*.json")):
+        data = load(path)
+        if not isinstance(data, dict):
+            continue
+        for section, body in data.items():
+            if not isinstance(body, dict):
+                continue  # the root 'public' flag is a bare value
+            for key in body:
+                if key not in known:
+                    err(f"profile/{path.name}",
+                        f"`{key}` is not a profile key in 7.4.12")
+                elif known[key]["section"] != section:
+                    err(f"profile/{path.name}",
+                        f"`{key}` is in section '{section}' but belongs in "
+                        f"'{known[key]['section']}', so the mod will never read it")
+
+
 def main() -> int:
     root = Path(sys.argv[1] if len(sys.argv) > 1 else Path(__file__).parent / "first-city")
     data_dir = root / "data"
@@ -286,6 +317,7 @@ def main() -> int:
                     check_stuff(f, data)
 
     check_embedded_copies(root)
+    check_profiles(root)
     check_key_availability_pointers()
     check_against_mod_keys()
 
