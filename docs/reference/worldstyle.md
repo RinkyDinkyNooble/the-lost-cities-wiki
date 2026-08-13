@@ -4,9 +4,14 @@
     `worldstyles/<name>.json` picks which City Styles can appear, and how often. A profile points at exactly one world style by name.
 
 !!! note "Some keys here do not exist on every version"
-    `settings` and the park, street, corridor and world settings inside it were
-    added in 7.4.12. `multisettings` was added in 6.2.2. `cityspheres` is absent
-    in 6.0.3 only. See [Key availability](../versions/key-availability.md).
+    | Keys | Need |
+    |---|---|
+    | `settings`, and inside it `railpartheight6`, `railwayavoidance`, `vinenorth`, `vinesouth`, `vineeast`, `vinewest` | 7.4.12 |
+    | `multisettings`, and the 5 keys inside it | 6.2.2 |
+    | `cityspheres`, and inside city sphere settings `centerpart`, `centerpartoffset`, `centerpartorigin`, `centertype` | present except in 6.0.3 |
+
+    The 7.4.12 row is also absent in 8.2.2. See
+    [Key availability](../versions/key-availability.md).
 
 ## Keys
 

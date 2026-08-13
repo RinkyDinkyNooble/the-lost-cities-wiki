@@ -142,6 +142,39 @@ def check_embedded_copies(root: Path) -> None:
             err(page_rel, f"the inlined copy of {asset_rel} has drifted from the real file")
 
 
+def check_key_availability_pointers() -> None:
+    """Every key the availability page attributes to a page must be on that page.
+
+    The availability table names a key and links the reference page that documents
+    it. Nothing else ties the two together, so a key filed under the wrong asset
+    reads as authoritative while sending the reader to a page that never mentions
+    it. This catches exactly that.
+    """
+    import re
+
+    repo = Path(__file__).resolve().parents[2]
+    page = repo / "docs" / "versions" / "key-availability.md"
+    if not page.is_file():
+        return
+    cache: dict[Path, str] = {}
+    for row in page.read_text(encoding="utf-8").split("\n"):
+        if not row.startswith("|"):
+            continue
+        link = re.search(r"\]\((\.\./[\w/\-]+\.md)\)", row)
+        if link is None:
+            continue
+        target = (page.parent / link.group(1)).resolve()
+        if target not in cache:
+            cache[target] = target.read_text(encoding="utf-8") if target.is_file() else ""
+        body = cache[target]
+        cells = row.split("|")
+        for key in re.findall(r"`([A-Za-z_#][\w]*)`", cells[-2] if len(cells) > 2 else ""):
+            if f"`{key}`" not in body:
+                err("versions/key-availability.md",
+                    f"key `{key}` is filed under {link.group(1)}, "
+                    "which never mentions it")
+
+
 def main() -> int:
     root = Path(sys.argv[1] if len(sys.argv) > 1 else Path(__file__).parent / "first-city")
     data_dir = root / "data"
@@ -175,6 +208,7 @@ def main() -> int:
                     check_stuff(f, data)
 
     check_embedded_copies(root)
+    check_key_availability_pointers()
 
     # A space is air only because the shipped 'common' palette says so.
     unknown = used_chars - declared_chars - {" "}

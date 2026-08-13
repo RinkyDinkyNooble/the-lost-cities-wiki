@@ -44,12 +44,15 @@ Absent in 5.3.29, 6.0.3, 6.1.6 and 6.2.3. Present in 6.2.2, 7.4.12 and later.
 | [Stuff Object](../reference/stuff.md) | `attempts`, `biomes`, `blocks`, `buildings`, `column`, `inbuilding`, `maxcount`, `maxheight`, `mincount`, `minheight`, `seesky`, `tags`, `upperblocks` |
 | [City Style](../reference/citystyle.md) | `stuff_tags` |
 | [World Style](../reference/worldstyle.md) | `multisettings`, and inside multi settings: `areasize`, `attempts`, `correctstylefactor`, `maximum`, `minimum` |
-| [World Style](../reference/worldstyle.md), street settings | `parts` |
-| [Matchers](../concepts/matchers.md) | Block matcher: `#`, `if_any`, `excluding`. Resource location matcher: `if_any`, `excluding` |
+| [City Style](../reference/citystyle.md), inside `streetblocks` | `parts` |
+| [Matchers](../concepts/matchers.md) | Block matcher: `if_all`, `if_any`, `excluding`. Resource location matcher: `if_any`, `excluding` |
 
 !!! warning "The stuff object does not exist before 6.2.2"
     Every key of the asset is in this group. On 5.3.29, 6.0.3, 6.1.6 or 6.2.3 the
     asset type itself is unavailable, not merely reduced.
+
+    The block matcher goes with it. All 3 of its keys arrive in 6.2.2, because the
+    stuff object is what introduced it.
 
 ## Group 2: added in 7.4.12
 
@@ -65,11 +68,12 @@ looks newer than 7.4.12 but whose feature set is older.
 | [Building](../reference/building.md), part reference | `belowpart` |
 | [Condition](../reference/condition.md) | `belowpart` |
 | [World Style](../reference/worldstyle.md) | `settings` |
-| [World Style](../reference/worldstyle.md), world settings | `railpartheight6`, `railwayavoidance`, `vinenorth`, `vinesouth`, `vineeast`, `vinewest` |
-| [World Style](../reference/worldstyle.md), park settings | `parkchance`, `parkborder`, `parkelevation`, `parkstreetthreshold`, `avoidfoliage` |
-| [World Style](../reference/worldstyle.md), street settings | `frontchance`, `fountainchance` |
-| [World Style](../reference/worldstyle.md), corridor settings | `corridorchance` |
-| [Scattered Building](../reference/scattered.md) | `rotatable`, `nearhighway`, and on object selectors `feather`, `minSpawnDistance`, `maxSpawnDistance` |
+| [World Style](../reference/worldstyle.md), inside `settings` | `railpartheight6`, `railwayavoidance`, `vinenorth`, `vinesouth`, `vineeast`, `vinewest` |
+| [City Style](../reference/citystyle.md), inside `parkblocks` | `parkchance`, `parkborder`, `parkelevation`, `parkstreetthreshold`, `avoidfoliage` |
+| [City Style](../reference/citystyle.md), inside `streetblocks` | `frontchance`, `fountainchance` |
+| [City Style](../reference/citystyle.md), inside `corridorblocks` | `corridorchance` |
+| [City Style](../reference/citystyle.md), inside `selectors` | `feather`, `minSpawnDistance`, `maxSpawnDistance` |
+| [Scattered Building](../reference/scattered.md) | `rotatable`, `nearhighway` |
 
 ## Group 3: missing in 6.0.3 only
 
@@ -82,8 +86,8 @@ Present in 5.3.29, then absent in 6.0.3, then present again from 6.1.6 onward.
 |---|---|
 | [Building](../reference/building.md) | `allowDoors`, `allowFillers` |
 | [Palette](../reference/palette.md) | `tag` |
-| [World Style](../reference/worldstyle.md) | `cityspheres`, and general settings `leaves`, `rubbledirt` |
-| [World Style](../reference/worldstyle.md), city sphere settings | `centerpart`, `centerpartoffset`, `centerpartorigin`, `centertype` |
+| [World Style](../reference/worldstyle.md) | `cityspheres`, and inside city sphere settings `centerpart`, `centerpartoffset`, `centerpartorigin`, `centertype` |
+| [City Style](../reference/citystyle.md), inside `generalblocks` | `leaves`, `rubbledirt` |
 | [Predefined City & Sphere](../reference/predefined.md) | `centerx`, `centerz`, `chunkx`, `chunkz`, `dimension`, `radius` |
 
 ## Group 4: added in 7.4.12, present in 8.2.2

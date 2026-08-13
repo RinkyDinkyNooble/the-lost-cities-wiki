@@ -3,11 +3,22 @@
 !!! tip "TL;DR"
     `citystyles/<name>.json` is the theme layer. It picks a [Style](style.md), sets building, street, park and rail behaviour, and can inherit from another city style. **Inheritance behaves differently for selectors than for everything else.** See [Inheritance](#inheritance).
 
-!!! note "Version notes for two keys"
-    `stuff_tags` was added in 6.2.2, alongside the stuff object it refers to.
-    `profile_overrides` needs 7.5.0 and holds one key, `openLotParkChance`. See
-    [Key availability](../versions/key-availability.md) and
-    [What changed in 7.5](../versions/7-5.md#what-profile_overrides-actually-adds).
+!!! note "Several keys on this page do not exist on every version"
+    More of this page is version-sensitive than any other reference page, because
+    the street, park, corridor and general settings all live here.
+
+    | Keys | Need |
+    |---|---|
+    | `profile_overrides`, holding only `openLotParkChance` | 7.5.0 |
+    | Inside `parkblocks`: `parkchance`, `parkborder`, `parkelevation`, `parkstreetthreshold`, `avoidfoliage` | 7.4.12 |
+    | Inside `streetblocks`: `frontchance`, `fountainchance` | 7.4.12 |
+    | Inside `corridorblocks`: `corridorchance` | 7.4.12 |
+    | Inside `selectors`: `feather`, `minSpawnDistance`, `maxSpawnDistance` | 7.4.12 |
+    | `stuff_tags`, and inside `streetblocks` the key `parts` | 6.2.2 |
+    | Inside `generalblocks`: `leaves`, `rubbledirt` | present except in 6.0.3 |
+
+    The 7.4.12 rows are also absent in 8.2.2, whose version number reads newer. See
+    [Key availability](../versions/key-availability.md).
 
 ## Keys
 
