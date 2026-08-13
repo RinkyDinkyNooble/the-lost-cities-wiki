@@ -6,9 +6,13 @@ An in-depth, unofficial guide to building custom cities with [The Lost Cities](h
 
 ## What this is
 
-The mod has its own documentation at [mcjty.eu](https://mcjty.eu/docs/mods/lost-cities). Read it first. This site covers what that documentation does not: the behaviour you otherwise find only by reading the decompiled source or by breaking a world and working out why.
+The mod has its own documentation in three places: the [general docs](https://mcjty.eu/docs/mods/lost-cities), the [asset-datapack page](https://www.mcjty.eu/docs/mods/lost-cities/asset-datapack), and a newer, much longer [`asset_structure.md`](https://github.com/McJtyMods/LostCities/blob/1.20/docs/asset_structure.md) on GitHub that the author points people to in support and states was AI generated. Read them alongside this site.
+
+This site covers what they do not: the behaviour you otherwise find only by reading the decompiled source or by breaking a world and working out why.
 
 Every claim here is verified against **Lost Cities 7.4.12, Minecraft 1.20.1, Forge**. The source of truth is the mod's own code and shipped content, not other documentation. Where a page states a behaviour, it also states what happens when you get it wrong.
+
+**On newer versions:** the author states that 7.5.1 is current and that 7.5.0 added a hierarchical street and highway system that does not exist in 7.4.12. This wiki has not verified any 7.5.x behaviour and does not document it. See the scope note on the site's front page.
 
 Some things you will not find elsewhere:
 

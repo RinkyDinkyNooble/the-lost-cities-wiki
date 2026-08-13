@@ -3,8 +3,12 @@
 !!! tip "TL;DR"
     A profile is `config/lostcities/profiles/<name>.json`. Five sections: `lostcity`, `cities`, `explosions`, `cityspheres`, `client`, plus a root `public` flag. Every key below is optional, omit it and the default applies.
 
-!!! warning "Version note"
-    The official docs (checked for comparison while writing this) describe a newer mod version with a hierarchical street/highway grid system (`streetGenerationMode`, `highwayGenerationMode`, hub-based intercity highways, and related keys). **None of that exists in 7.4.12.** Every key below was verified against the actual 7.4.12 class, not copied from the newer docs. On a different version, check for a changes-only update to this page before trusting it.
+!!! warning "Version note: 7.5.0 added keys this page does not cover"
+    A newer mod line exists. The author states that **7.5.1** is current and that **7.5.0** introduced a hierarchical street and highway grid, internally `HIERARCHICAL_GRID_V1`, with keys such as `streetGenerationMode` and `highwayGenerationMode` and hub-based intercity highways.
+
+    **None of that exists in 7.4.12.** Every key below was verified against the 7.4.12 class itself, not copied from newer documentation.
+
+    If you are on 7.5.x, this page is still a reasonable guide to the keys that carried over, but it is missing the new ones and it does not know which old ones changed meaning. One documented change: planned roads now take precedence over building selection, so `buildingchance: 1.0` no longer guarantees a building in every eligible chunk.
 
 ## File shape
 
