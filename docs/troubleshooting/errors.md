@@ -102,6 +102,34 @@ The rule is **coverage**, not declaring bounds. Every index from `-cellars` to `
 
 `parts2` never causes this. It is a genuinely optional overlay.
 
+### `NullPointerException` in `ChunkDriver.correct`
+
+**When:** chunk generation, the moment the mod places a door. Observed in a real world, not derived from reading code.
+
+```
+Error generating chunk -6,-8: Cannot invoke
+  "net.minecraft.world.level.block.state.BlockState.m_60734_()" because "state" is null
+    at mcjty.lostcities.worldgen.ChunkDriver.correct(ChunkDriver.java:253)
+    at mcjty.lostcities.worldgen.ChunkDriver.add(ChunkDriver.java:289)
+    at mcjty.lostcities.worldgen.gen.Doors.generateDoors(Doors.java:60)
+```
+
+The building's `filler` character did not resolve to a block.
+
+`Doors` asks the building for its filler block and looks the character up in the **building's** palette. That palette is the [Style](../reference/style.md)'s palettes plus the building's own `refpalette` or `palette`. **A `refpalette` on a part is not in that set.**
+
+| Cause | Fix |
+|---|---|
+| The `filler` character is defined only in a palette that the building's **parts** reference | Add the same `refpalette` to the **building**. |
+| The character is not defined anywhere in scope | Define it, or change `filler` to a character the style already provides. |
+
+!!! warning "This produces one failure per chunk, and most of them have no stack trace"
+    Every affected chunk logs `Error generating chunk <x>,<z>`. After the first few, the JVM stops recording stack traces for a repeatedly thrown `NullPointerException`, so the rest log only `null` with no trace and no clue.
+
+    A log full of `Error generating chunk ...: null` with a handful of real traces near the top is this bug. **Read the earliest errors in the file**, not the most recent.
+
+The chunks still generate. Terrain and streets appear, buildings are missing or partial, and nothing tells you in game.
+
 ### `Cannot find support block '<char>' for highway part '<part>'!`
 
 **When:** chunk generation, on a highway over open ground.

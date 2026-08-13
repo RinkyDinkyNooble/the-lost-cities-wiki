@@ -1,6 +1,7 @@
 {
   "filler": "G",
   "rubble": "G",
+  "refpalette": "wikitest:test",
   "parts": [
     {
       "part": "wikitest:mb_green"

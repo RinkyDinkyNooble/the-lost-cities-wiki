@@ -253,6 +253,59 @@ def check_against_mod_keys() -> None:
                     f"but the 7.4.12 codec says it is {asset[name]}")
 
 
+def check_building_palette_scope(root: Path) -> None:
+    """building.md: filler and rubble resolve against the BUILDING's palette.
+
+    The building's palette is the style's palettes plus the building's own
+    refpalette or palette. A refpalette on a part is not in that set. Getting this
+    wrong loads cleanly, generates parts correctly, and then throws a
+    NullPointerException in ChunkDriver.correct the moment a door is placed, once
+    per chunk, mostly without a stack trace.
+    """
+    ns_root = root / "data"
+    if not ns_root.is_dir():
+        return
+    # char -> palettes in this pack that define it
+    defined: dict[str, set[str]] = {}
+    for ns_dir in sorted(ns_root.iterdir()):
+        pal_dir = ns_dir / "lostcities" / "palettes"
+        if not pal_dir.is_dir():
+            continue
+        for path in sorted(pal_dir.glob("*.json")):
+            data = load(path)
+            if not isinstance(data, dict):
+                continue
+            name = f"{ns_dir.name}:{path.stem}"
+            for entry in data.get("palette", []):
+                if isinstance(entry, dict) and "char" in entry:
+                    defined.setdefault(entry["char"], set()).add(name)
+
+    for ns_dir in sorted(ns_root.iterdir()):
+        bld_dir = ns_dir / "lostcities" / "buildings"
+        if not bld_dir.is_dir():
+            continue
+        for path in sorted(bld_dir.glob("*.json")):
+            data = load(path)
+            if not isinstance(data, dict):
+                continue
+            own = set()
+            ref = data.get("refpalette")
+            if isinstance(ref, str):
+                own.add(ref if ":" in ref else f"lostcities:{ref}")
+            has_inline = isinstance(data.get("palette"), list)
+            for key in ("filler", "rubble"):
+                ch = data.get(key)
+                if not isinstance(ch, str) or ch not in defined:
+                    continue  # absent, or supplied by the style, which is not visible here
+                if has_inline:
+                    continue
+                if not (own & defined[ch]):
+                    err(path.name,
+                        f"`{key}` is {ch!r}, defined in {sorted(defined[ch])}, but this "
+                        "building references none of those. A part's refpalette does not "
+                        "reach filler or rubble. Add refpalette to the building")
+
+
 def check_profiles(root: Path) -> None:
     """A profile key must sit in the section the mod registered it under.
 
@@ -318,6 +371,7 @@ def main() -> int:
 
     check_embedded_copies(root)
     check_profiles(root)
+    check_building_palette_scope(root)
     check_key_availability_pointers()
     check_against_mod_keys()
 

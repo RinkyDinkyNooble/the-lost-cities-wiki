@@ -1,6 +1,7 @@
 {
   "filler": "δ",
   "rubble": "δ",
+  "refpalette": "mycity:tower",
   "parts": [
     {
       "part": "mycity:tower_top",

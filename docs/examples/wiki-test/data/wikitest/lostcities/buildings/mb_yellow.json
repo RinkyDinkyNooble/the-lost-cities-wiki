@@ -1,6 +1,7 @@
 {
   "filler": "Y",
   "rubble": "Y",
+  "refpalette": "wikitest:test",
   "parts": [
     {
       "part": "wikitest:mb_yellow"

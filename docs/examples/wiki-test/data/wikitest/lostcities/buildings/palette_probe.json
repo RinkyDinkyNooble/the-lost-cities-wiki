@@ -1,6 +1,7 @@
 {
   "filler": "M",
   "rubble": "M",
+  "refpalette": "wikitest:test",
   "parts": [
     {
       "part": "wikitest:palette_probe"

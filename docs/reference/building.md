@@ -55,8 +55,18 @@
 
 Choose something structural that matches the building's walls, such as stone bricks or concrete. The filler is visible. It is the underside and the buried exterior.
 
-!!! note "The character must exist in the effective palette"
-    The mod resolves `filler` against the same merged palette the building's parts use. A character that is not defined there cannot resolve to a block.
+!!! danger "`filler` and `rubble` resolve against the building's palette, not the part's"
+    The building's palette is the [Style](style.md)'s palettes, plus this building's own `refpalette` or `palette`. **A `refpalette` on a part is not included.**
+
+    So a building whose `filler` character is defined only in a palette that its parts reference will pass every load check, generate its parts correctly, and then throw as soon as the mod places a door:
+
+    ```
+    java.lang.NullPointerException: Cannot invoke "...BlockState.m_60734_()" because "state" is null
+        at mcjty.lostcities.worldgen.ChunkDriver.correct(ChunkDriver.java:253)
+        at mcjty.lostcities.worldgen.gen.Doors.generateDoors(Doors.java:60)
+    ```
+
+    Give the **building** a `refpalette` as well as the parts. See [Error Messages](../troubleshooting/errors.md#nullpointerexception-in-chunkdrivercorrect).
 
 ## How floor and cellar counts are decided
 

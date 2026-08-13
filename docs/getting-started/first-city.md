@@ -220,12 +220,21 @@ Stacks parts. `filler` is required.
 {
   "filler": "δ",
   "rubble": "δ",
+  "refpalette": "mycity:tower",
   "parts": [
     { "part": "mycity:tower_top", "top": true },
     { "part": "mycity:tower_floor" }
   ]
 }
 ```
+
+!!! danger "The building needs its own `refpalette`, even though the parts have one"
+    `filler` and `rubble` are resolved against the **building's** palette. A
+    `refpalette` on a part does not reach them.
+
+    Leave it off and generation throws `NullPointerException` in
+    `ChunkDriver.correct`, once per chunk, as soon as a door is placed. See
+    [Error Messages](../troubleshooting/errors.md#nullpointerexception-in-chunkdrivercorrect).
 
 Read this as a list of candidates, not a stack. For each level, the generator collects every entry whose conditions pass and picks one. `tower_top` only matches the topmost level. `tower_floor` has no conditions, so it matches **everything**, including the top.
 
