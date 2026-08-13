@@ -3,12 +3,21 @@
 !!! tip "TL;DR"
     A profile is `config/lostcities/profiles/<name>.json`. Five sections: `lostcity`, `cities`, `explosions`, `cityspheres`, `client`, plus a root `public` flag. Every key below is optional, omit it and the default applies.
 
-!!! warning "Version note: 7.5.0 added keys this page does not cover"
-    A newer mod line exists. The author states that **7.5.1** is current and that **7.5.0** introduced a hierarchical street and highway grid, internally `HIERARCHICAL_GRID_V1`, with keys such as `streetGenerationMode` and `highwayGenerationMode` and hub-based intercity highways.
+!!! warning "This page is the 131 keys of 7.4.12. Version 7.5 has 160."
+    Every key below was verified against the 7.4.12 class itself. On 7.5.0 or later,
+    29 keys are missing from this page and 3 of the keys that are here behave
+    differently.
 
-    **None of that exists in 7.4.12.** Every key below was verified against the 7.4.12 class itself, not copied from newer documentation.
+    | If you are on | Read |
+    |---|---|
+    | 7.4.12 | This page, as written. |
+    | 7.5.x, 8.4.1, 9.5.1 or 10.0.1 | This page, plus [What changed in 7.5](../versions/7-5.md). Those four versions share one identical set of 160 keys. |
+    | 8.2.2 | This page, minus 19 keys it does not have. See [Key availability](../versions/key-availability.md). |
 
-    If you are on 7.5.x, this page is still a reasonable guide to the keys that carried over, but it is missing the new ones and it does not know which old ones changed meaning. One documented change: planned roads now take precedence over building selection, so `buildingchance: 1.0` no longer guarantees a building in every eligible chunk.
+    Two changes here matter most. `streetGenerationMode` defaults to the new road
+    planner, which refuses a building on any planned road chunk **before** it rolls
+    `buildingchance`. And `highwayLevelFromCities` changed its default from `0` to
+    `3`.
 
 ## File shape
 

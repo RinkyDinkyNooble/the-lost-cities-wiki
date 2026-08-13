@@ -3,9 +3,11 @@
 !!! tip "TL;DR"
     `citystyles/<name>.json` is the theme layer. It picks a [Style](style.md), sets building, street, park and rail behaviour, and can inherit from another city style. **Inheritance behaves differently for selectors than for everything else.** See [Inheritance](#inheritance).
 
-!!! note "`stuff_tags` needs 6.2.2"
-    The key was added in 6.2.2, alongside the stuff object it refers to. See
-    [Key availability](../versions/key-availability.md).
+!!! note "Version notes for two keys"
+    `stuff_tags` was added in 6.2.2, alongside the stuff object it refers to.
+    `profile_overrides` needs 7.5.0 and holds one key, `openLotParkChance`. See
+    [Key availability](../versions/key-availability.md) and
+    [What changed in 7.5](../versions/7-5.md#what-profile_overrides-actually-adds).
 
 ## Keys
 
