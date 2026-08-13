@@ -3,6 +3,11 @@
 !!! tip "TL;DR"
     `worldstyles/<name>.json` picks which City Styles can appear, and how often. A profile points at exactly one world style by name.
 
+!!! note "Some keys here do not exist on every version"
+    `settings` and the park, street, corridor and world settings inside it were
+    added in 7.4.12. `multisettings` was added in 6.2.2. `cityspheres` is absent
+    in 6.0.3 only. See [Key availability](../versions/key-availability.md).
+
 ## Keys
 
 | Key | Required | Meaning |

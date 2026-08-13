@@ -68,6 +68,7 @@ nav:
   - Versions:
       - Which Version Do I Have: versions/index.md
       - What Changed in 7.5: versions/7-5.md
+      - Key Availability: versions/key-availability.md
       - The NeoForge Line: versions/neoforge.md
       - The File-Asset Era: versions/legacy.md
   - Getting Started:

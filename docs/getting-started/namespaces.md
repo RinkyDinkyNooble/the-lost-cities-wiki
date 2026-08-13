@@ -41,7 +41,7 @@ The `lostcities` in the middle is **not** your namespace, it is part of the regi
 
 Anywhere the mod expects a *name* (a profile's `worldStyle` key, a world style's list of city styles, a building's `refpalette`, and so on), a bare name with no colon is assumed to mean `lostcities:<name>`.
 
-```json title="Fails silently if your file isn't actually in the lostcities namespace"
+```json title="Fails silently if your file is not actually in the lostcities namespace"
 {
   "worldStyle": "wasteland_city"
 }

@@ -3,6 +3,10 @@
 !!! tip "TL;DR"
     `citystyles/<name>.json` is the theme layer. It picks a [Style](style.md), sets building, street, park and rail behaviour, and can inherit from another city style. **Inheritance behaves differently for selectors than for everything else.** See [Inheritance](#inheritance).
 
+!!! note "`stuff_tags` needs 6.2.2"
+    The key was added in 6.2.2, alongside the stuff object it refers to. See
+    [Key availability](../versions/key-availability.md).
+
 ## Keys
 
 | Key | Required | Meaning |

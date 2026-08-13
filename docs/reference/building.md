@@ -3,6 +3,11 @@
 !!! tip "TL;DR"
     `buildings/<name>.json` describes a vertical stack: cellars, ground floor, upper floors, top. Each level picks from a list of candidate parts, filtered by [conditions](condition.md). **Every level that can generate must have at least one matching part, or the mod crashes world generation.** See [Floor coverage](#floor-coverage-the-most-common-crash).
 
+!!! note "Some keys here do not exist on every version"
+    `overrideFloors` and the part reference key `belowpart` were added in 7.4.12,
+    and are absent in 8.2.2. `allowDoors` and `allowFillers` are absent in 6.0.3
+    only. See [Key availability](../versions/key-availability.md).
+
 ## Keys
 
 | Key | Required | Default | Meaning |

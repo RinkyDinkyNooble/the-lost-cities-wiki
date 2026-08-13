@@ -3,6 +3,10 @@
 !!! tip "TL;DR"
     `palettes/<name>.json` maps single characters to blocks. Each entry is a `char` plus **exactly one** of `block`, `variant`, `blocks` or `frompalette`.
 
+!!! note "`tag` is absent in 6.0.3"
+    Every other key on this page exists in every datapack-era version. See
+    [Key availability](../versions/key-availability.md).
+
 ## File shape
 
 ```json

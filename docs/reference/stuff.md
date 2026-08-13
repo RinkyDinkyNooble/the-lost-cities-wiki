@@ -3,6 +3,11 @@
 !!! tip "TL;DR"
     `stuff/<name>.json` places small decorative extras such as cobwebs and chains. The mod scans columns and makes random attempts inside them, rather than baking the decoration into a part. Tags, blocks and biome gate where it happens.
 
+!!! warning "This asset type does not exist before 6.2.2"
+    Every key on this page was added in 6.2.2. On 5.3.29, 6.0.3, 6.1.6 or 6.2.3
+    the mod does not know the stuff object at all. See
+    [Key availability](../versions/key-availability.md).
+
 ## Keys
 
 | Key | Required | Limits | Meaning |

@@ -3,6 +3,10 @@
 !!! tip "TL;DR"
     `conditions/<name>.json` holds a weighted table that picks a value based on where you are. A [Building](building.md) reuses the same test keys on its part list, so this page covers both.
 
+!!! note "`belowpart` needs 7.4.12"
+    The key was added in 7.4.12 and is absent in 8.2.2. See
+    [Key availability](../versions/key-availability.md).
+
 ## File shape
 
 ```json

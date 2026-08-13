@@ -3,6 +3,13 @@
 !!! tip "TL;DR"
     `scattered/<name>.json` describes a standalone structure placed out in the wilderness, entirely outside cities. Cabins, oil rigs and radio towers are the shipped examples.
 
+!!! note "Some keys here do not exist on every version"
+    `rotatable`, `nearhighway`, `feather`, `minSpawnDistance` and
+    `maxSpawnDistance` were added in 7.4.12, and are absent in 8.2.2. `allowvoid`
+    was added in 7.4.12 and is present in 8.2.2. `supportpart` and
+    `clearhighwayrailing` need 7.5.1. See
+    [Key availability](../versions/key-availability.md).
+
 ## Keys
 
 | Key | Required | Meaning |

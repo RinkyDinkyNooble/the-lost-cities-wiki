@@ -3,6 +3,11 @@
 !!! tip "TL;DR"
     A predefined city or sphere pins that feature to an exact dimension and chunk coordinate, instead of letting generation choose. The mod ships no examples of either type, but both are fully supported.
 
+!!! note "The sphere keys are absent in 6.0.3"
+    `centerx`, `centerz`, `chunkx`, `chunkz`, `dimension` and `radius` exist in
+    5.3.29 and again from 6.1.6 onward, but not in 6.0.3. See
+    [Key availability](../versions/key-availability.md).
+
 The folder names carry no underscore:
 
 ```

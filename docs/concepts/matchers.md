@@ -3,6 +3,11 @@
 !!! tip "TL;DR"
     A matcher is a small filter object built from `if_all`, `if_any` and `excluding`. Biome and block matchers accept all three. The resource-location matcher accepts only two.
 
+!!! note "`if_any` and `excluding` need 6.2.2"
+    Both keys were added in 6.2.2, on the block matcher and on the resource
+    location matcher. Before that only `if_all` exists. See
+    [Key availability](../versions/key-availability.md).
+
 Several unrelated keys use this same filter shape rather than each inventing their own: a world style's `biomes`, a stuff object's `blocks`, a scattered entry's `biomes`, and others.
 
 ## The shape
