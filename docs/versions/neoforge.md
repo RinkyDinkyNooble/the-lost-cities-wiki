@@ -95,6 +95,14 @@ This affects any loot table you write, including one you point a building part a
 Using the wrong folder means Minecraft never registers the table, and the mod then
 fails to find it by name.
 
+!!! note "The two jars labelled 1.21 do not target the same Minecraft release"
+    8.2.2 and 8.4.1 carry the same `1.21` label and the same NeoForge requirement,
+    `[21.0,)`. They disagree about this folder: 8.2.2 uses the plural form and
+    8.4.1 uses the singular. Minecraft adopted the singular form in a later 1.21
+    release, so 8.4.1 targets that release or newer regardless of what its label
+    says. Check the CurseForge listing before assuming either runs on your exact
+    version.
+
 The path to the mod's **own** assets is not affected. That stays
 `data/<namespace>/lostcities/<type>/<name>.json` on every version in the datapack
 era.

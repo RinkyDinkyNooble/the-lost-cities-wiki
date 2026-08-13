@@ -58,9 +58,12 @@ renaming: the unit of a file changed, and so did who loads it.
 
 | Mod versions | Config file |
 |---|---|
-| 1.0.1 through 2.0.22 | `config/lostcities.cfg`, in Forge's `.cfg` format |
+| 1.0.1 through 2.0.22 | `config/lostcities/general.cfg`, in Forge's `.cfg` format |
 | 2.0.28 and 3.0.2 | `config/lostcities-common.toml` |
 | 4.0.5 and later | `config/lostcities/common.toml` |
+
+The mod builds the first path from the config directory, then `lostcities`, then
+`general.cfg`. All 4 versions in that era do the same.
 
 The profile keys themselves overlap heavily across all of these. The file that
 holds them, and its syntax, does not.
