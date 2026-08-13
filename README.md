@@ -12,7 +12,12 @@ This site covers what they do not: the behaviour you otherwise find only by read
 
 Every claim here is verified against **Lost Cities 7.4.12, Minecraft 1.20.1, Forge**. The source of truth is the mod's own code and shipped content, not other documentation. Where a page states a behaviour, it also states what happens when you get it wrong.
 
-**On newer versions:** the author states that 7.5.1 is current and that 7.5.0 added a hierarchical street and highway system that does not exist in 7.4.12. This wiki has not verified any 7.5.x behaviour and does not document it. See the scope note on the site's front page.
+**On other versions:** the [Versions](https://rinkydinkynooble.github.io/the-lost-cities-wiki/versions/) section covers the mod's full history, from Minecraft 1.11.2 to Minecraft 26.1, checked the same way. It states which release uses which asset system, and which pages here apply to it.
+
+Two findings from that work are worth naming here:
+
+- **7.5.0 turned on a planned road system by default.** The mod refuses a building in any chunk the road planner claims, and it does so before it rolls `buildingchance`. Setting `buildingchance` to `1.0` therefore stopped filling every eligible chunk. This is verified against the 7.5.1 jar, not inferred from release notes.
+- **7.5.1 through 10.0.1 are one documentation target.** Those four releases declare the same 160 profile keys and the same 231 datapack keys, with identical defaults and bounds. A datapack written for Minecraft 1.20.1 is structurally valid on Minecraft 26.1.
 
 Some things you will not find elsewhere:
 
