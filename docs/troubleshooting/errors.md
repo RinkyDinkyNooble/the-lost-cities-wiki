@@ -3,7 +3,9 @@
 !!! tip "TL;DR"
     Paste the message you got into the search box. Every message the mod throws by name is listed here with its cause and its fix.
 
-Messages are quoted **exactly** as the mod produces them, with `<...>` marking a value the mod substitutes. Every entry was taken from the 7.4.12 source, not from bug reports.
+Messages are quoted **exactly** as the mod produces them, with `<...>` marking a value the mod substitutes. Every entry was taken from the source, not from bug reports.
+
+Most of this page is 7.4.12. Version 7.5.1 has 36 messages that 7.4.12 does not, and removes none of the older ones. All 36 come from the new road and highway planners. They are in [Messages added in 7.5](#messages-added-in-75).
 
 ## Where you actually see these
 
@@ -203,6 +205,8 @@ A profile's `landscapeType` is not one of the six accepted values: `default`, `f
 
 **When:** generation. The profile's `highwayLevelFromCities` is not `0`, `1`, `2` or `3`. Nothing clamps the value, so any other number reaches the switch and throws.
 
+On 7.5.0 and later the key also accepts `4`, so only a value outside `0` to `4` throws there. See [What changed in 7.5](../versions/7-5.md#highwaylevelfromcities-changed-its-default).
+
 ### `Bad range specification: <l1>,<l2>!`
 
 **When:** the mod parses a [Condition](../reference/condition.md) or a building part reference with a malformed `range`.
@@ -231,6 +235,99 @@ The profile's spawn settings cannot be satisfied. Setting any of `spawnBiome`, `
 A palette entry's `mob` key names a [Condition](../reference/condition.md), and that condition matched nothing in this context. Add an unconditioned fallback entry to the condition's `values`, exactly as you would for building parts.
 
 This error also corrects a common misconception. `mob` is **not** a mob ID. It is a condition name. See [Palette](../reference/palette.md).
+
+## Messages added in 7.5
+
+Version 7.5.1 has 36 messages that 7.4.12 does not, and removes none of the older
+ones. Every one comes from the planned road system or the inter-city highway
+network, so none of them can appear on 7.4.12. They also appear on 8.4.1, 9.5.1
+and 10.0.1, which carry the same system.
+
+No 7.5.0 jar was checked, so these are attributed to the 7.5 line rather than to a
+specific patch release.
+
+If you see one of these, your road settings are the cause, not your datapack.
+
+### Road settings rejected at config load
+
+The mod validates the road keys against each other, not only against their own
+ranges. A value inside its own range still throws if it contradicts another key.
+
+| Message | Keys involved |
+|---|---|
+| `Primary road candidate spacing must be between 8 and 128 chunks` | `primaryRoadSpacingX`, `primaryRoadSpacingZ` |
+| `Road separation and edge distance must be between 2 and 32 chunks` | `minimumRoadSeparation`, `minimumRoadEdgeDistance` |
+| `Secondary road counts must be between 0 and 128` | the four `secondaryRoad*Count*` keys |
+| `Secondary road minimum counts cannot exceed maximum counts` | `secondaryRoadMinCountX` against `secondaryRoadMaxCountX`, and the Z pair |
+| `tertiaryRoadMinLength cannot exceed tertiaryRoadMaxLength` | `tertiaryRoadMinLength`, `tertiaryRoadMaxLength` |
+| `Invalid tertiary road chance or length` | `tertiaryRoadChance` with the two length keys |
+| `Invalid primary road activation chance or forced interval` | `primaryRoadOptionalChance`, `primaryRoadForceEvery` |
+| `Invalid planned primary bridge chance or maximum length` | `plannedPrimaryBridgeChance`, `plannedPrimaryBridgeMaxLength` |
+| `highwayMinimumHubDistance cannot exceed highwayMaximumHubDistance` | the two hub distance keys |
+| `highwayHubSampleSpacing cannot exceed highwayPlanningCellSize` | `highwayHubSampleSpacing`, `highwayPlanningCellSize` |
+
+### Road settings rejected when the planner is built
+
+The same values are checked a second time, by the planner itself. These messages
+are worded differently from the ones above even when they guard the same key, so
+match on the exact text to tell which check failed.
+
+| Message | Source |
+|---|---|
+| `Invalid primary road activation settings` | Street planner |
+| `Invalid secondary road count range` | Street planner |
+| `Invalid tertiary road settings` | Street planner |
+| `Primary road candidate spacing must be at least 8 chunks` | Street planner |
+| `Road separation and edge distance must be at least 2 chunks` | Street planner |
+| `Highway planning-cell size must be between 32 and 512 chunks` | Highway planner |
+| `Highway hub sample spacing must be positive and no larger than the planning cell` | Highway planner |
+| `Highway hub minimum potential must be between 0 and 1` | Highway planner |
+| `Highway hub search radius must be between 0 and 8 cells` | Highway planner |
+| `Highway minimum hub distance must not exceed the maximum` | Highway planner |
+| `Highway maximum hub distance must not exceed 4096 chunks` | Highway planner |
+| `Highway maximum connection degree must be between 1 and 8` | Highway planner |
+| `Invalid highway route length or city penalty` | Highway planner |
+| `Invalid highway level mode or fixed network level` | Highway planner |
+
+### `The inter-city highway planner is unavailable in LEGACY mode`
+
+**When:** something asks for the highway planner while `highwayGenerationMode` is
+`LEGACY`.
+
+The two modes are not interchangeable at runtime. Set `highwayGenerationMode` to
+`INTERCITY_NETWORK_V1`, or leave the caller alone. Note that this is a separate key
+from `streetGenerationMode`: setting one to `LEGACY` does not set the other.
+
+### Logged warnings, not crashes
+
+These two are logged and generation continues. They appear in `logs/latest.log`
+with the `[lostcities/]` prefix, and nowhere else.
+
+| Message | Meaning |
+|---|---|
+| `Unknown persisted street mode '<name>' for <dimension>; using LEGACY` | The world's saved street mode is not a name the mod recognises. It falls back to `LEGACY`, so the world generates with 7.4.12 street behaviour from then on. |
+| `Unknown persisted highway mode '<name>' for <dimension>; using LEGACY` | The same, for highways. |
+
+!!! warning "9.5.1 and 10.0.1 removed these two warnings"
+    The saved data keys are unchanged, but neither version logs this message. On
+    those versions an unrecognised saved mode produces no line at all. Do not read
+    a silent log as proof that the mode loaded correctly.
+
+### Messages that indicate a mod bug
+
+These carry no useful information for an author.
+
+| Message | Where it comes from |
+|---|---|
+| `Lost Cities generation context is not active` | Generation context, accessed outside a generation pass. |
+| `Cannot access Lost Cities world generation data without an overworld` | Saved data lookup. |
+| `Cannot access Lost Cities highway data without an overworld` | Highway saved data lookup. |
+| `No forced primary candidate found` | Street planner, choosing a forced corridor. |
+| `Highway connection endpoints must be distinct and canonical` | Highway graph construction. |
+| `X highway segment must have a constant Z coordinate` | Highway segment construction. |
+| `Z highway segment must have a constant X coordinate` | Highway segment construction. |
+| `Scattered buildings only support rotations` | Scattered placement, given a transform that is not a rotation. |
+| `Don't access this client-side!` | Server-only data reached from the client. Added in 8.4.1, not present in 7.5.1. |
 
 ## Errors that indicate a mod bug, not your content
 
