@@ -2,6 +2,7 @@
   "filler": "P",
   "rubble": "P",
   "refpalette": "wikitest:test",
+  "minfloors": 1,
   "maxfloors": 1,
   "parts": [
     {

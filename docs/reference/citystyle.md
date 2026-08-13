@@ -34,7 +34,7 @@
 | `parkblocks` | no | `parkchance`, `parkstreetthreshold` (a count of surrounding street chunks, 0 to 8), `avoidfoliage`, `parkborder`, `parkelevation`, plus the `elevation` and `grass` characters. |
 | `railblocks` | no | The `railmain` character. |
 | `sphereblocks` | no | The `inner`, `border` and `glass` characters for city spheres. |
-| `streetblocks` | no | `fountainchance` and `frontchance`, the `street`, `border` and `wall` characters, plus a nested `parts` block for [street part-name overrides](../concepts/infrastructure-parts.md). Three more keys parse and do nothing: `width`, `streetbase` and `streetvariant`. See the warning below. |
+| `streetblocks` | no | `fountainchance` and `frontchance`, the `street`, `border` and `wall` characters, plus a nested `parts` block for [street part-name overrides](../concepts/infrastructure-parts.md). Three more keys parse and do nothing: `width`, `streetbase` and `streetvariant`. A fourth, `parts.full`, parses and is never reached. See the warning below. |
 | `selectors` | no | Eight weighted lists: `buildings`, `bridges`, `parks`, `fountains`, `stairs`, `fronts`, `raildungeons` and `multibuildings`. See [Selectors](#selectors-and-distance-gating). |
 
 !!! warning "None of these numbers are validated"
@@ -55,6 +55,15 @@
     All three look load-bearing because the mod's own content sets them. `citystyle_config` exists solely to set `width`, and both `citystyle_common` and `citystyle_border` set `streetbase` and `streetvariant`. Setting them changes nothing about how a street generates.
 
     If you want to change what a street is made of, edit the palette characters the street **part** uses, or point `streetblocks.parts` at your own part. See [Streets, Highways, Rails and Monorails](../concepts/infrastructure-parts.md).
+
+!!! danger "`streetblocks.parts.full` is a fourth dead key"
+    It loads, it inherits, and the street type it belongs to is never assigned. The
+    mod picks the street type with `nextInt(0, values().length - 2)`, which on 3
+    constants can only return `NORMAL`.
+
+    The other 6 shape keys work. Only `full` is unreachable. Confirmed in game, and
+    unreachable in 7.4.12 through 10.0.1. See
+    [Streets, Highways, Rails and Monorails](../concepts/infrastructure-parts.md#streets).
 
 !!! warning "The naming is not consistent"
     Six of these keys use a `...blocks` suffix: `generalblocks`, `corridorblocks`, `parkblocks`, `railblocks`, `sphereblocks` and `streetblocks`. One uses a `...settings` suffix: `buildingsettings`. That is genuinely how the mod names them. Copy the exact key. Do not guess from the pattern.

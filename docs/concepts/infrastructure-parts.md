@@ -89,7 +89,7 @@ Any key you leave out keeps its default part name. The keys are not always spell
 
 | Key | Default part | Used when |
 |---|---|---|
-| `full` | `street_full` | Full street chunk |
+| `full` | `street_full` | **Never. See below.** |
 | `straight` | `street_straight` | 2 connections, opposite sides |
 | `bend` | `street_bend` | 2 connections, adjacent sides |
 | `t` | `street_t` | 3 connections |
@@ -98,6 +98,28 @@ Any key you leave out keeps its default part name. The keys are not always spell
 | `none` | `street_none` | 0 connections |
 
 The key is literally `"t"`, not `"tsplit"`.
+
+!!! danger "`full` never generates. Setting it does nothing."
+    A street chunk is assigned one of 3 street types. `PARK` is chosen by
+    `parkchance`. Otherwise the mod picks at random from the remaining types:
+
+    ```
+    streetType = StreetType.values()[ random.nextInt(0, StreetType.values().length - 2) ]
+    ```
+
+    `StreetType` has 3 constants, `NORMAL`, `FULL` and `PARK`, so this is
+    `nextInt(0, 1)`. The upper bound is exclusive, so the only value it can return
+    is `0`, which is `NORMAL`. **`FULL` is never assigned anywhere in the mod.**
+
+    The 6 other keys above are reached through the connection count and work
+    normally. Only `full` is unreachable.
+
+    Verified unreachable in 7.4.12, 7.5.1, 8.4.1, 9.5.1 and 10.0.1. The subtraction
+    looks like it should be 1 rather than 2, so this reads as an off-by-one in the
+    mod, not a design decision.
+
+    Confirmed in game: a city style whose `full` key pointed at 2 clearly marked
+    parts produced neither marker anywhere across a world of streets.
 
 ### Highways
 

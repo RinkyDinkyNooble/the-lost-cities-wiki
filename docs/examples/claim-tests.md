@@ -19,7 +19,7 @@ Run on 7.4.12, Minecraft 1.20.1, Forge.
 | Weighted list reaching 128 slots | **Confirmed.** Speckled black and white decks generated. |
 | A concrete definition beats an alias | **Confirmed, by accident.** The probe's walls came out as the style's stone stairs, not the aliased red. `A` is concretely defined in the style's palette, and [that rule](../reference/palette.md#how-aliases-resolve) says a concrete definition wins over an alias wherever it appears. The test picked a character already in use, so it proved the override rule instead of the alias. |
 | `overrideFloors` | **Test invalid, and it exposed a wiki error.** Both buildings generated at the same height. The cause is that `minfloors` is a `max()` applied after the maximum, so both reached 6 floors with or without the key. The page said a building "can only make itself shorter than the profile allows, never taller", which is false. [Corrected](../reference/building.md#how-floor-and-cellar-counts-are-decided). |
-| Street part name as a list | **Not yet tested.** `buildingchance` was set to `0.9`, which left almost no street chunks to look at. Streets are the city chunks that do not get a building. |
+| Street part name as a list | **Blocked by a mod bug, now documented.** Two builds produced no marked street anywhere. The cause is that the marked pair sat on the `full` shape, and `StreetType.FULL` is never assigned: the mod picks the type with `nextInt(0, values().length - 2)`, which on 3 constants can only return `NORMAL`. So `streetblocks.parts.full` is a fourth dead key. See [Streets](../concepts/infrastructure-parts.md#streets). The list form itself is still untested and moves to every reachable shape in build 4. |
 
 Two of the five tests were badly designed. Both design faults are fixed in the next
 build, and one of them found a real documentation error on the way.
@@ -89,14 +89,15 @@ whole test.**
 it, the smallest of the profile, city style and building values wins the maximum,
 and the largest wins the minimum.
 
-The profile asks for 5 to 6 floors. Both test buildings set `maxfloors: 1` and
-neither sets `minfloors`, because `minfloors` wins the `max()` with or without the
-override and would hide the difference.
+The profile asks for 5 to 6 floors. Both test buildings set `minfloors: 1` and
+`maxfloors: 1`. Both bounds are needed, because the minimum is applied last and is
+a `max()`, so leaving `minfloors` out lets the profile's 5 win in both cases. That
+is what made builds 2 and 3 unreadable.
 
 | Building | Colour | `overrideFloors` | Expected |
 |---|---|---|---|
-| `clamped` | Purple | absent | 5 or 6 floors. The profile's minimum wins the `max()`, so `maxfloors: 1` cannot shorten it. |
-| `overridden` | Orange | `true` | 1 floor. `maxfloors` is used alone. |
+| `clamped` | Purple | absent | 5 or 6 floors. The profile's minimum of 5 beats the building's 1 in the `max()`. |
+| `overridden` | Orange | `true` | 1 floor. Both of the building's own bounds are used alone. |
 
 **How to read it:** orange should be a single storey next to 5 or 6 storey purple
 towers. That difference is unmissable. Same height means the override does nothing.
@@ -107,16 +108,16 @@ towers. That difference is unmissable. Same height means the override does nothi
 random per chunk. No file the mod ships uses the list form, so this has never been
 exercised.
 
-The `full` street shape is set to 2 parts, one marked with a **gold** block square
-and one with a **diamond** block square. Every other shape uses the shipped default.
+**Every** street shape is set to the same 2 parts, one marked with a **gold** block
+square and one with a **diamond** block square. Build 3 marked only `full`, which
+turned out to be unreachable, so no marker ever appeared.
 
 **How to read it:** follow the roads. Full-street chunks should show both gold and
 diamond markers, mixed with no pattern. Only one marker appearing across many
 chunks means the list is not being sampled.
 
-This also tests a second claim: `streetblocks.parts` is **all or nothing** on
-inheritance. The pack lists all 7 shapes for that reason. If the other 6 shapes
-generate normally, that claim holds too.
+Since every shape is overridden, every street chunk should carry a marker. A world
+of streets with no marker at all would mean the list form does not work.
 
 ### 4. Palette features
 
