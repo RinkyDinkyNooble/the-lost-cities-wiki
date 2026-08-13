@@ -19,6 +19,34 @@
     `buildingchance`. And `highwayLevelFromCities` changed its default from `0` to
     `3`.
 
+## The file name is the profile name
+
+The mod reads every file in `config/lostcities/profiles/` whose name ends in
+`.json`, and takes the profile name from the file name. It does not read a name
+from inside the file.
+
+The name is everything **before the first dot**, because the mod splits the file
+name on `.` and keeps the first piece.
+
+| File name | Profile name | Notes |
+|---|---|---|
+| `mycity.json` | `mycity` | |
+| `mycity2.json` | `mycity2` | Digits are fine. |
+| `MyCity.json` | `MyCity` | Case is kept. Match it exactly in `common.toml`. |
+| `my.city.json` | `my` | **Truncated at the first dot.** |
+| `mycity.JSON` | not read | The extension test is case sensitive. |
+
+!!! danger "Two files whose names share everything before the first dot collide silently"
+    `city.a.json` and `city.b.json` both become the profile `city`. The mod stores
+    profiles in a map keyed by that name, so the second file read replaces the
+    first. There is no warning, and which one survives depends on directory order.
+
+    Keep dots out of profile file names.
+
+The name is used as a plain map key. It is not a resource location, so it is not
+restricted to lowercase, and it does not need a namespace. What matters is that the
+name in `dimensionsWithProfiles` matches the file name exactly, including case.
+
 ## File shape
 
 ```json
