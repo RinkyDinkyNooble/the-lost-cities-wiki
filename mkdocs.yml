@@ -107,5 +107,7 @@ nav:
   - Troubleshooting:
       - Error Messages: troubleshooting/errors.md
       - Known Issues & Workarounds: troubleshooting/known-issues.md
-  - Examples: examples/index.md
+  - Examples:
+      - Overview: examples/index.md
+      - Claim Tests: examples/claim-tests.md
   - Glossary: glossary.md

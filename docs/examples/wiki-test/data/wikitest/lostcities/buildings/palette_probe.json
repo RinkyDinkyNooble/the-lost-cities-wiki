@@ -1,0 +1,9 @@
+{
+  "filler": "M",
+  "rubble": "M",
+  "parts": [
+    {
+      "part": "wikitest:palette_probe"
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "inherit": "citystyle_common",
+  "style": "standard",
+  "buildingsettings": {
+    "buildingchance": 0.9
+  },
+  "streetblocks": {
+    "parts": {
+      "full": [
+        "wikitest:street_full_gold",
+        "wikitest:street_full_diamond"
+      ],
+      "straight": "street_straight",
+      "end": "street_end",
+      "bend": "street_bend",
+      "t": "street_t",
+      "none": "street_none",
+      "all": "street_all"
+    }
+  },
+  "selectors": {
+    "buildings": [
+      {
+        "factor": 1.0,
+        "value": "wikitest:clamped"
+      },
+      {
+        "factor": 1.0,
+        "value": "wikitest:overridden"
+      },
+      {
+        "factor": 1.0,
+        "value": "wikitest:palette_probe"
+      }
+    ],
+    "multibuildings": [
+      {
+        "factor": 1.0,
+        "value": "wikitest:quad"
+      }
+    ]
+  }
+}

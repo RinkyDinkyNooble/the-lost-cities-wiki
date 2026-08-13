@@ -1,0 +1,12 @@
+{
+  "filler": "N",
+  "rubble": "N",
+  "minfloors": 6,
+  "maxfloors": 6,
+  "parts": [
+    {
+      "part": "wikitest:overridden"
+    }
+  ],
+  "overrideFloors": true
+}

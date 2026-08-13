@@ -1,0 +1,25 @@
+{
+  "xsize": 16,
+  "zsize": 16,
+  "refpalette": "wikitest:test",
+  "slices": [
+    [
+      "SSSSSSSSSSSSSSSS",
+      "SBBBBBBBBBBBBBBS",
+      "SBBBBBBBBBBBBBBS",
+      "SBBBBBBBBBBBBBBS",
+      "SBBBBBBBBBBBBBBS",
+      "SBBBBBBBBBBBBBBS",
+      "SBBBBBQQQQBBBBBS",
+      "SBBBBBQQQQBBBBBS",
+      "SBBBBBQQQQBBBBBS",
+      "SBBBBBQQQQBBBBBS",
+      "SBBBBBBBBBBBBBBS",
+      "SBBBBBBBBBBBBBBS",
+      "SBBBBBBBBBBBBBBS",
+      "SBBBBBBBBBBBBBBS",
+      "SBBBBBBBBBBBBBBS",
+      "SSSSSSSSSSSSSSSS"
+    ]
+  ]
+}

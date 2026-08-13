@@ -1,0 +1,14 @@
+{
+  "dimx": 2,
+  "dimz": 2,
+  "buildings": [
+    [
+      "wikitest:mb_red",
+      "wikitest:mb_yellow"
+    ],
+    [
+      "wikitest:mb_blue",
+      "wikitest:mb_green"
+    ]
+  ]
+}

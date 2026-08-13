@@ -1,0 +1,11 @@
+{
+  "filler": "P",
+  "rubble": "P",
+  "minfloors": 6,
+  "maxfloors": 6,
+  "parts": [
+    {
+      "part": "wikitest:clamped"
+    }
+  ]
+}

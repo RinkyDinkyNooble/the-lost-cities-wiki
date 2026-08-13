@@ -1,0 +1,57 @@
+{
+  "palette": [
+    {
+      "char": "R",
+      "block": "minecraft:red_concrete"
+    },
+    {
+      "char": "Y",
+      "block": "minecraft:yellow_concrete"
+    },
+    {
+      "char": "L",
+      "block": "minecraft:blue_concrete"
+    },
+    {
+      "char": "G",
+      "block": "minecraft:green_concrete"
+    },
+    {
+      "char": "P",
+      "block": "minecraft:purple_concrete"
+    },
+    {
+      "char": "N",
+      "block": "minecraft:orange_concrete"
+    },
+    {
+      "char": "O",
+      "block": "minecraft:gold_block"
+    },
+    {
+      "char": "Q",
+      "block": "minecraft:diamond_block"
+    },
+    {
+      "char": "_",
+      "block": "minecraft:air"
+    },
+    {
+      "char": "M",
+      "blocks": [
+        {
+          "block": "minecraft:white_concrete",
+          "random": 100
+        },
+        {
+          "block": "minecraft:black_concrete",
+          "random": 28
+        }
+      ]
+    },
+    {
+      "char": "A",
+      "frompalette": "R"
+    }
+  ]
+}
