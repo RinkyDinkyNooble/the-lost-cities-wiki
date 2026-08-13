@@ -19,6 +19,8 @@ Two findings from that work are worth naming here:
 - **7.5.0 turned on a planned road system by default.** The mod refuses a building in any chunk the road planner claims, and it does so before it rolls `buildingchance`. Setting `buildingchance` to `1.0` therefore stopped filling every eligible chunk. This is verified against the 7.5.1 jar, not inferred from release notes.
 - **7.5.1 through 10.0.1 are one documentation target.** Those four releases declare the same 160 profile keys and the same 231 datapack keys, with identical defaults and bounds. A datapack written for Minecraft 1.20.1 is structurally valid on Minecraft 26.1.
 
+Claims here are traced to the code that implements them, and a growing number have also been run in a world. See [Claim Tests](https://rinkydinkynooble.github.io/the-lost-cities-wiki/examples/claim-tests/) for what has been verified in game, including the two documentation errors and one mod bug that testing found.
+
 Some things you will not find elsewhere:
 
 - Why a building crashes world generation with `Misconfiguration! Floor were generated for a building where no part condition matches!`, and the rule behind it

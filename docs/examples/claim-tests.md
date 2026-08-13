@@ -9,20 +9,38 @@ visible from the air with no commands and no guessing.
 
 The pack is at `docs/examples/wiki-test/` in the repository.
 
-## Results so far
+## Results
 
-Run on 7.4.12, Minecraft 1.20.1, Forge.
+All tests below were run on 7.4.12, Minecraft 1.20.1, Forge, across 4 builds of the
+pack. Every claim tested is now either confirmed in a world or corrected.
 
-| Test | Result |
+| Claim | Result |
 |---|---|
-| Multi-building grid order | **Confirmed.** Red north-west, yellow south-west, blue north-east, green south-east. The outer list is X, exactly as documented. |
-| Weighted list reaching 128 slots | **Confirmed.** Speckled black and white decks generated. |
-| A concrete definition beats an alias | **Confirmed, by accident.** The probe's walls came out as the style's stone stairs, not the aliased red. `A` is concretely defined in the style's palette, and [that rule](../reference/palette.md#how-aliases-resolve) says a concrete definition wins over an alias wherever it appears. The test picked a character already in use, so it proved the override rule instead of the alias. |
-| `overrideFloors` | **Test invalid, and it exposed a wiki error.** Both buildings generated at the same height. The cause is that `minfloors` is a `max()` applied after the maximum, so both reached 6 floors with or without the key. The page said a building "can only make itself shorter than the profile allows, never taller", which is false. [Corrected](../reference/building.md#how-floor-and-cellar-counts-are-decided). |
-| Street part name as a list | **Blocked by a mod bug, now documented.** Two builds produced no marked street anywhere. The cause is that the marked pair sat on the `full` shape, and `StreetType.FULL` is never assigned: the mod picks the type with `nextInt(0, values().length - 2)`, which on 3 constants can only return `NORMAL`. So `streetblocks.parts.full` is a fourth dead key. See [Streets](../concepts/infrastructure-parts.md#streets). The list form itself is still untested and moves to every reachable shape in build 4. |
+| Multi-building grid is `buildings[x][z]`, outer list is X | **Confirmed.** Red north-west, yellow south-west, blue north-east, green south-east. |
+| A weighted `blocks` list must fill 128 slots | **Confirmed.** The 100 + 28 list generated speckled decks. |
+| A concrete definition beats a `frompalette` alias | **Confirmed.** A probe aliasing `A`, which the shipped style defines concretely, came out as the style's stone stairs rather than the alias target. |
+| `frompalette` resolves to the aliased character | **Confirmed.** Moved to `λ`, which no shipped palette defines, and the walls generated red. |
+| `overrideFloors` replaces the profile's bounds instead of narrowing them | **Confirmed.** The overriding building generates at 1 storey beside 5 storey towers that declare the same bounds without the key. |
+| A street part name accepts a list, sampled per chunk | **Confirmed.** Both marked variants appear across the road network, mixed. |
+| `streetblocks.parts` is all or nothing on inheritance | **Confirmed.** All 7 shapes were restated and all generate. |
+| `streetblocks.parts.full` | **Refuted, and it is a mod bug.** The `full` shape never generates. See [Streets](../concepts/infrastructure-parts.md#streets). |
 
-Two of the five tests were badly designed. Both design faults are fixed in the next
-build, and one of them found a real documentation error on the way.
+### Two wiki errors this found
+
+**`filler` and `rubble` resolve against the building's palette, not the part's.**
+The page said otherwise, and the wiki's own tutorial example carried the fault. It
+produced 590 failed chunks on the first run, almost all of them logging only `null`
+because the JVM stops recording traces for a repeated `NullPointerException`.
+[Corrected](../reference/building.md#filler-what-it-is-and-why-it-is-required).
+
+**A building's `minfloors` can push it past every maximum.** The page said a
+building "can only make itself shorter than the profile allows, never taller". The
+minimum is a `max()` applied after the maximum, so the opposite is true.
+[Corrected](../reference/building.md#how-floor-and-cellar-counts-are-decided).
+
+Both errors were found because a test failed and the reason had to be chased. Two
+of the tests were also badly designed, and rebuilding them is what exposed the
+`full` bug.
 
 ## What it targets
 
