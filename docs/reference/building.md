@@ -1,7 +1,7 @@
 # Building Reference
 
 !!! tip "TL;DR"
-    `buildings/<name>.json` describes a vertical stack: cellars, ground floor, upper floors, top. Each level picks from a list of candidate parts, filtered by [conditions](condition.md). **Every level that can generate must have at least one matching part, or that chunk fails to generate.** See [Floor coverage](#floor-coverage-the-most-common-crash).
+    `buildings/<name>.json` describes a vertical stack: cellars, ground floor, upper floors, top. Each level picks from a list of candidate parts, filtered by [conditions](condition.md). **Every level that can generate must have at least one matching part, or that chunk fails to generate.** See [Floor coverage](#floor-coverage-the-most-common-failure).
 
 !!! note "Some keys here do not exist on every version"
     `overrideFloors` and the part reference key `belowpart` were added in 7.4.12,
@@ -68,6 +68,8 @@ Choose something structural that matches the building's walls, such as stone bri
 
     Give the **building** a `refpalette` as well as the parts. See [Error Messages](../troubleshooting/errors.md#nullpointerexception-in-chunkdrivercorrect).
 
+    The building palette is built the same way in 7.4.12, 7.5.1 and 10.0.1.
+
 ## How floor and cellar counts are decided
 
 **Your building does not decide how tall it is.** The [Profile](profile.md) rolls a
@@ -109,6 +111,8 @@ Each bound is resolved from three sources:
     `maxfloors: 6`, one with `overrideFloors` and one without, generate at the same
     height under a profile allowing 2 to 3 floors. Both are 6.
 
+    The minimum is a `max()` in 7.4.12, 7.5.1 and 10.0.1 alike.
+
 **So what is `overrideFloors` actually for?** Making a building **shorter or looser**
 than the profile permits, which is the case the `min` and `max` cannot express:
 
@@ -120,7 +124,7 @@ than the profile permits, which is the case the `min` and `max` cannot express:
 
 Cellar counts work the same way, with one addition. The mod adds the chunk's city level to the profile's cellar maximum, so a building on higher terrain is allowed deeper cellars.
 
-## Floor coverage: the most common crash
+## Floor coverage: the most common failure
 
 Floor numbering:
 
@@ -253,7 +257,7 @@ Among all matching entries the mod picks one at random with equal probability. T
     | `"abc,def"` | Neither piece is a number. |
 
 !!! note "`range` does not require `minfloors` or `maxfloors`"
-    `range` filters the level index and does nothing else. It shares the [coverage rule](#floor-coverage-the-most-common-crash) with `floor`: every level that can generate still needs something to match it.
+    `range` filters the level index and does nothing else. It shares the [coverage rule](#floor-coverage-the-most-common-failure) with `floor`: every level that can generate still needs something to match it.
 
     Declaring `minfloors` and `maxfloors` is one way to keep the generated range inside what your parts cover, and it is a reasonable habit. Remember that those bounds only clamp the profile unless you also set `overrideFloors: true`. Under a profile whose `buildingMaxFloors` is 8, `maxfloors: 13` gives you 8, not 13. A `top: true` entry is what safely caps the stack however tall it ends up.
 

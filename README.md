@@ -37,6 +37,8 @@ Some things you will not find elsewhere:
 | `docs/examples/first-city/` | A complete example datapack that loads as it is |
 | `docs/examples/validate.py` | Checks a datapack against the rules the wiki documents |
 | `STYLE.md` | The writing rules this wiki follows |
+| `CONTRIBUTING.md` | How to report or send a correction, and the gates to run |
+| `docs/examples/mod-keys.json` | The mod's real codec and profile keys, extracted from the jars |
 | `.github/workflows/docs.yml` | Strict build gate, then deploy to Pages |
 
 ## Running it locally
@@ -69,7 +71,7 @@ Together they stop the docs, the example, and the mod's real schema from driftin
 
 Corrections are welcome, especially ones backed by observed behaviour. If a page is wrong, state **what you observed** and **which mod version** you observed it on. That is more useful than anything else you can send.
 
-Read [STYLE.md](STYLE.md) before writing prose. The wiki uses one approved term per concept and a deliberately plain register, so a correction written in a different voice needs rewriting before it can be merged.
+Full guidance is in [CONTRIBUTING.md](CONTRIBUTING.md). Read [STYLE.md](STYLE.md) before writing prose. The wiki uses one approved term per concept and a deliberately plain register, so a correction written in a different voice needs rewriting before it can be merged.
 
 Four pages are marked in-progress in the navigation. Each one states what is still missing.
 

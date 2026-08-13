@@ -69,6 +69,9 @@
     `sphereblocks` only matters in a world with city spheres. The others are reached
     by any ordinary city.
 
+    All 17 character getters are present and unguarded in 7.4.12, 7.5.1, 8.4.1 and
+    10.0.1, so this is not version specific.
+
 !!! warning "None of these numbers are validated"
     Nothing validates a number in an asset JSON, exactly as in the [Profile](profile.md). A `buildingchance` of `4.0` loads and simply means always. The ranges this page mentions are the windows the mod is built around, not checks it performs.
 

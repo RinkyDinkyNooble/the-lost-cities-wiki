@@ -32,6 +32,9 @@ with the next chunk.
 Verified by running it: a datapack with an empty `bridges` selector produced 1842
 `Error generating chunk` lines in a single session, and the game never crashed.
 
+The same `catch` is present in 7.4.12, 7.5.1, 8.4.1 and 10.0.1, so this applies to
+every version this wiki covers.
+
 !!! danger "Volume is the real symptom, and the traces run out"
     A single misconfiguration produces one failure per affected chunk, so a short
     session can log thousands. After the first few, the JVM stops recording stack
@@ -119,7 +122,7 @@ The mod picked a floor index and no entry in the building's `parts` matched it.
 
 The rule is **coverage**, not declaring bounds. Every index from `-cellars` to `+floors` needs a matching part. The height comes from the [Profile](../reference/profile.md), and your building's own `minfloors` and `maxfloors` only clamp that unless you also set `overrideFloors: true`. So parts written for floors 0 to 2 work until the profile rolls 3.
 
-**Fix:** add one part reference with **no condition keys at all**. It matches every level. See [Floor coverage](../reference/building.md#floor-coverage-the-most-common-crash).
+**Fix:** add one part reference with **no condition keys at all**. It matches every level. See [Floor coverage](../reference/building.md#floor-coverage-the-most-common-failure).
 
 `parts2` never causes this. It is a genuinely optional overlay.
 

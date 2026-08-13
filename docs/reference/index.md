@@ -47,7 +47,7 @@ Each page opens with a TL;DR, then a key table, then the behaviour that the keys
 Three pages carry most of the traps, and are worth reading before you write anything:
 
 - [Palette](palette.md#the-128-slot-rule-for-blocks-and-variant), for the 128-slot rule and what a `char` may legally be
-- [Building](building.md#floor-coverage-the-most-common-crash), for the floor-coverage crash
+- [Building](building.md#floor-coverage-the-most-common-failure), for the floor-coverage failure
 - [City Style](citystyle.md#inheritance), for inheritance being additive in a way that surprises nearly everyone
 
 ## See also

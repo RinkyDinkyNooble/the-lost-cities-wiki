@@ -238,10 +238,10 @@ Stacks parts. `filler` is required.
 
 Read this as a list of candidates, not a stack. For each level, the generator collects every entry whose conditions pass and picks one. `tower_top` only matches the topmost level. `tower_floor` has no conditions, so it matches **everything**, including the top.
 
-!!! danger "The unconditioned entry is what stops the most common crash"
+!!! danger "The unconditioned entry is what stops the most common failure"
     Your building's height comes from the [Profile](../reference/profile.md), not from your building. If a level ever has no matching part, generation throws `Misconfiguration! Floor were generated for a building where no part condition matches!`.
 
-    Always keep at least one part reference with no condition keys. Full explanation at [Floor coverage](../reference/building.md#floor-coverage-the-most-common-crash).
+    Always keep at least one part reference with no condition keys. Full explanation at [Floor coverage](../reference/building.md#floor-coverage-the-most-common-failure).
 
 `filler` seats the building into uneven terrain and skirts its cellars. It must be a character your palette defines. See [Filler](../reference/building.md#filler-what-it-is-and-why-it-is-required).
 
