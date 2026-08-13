@@ -1,0 +1,2190 @@
+{
+ "_about": "Ground truth extracted from the Lost Cities jars by disassembling every mcjty class with javap and reading the mod's own constants. Codec keys come from each fieldOf and optionalFieldOf call. Profile keys come from each Configuration.get call, whose count this matches exactly. Regenerate rather than hand-edit.",
+ "versions": {
+  "7.4.12": {
+   "codec": {
+    "BiomeMatcher": {
+     "excluding": "optional",
+     "if_all": "optional",
+     "if_any": "optional"
+    },
+    "BlockEntry": {
+     "block": "required",
+     "random": "required"
+    },
+    "BlockMatcher": {
+     "excluding": "optional",
+     "if_all": "optional",
+     "if_any": "optional"
+    },
+    "BuildingPartRE": {
+     "meta": "optional",
+     "palette": "optional",
+     "refpalette": "optional",
+     "slices": "required",
+     "xsize": "required",
+     "zsize": "required"
+    },
+    "BuildingRE": {
+     "allowDoors": "optional",
+     "allowFillers": "optional",
+     "filler": "required",
+     "maxcellars": "optional",
+     "maxfloors": "optional",
+     "mincellars": "optional",
+     "minfloors": "optional",
+     "overrideFloors": "optional",
+     "palette": "optional",
+     "parts": "required",
+     "parts2": "optional",
+     "preferslonely": "optional",
+     "refpalette": "optional",
+     "rubble": "optional"
+    },
+    "BuildingSettings": {
+     "buildingchance": "optional",
+     "maxcellars": "optional",
+     "maxfloors": "optional",
+     "mincellars": "optional",
+     "minfloors": "optional"
+    },
+    "CityBiomeMultiplier": {
+     "biomes": "required",
+     "multiplier": "required"
+    },
+    "CitySphereSettings": {
+     "centerpart": "optional",
+     "centerpartoffset": "optional",
+     "centerpartorigin": "optional",
+     "centertype": "optional"
+    },
+    "CityStyleRE": {
+     "buildingsettings": "optional",
+     "corridorblocks": "optional",
+     "explosionchance": "optional",
+     "generalblocks": "optional",
+     "inherit": "optional",
+     "parkblocks": "optional",
+     "railblocks": "optional",
+     "selectors": "optional",
+     "sphereblocks": "optional",
+     "streetblocks": "optional",
+     "stuff_tags": "optional",
+     "style": "optional"
+    },
+    "CityStyleSelector": {
+     "biomes": "optional",
+     "citystyle": "required",
+     "factor": "required"
+    },
+    "ConditionPart": {
+     "belowpart": "optional",
+     "cellar": "optional",
+     "chunkx": "optional",
+     "chunkz": "optional",
+     "factor": "required",
+     "floor": "optional",
+     "ground": "optional",
+     "inbiome": "optional",
+     "inbuilding": "optional",
+     "inpart": "optional",
+     "isbuilding": "optional",
+     "issphere": "optional",
+     "range": "optional",
+     "top": "optional",
+     "value": "required"
+    },
+    "ConditionRE": {
+     "values": "required"
+    },
+    "CorridorSettings": {
+     "corridorchance": "optional",
+     "glass": "optional",
+     "roof": "optional"
+    },
+    "GeneralSettings": {
+     "glowstone": "optional",
+     "ironbars": "optional",
+     "leaves": "optional",
+     "rubbledirt": "optional"
+    },
+    "MonorailParts": {
+     "both": "optional",
+     "station": "optional",
+     "vertical": "optional"
+    },
+    "MultiBuildingRE": {
+     "buildings": "required",
+     "dimx": "required",
+     "dimz": "required"
+    },
+    "MultiSettings": {
+     "areasize": "required",
+     "attempts": "optional",
+     "correctstylefactor": "optional",
+     "maximum": "required",
+     "minimum": "required"
+    },
+    "ObjectSelector": {
+     "factor": "required",
+     "feather": "optional",
+     "maxSpawnDistance": "optional",
+     "minSpawnDistance": "optional",
+     "value": "required"
+    },
+    "PaletteEntry": {
+     "block": "optional",
+     "blocks": "optional",
+     "char": "required",
+     "damaged": "optional",
+     "frompalette": "optional",
+     "loot": "optional",
+     "mob": "optional",
+     "tag": "optional",
+     "torch": "optional",
+     "variant": "optional"
+    },
+    "PaletteRE": {
+     "palette": "required"
+    },
+    "PaletteSelector": {
+     "factor": "required",
+     "palette": "required"
+    },
+    "ParkSettings": {
+     "avoidfoliage": "optional",
+     "elevation": "optional",
+     "grass": "optional",
+     "parkborder": "optional",
+     "parkchance": "optional",
+     "parkelevation": "optional",
+     "parkstreetthreshold": "optional"
+    },
+    "PartMeta": {
+     "boolean": "optional",
+     "char": "optional",
+     "float": "optional",
+     "integer": "optional",
+     "key": "required",
+     "string": "optional"
+    },
+    "PartRef": {
+     "belowpart": "optional",
+     "cellar": "optional",
+     "chunkx": "optional",
+     "chunkz": "optional",
+     "floor": "optional",
+     "ground": "optional",
+     "inbiome": "optional",
+     "inbuilding": "optional",
+     "inpart": "optional",
+     "isbuilding": "optional",
+     "issphere": "optional",
+     "part": "required",
+     "range": "optional",
+     "top": "optional"
+    },
+    "PartSelector": {
+     "highways": "optional",
+     "monorails": "optional",
+     "railways": "optional"
+    },
+    "PredefinedBuilding": {
+     "building": "required",
+     "chunkx": "required",
+     "chunkz": "required",
+     "multi": "optional",
+     "preventruins": "optional"
+    },
+    "PredefinedCityRE": {
+     "buildings": "optional",
+     "chunkx": "required",
+     "chunkz": "required",
+     "citystyle": "required",
+     "dimension": "required",
+     "radius": "required",
+     "streets": "optional"
+    },
+    "PredefinedSphereRE": {
+     "centerx": "required",
+     "centerz": "required",
+     "chunkx": "required",
+     "chunkz": "required",
+     "dimension": "required",
+     "radius": "required"
+    },
+    "PredefinedStreet": {
+     "chunkx": "required",
+     "chunkz": "required"
+    },
+    "RailSettings": {
+     "railmain": "optional"
+    },
+    "ResourceLocationMatcher": {
+     "excluding": "optional",
+     "if_any": "optional"
+    },
+    "ScatteredRE": {
+     "buildings": "optional",
+     "heightoffset": "optional",
+     "multibuilding": "optional",
+     "rotatable": "optional",
+     "terrainfix": "required",
+     "terrainheight": "required"
+    },
+    "ScatteredReference": {
+     "allowvoid": "optional",
+     "biomes": "optional",
+     "maxheightdiff": "optional",
+     "name": "required",
+     "nearhighway": "optional",
+     "weight": "required"
+    },
+    "ScatteredSettings": {
+     "areasize": "required",
+     "chance": "required",
+     "list": "required",
+     "weightnone": "required"
+    },
+    "Selectors": {
+     "bridges": "optional",
+     "buildings": "optional",
+     "fountains": "optional",
+     "fronts": "optional",
+     "multibuildings": "optional",
+     "parks": "optional",
+     "raildungeons": "optional",
+     "stairs": "optional"
+    },
+    "SphereSettings": {
+     "border": "optional",
+     "glass": "optional",
+     "inner": "optional"
+    },
+    "StreetSettings": {
+     "border": "optional",
+     "fountainchance": "optional",
+     "frontchance": "optional",
+     "parts": "optional",
+     "street": "optional",
+     "streetbase": "optional",
+     "streetvariant": "optional",
+     "wall": "optional",
+     "width": "optional"
+    },
+    "StuffSettingsRE": {
+     "attempts": "required",
+     "biomes": "optional",
+     "blocks": "optional",
+     "buildings": "optional",
+     "column": "required",
+     "inbuilding": "optional",
+     "maxcount": "required",
+     "maxheight": "optional",
+     "mincount": "required",
+     "minheight": "optional",
+     "seesky": "optional",
+     "tags": "optional",
+     "upperblocks": "optional"
+    },
+    "StyleRE": {
+     "randompalettes": "required"
+    },
+    "VariantRE": {
+     "blocks": "required"
+    },
+    "WorldSettings": {
+     "railpartheight6": "optional",
+     "railwayavoidance": "required",
+     "vineeast": "optional",
+     "vinenorth": "optional",
+     "vinesouth": "optional",
+     "vinewest": "optional"
+    },
+    "WorldStyleRE": {
+     "citybiomemultipliers": "optional",
+     "cityspheres": "optional",
+     "citystyles": "required",
+     "multisettings": "optional",
+     "outsidestyle": "required",
+     "parts": "optional",
+     "scattered": "optional",
+     "settings": "optional"
+    }
+   },
+   "profile": {
+    "avoidFoliage": {
+     "type": "Boolean",
+     "default": 0
+    },
+    "avoidWater": {
+     "type": "Boolean",
+     "default": 0
+    },
+    "baseBlock": {
+     "type": "String",
+     "default": "minecraft:stone"
+    },
+    "bedrockLayer": {
+     "type": "Int",
+     "default": 1,
+     "min": 0,
+     "max": 10
+    },
+    "bridgeChance": {
+     "type": "Float",
+     "default": 0.7,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "bridgeSupports": {
+     "type": "Boolean",
+     "default": 1
+    },
+    "buildingChance": {
+     "type": "Float",
+     "default": 0.3,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "buildingDoorwayChance": {
+     "type": "Float",
+     "default": 0.6,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "buildingFrontChance": {
+     "type": "Float",
+     "default": 0.2,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "buildingMaxCellars": {
+     "type": "Int",
+     "default": 3,
+     "min": 0,
+     "max": 20
+    },
+    "buildingMaxFloors": {
+     "type": "Int",
+     "default": 8,
+     "min": 0,
+     "max": 60
+    },
+    "buildingMaxFloorsChance": {
+     "type": "Int",
+     "default": 6,
+     "min": 1,
+     "max": 60
+    },
+    "buildingMinCellars": {
+     "type": "Int",
+     "default": 0,
+     "min": 0,
+     "max": 20
+    },
+    "buildingMinFloors": {
+     "type": "Int",
+     "default": 0,
+     "min": 0,
+     "max": 60
+    },
+    "buildingMinFloorsChance": {
+     "type": "Int",
+     "default": 4,
+     "min": 1,
+     "max": 60
+    },
+    "buildingWithoutLootChance": {
+     "type": "Float",
+     "default": 0.2,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "chestWithoutLootChance": {
+     "type": "Float",
+     "default": 0.2,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "cityAvoidVoid": {
+     "type": "Boolean",
+     "default": 1
+    },
+    "cityChance": {
+     "type": "Double",
+     "default": 0.01,
+     "min": -1.0,
+     "max": 1.0
+    },
+    "cityLevel0Height": {
+     "type": "Int",
+     "default": 75,
+     "min": 1,
+     "max": 384
+    },
+    "cityLevel1Height": {
+     "type": "Int",
+     "default": 83,
+     "min": 1,
+     "max": 384
+    },
+    "cityLevel2Height": {
+     "type": "Int",
+     "default": 91,
+     "min": 1,
+     "max": 384
+    },
+    "cityLevel3Height": {
+     "type": "Int",
+     "default": 99,
+     "min": 1,
+     "max": 384
+    },
+    "cityLevel4Height": {
+     "type": "Int",
+     "default": 107,
+     "min": 1,
+     "max": 384
+    },
+    "cityLevel5Height": {
+     "type": "Int",
+     "default": 115,
+     "min": 1,
+     "max": 384
+    },
+    "cityLevel6Height": {
+     "type": "Int",
+     "default": 123,
+     "min": 1,
+     "max": 384
+    },
+    "cityLevel7Height": {
+     "type": "Int",
+     "default": 131,
+     "min": 1,
+     "max": 384
+    },
+    "cityMaxHeight": {
+     "type": "Int",
+     "default": 150,
+     "min": -1024,
+     "max": 2048
+    },
+    "cityMaxRadius": {
+     "type": "Int",
+     "default": 128,
+     "min": 1,
+     "max": 2000
+    },
+    "cityMinHeight": {
+     "type": "Int",
+     "default": 50,
+     "min": -1024,
+     "max": 2048
+    },
+    "cityMinRadius": {
+     "type": "Int",
+     "default": 50,
+     "min": 1,
+     "max": 2000
+    },
+    "cityPerlinInnerScale": {
+     "type": "Double",
+     "default": 0.1,
+     "min": -1000000.0,
+     "max": 1000000.0
+    },
+    "cityPerlinOffset": {
+     "type": "Double",
+     "default": 0.1,
+     "min": -1000000.0,
+     "max": 1000000.0
+    },
+    "cityPerlinScale": {
+     "type": "Double",
+     "default": 3.0,
+     "min": -1000000.0,
+     "max": 1000000.0
+    },
+    "citySpawnDistance1": {
+     "type": "Int",
+     "default": 0,
+     "min": 0,
+     "max": 10000000
+    },
+    "citySpawnDistance2": {
+     "type": "Int",
+     "default": 0,
+     "min": 0,
+     "max": 10000000
+    },
+    "citySpawnMultiplier1": {
+     "type": "Double",
+     "default": 1.0,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "citySpawnMultiplier2": {
+     "type": "Double",
+     "default": 1.0,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "citySphereChance": {
+     "type": "Float",
+     "default": 0.7,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "citySphereClearAbove": {
+     "type": "Int",
+     "default": 0,
+     "min": 0,
+     "max": 1024
+    },
+    "citySphereClearAboveUntilAir": {
+     "type": "Boolean",
+     "default": 0
+    },
+    "citySphereClearBelow": {
+     "type": "Int",
+     "default": 0,
+     "min": 0,
+     "max": 1024
+    },
+    "citySphereClearBelowUntilAir": {
+     "type": "Boolean",
+     "default": 0
+    },
+    "citySphereFactor": {
+     "type": "Float",
+     "default": 1.2,
+     "min": 0.1,
+     "max": 10.0
+    },
+    "cityStyleAlternative": {
+     "type": "String"
+    },
+    "cityStyleThreshold": {
+     "type": "Float",
+     "default": -1.0,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "cityThreshold": {
+     "type": "Float",
+     "default": 0.2,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "corridorChance": {
+     "type": "Float",
+     "default": 0.7,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "debrisToNearbyChunkFactor": {
+     "type": "Int",
+     "default": 200,
+     "min": 1,
+     "max": 10000
+    },
+    "description": {
+     "type": "String",
+     "default": "Default generation, common cities, explosions"
+    },
+    "editMode": {
+     "type": "Boolean",
+     "default": 0
+    },
+    "explosionChance": {
+     "type": "Float",
+     "default": 0.002,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "explosionMaxHeight": {
+     "type": "Int",
+     "default": 90,
+     "min": 1,
+     "max": 256
+    },
+    "explosionMaxRadius": {
+     "type": "Int",
+     "default": 35,
+     "min": 1,
+     "max": 3000
+    },
+    "explosionMinHeight": {
+     "type": "Int",
+     "default": 75,
+     "min": 1,
+     "max": 256
+    },
+    "explosionMinRadius": {
+     "type": "Int",
+     "default": 15,
+     "min": 1,
+     "max": 1000
+    },
+    "explosionsInCitiesOnly": {
+     "type": "Boolean",
+     "default": 1
+    },
+    "extraDescription": {
+     "type": "String"
+    },
+    "fogBlue": {
+     "type": "Float",
+     "default": -1.0,
+     "min": -1.0,
+     "max": 1.0
+    },
+    "fogDensity": {
+     "type": "Float",
+     "default": -1.0,
+     "min": -1.0,
+     "max": 1.0
+    },
+    "fogGreen": {
+     "type": "Float",
+     "default": -1.0,
+     "min": -1.0,
+     "max": 1.0
+    },
+    "fogRed": {
+     "type": "Float",
+     "default": -1.0,
+     "min": -1.0,
+     "max": 1.0
+    },
+    "forceSpawnBuildings": {
+     "type": "StringList"
+    },
+    "forceSpawnInBuilding": {
+     "type": "Boolean",
+     "default": 0
+    },
+    "forceSpawnParts": {
+     "type": "StringList"
+    },
+    "fountainChance": {
+     "type": "Float",
+     "default": 0.05,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "generateLighting": {
+     "type": "Boolean",
+     "default": 0
+    },
+    "generateLoot": {
+     "type": "Boolean",
+     "default": 1
+    },
+    "generateNether": {
+     "type": "Boolean",
+     "default": 0
+    },
+    "generateSpawners": {
+     "type": "Boolean",
+     "default": 1
+    },
+    "grid32": {
+     "type": "Boolean",
+     "default": 0
+    },
+    "groundLevel": {
+     "type": "Int",
+     "default": 71,
+     "min": 2,
+     "max": 256
+    },
+    "highwayDistanceMask": {
+     "type": "Int",
+     "default": 7,
+     "min": 0,
+     "max": 2147483647
+    },
+    "highwayLevelFromCities": {
+     "type": "Int",
+     "default": 0,
+     "min": 0,
+     "max": 3
+    },
+    "highwayMainPerlinScale": {
+     "type": "Float",
+     "default": 50.0,
+     "min": 1.0,
+     "max": 1000.0
+    },
+    "highwayPerlinFactor": {
+     "type": "Float",
+     "default": 2.0,
+     "min": -100.0,
+     "max": 100.0
+    },
+    "highwayRequiresTwoCities": {
+     "type": "Boolean",
+     "default": 1
+    },
+    "highwaySecondaryPerlinScale": {
+     "type": "Float",
+     "default": 10.0,
+     "min": 1.0,
+     "max": 1000.0
+    },
+    "highwaySupports": {
+     "type": "Boolean",
+     "default": 1
+    },
+    "horizon": {
+     "type": "Enum(LandscapeType)",
+     "default": -1.0
+    },
+    "icon": {
+     "type": "String"
+    },
+    "landscapeType": {
+     "type": "Enum(LandscapeType)",
+     "default": "DEFAULT"
+    },
+    "liquidBlock": {
+     "type": "String",
+     "default": "minecraft:water"
+    },
+    "miniExplosionChance": {
+     "type": "Float",
+     "default": 0.03,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "miniExplosionMaxHeight": {
+     "type": "Int",
+     "default": 100,
+     "min": 1,
+     "max": 256
+    },
+    "miniExplosionMaxRadius": {
+     "type": "Int",
+     "default": 12,
+     "min": 1,
+     "max": 3000
+    },
+    "miniExplosionMinHeight": {
+     "type": "Int",
+     "default": 60,
+     "min": 1,
+     "max": 256
+    },
+    "miniExplosionMinRadius": {
+     "type": "Int",
+     "default": 5,
+     "min": 1,
+     "max": 1000
+    },
+    "monorailChance": {
+     "type": "Float",
+     "default": 0.8,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "monorailOffset": {
+     "type": "Int",
+     "default": -2,
+     "min": -100,
+     "max": 100
+    },
+    "multiUseCorner": {
+     "type": "Boolean",
+     "default": 0
+    },
+    "oceanCorrectionBorder": {
+     "type": "Int",
+     "default": 4,
+     "min": -255,
+     "max": 255
+    },
+    "onlyPredefined": {
+     "type": "Boolean",
+     "default": 0
+    },
+    "outsideGroundLevel": {
+     "type": "Int",
+     "default": -1,
+     "min": -1,
+     "max": 256
+    },
+    "outsideProfile": {
+     "type": "String"
+    },
+    "outsideSurfaceVariation": {
+     "type": "Float",
+     "default": 1.0,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "parkBorder": {
+     "type": "Boolean",
+     "default": 1
+    },
+    "parkChance": {
+     "type": "Float",
+     "default": 0.2,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "parkElevation": {
+     "type": "Boolean",
+     "default": 1
+    },
+    "parkStreetThreshold": {
+     "type": "Int",
+     "default": 3,
+     "min": 0,
+     "max": 8
+    },
+    "railwayDungeonChance": {
+     "type": "Float",
+     "default": 0.01,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "railwayStationsEnabled": {
+     "type": "Boolean",
+     "default": 1
+    },
+    "railwaySurfaceStationsEnabled": {
+     "type": "Boolean",
+     "default": 1
+    },
+    "railwaysCanEnd": {
+     "type": "Boolean",
+     "default": 0
+    },
+    "railwaysEnabled": {
+     "type": "Boolean",
+     "default": 1
+    },
+    "randomLeafBlockChance": {
+     "type": "Float",
+     "default": 0.1,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "randomLeafBlockThickness": {
+     "type": "Int",
+     "default": 2,
+     "min": 1,
+     "max": 8
+    },
+    "rubbleDirtScale": {
+     "type": "Float",
+     "default": 3.0,
+     "min": 0.0,
+     "max": 100.0
+    },
+    "rubbleLayer": {
+     "type": "Boolean",
+     "default": 1
+    },
+    "rubbleLeaveScale": {
+     "type": "Float",
+     "default": 6.0,
+     "min": 0.0,
+     "max": 100.0
+    },
+    "ruinChance": {
+     "type": "Float",
+     "default": 0.05,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "ruinMaxlevelPercent": {
+     "type": "Float",
+     "default": 1.0,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "ruinMinlevelPercent": {
+     "type": "Float",
+     "default": 0.8,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "scatteredChanceMultiplier": {
+     "type": "Float",
+     "default": 1.0,
+     "min": 0.0,
+     "max": 100.0
+    },
+    "seaLevel": {
+     "type": "Int",
+     "default": -1,
+     "min": -1,
+     "max": 256
+    },
+    "spawnBiome": {
+     "type": "String"
+    },
+    "spawnCheckAttempts": {
+     "type": "Int",
+     "default": 20000,
+     "min": 1,
+     "max": 1000000
+    },
+    "spawnCheckRadius": {
+     "type": "Int",
+     "default": 200,
+     "min": 1,
+     "max": 100000
+    },
+    "spawnCity": {
+     "type": "String"
+    },
+    "spawnNotInBuilding": {
+     "type": "Boolean",
+     "default": 0
+    },
+    "spawnRadiusIncrease": {
+     "type": "Int",
+     "default": 100,
+     "min": 1,
+     "max": 100000
+    },
+    "spawnSphere": {
+     "type": "String"
+    },
+    "sphereSurfaceVariation": {
+     "type": "Float",
+     "default": 1.0,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "terrainFixLowerMaxOffset": {
+     "type": "Int",
+     "default": -3,
+     "min": -40,
+     "max": 40
+    },
+    "terrainFixLowerMinOffset": {
+     "type": "Int",
+     "default": -4,
+     "min": -40,
+     "max": 40
+    },
+    "terrainFixUpperMaxOffset": {
+     "type": "Int",
+     "default": 1,
+     "min": -40,
+     "max": 40
+    },
+    "terrainFixUpperMinOffset": {
+     "type": "Int",
+     "default": -1,
+     "min": -40,
+     "max": 40
+    },
+    "useAvgHeightmap": {
+     "type": "Boolean",
+     "default": 0
+    },
+    "vineChance": {
+     "type": "Float",
+     "default": 0.009,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "warning": {
+     "type": "String"
+    },
+    "worldStyle": {
+     "type": "String",
+     "default": "standard"
+    }
+   }
+  },
+  "7.5.1": {
+   "codec": {
+    "BiomeMatcher": {
+     "excluding": "optional",
+     "if_all": "optional",
+     "if_any": "optional"
+    },
+    "BlockEntry": {
+     "block": "required",
+     "random": "required"
+    },
+    "BlockMatcher": {
+     "excluding": "optional",
+     "if_all": "optional",
+     "if_any": "optional"
+    },
+    "BuildingPartRE": {
+     "meta": "optional",
+     "palette": "optional",
+     "refpalette": "optional",
+     "slices": "required",
+     "xsize": "required",
+     "zsize": "required"
+    },
+    "BuildingRE": {
+     "allowDoors": "optional",
+     "allowFillers": "optional",
+     "filler": "required",
+     "maxcellars": "optional",
+     "maxfloors": "optional",
+     "mincellars": "optional",
+     "minfloors": "optional",
+     "overrideFloors": "optional",
+     "palette": "optional",
+     "parts": "required",
+     "parts2": "optional",
+     "preferslonely": "optional",
+     "refpalette": "optional",
+     "rubble": "optional"
+    },
+    "BuildingSettings": {
+     "buildingchance": "optional",
+     "maxcellars": "optional",
+     "maxfloors": "optional",
+     "mincellars": "optional",
+     "minfloors": "optional"
+    },
+    "CityBiomeMultiplier": {
+     "biomes": "required",
+     "multiplier": "required"
+    },
+    "CityProfileOverrides": {
+     "openLotParkChance": "optional"
+    },
+    "CitySphereSettings": {
+     "centerpart": "optional",
+     "centerpartoffset": "optional",
+     "centerpartorigin": "optional",
+     "centertype": "optional"
+    },
+    "CityStyleRE": {
+     "buildingsettings": "optional",
+     "corridorblocks": "optional",
+     "explosionchance": "optional",
+     "generalblocks": "optional",
+     "inherit": "optional",
+     "parkblocks": "optional",
+     "profile_overrides": "optional",
+     "railblocks": "optional",
+     "selectors": "optional",
+     "sphereblocks": "optional",
+     "streetblocks": "optional",
+     "stuff_tags": "optional",
+     "style": "optional"
+    },
+    "CityStyleSelector": {
+     "biomes": "optional",
+     "citystyle": "required",
+     "factor": "required"
+    },
+    "ConditionPart": {
+     "belowpart": "optional",
+     "cellar": "optional",
+     "chunkx": "optional",
+     "chunkz": "optional",
+     "factor": "required",
+     "floor": "optional",
+     "ground": "optional",
+     "inbiome": "optional",
+     "inbuilding": "optional",
+     "inpart": "optional",
+     "isbuilding": "optional",
+     "issphere": "optional",
+     "range": "optional",
+     "top": "optional",
+     "value": "required"
+    },
+    "ConditionRE": {
+     "values": "required"
+    },
+    "CorridorSettings": {
+     "corridorchance": "optional",
+     "glass": "optional",
+     "roof": "optional"
+    },
+    "GeneralSettings": {
+     "glowstone": "optional",
+     "ironbars": "optional",
+     "leaves": "optional",
+     "rubbledirt": "optional"
+    },
+    "MonorailParts": {
+     "both": "optional",
+     "station": "optional",
+     "vertical": "optional"
+    },
+    "MultiBuildingRE": {
+     "buildings": "required",
+     "dimx": "required",
+     "dimz": "required"
+    },
+    "MultiSettings": {
+     "areasize": "required",
+     "attempts": "optional",
+     "correctstylefactor": "optional",
+     "maximum": "required",
+     "minimum": "required"
+    },
+    "ObjectSelector": {
+     "factor": "required",
+     "feather": "optional",
+     "maxSpawnDistance": "optional",
+     "minSpawnDistance": "optional",
+     "value": "required"
+    },
+    "PaletteEntry": {
+     "block": "optional",
+     "blocks": "optional",
+     "char": "required",
+     "damaged": "optional",
+     "frompalette": "optional",
+     "loot": "optional",
+     "mob": "optional",
+     "tag": "optional",
+     "torch": "optional",
+     "variant": "optional"
+    },
+    "PaletteRE": {
+     "palette": "required"
+    },
+    "PaletteSelector": {
+     "factor": "required",
+     "palette": "required"
+    },
+    "ParkSettings": {
+     "avoidfoliage": "optional",
+     "elevation": "optional",
+     "grass": "optional",
+     "parkborder": "optional",
+     "parkchance": "optional",
+     "parkelevation": "optional",
+     "parkstreetthreshold": "optional"
+    },
+    "PartMeta": {
+     "boolean": "optional",
+     "char": "optional",
+     "float": "optional",
+     "integer": "optional",
+     "key": "required",
+     "string": "optional"
+    },
+    "PartRef": {
+     "belowpart": "optional",
+     "cellar": "optional",
+     "chunkx": "optional",
+     "chunkz": "optional",
+     "floor": "optional",
+     "ground": "optional",
+     "inbiome": "optional",
+     "inbuilding": "optional",
+     "inpart": "optional",
+     "isbuilding": "optional",
+     "issphere": "optional",
+     "part": "required",
+     "range": "optional",
+     "top": "optional"
+    },
+    "PartSelector": {
+     "highways": "optional",
+     "monorails": "optional",
+     "railways": "optional"
+    },
+    "PredefinedBuilding": {
+     "building": "required",
+     "chunkx": "required",
+     "chunkz": "required",
+     "multi": "optional",
+     "preventruins": "optional"
+    },
+    "PredefinedCityRE": {
+     "buildings": "optional",
+     "chunkx": "required",
+     "chunkz": "required",
+     "citystyle": "required",
+     "dimension": "required",
+     "radius": "required",
+     "streets": "optional"
+    },
+    "PredefinedSphereRE": {
+     "centerx": "required",
+     "centerz": "required",
+     "chunkx": "required",
+     "chunkz": "required",
+     "dimension": "required",
+     "radius": "required"
+    },
+    "PredefinedStreet": {
+     "chunkx": "required",
+     "chunkz": "required"
+    },
+    "RailSettings": {
+     "railmain": "optional"
+    },
+    "ResourceLocationMatcher": {
+     "excluding": "optional",
+     "if_any": "optional"
+    },
+    "ScatteredRE": {
+     "buildings": "optional",
+     "clearhighwayrailing": "optional",
+     "heightoffset": "optional",
+     "multibuilding": "optional",
+     "rotatable": "optional",
+     "supportpart": "optional",
+     "terrainfix": "required",
+     "terrainheight": "required"
+    },
+    "ScatteredReference": {
+     "allowvoid": "optional",
+     "biomes": "optional",
+     "maxheightdiff": "optional",
+     "name": "required",
+     "nearhighway": "optional",
+     "weight": "required"
+    },
+    "ScatteredSettings": {
+     "areasize": "required",
+     "chance": "required",
+     "list": "required",
+     "weightnone": "required"
+    },
+    "Selectors": {
+     "bridges": "optional",
+     "buildings": "optional",
+     "fountains": "optional",
+     "fronts": "optional",
+     "largebridges": "optional",
+     "multibuildings": "optional",
+     "parks": "optional",
+     "raildungeons": "optional",
+     "stairs": "optional"
+    },
+    "SphereSettings": {
+     "border": "optional",
+     "glass": "optional",
+     "inner": "optional"
+    },
+    "StreetSettings": {
+     "border": "optional",
+     "fountainchance": "optional",
+     "frontchance": "optional",
+     "largeparts": "optional",
+     "parts": "optional",
+     "street": "optional",
+     "streetbase": "optional",
+     "streetvariant": "optional",
+     "tertiaryparts": "optional",
+     "wall": "optional",
+     "width": "optional"
+    },
+    "StuffSettingsRE": {
+     "attempts": "required",
+     "biomes": "optional",
+     "blocks": "optional",
+     "buildings": "optional",
+     "column": "required",
+     "inbuilding": "optional",
+     "maxcount": "required",
+     "maxheight": "optional",
+     "mincount": "required",
+     "minheight": "optional",
+     "seesky": "optional",
+     "tags": "optional",
+     "upperblocks": "optional"
+    },
+    "StyleRE": {
+     "randompalettes": "required"
+    },
+    "VariantRE": {
+     "blocks": "required"
+    },
+    "WorldSettings": {
+     "railpartheight6": "optional",
+     "railwayavoidance": "required",
+     "vineeast": "optional",
+     "vinenorth": "optional",
+     "vinesouth": "optional",
+     "vinewest": "optional"
+    },
+    "WorldStyleRE": {
+     "citybiomemultipliers": "optional",
+     "cityspheres": "optional",
+     "citystyles": "required",
+     "multisettings": "optional",
+     "outsidestyle": "required",
+     "parts": "optional",
+     "scattered": "optional",
+     "settings": "optional"
+    }
+   },
+   "profile": {
+    "avoidFoliage": {
+     "type": "Boolean",
+     "default": 0
+    },
+    "avoidWater": {
+     "type": "Boolean",
+     "default": 0
+    },
+    "baseBlock": {
+     "type": "String",
+     "default": "minecraft:stone"
+    },
+    "bedrockLayer": {
+     "type": "Int",
+     "default": 1,
+     "min": 0,
+     "max": 10
+    },
+    "bridgeChance": {
+     "type": "Float",
+     "default": 0.7,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "bridgeSupports": {
+     "type": "Boolean",
+     "default": 1
+    },
+    "buildingChance": {
+     "type": "Float",
+     "default": 0.3,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "buildingDoorwayChance": {
+     "type": "Float",
+     "default": 0.6,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "buildingFrontChance": {
+     "type": "Float",
+     "default": 0.2,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "buildingMaxCellars": {
+     "type": "Int",
+     "default": 3,
+     "min": 0,
+     "max": 20
+    },
+    "buildingMaxFloors": {
+     "type": "Int",
+     "default": 8,
+     "min": 0,
+     "max": 60
+    },
+    "buildingMaxFloorsChance": {
+     "type": "Int",
+     "default": 6,
+     "min": 1,
+     "max": 60
+    },
+    "buildingMinCellars": {
+     "type": "Int",
+     "default": 0,
+     "min": 0,
+     "max": 20
+    },
+    "buildingMinFloors": {
+     "type": "Int",
+     "default": 0,
+     "min": 0,
+     "max": 60
+    },
+    "buildingMinFloorsChance": {
+     "type": "Int",
+     "default": 4,
+     "min": 1,
+     "max": 60
+    },
+    "buildingWithoutLootChance": {
+     "type": "Float",
+     "default": 0.2,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "chestWithoutLootChance": {
+     "type": "Float",
+     "default": 0.2,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "cityAvoidVoid": {
+     "type": "Boolean",
+     "default": 1
+    },
+    "cityChance": {
+     "type": "Double",
+     "default": 0.01,
+     "min": -1.0,
+     "max": 1.0
+    },
+    "cityLevel0Height": {
+     "type": "Int",
+     "default": 75,
+     "min": 1,
+     "max": 384
+    },
+    "cityLevel1Height": {
+     "type": "Int",
+     "default": 83,
+     "min": 1,
+     "max": 384
+    },
+    "cityLevel2Height": {
+     "type": "Int",
+     "default": 91,
+     "min": 1,
+     "max": 384
+    },
+    "cityLevel3Height": {
+     "type": "Int",
+     "default": 99,
+     "min": 1,
+     "max": 384
+    },
+    "cityLevel4Height": {
+     "type": "Int",
+     "default": 107,
+     "min": 1,
+     "max": 384
+    },
+    "cityLevel5Height": {
+     "type": "Int",
+     "default": 115,
+     "min": 1,
+     "max": 384
+    },
+    "cityLevel6Height": {
+     "type": "Int",
+     "default": 123,
+     "min": 1,
+     "max": 384
+    },
+    "cityLevel7Height": {
+     "type": "Int",
+     "default": 131,
+     "min": 1,
+     "max": 384
+    },
+    "cityMaxHeight": {
+     "type": "Int",
+     "default": 150,
+     "min": -1024,
+     "max": 2048
+    },
+    "cityMaxRadius": {
+     "type": "Int",
+     "default": 128,
+     "min": 1,
+     "max": 2000
+    },
+    "cityMinHeight": {
+     "type": "Int",
+     "default": 50,
+     "min": -1024,
+     "max": 2048
+    },
+    "cityMinRadius": {
+     "type": "Int",
+     "default": 50,
+     "min": 1,
+     "max": 2000
+    },
+    "cityPerlinInnerScale": {
+     "type": "Double",
+     "default": 0.1,
+     "min": -1000000.0,
+     "max": 1000000.0
+    },
+    "cityPerlinOffset": {
+     "type": "Double",
+     "default": 0.1,
+     "min": -1000000.0,
+     "max": 1000000.0
+    },
+    "cityPerlinScale": {
+     "type": "Double",
+     "default": 3.0,
+     "min": -1000000.0,
+     "max": 1000000.0
+    },
+    "citySpawnDistance1": {
+     "type": "Int",
+     "default": 0,
+     "min": 0,
+     "max": 10000000
+    },
+    "citySpawnDistance2": {
+     "type": "Int",
+     "default": 0,
+     "min": 0,
+     "max": 10000000
+    },
+    "citySpawnMultiplier1": {
+     "type": "Double",
+     "default": 1.0,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "citySpawnMultiplier2": {
+     "type": "Double",
+     "default": 1.0,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "citySphereChance": {
+     "type": "Float",
+     "default": 0.7,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "citySphereClearAbove": {
+     "type": "Int",
+     "default": 0,
+     "min": 0,
+     "max": 1024
+    },
+    "citySphereClearAboveUntilAir": {
+     "type": "Boolean",
+     "default": 0
+    },
+    "citySphereClearBelow": {
+     "type": "Int",
+     "default": 0,
+     "min": 0,
+     "max": 1024
+    },
+    "citySphereClearBelowUntilAir": {
+     "type": "Boolean",
+     "default": 0
+    },
+    "citySphereFactor": {
+     "type": "Float",
+     "default": 1.2,
+     "min": 0.1,
+     "max": 10.0
+    },
+    "cityStyleAlternative": {
+     "type": "String"
+    },
+    "cityStyleThreshold": {
+     "type": "Float",
+     "default": -1.0,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "cityThreshold": {
+     "type": "Float",
+     "default": 0.2,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "corridorChance": {
+     "type": "Float",
+     "default": 0.7,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "debrisToNearbyChunkFactor": {
+     "type": "Int",
+     "default": 200,
+     "min": 1,
+     "max": 10000
+    },
+    "description": {
+     "type": "String",
+     "default": "Default generation, common cities, explosions"
+    },
+    "editMode": {
+     "type": "Boolean",
+     "default": 0
+    },
+    "explosionChance": {
+     "type": "Float",
+     "default": 0.002,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "explosionMaxHeight": {
+     "type": "Int",
+     "default": 90,
+     "min": 1,
+     "max": 256
+    },
+    "explosionMaxRadius": {
+     "type": "Int",
+     "default": 35,
+     "min": 1,
+     "max": 3000
+    },
+    "explosionMinHeight": {
+     "type": "Int",
+     "default": 75,
+     "min": 1,
+     "max": 256
+    },
+    "explosionMinRadius": {
+     "type": "Int",
+     "default": 15,
+     "min": 1,
+     "max": 1000
+    },
+    "explosionsInCitiesOnly": {
+     "type": "Boolean",
+     "default": 1
+    },
+    "extraDescription": {
+     "type": "String"
+    },
+    "fogBlue": {
+     "type": "Float",
+     "default": -1.0,
+     "min": -1.0,
+     "max": 1.0
+    },
+    "fogDensity": {
+     "type": "Float",
+     "default": -1.0,
+     "min": -1.0,
+     "max": 1.0
+    },
+    "fogGreen": {
+     "type": "Float",
+     "default": -1.0,
+     "min": -1.0,
+     "max": 1.0
+    },
+    "fogRed": {
+     "type": "Float",
+     "default": -1.0,
+     "min": -1.0,
+     "max": 1.0
+    },
+    "forceSpawnBuildings": {
+     "type": "StringList"
+    },
+    "forceSpawnInBuilding": {
+     "type": "Boolean",
+     "default": 0
+    },
+    "forceSpawnParts": {
+     "type": "StringList"
+    },
+    "fountainChance": {
+     "type": "Float",
+     "default": 0.05,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "generateLighting": {
+     "type": "Boolean",
+     "default": 0
+    },
+    "generateLoot": {
+     "type": "Boolean",
+     "default": 1
+    },
+    "generateNether": {
+     "type": "Boolean",
+     "default": 0
+    },
+    "generateSpawners": {
+     "type": "Boolean",
+     "default": 1
+    },
+    "grid32": {
+     "type": "Boolean",
+     "default": 0
+    },
+    "groundLevel": {
+     "type": "Int",
+     "default": 71,
+     "min": 2,
+     "max": 256
+    },
+    "highwayDistanceMask": {
+     "type": "Int",
+     "default": 7,
+     "min": 0,
+     "max": 2147483647
+    },
+    "highwayGenerationMode": {
+     "type": "Enum(HighwayGenerationMode)",
+     "default": "INTERCITY_NETWORK_V1"
+    },
+    "highwayHubMinimumPotential": {
+     "type": "Float",
+     "default": 0.2,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "highwayHubSampleSpacing": {
+     "type": "Int",
+     "default": 16,
+     "min": 1,
+     "max": 512
+    },
+    "highwayHubSearchRadiusCells": {
+     "type": "Int",
+     "default": 2,
+     "min": 0,
+     "max": 8
+    },
+    "highwayLevelFromCities": {
+     "type": "Int",
+     "default": 3,
+     "min": 0,
+     "max": 4
+    },
+    "highwayMainPerlinScale": {
+     "type": "Float",
+     "default": 50.0,
+     "min": 1.0,
+     "max": 1000.0
+    },
+    "highwayMaximumConnectionsPerHub": {
+     "type": "Int",
+     "default": 2,
+     "min": 1,
+     "max": 8
+    },
+    "highwayMaximumHubDistance": {
+     "type": "Int",
+     "default": 320,
+     "min": 0,
+     "max": 4096
+    },
+    "highwayMinimumHubDistance": {
+     "type": "Int",
+     "default": 64,
+     "min": 0,
+     "max": 4096
+    },
+    "highwayMinimumRouteLength": {
+     "type": "Int",
+     "default": 40,
+     "min": 0,
+     "max": 4096
+    },
+    "highwayNetworkLevel": {
+     "type": "Int",
+     "default": 0,
+     "min": 0,
+     "max": 32
+    },
+    "highwayPerlinFactor": {
+     "type": "Float",
+     "default": 2.0,
+     "min": -100.0,
+     "max": 100.0
+    },
+    "highwayPlanningCellSize": {
+     "type": "Int",
+     "default": 128,
+     "min": 32,
+     "max": 512
+    },
+    "highwayRequiresTwoCities": {
+     "type": "Boolean",
+     "default": 1
+    },
+    "highwayRouteCityPenalty": {
+     "type": "Float",
+     "default": 1.0,
+     "min": 0.0,
+     "max": 1000.0
+    },
+    "highwaySecondaryPerlinScale": {
+     "type": "Float",
+     "default": 10.0,
+     "min": 1.0,
+     "max": 1000.0
+    },
+    "highwaySupports": {
+     "type": "Boolean",
+     "default": 1
+    },
+    "horizon": {
+     "type": "Enum(HighwayGenerationMode)",
+     "default": -1.0
+    },
+    "icon": {
+     "type": "String"
+    },
+    "landscapeType": {
+     "type": "Enum(LandscapeType)",
+     "default": "DEFAULT"
+    },
+    "liquidBlock": {
+     "type": "String",
+     "default": "minecraft:water"
+    },
+    "miniExplosionChance": {
+     "type": "Float",
+     "default": 0.03,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "miniExplosionMaxHeight": {
+     "type": "Int",
+     "default": 100,
+     "min": 1,
+     "max": 256
+    },
+    "miniExplosionMaxRadius": {
+     "type": "Int",
+     "default": 12,
+     "min": 1,
+     "max": 3000
+    },
+    "miniExplosionMinHeight": {
+     "type": "Int",
+     "default": 60,
+     "min": 1,
+     "max": 256
+    },
+    "miniExplosionMinRadius": {
+     "type": "Int",
+     "default": 5,
+     "min": 1,
+     "max": 1000
+    },
+    "minimumRoadEdgeDistance": {
+     "type": "Int",
+     "default": 3,
+     "min": 2,
+     "max": 32
+    },
+    "minimumRoadSeparation": {
+     "type": "Int",
+     "default": 4,
+     "min": 2,
+     "max": 32
+    },
+    "monorailChance": {
+     "type": "Float",
+     "default": 0.8,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "monorailOffset": {
+     "type": "Int",
+     "default": -2,
+     "min": -100,
+     "max": 100
+    },
+    "multiBuildingStreetConflict": {
+     "type": "Enum(MultiBuildingStreetConflict)",
+     "default": "OVERRIDE_MINOR"
+    },
+    "multiUseCorner": {
+     "type": "Boolean",
+     "default": 0
+    },
+    "oceanCorrectionBorder": {
+     "type": "Int",
+     "default": 4,
+     "min": -255,
+     "max": 255
+    },
+    "onlyPredefined": {
+     "type": "Boolean",
+     "default": 0
+    },
+    "openLotParkChance": {
+     "type": "Float",
+     "default": 0.8,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "outsideGroundLevel": {
+     "type": "Int",
+     "default": -1,
+     "min": -1,
+     "max": 256
+    },
+    "outsideProfile": {
+     "type": "String"
+    },
+    "outsideSurfaceVariation": {
+     "type": "Float",
+     "default": 1.0,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "parkBorder": {
+     "type": "Boolean",
+     "default": 1
+    },
+    "parkChance": {
+     "type": "Float",
+     "default": 0.2,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "parkElevation": {
+     "type": "Boolean",
+     "default": 1
+    },
+    "parkStreetThreshold": {
+     "type": "Int",
+     "default": 3,
+     "min": 0,
+     "max": 8
+    },
+    "plannedPrimaryBridgeChance": {
+     "type": "Float",
+     "default": 1.0,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "plannedPrimaryBridgeMaxLength": {
+     "type": "Int",
+     "default": 12,
+     "min": 1,
+     "max": 64
+    },
+    "primaryRoadForceEvery": {
+     "type": "Int",
+     "default": 4,
+     "min": 1,
+     "max": 16
+    },
+    "primaryRoadOptionalChance": {
+     "type": "Float",
+     "default": 0.45,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "primaryRoadSpacingX": {
+     "type": "Int",
+     "default": 8,
+     "min": 8,
+     "max": 128
+    },
+    "primaryRoadSpacingZ": {
+     "type": "Int",
+     "default": 8,
+     "min": 8,
+     "max": 128
+    },
+    "railwayDungeonChance": {
+     "type": "Float",
+     "default": 0.01,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "railwayStationsEnabled": {
+     "type": "Boolean",
+     "default": 1
+    },
+    "railwaySurfaceStationsEnabled": {
+     "type": "Boolean",
+     "default": 1
+    },
+    "railwaysCanEnd": {
+     "type": "Boolean",
+     "default": 0
+    },
+    "railwaysEnabled": {
+     "type": "Boolean",
+     "default": 1
+    },
+    "randomLeafBlockChance": {
+     "type": "Float",
+     "default": 0.1,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "randomLeafBlockThickness": {
+     "type": "Int",
+     "default": 2,
+     "min": 1,
+     "max": 8
+    },
+    "rubbleDirtScale": {
+     "type": "Float",
+     "default": 3.0,
+     "min": 0.0,
+     "max": 100.0
+    },
+    "rubbleLayer": {
+     "type": "Boolean",
+     "default": 1
+    },
+    "rubbleLeaveScale": {
+     "type": "Float",
+     "default": 6.0,
+     "min": 0.0,
+     "max": 100.0
+    },
+    "ruinChance": {
+     "type": "Float",
+     "default": 0.05,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "ruinMaxlevelPercent": {
+     "type": "Float",
+     "default": 1.0,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "ruinMinlevelPercent": {
+     "type": "Float",
+     "default": 0.8,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "scatteredChanceMultiplier": {
+     "type": "Float",
+     "default": 1.0,
+     "min": 0.0,
+     "max": 100.0
+    },
+    "seaLevel": {
+     "type": "Int",
+     "default": -1,
+     "min": -1,
+     "max": 256
+    },
+    "secondaryRoadMaxCountX": {
+     "type": "Int",
+     "default": 2,
+     "min": 0,
+     "max": 128
+    },
+    "secondaryRoadMaxCountZ": {
+     "type": "Int",
+     "default": 2,
+     "min": 0,
+     "max": 128
+    },
+    "secondaryRoadMinCountX": {
+     "type": "Int",
+     "default": 0,
+     "min": 0,
+     "max": 128
+    },
+    "secondaryRoadMinCountZ": {
+     "type": "Int",
+     "default": 0,
+     "min": 0,
+     "max": 128
+    },
+    "spawnBiome": {
+     "type": "String"
+    },
+    "spawnCheckAttempts": {
+     "type": "Int",
+     "default": 20000,
+     "min": 1,
+     "max": 1000000
+    },
+    "spawnCheckRadius": {
+     "type": "Int",
+     "default": 200,
+     "min": 1,
+     "max": 100000
+    },
+    "spawnCity": {
+     "type": "String"
+    },
+    "spawnNotInBuilding": {
+     "type": "Boolean",
+     "default": 0
+    },
+    "spawnRadiusIncrease": {
+     "type": "Int",
+     "default": 100,
+     "min": 1,
+     "max": 100000
+    },
+    "spawnSphere": {
+     "type": "String"
+    },
+    "sphereSurfaceVariation": {
+     "type": "Float",
+     "default": 1.0,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "streetGenerationMode": {
+     "type": "Enum(StreetGenerationMode)",
+     "default": "HIERARCHICAL_GRID_V1"
+    },
+    "terrainFixLowerMaxOffset": {
+     "type": "Int",
+     "default": -3,
+     "min": -40,
+     "max": 40
+    },
+    "terrainFixLowerMinOffset": {
+     "type": "Int",
+     "default": -4,
+     "min": -40,
+     "max": 40
+    },
+    "terrainFixUpperMaxOffset": {
+     "type": "Int",
+     "default": 1,
+     "min": -40,
+     "max": 40
+    },
+    "terrainFixUpperMinOffset": {
+     "type": "Int",
+     "default": -1,
+     "min": -40,
+     "max": 40
+    },
+    "tertiaryRoadChance": {
+     "type": "Float",
+     "default": 0.4,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "tertiaryRoadMaxLength": {
+     "type": "Int",
+     "default": 5,
+     "min": 1,
+     "max": 32
+    },
+    "tertiaryRoadMinLength": {
+     "type": "Int",
+     "default": 2,
+     "min": 1,
+     "max": 16
+    },
+    "useAvgHeightmap": {
+     "type": "Boolean",
+     "default": 0
+    },
+    "vineChance": {
+     "type": "Float",
+     "default": 0.009,
+     "min": 0.0,
+     "max": 1.0
+    },
+    "warning": {
+     "type": "String"
+    },
+    "worldStyle": {
+     "type": "String",
+     "default": "standard"
+    }
+   }
+  }
+ }
+}

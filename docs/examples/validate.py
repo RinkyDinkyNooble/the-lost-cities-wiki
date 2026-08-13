@@ -175,6 +175,84 @@ def check_key_availability_pointers() -> None:
                     "which never mentions it")
 
 
+# Which asset class backs each reference page's top-level key table. Only pages
+# whose table describes one asset appear here; pages that document several nested
+# objects are checked by name lookup instead.
+PAGE_ASSET = {
+    "building.md": "BuildingRE",
+    "citystyle.md": "CityStyleRE",
+    "worldstyle.md": "WorldStyleRE",
+    "part.md": "BuildingPartRE",
+    "condition.md": "ConditionRE",
+    "multibuilding.md": "MultiBuildingRE",
+    "scattered.md": "ScatteredRE",
+    "stuff.md": "StuffSettingsRE",
+    "style.md": "StyleRE",
+    "variant.md": "VariantRE",
+    "palette.md": "PaletteRE",
+}
+
+
+def check_against_mod_keys() -> None:
+    """Check the reference tables against the keys the mod's codecs actually declare.
+
+    Two failures matter to a reader. A key the wiki documents that the mod does not
+    have sends them to write something that cannot load. A key marked optional that
+    the codec requires does the same, more quietly.
+    """
+    import json as _json
+    import re
+
+    here = Path(__file__).resolve().parent
+    truth_file = here / "mod-keys.json"
+    if not truth_file.is_file():
+        return
+    truth = _json.loads(truth_file.read_text(encoding="utf-8"))["versions"]
+    base = truth["7.4.12"]
+    # A key is real if any documented version declares it, anywhere.
+    real = {k for v in truth.values() for cls in v["codec"].values() for k in cls}
+    real |= {k for v in truth.values() for k in v["profile"]}
+    # Part meta names are read by name from generation code, not declared in a codec.
+    real |= {"support", "nowater", "dontconnect", "z1", "z2"}
+
+    ref = here.parents[1] / "docs" / "reference"
+    if not ref.is_dir():
+        return
+    for page in sorted(ref.glob("*.md")):
+        asset = base["codec"].get(PAGE_ASSET.get(page.name, ""), {})
+        cols = None
+        for line in page.read_text(encoding="utf-8").split("\n"):
+            s = line.strip()
+            if not s.startswith("|"):
+                cols = None
+                continue
+            cells = [c.strip() for c in s.strip("|").split("|")]
+            low = [c.lower() for c in cells]
+            if "key" in low:
+                cols = (low.index("key"),
+                        low.index("required") if "required" in low else None)
+                continue
+            if cols is None or "---" in s or cols[0] >= len(cells):
+                continue
+            names = re.findall(r"`([A-Za-z_][\w]*)`", cells[cols[0]])
+            for name in names:
+                if name not in real:
+                    err(f"reference/{page.name}",
+                        f"documents `{name}`, which no version's codec declares")
+            if cols[1] is None or cols[1] >= len(cells) or len(names) != 1:
+                continue
+            name = names[0]
+            if name not in asset:
+                continue
+            documented_required = "yes" in cells[cols[1]].lower()
+            actually_required = asset[name] == "required"
+            if documented_required != actually_required:
+                err(f"reference/{page.name}",
+                    f"`{name}` is documented as "
+                    f"{'required' if documented_required else 'optional'}, "
+                    f"but the 7.4.12 codec says it is {asset[name]}")
+
+
 def main() -> int:
     root = Path(sys.argv[1] if len(sys.argv) > 1 else Path(__file__).parent / "first-city")
     data_dir = root / "data"
@@ -209,6 +287,7 @@ def main() -> int:
 
     check_embedded_copies(root)
     check_key_availability_pointers()
+    check_against_mod_keys()
 
     # A space is air only because the shipped 'common' palette says so.
     unknown = used_chars - declared_chars - {" "}

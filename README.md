@@ -55,7 +55,13 @@ To run the same checks CI runs:
 mkdocs build --strict && python docs/examples/validate.py
 ```
 
-`--strict` turns any broken internal link into a build failure. The validator checks that the example datapack still satisfies every rule the wiki states. Together they stop the docs and the example from drifting apart.
+`--strict` turns any broken internal link into a build failure. The validator does three things:
+
+- Checks that the example datapack still satisfies every rule the wiki states, and that any page inlining a whole example file still matches it byte for byte.
+- Checks every key in the reference tables against `docs/examples/mod-keys.json`, which holds the keys the mod's own codecs declare, extracted from the jars. A key the wiki documents that the mod does not have is an error, and so is a key marked optional that the codec requires.
+- Checks that every key the version pages attribute to a reference page actually appears on that page.
+
+Together they stop the docs, the example, and the mod's real schema from drifting apart.
 
 ## Contributing
 
