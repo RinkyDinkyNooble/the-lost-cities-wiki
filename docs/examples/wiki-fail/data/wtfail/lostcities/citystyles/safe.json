@@ -5,6 +5,16 @@
     "border": "y",
     "wall": "w"
   },
+  "corridorblocks": {
+    "roof": "x",
+    "glass": "+"
+  },
+  "parkblocks": {
+    "elevation": "x"
+  },
+  "railblocks": {
+    "railmain": "y"
+  },
   "selectors": {
     "buildings": [
       {

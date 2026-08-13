@@ -151,28 +151,28 @@ The building's `filler` character did not resolve to a block.
 
 The chunks still generate. Terrain and streets appear, buildings are missing or partial, and nothing tells you in game.
 
-### `NullPointerException` on `CityStyle.getStreetBlock()`
+### `NullPointerException` on a null `Character`
 
-**When:** every city chunk, from the start of generation. Observed in a real world.
+**When:** chunk generation. Observed in a real world.
 
 ```
 java.lang.NullPointerException: Cannot invoke "java.lang.Character.charValue()"
-  because the return value of "...CityStyle.getStreetBlock()" is null
-    at mcjty.lostcities.worldgen.LostCityTerrainFeature.generate
+  because "corridorRoofBlock" is null
+    at mcjty.lostcities.worldgen.gen.Corridors.generateCorridors
 ```
 
-The [City Style](../reference/citystyle.md) in use has no `streetblocks.street`
-character, and the mod dereferences it without checking.
+The name in the message tells you which character is missing. Others seen include
+`CityStyle.getStreetBlock()`.
 
-This only reaches you if your city style **inherits nothing**. Inheriting
-`citystyle_common` supplies `street`, `border` and `wall`, which is why the mod's own
-`citystyle_standard` sets no `streetblocks` and still works.
+The [City Style](../reference/citystyle.md) in use does not define that character,
+and the generator dereferences it without checking. **This only reaches you if your
+city style inherits nothing**, because `citystyle_common` supplies the whole set.
 
-**Fix:** either inherit a style that defines them, or set them yourself:
+**Fix:** inherit a style that defines them, or set all of them yourself. The full
+list is in [City Style](../reference/citystyle.md).
 
-```json
-{ "streetblocks": { "street": "S", "border": "y", "wall": "w" } }
-```
+Expect to meet these one at a time. Each run fails on the first missing character it
+reaches, so fixing one exposes the next.
 
 ### `Cannot find support block '<char>' for highway part '<part>'!`
 

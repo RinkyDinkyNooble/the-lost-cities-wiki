@@ -37,24 +37,37 @@
 | `streetblocks` | no | `fountainchance` and `frontchance`, the `street`, `border` and `wall` characters, plus a nested `parts` block for [street part-name overrides](../concepts/infrastructure-parts.md). Three more keys parse and do nothing: `width`, `streetbase` and `streetvariant`. A fourth, `parts.full`, parses and is never reached. See the warning below. |
 | `selectors` | no | Eight weighted lists: `buildings`, `bridges`, `parks`, `fountains`, `stairs`, `fronts`, `raildungeons` and `multibuildings`. See [Selectors](#selectors-and-distance-gating). |
 
-!!! danger "A city style that inherits nothing must define `streetblocks.street`"
-    `LostCityTerrainFeature` reads the street character at the top of generating a
-    city chunk and dereferences it without a null check. If the city style does not
-    supply one, every city chunk fails:
+!!! danger "A city style that inherits nothing must define its own characters"
+    The generator reads these characters and dereferences them **without a null
+    check**. If the city style does not supply one and nothing it inherits does,
+    every chunk that reaches that code fails:
 
     ```
     java.lang.NullPointerException: Cannot invoke "java.lang.Character.charValue()"
-      because the return value of "...CityStyle.getStreetBlock()" is null
-        at mcjty.lostcities.worldgen.LostCityTerrainFeature.generate
+      because "corridorRoofBlock" is null
+        at mcjty.lostcities.worldgen.gen.Corridors.generateCorridors
     ```
 
-    Almost nobody hits this, because almost every city style inherits from
-    `citystyle_common`, which sets `street` to `S`, `border` to `y` and `wall` to
-    `w`. The mod's own `citystyle_standard` has no `streetblocks` at all and works
-    only for that reason.
+    The full set, with the values `citystyle_common` uses:
+
+    | Block group | Characters | `citystyle_common` |
+    |---|---|---|
+    | `streetblocks` | `street`, `border`, `wall` | `S`, `y`, `w` |
+    | `corridorblocks` | `roof`, `glass` | `x`, `+` |
+    | `parkblocks` | `elevation` | `x` |
+    | `railblocks` | `railmain` | `y` |
+    | `sphereblocks` | `inner`, `border`, `glass` | `b`, `9`, `Z` |
+
+    Almost nobody hits this, because almost every city style inherits
+    `citystyle_common`. The mod's own `citystyle_standard` sets **none** of these
+    and works only for that reason.
 
     A standalone city style, written to empty an inherited selector for example, has
-    to set them itself. Confirmed in game: 1535 failed chunks from this alone.
+    to set them all itself. Found the hard way: 2 test runs, 1535 then 357 failed
+    chunks, each exposing the next missing character in turn.
+
+    `sphereblocks` only matters in a world with city spheres. The others are reached
+    by any ordinary city.
 
 !!! warning "None of these numbers are validated"
     Nothing validates a number in an asset JSON, exactly as in the [Profile](profile.md). A `buildingchance` of `4.0` loads and simply means always. The ranges this page mentions are the windows the mod is built around, not checks it performs.
