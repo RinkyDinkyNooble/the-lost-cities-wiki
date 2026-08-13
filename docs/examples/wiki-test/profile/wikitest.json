@@ -2,8 +2,8 @@
   "lostcity": {
     "worldStyle": "wikitest:test",
     "description": "Wiki claim tests",
-    "buildingMinFloors": 2,
-    "buildingMaxFloors": 3,
+    "buildingMinFloors": 5,
+    "buildingMaxFloors": 6,
     "ruinChance": 0.0
   },
   "cities": {

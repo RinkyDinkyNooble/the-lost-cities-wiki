@@ -2,7 +2,7 @@
   "inherit": "citystyle_common",
   "style": "standard",
   "buildingsettings": {
-    "buildingchance": 0.9
+    "buildingchance": 0.15
   },
   "streetblocks": {
     "parts": {

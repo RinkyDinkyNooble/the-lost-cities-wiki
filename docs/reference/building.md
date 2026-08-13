@@ -70,23 +70,53 @@ Choose something structural that matches the building's walls, such as stone bri
 
 ## How floor and cellar counts are decided
 
-**Your building does not decide how tall it is.** The count comes from the [Profile](profile.md), the terrain adjusts it, and your building's `minfloors` and `maxfloors` only narrow the result.
+**Your building does not decide how tall it is.** The [Profile](profile.md) rolls a
+number, and the bounds then pull it up or down.
 
-In order:
+The mod rolls the count first:
 
-1. The profile rolls a floor count from `buildingMinFloors`, `buildingMaxFloors` and the two `...FloorsChance` values, scaled by how strong the city is at that point. See [How a Chunk Becomes a City](../under-the-hood/city-generation.md).
-2. The [City Style](citystyle.md)'s `buildingsettings` clamps that count.
-3. Your building's `minfloors` and `maxfloors` clamp it further.
-4. The mod caps the result so the building cannot pass the world height limit.
+```
+floors = buildingMinFloors
+       + random( buildingMinFloorsChance
+                 + (cityFactor + 0.1) x (buildingMaxFloorsChance - buildingMinFloorsChance) )
+```
 
-**`overrideFloors` changes step 3 from a clamp into a replacement.**
+`cityFactor` is how strong the city is at that point, so buildings are taller near
+the centre. See [How a Chunk Becomes a City](../under-the-hood/city-generation.md).
 
-| `overrideFloors` | Effect of the building's own `minfloors` and `maxfloors` |
+Then it applies the two bounds, **in this order**:
+
+1. `if floors > maximum: floors = maximum`
+2. `if floors < minimum: floors = minimum`
+
+Each bound is resolved from three sources:
+
+| Bound | `overrideFloors: false` (default) | `overrideFloors: true` |
+|---|---|---|
+| maximum | The smallest of the profile's `buildingMaxFloors`, the building's `maxfloors`, and the city style's `maxfloors` | The building's `maxfloors`, alone |
+| minimum | The largest of the profile's `buildingMinFloors`, the building's `minfloors`, and the city style's `minfloors` | The building's `minfloors`, alone |
+
+!!! danger "`minfloors` is applied last, so it can push a building past every maximum"
+    The minimum is a `max()`, and it runs **after** the maximum has already been
+    applied. A building with `minfloors: 6` gets 6 floors even when the profile,
+    the city style and its own `maxfloors` all say 3.
+
+    This happens with `overrideFloors` absent. The key is not required to exceed
+    the profile, and setting it changes nothing in that case, because the building's
+    own value was already going to win the `max()`.
+
+    Tested in game on 7.4.12: two buildings both declaring `minfloors: 6` and
+    `maxfloors: 6`, one with `overrideFloors` and one without, generate at the same
+    height under a profile allowing 2 to 3 floors. Both are 6.
+
+**So what is `overrideFloors` actually for?** Making a building **shorter or looser**
+than the profile permits, which is the case the `min` and `max` cannot express:
+
+| Goal | What to write |
 |---|---|
-| `false` (default) | The mod combines them with the profile and city style values, and the most restrictive wins. Your building can only make itself shorter than the profile allows, never taller. |
-| `true` | The mod uses your value directly and ignores the profile and city style for that bound. |
-
-So if a profile allows up to 8 floors and you want a building that is always exactly 2 floors, `maxfloors: 2` alone does not guarantee it. That caps the top while the minimum still floats. Set the bounds you want **and** `overrideFloors: true`.
+| Never taller than 2, whatever the profile says | `maxfloors: 2`. No override needed, `min()` already wins. |
+| Never shorter than 6, whatever the profile says | `minfloors: 6`. No override needed, `max()` already wins. |
+| Exactly 2, in a profile whose `buildingMinFloors` is 4 | `minfloors: 2`, `maxfloors: 2`, **and** `overrideFloors: true`. Without it the profile's minimum of 4 wins the `max()`. |
 
 Cellar counts work the same way, with one addition. The mod adds the chunk's city level to the profile's cellar maximum, so a building on higher terrain is allowed deeper cellars.
 
