@@ -1,0 +1,12 @@
+{
+  "palette": [
+    {
+      "char": "C",
+      "block": "minecraft:cyan_concrete"
+    },
+    {
+      "char": "_",
+      "block": "minecraft:air"
+    }
+  ]
+}

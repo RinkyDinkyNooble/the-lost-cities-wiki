@@ -1,0 +1,17 @@
+{
+  "style": "standard",
+  "selectors": {
+    "buildings": [
+      {
+        "factor": 1.0,
+        "value": "wtfail:box"
+      }
+    ],
+    "multibuildings": [
+      {
+        "factor": 1.0,
+        "value": "wtfail:single"
+      }
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "filler": "C",
+  "rubble": "C",
+  "refpalette": "wtfail:test",
+  "parts": [
+    {
+      "part": "wtfail:box"
+    }
+  ]
+}

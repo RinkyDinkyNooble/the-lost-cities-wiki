@@ -1,0 +1,28 @@
+{
+  "style": "standard",
+  "selectors": {
+    "buildings": [
+      {
+        "factor": 1.0,
+        "value": "wtfail:box"
+      }
+    ],
+    "multibuildings": [
+      {
+        "factor": 1.0,
+        "value": "wtfail:single"
+      }
+    ],
+    "bridges": [
+      {
+        "factor": 1.0,
+        "value": "bridge_open"
+      }
+    ],
+    "parks": [],
+    "fountains": [],
+    "stairs": [],
+    "fronts": [],
+    "raildungeons": []
+  }
+}

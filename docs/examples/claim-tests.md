@@ -172,6 +172,63 @@ the **server console**, not to chat.
 
 Then work through [When nothing happens](../getting-started/first-city.md#when-nothing-happens).
 
+## The failure-mode pack
+
+Every test above is a positive claim: do this, and that happens. The wiki also
+makes **failure** claims, and those are the ones that cost a reader most when they
+are wrong. A second pack tests them, at `docs/examples/wiki-fail/`.
+
+It ships **3 profiles**. Each isolates one claim, and 2 of them are expected to
+crash world generation, so they must be run one at a time. A crash in the first
+would hide anything after it.
+
+!!! warning "2 of these deliberately break world generation"
+    Use a throwaway world for each, and make a new one between runs. That is the
+    test, not a mistake.
+
+### Installing
+
+The datapack goes in as usual. All 3 profiles go into
+`config/lostcities/profiles/`. Then run them one at a time by changing a single
+line in `config/lostcities/common.toml` and restarting:
+
+```toml
+dimensionsWithProfiles = [ "lostcities:lostcity=wtfailbridge" ]
+```
+
+Then `wtfailfloors`, then `wtfailsafe`.
+
+### What each one tests
+
+| Profile | Claim | Expected |
+|---|---|---|
+| `wtfailbridge` | An empty `bridges` selector crashes **even when `bridgeChance` is 0**, because the mod resolves the bridge part eagerly for every building chunk without testing the chance first | **Crash.** `Invalid name given to minecraft:root getOrThrow!` |
+| `wtfailfloors` | A building whose only part reference is gated on `top` matches nothing on lower floors | **Crash.** `Misconfiguration! Floor were generated for a building where no part condition matches!` |
+| `wtfailsafe` | `parks`, `fountains`, `stairs`, `fronts` and `raildungeons` are safe to leave empty, and the feature simply does not appear | **No crash.** A clean world with no parks, fountains, stairs, fronts or rail dungeons. |
+
+The 3 city styles deliberately do **not** inherit `citystyle_common`. Selector
+inheritance is additive, so an inherited selector cannot be emptied, and emptying
+one is the whole point of the first test. That is itself a confirmation of the
+[additive inheritance rule](../reference/citystyle.md#inheritance).
+
+!!! note "Omitting a selector and writing `[]` are the same thing"
+    `Selectors` stores an omitted list as `null`, but the city style initialises
+    every selector to an empty list and only adds to it when the codec supplies
+    one. Both routes end at an empty list, so the bridge test omits `bridges`
+    rather than writing `[]`, and the result is identical.
+
+### The validator already catches one of them
+
+Running `validate.py` against this pack reports exactly 1 error:
+
+```
+ERROR  toponly.json: no unconditioned part reference;
+       some floor will match nothing and crash generation
+```
+
+That is the `wtfailfloors` crash, caught before the game ever starts. If the
+in-game result matches, the rule the future DevTool will enforce is correct.
+
 ## Recording a result
 
 A test that runs and disagrees with the wiki is the most valuable outcome here, not

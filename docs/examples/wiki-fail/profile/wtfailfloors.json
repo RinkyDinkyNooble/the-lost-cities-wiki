@@ -1,0 +1,14 @@
+{
+  "lostcity": {
+    "worldStyle": "wtfail:floors",
+    "description": "Failure test: floors",
+    "buildingChance": 0.8,
+    "ruinChance": 0.0
+  },
+  "cities": {
+    "cityChance": 0.3
+  },
+  "explosions": {
+    "explosionChance": 0.0
+  }
+}
