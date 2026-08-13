@@ -204,12 +204,17 @@ Then `wtfailfloors`, then `wtfailsafe`.
 |---|---|---|
 | `wtfailbridge` | An empty `bridges` selector fails **even when `bridgeChance` is 0**, because the bridge part is resolved eagerly for every building chunk | **Confirmed.** 1842 failed chunks, all `Invalid name given to minecraft:root getOrThrow!`, with `bridgeChance` at `0.0`. |
 | `wtfailfloors` | A building whose only part reference is gated on `top` matches nothing on lower floors | **Confirmed.** 1471 failed chunks, `Misconfiguration! Floor were generated for a building where no part condition matches!` |
-| `wtfailsafe` | `parks`, `fountains`, `stairs`, `fronts` and `raildungeons` are safe to leave empty | **Strongly supported, not yet clean.** Across 2 runs and 1892 failed chunks, **not one** traced to any of the 5 empty selectors. Every failure was a missing city style character, described below. Buildings generated normally throughout. |
+| `wtfailsafe` | `parks`, `fountains`, `stairs`, `fronts` and `raildungeons` are safe to leave empty | **Confirmed.** Zero `Error generating chunk` lines and zero exceptions, with buildings generating normally and no parks, fountains, stairs, fronts or rail dungeons anywhere. |
 
 The 3 city styles deliberately do **not** inherit `citystyle_common`. Selector
 inheritance is additive, so an inherited selector cannot be emptied, and emptying
 one is the whole point of the first test. That is itself a confirmation of the
 [additive inheritance rule](../reference/citystyle.md#inheritance).
+
+The `safe` result is a clean comparison rather than a single observation. The same
+5 selectors were empty in all 3 runs. The first 2 produced 1892 failed chunks and
+**not one** came from a selector. The only change in the third was supplying the
+missing city style characters, after which the count went to 0.
 
 !!! danger "Not inheriting has a second consequence, which cost 2 runs"
     A standalone city style must define every character the generator dereferences
