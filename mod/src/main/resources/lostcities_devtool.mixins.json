@@ -16,6 +16,8 @@
     "LostCitySphereFeatureMixin",
     "LostCityTerrainFeatureMixin"
   ],
-  "client": [],
+  "client": [
+    "LostCitySetupMixin"
+  ],
   "server": []
 }

@@ -40,6 +40,9 @@ public class Config {
     /** Repair 4.1. Keeps the Cities button anchored after a resize. Client only. */
     public final ForgeConfigSpec.BooleanValue anchorCitiesButton;
 
+    /** Repair 4.4. Stops the Customize button crashing after leaving a world. */
+    public final ForgeConfigSpec.BooleanValue fixCustomizeCrash;
+
     static {
         Pair<Config, ForgeConfigSpec> pair =
                 new ForgeConfigSpec.Builder().configure(Config::new);
@@ -187,6 +190,22 @@ public class Config {
                         "Client only, and it changes nothing about generation, so unlike the",
                         "other repairs this one defaults to on.")
                 .define("anchorCitiesButton", true);
+
+        fixCustomizeCrash = builder
+                .comment("Stop the Customize button crashing the game.",
+                        "",
+                        "Leaving a world clears the profile list. toggleProfile rebuilds it",
+                        "when it finds it null, and customize does not, so pressing Customize",
+                        "after having played a world throws a NullPointerException and the",
+                        "game closes to a crash report.",
+                        "",
+                        "Reproduce it by playing a world, quitting to the title screen, then",
+                        "creating a new world and pressing Customize on the Cities screen.",
+                        "",
+                        "The repair rebuilds the list the same way toggleProfile does, and",
+                        "only when it is null. Client only, changes no generation, on by",
+                        "default.")
+                .define("fixCustomizeCrash", true);
 
         builder.pop();
     }
