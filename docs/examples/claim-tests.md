@@ -544,6 +544,52 @@ ERROR  test.json: char 'loot' on 'c': 'minecraft:chests/simple_dungeon' is a loo
 deliberate: the 128-slot cutoff, which is test 6, and `belowpart`, which no static
 checker can resolve because the answer depends on what generated underneath.
 
+## Running the pack without a player
+
+Everything above was read by flying around and looking. The same pack now also runs
+on a headless Forge server, which force loads the grid so generation happens with
+no player, then asks the world what it built over RCON.
+
+All 21 probes pass, and the run reproduces the manual results exactly: 35 failed
+chunks around the one broken building, 1 at the circular alias.
+
+The command set has no block counter, so counts come from a **filtered clone**,
+which reports how many blocks it copied. That is what turns "I did not see any red"
+into `0`:
+
+```
+execute in lostcities:lostcity run clone 160 40 160 175 167 175 992 40 992 filtered minecraft:red_concrete
+```
+
+`/clone` caps at 32768 blocks, which is exactly one chunk footprint by 128 levels,
+so a count box is one chunk and 128 levels tall. The destination has to be loaded
+too, so the harness force loads a scratch chunk well clear of the grid.
+
+Two traps worth knowing if you build something similar:
+
+| Trap | What happens |
+|---|---|
+| `/forceload` takes **block** coordinates, not chunk coordinates | Passing chunk numbers loads chunk 0,0 and nothing else. Every probe answers "That position is not loaded", which reads as an empty world rather than an error. |
+| `dimensionsWithProfiles` lives under `[profiles]`, not `[general]` | Forge does not reject a wrong section. It silently rewrites the file to the mod's defaults, which point the lost city dimension at `biosphere`. |
+
+The second one produced a finding on its own. `biosphere` is a **sphere** profile,
+and on a sphere landscape the fault that had been logging cleanly started escaping
+instead, because `LostCitySphereFeature` has no `try` anywhere in it. Same pack,
+same broken building:
+
+| `landscapeType` | Caught | Uncaught |
+|---|---|---|
+| `default` | 35 | 0 |
+| `spheres` | 18 | **21**, and the server shut down |
+
+Deliberately re-running under `spheres` also turned up that `outsideProfile` is
+effectively required there: without it the first chunk that asks about the world
+outside a sphere throws `getOutsideProfile() is null`, and nothing catches it.
+
+And a third, before any world existed: `landscapeType: "SPACE"` fails mod
+construction with `Bad landscape type: SPACE!` and the server never starts. The six
+values are lowercase. The uppercase spelling is the enum constant, not the value.
+
 ## Recording a result
 
 A test that runs and disagrees with the wiki is the most valuable outcome here, not

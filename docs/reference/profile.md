@@ -297,7 +297,7 @@ Mostly relevant to `space`, `spheres`, and `cavernspheres` landscape types.
 | `monorailChance` | `0.8` | 0 – 1 | Chance a sphere requests a monorail connection each direction (needs a matching neighbour). |
 | `monorailOffset` | `-2` | -100 – 100 | Monorail height offset relative to the sphere. |
 | `onlyPredefined` | `false` | | If `true`, only [predefined](predefined.md) spheres generate and none are placed randomly. |
-| `outsideProfile` | `""` | | Profile used for terrain outside the spheres. See [connects page](../getting-started/how-it-connects.md). |
+| `outsideProfile` | `""` | | Profile used for terrain outside the spheres. **Effectively required on a sphere landscape**: leave it empty and the first chunk that asks about the outside world throws `getOutsideProfile() is null`, uncaught. See [connects page](../getting-started/how-it-connects.md). |
 | `outsideGroundLevel` | `-1` | -1 – 256 | **Deprecated**, use `groundLevel` on `outsideProfile` instead. |
 | `grid32` | `false` | | If `true`, city spheres align to a 32×32 chunk grid. `false` uses 16×16. |
 

@@ -53,6 +53,25 @@ with the next chunk.
     So the rule is: a mistake in your **assets** fails chunks and logs. A mistake in
     the **wiring between profile and datapack** crashes.
 
+!!! danger "On a sphere landscape the catch is not there at all"
+    The mod registers a **second** feature, `LostCitySphereFeature`, and that class
+    contains no `try` anywhere. It runs `Spheres.generateSpheres`, which reaches
+    `ChunkFixer` and asks for a chunk's `BuildingInfo`, which is what evaluates part
+    conditions. So the same fault that `LostCityFeature` catches and logs escapes
+    when it arrives through the sphere feature instead.
+
+    It only runs when `landscapeType` is `spheres`, `cavernspheres` or `space`. On
+    those, a building fault stops producing
+    `Error generating chunk` lines and starts producing
+    `ReportedException: Feature placement` instead.
+
+    Measured on 7.4.12 with one broken building: on `default`, **35 chunks failed,
+    all caught**. On `spheres`, the same pack gave **18 caught and 21 uncaught**, and
+    the server shut down.
+
+    If your log has `Feature placement` rather than `Error generating chunk`, check
+    `landscapeType` before you look at anything else.
+
 | What actually happens | |
 |---|---|
 | The game | Keeps running. No crash report is written. |
@@ -176,6 +195,36 @@ wrong **kind** of name.
     you see is a building whose chests can be opened, are empty, and **render
     invisible**, because their block entities were never completed. Nothing appears
     in chat. Confirmed in game on 7.4.12.
+
+### `Bad landscape type: <name>!`
+
+**When:** mod construction, before the server or the world exists.
+
+`landscapeType` holds a value that is not one of the six accepted strings. The mod
+throws inside its constructor, so Forge reports
+`Failed to create mod instance. ModID: lostcities` and **the game or server does not
+start at all**. There is no world to look at and no chunk log to read.
+
+The accepted values are **lowercase**: `default`, `floating`, `space`, `spheres`,
+`cavern`, `cavernspheres`. The enum inside the mod is uppercase, so copying the
+constant name out of a decompiler or a bug report gives you `SPACE`, which fails.
+See [Landscape types](../reference/profile.md#landscape-types).
+
+### `Cannot read field "CITY_CHANCE" because ... getOutsideProfile() is null`
+
+**When:** chunk generation on a sphere landscape.
+
+`landscapeType` is `spheres` or `cavernspheres` and the profile does not set
+`cityspheres.outsideProfile`. Everything outside a sphere has no profile to
+generate from, so the first chunk that asks about the outside world throws.
+
+Because a sphere landscape runs through `LostCitySphereFeature`, which has no
+`try`, this is not a logged chunk failure. It escapes, and on a dedicated server it
+brought the server down.
+
+**Fix:** set `outsideProfile` to the name of another profile whenever
+`landscapeType` is a sphere type. It is documented as optional with a default of
+`""`, but on those landscapes it is effectively required.
 
 ### `Invalid palette entry for '<char>'! Not enough blocks in the random list (factor should go up to 128)`
 
