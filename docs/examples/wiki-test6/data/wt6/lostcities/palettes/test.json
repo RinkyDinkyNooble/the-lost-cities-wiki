@@ -1,0 +1,91 @@
+{
+  "palette": [
+    {
+      "char": "_",
+      "block": "minecraft:air"
+    },
+    {
+      "char": "#",
+      "block": "minecraft:white_concrete"
+    },
+    {
+      "char": "S",
+      "block": "minecraft:stone"
+    },
+    {
+      "char": "G",
+      "block": "minecraft:gold_block"
+    },
+    {
+      "char": "D",
+      "block": "minecraft:diamond_block"
+    },
+    {
+      "char": "R",
+      "block": "minecraft:red_concrete"
+    },
+    {
+      "char": "E",
+      "block": "minecraft:emerald_block"
+    },
+    {
+      "char": "L",
+      "block": "minecraft:lapis_block"
+    },
+    {
+      "char": "Z",
+      "block": "minecraft:gray_concrete"
+    },
+    {
+      "char": "m",
+      "blocks": [
+        {
+          "block": "minecraft:white_concrete",
+          "random": 120
+        },
+        {
+          "block": "minecraft:black_concrete",
+          "random": 20
+        },
+        {
+          "block": "minecraft:red_concrete",
+          "random": 100
+        }
+      ]
+    },
+    {
+      "char": "s",
+      "block": "minecraft:oak_stairs[facing=north,shape=outer_right]"
+    },
+    {
+      "char": "u",
+      "block": "minecraft:oak_stairs[facing=east,shape=straight]"
+    },
+    {
+      "char": "t",
+      "block": "minecraft:torch",
+      "torch": true
+    },
+    {
+      "char": "c",
+      "block": "minecraft:chest",
+      "loot": "wt6:lootpick"
+    },
+    {
+      "char": "v",
+      "block": "minecraft:spawner",
+      "mob": "wt6:mobpick"
+    },
+    {
+      "char": "n",
+      "block": "minecraft:chest",
+      "tag": {
+        "CustomName": "{\"text\":\"WIKITAG\"}"
+      }
+    },
+    {
+      "char": "王zz",
+      "block": "minecraft:gold_block"
+    }
+  ]
+}

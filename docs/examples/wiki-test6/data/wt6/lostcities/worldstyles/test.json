@@ -1,0 +1,9 @@
+{
+  "outsidestyle": "outside",
+  "citystyles": [
+    {
+      "factor": 1.0,
+      "citystyle": "wt6:test"
+    }
+  ]
+}

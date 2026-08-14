@@ -250,7 +250,9 @@ in-game result matches, the rule the future DevTool will enforce is correct.
 
 The two packs above both had the same weakness: the tests generate wherever the
 world happens to put them, so reading a result starts with hunting for the
-building. This third pack removes that. It is at `docs/examples/wiki-test5/`.
+building. This third pack removes that. It is at `docs/examples/wiki-test6/`,
+and `wiki-test5/` is the first build of it, kept because its failures are the
+finding.
 
 A [predefined city](../reference/predefined.md) pins one city to world chunk
 **8, 8** with a radius of 8, and pins every test building to a fixed chunk inside
@@ -263,12 +265,12 @@ Same split as before. The datapack goes in the world, the profile goes in the
 config folder:
 
 ```
-<world>/datapacks/wiki-test5/
-config/lostcities/profiles/wtfive.json
+<world>/datapacks/wiki-test6/
+config/lostcities/profiles/wtsix.json
 ```
 
 ```toml
-dimensionsWithProfiles = [ "lostcities:lostcity=wtfive" ]
+dimensionsWithProfiles = [ "lostcities:lostcity=wtsix" ]
 ```
 
 Restart, make a new world, enter the Lost City dimension, then go to the grid:
@@ -385,24 +387,82 @@ Could not find entry 'Ѱ' in the palette for part 'wt5:ct_box'!
 That the other twelve buildings are unaffected is itself the point. A failure is
 scoped to the chunk that caused it.
 
+### Results from the first build
+
+Run on 7.4.12, Minecraft 1.20.1, Forge. The game did not crash.
+
+| Claim | Result |
+|---|---|
+| A pinned building's coordinates are relative to the city | **Confirmed.** The tower pinned at `0, 0` stands on world chunk 8, 8 while the city is at 8, 8. |
+| A predefined city generates at `cityChance: 0.0` | **Confirmed.** One city, exactly where it was pinned, in an otherwise empty world. |
+| Condition keys chain with AND, never OR | **Confirmed.** Banded white, gold, red rather than mixed. |
+| `mob` names a Condition | **Confirmed.** Blaze spawners, from a condition resolving to `minecraft:blaze`. |
+| `tag` places raw NBT | **Confirmed.** The chests read WIKITAG. |
+| A `char` of more than one character keeps the first | **Confirmed.** `"char": "王zz"` gave gold walls under `王`. |
+| A circular `frompalette` leaves the character undefined, silently at load | **Confirmed.** Nothing at load, then `Could not find entry 'Ѱ' in the palette for part 'wt5:ct_box'!` and one empty chunk. |
+| `shape=` on a stair block string is discarded | **Confirmed.** The five isolated stairs came out straight, and the perpendicular pair produced a corner. |
+
+Four tests did not report, because I built them wrong, and one reported
+something better than what it was testing.
+
+**`loot` does not name a loot table.** It names a
+[Condition](../reference/palette.md#loot-names-a-condition-not-a-loot-table),
+exactly as `mob` does. `"loot": "minecraft:chests/simple_dungeon"` threw
+`Error getting resource minecraft:chests/simple_dungeon!` in the post-generation
+pass, which left chests that open, are empty, and **render invisible**, because
+their block entities were never finished. The page had called `loot` a loot table
+and had listed a bad name as one of the silent causes of an empty chest. Both are
+corrected.
+
+**Three tests declared one level fewer than they generate.** `rangetest`,
+`belowtest` and `prectest` each covered levels `0` to `maxfloors - 1`, when levels
+run `0` to `maxfloors` **inclusive**. The wiki says this plainly and I did not
+follow it. Every one of them failed on
+`Misconfiguration! Floor were generated for a building where no part condition
+matches!`. `andtest` was the only conditioned building to survive, because
+`ground` and `top` cover any height.
+
+### The finding that came out of my own mistake
+
+Those 3 broken buildings produced **77 failed chunks**, over a 13 by 10 chunk
+area. They stand up to 6 chunks apart and the failures joined into one region.
+
+A chunk asks its neighbours for their `BuildingInfo` in order to shape terrain at
+its edges, lay railways and spread debris, and building that info is what
+evaluates part conditions. So a building with an uncovered level fails **every
+chunk that looks at it**, and those queries chain outward.
+
+The circular-alias building, 6 chunks from the nearest of the three, failed
+exactly one chunk: its own. That is the difference between a fault thrown while
+building the chunk's info and one thrown while placing blocks. Both are now on
+[Error Messages](../troubleshooting/errors.md#where-you-actually-see-these).
+
+I had written on this page that a failure is scoped to the chunk that caused it.
+That is true only for the second kind.
+
 ### What the validator says about this pack in advance
 
+The rule that fired on the first build was "a building needs one part entry with
+no conditions on it". That was a proxy, and it was wrong in both directions: it
+rejected `andtest`, which generates perfectly, and it gave no clue why the other
+three failed.
+
+It now computes coverage instead, over the real level range, and reproduces all
+four in-game outcomes before the game starts:
+
 ```
-ERROR  test.json: char 'm' entry #2 (minecraft:red_concrete) is unreachable, 128 slots already filled
-ERROR  andtest.json:   no unconditioned part reference
-ERROR  belowtest.json: no unconditioned part reference
-ERROR  prectest.json:  no unconditioned part reference
-ERROR  rangetest.json: no unconditioned part reference
+ERROR  rangetest.json: levels [6] match no part. Levels run from -0 to 6 INCLUSIVE,
+       so 'maxfloors': 6 is a 7-storey building.
+ERROR  prectest.json:  levels [3] match no part.
+ERROR  belowtest.json: no unconditioned part reference, and coverage cannot be proven
+       because ['belowpart'] depend on more than the level index
+ERROR  test.json: char 'loot' on 'c': 'minecraft:chests/simple_dungeon' is a loot table
+       ID, but 'loot' names a Condition
 ```
 
-The first is test 6, predicted before the game starts.
-
-The other four are a **question this run settles**. The validator's rule is that a
-building needs one part entry with no conditions on it, because that is the only
-way it can be sure every floor matches something. These four buildings instead
-partition the floors exactly, with no fallback and no overlap. If they generate,
-the rule is stricter than the mod is and should be replaced by a real coverage
-check. If they fail, the rule is right and a fallback entry is not optional.
+`andtest` passes. On the corrected pack only two errors remain, and both are
+deliberate: the 128-slot cutoff, which is test 6, and `belowpart`, which no static
+checker can resolve because the answer depends on what generated underneath.
 
 ## Recording a result
 

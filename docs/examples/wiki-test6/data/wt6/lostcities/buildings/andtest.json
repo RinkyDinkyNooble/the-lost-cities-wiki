@@ -1,0 +1,25 @@
+{
+  "filler": "#",
+  "rubble": "#",
+  "refpalette": "wt6:test",
+  "minfloors": 4,
+  "maxfloors": 4,
+  "mincellars": 0,
+  "maxcellars": 0,
+  "overrideFloors": true,
+  "parts": [
+    {
+      "part": "wt6:at_white",
+      "ground": true
+    },
+    {
+      "part": "wt6:at_gold",
+      "ground": false,
+      "top": false
+    },
+    {
+      "part": "wt6:at_red",
+      "top": true
+    }
+  ]
+}

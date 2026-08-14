@@ -81,7 +81,12 @@ The mod rolls the count first:
 floors = buildingMinFloors
        + random( buildingMinFloorsChance
                  + (cityFactor + 0.1) x (buildingMaxFloorsChance - buildingMinFloorsChance) )
+       + 1
 ```
+
+The trailing `+ 1` is in the mod and is easy to miss. It is applied before either
+bound, so it cannot push a building past `maxfloors`, but it does mean the roll
+never produces `buildingMinFloors` exactly.
 
 `cityFactor` is how strong the city is at that point, so buildings are taller near
 the centre. See [How a Chunk Becomes a City](../under-the-hood/city-generation.md).

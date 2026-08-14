@@ -1,0 +1,28 @@
+{
+  "filler": "#",
+  "rubble": "#",
+  "refpalette": "wt6:test",
+  "minfloors": 3,
+  "maxfloors": 3,
+  "mincellars": 0,
+  "maxcellars": 0,
+  "overrideFloors": true,
+  "parts": [
+    {
+      "part": "wt6:bt_base",
+      "ground": true
+    },
+    {
+      "part": "wt6:bt_mid",
+      "belowpart": "wt6:bt_base"
+    },
+    {
+      "part": "wt6:bt_top",
+      "belowpart": "wt6:bt_mid"
+    },
+    {
+      "part": "wt6:bt_cap",
+      "belowpart": "wt6:bt_top"
+    }
+  ]
+}

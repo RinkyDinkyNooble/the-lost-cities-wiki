@@ -63,6 +63,16 @@ def check_palette(path: Path, data) -> set[str]:
             err(path.name, f"duplicate char {key!r} within one file")
         chars.add(key)
 
+        # loot and mob both name a Condition. An asset name comes from a file name,
+        # so it can never contain a slash, and a mob is never a block state.
+        for key, looks_like in (("loot", "loot table"), ("mob", "entity")):
+            value = entry.get(key)
+            if isinstance(value, str) and "/" in value:
+                err(path.name, f"char {key!r} on {c!r}: {value!r} is a "
+                               f"{looks_like} ID, but '{key}' names a Condition. "
+                               "Wrap it in a one-entry condition and name that. "
+                               f"Generation throws 'Error getting resource {value}!'")
+
         kinds = [k for k in ("block", "variant", "blocks", "frompalette") if k in entry]
         if len(kinds) != 1:
             err(path.name, f"char {c!r} must have exactly one of block/variant/blocks/frompalette, has {kinds}")
@@ -101,21 +111,92 @@ def check_part(path: Path, data) -> set[str]:
     return used
 
 
+CONDITION_KEYS = {"top", "ground", "cellar", "isbuilding", "issphere", "floor",
+                  "chunkx", "chunkz", "range", "inpart", "belowpart", "inbuilding",
+                  "inbiome"}
+# The subset whose outcome is decided purely by the level index, so coverage can
+# be computed instead of guessed at.
+LEVEL_KEYS = {"top", "ground", "cellar", "floor", "range"}
+
+
+def parse_range(where: str, text: str):
+    """condition.md: split on commas, read the first two as ints, discard the rest."""
+    pieces = str(text).split(",")
+    try:
+        return int(pieces[0]), int(pieces[1])
+    except (ValueError, IndexError):
+        err(where, f"range {text!r} does not parse; the mod throws "
+                   f"'Bad range specification: {text}!'")
+        return None
+
+
+def matches_level(ref: dict, level: int, top_index: int) -> bool:
+    """Whether one part reference matches a level. Tests chain with AND, never OR."""
+    for key, want in ref.items():
+        if key not in LEVEL_KEYS:
+            continue
+        if key == "ground" and (level == 0) != want:
+            return False
+        if key == "top" and (level >= top_index) != want:
+            return False
+        if key == "cellar" and (level < 0) != want:
+            return False
+        if key == "floor" and level != want:
+            return False
+        if key == "range":
+            bounds = parse_range("", str(want))
+            if bounds is None or not (bounds[0] <= level <= bounds[1]):
+                return False
+    return True
+
+
 def check_building(path: Path, data) -> None:
-    """building.md: filler required; parts must cover every floor index."""
+    """building.md: filler required; parts must cover every level from -cellars to floors."""
     if "filler" not in data:
         err(path.name, "'filler' is required")
     parts = data.get("parts", [])
     if not parts:
         err(path.name, "'parts' is required and must not be empty")
-    condition_keys = {"top", "ground", "cellar", "isbuilding", "issphere", "floor",
-                      "chunkx", "chunkz", "range", "inpart", "belowpart", "inbuilding", "inbiome"}
-    if not any(not (condition_keys & set(p)) for p in parts):
-        err(path.name, "no unconditioned part reference; some floor will match nothing and crash generation")
+        return
     for key, lo, hi in (("minfloors", 0, 60), ("maxfloors", 0, 60),
                         ("mincellars", 0, 20), ("maxcellars", 0, 20)):
         if key in data and not (lo <= data[key] <= hi):
             err(path.name, f"{key}={data[key]} outside the {lo}-{hi} window")
+    for ref in parts:
+        if "range" in ref:
+            parse_range(path.name, str(ref["range"]))
+
+    has_fallback = any(not (CONDITION_KEYS & set(p)) for p in parts)
+    if has_fallback:
+        return
+
+    # Without a fallback, every level has to be covered by a condition. That is
+    # only provable when the conditions depend on nothing but the level index.
+    unprovable = {k for p in parts for k in (CONDITION_KEYS - LEVEL_KEYS) & set(p)}
+    if unprovable:
+        err(path.name, "no unconditioned part reference, and coverage cannot be "
+                       f"proven because {sorted(unprovable)} depend on more than the "
+                       "level index; add a fallback entry with no conditions")
+        return
+
+    # maxfloors is a min() and minfloors a max() applied after it, so the highest
+    # level this building can reach is the larger of the two. Same for cellars.
+    top = max(data.get("maxfloors", -1), data.get("minfloors", -1))
+    if top < 0:
+        err(path.name, "no unconditioned part reference, and no 'maxfloors', so the "
+                       "profile decides the height and will eventually roll past "
+                       "whatever the conditions cover")
+        return
+    deepest = max(data.get("maxcellars", 0), data.get("mincellars", 0), 0)
+
+    uncovered = [lvl for lvl in range(-deepest, top + 1)
+                 if not any(matches_level(p, lvl, top) for p in parts)]
+    if uncovered:
+        err(path.name, f"levels {uncovered} match no part. Levels run from "
+                       f"-{deepest} to {top} INCLUSIVE, so 'maxfloors': {top} is a "
+                       f"{top + 1}-storey building. Generation throws "
+                       "'Misconfiguration! Floor were generated for a building "
+                       "where no part condition matches!'")
 
 
 def check_stuff(path: Path, data) -> None:

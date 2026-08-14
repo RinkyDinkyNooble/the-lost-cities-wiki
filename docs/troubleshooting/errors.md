@@ -25,6 +25,7 @@ with the next chunk.
 |---|---|
 | The game | Keeps running. No crash report is written. |
 | That chunk | Is left partially generated. Terrain may be there with the buildings missing. |
+| Its neighbours | Often fail too. See below. |
 | Every other chunk with the same fault | Fails the same way, one log line each |
 | In game | Nothing tells you, beyond the world looking wrong |
 | File to open | `logs/latest.log`. **Not** `crash-reports/`, because none is produced. |
@@ -34,6 +35,40 @@ Verified by running it: a datapack with an empty `bridges` selector produced 184
 
 The same `catch` is present in 7.4.12, 7.5.1, 8.4.1 and 10.0.1, so this applies to
 every version this wiki covers.
+
+!!! danger "One broken building takes its neighbours down with it"
+    A chunk does not only generate itself. To shape terrain at its edges, to lay
+    railways, and to spread debris, it asks the chunks around it for their
+    `BuildingInfo`, and building that info is what evaluates the part conditions.
+    So a building that throws fails **every chunk that looks at it**, not only the
+    chunk it stands in.
+
+    The reach is much larger than one chunk, because those queries chain.
+    `getDesiredMaxHeightL2` calls `getDesiredMaxHeightL1` on a neighbour, which
+    queries its own neighbours in turn.
+
+    Measured on 7.4.12: **3 broken buildings produced 77 failed chunks**, spread
+    over a 13 by 10 chunk area. Two of the three stood 6 chunks apart, and the
+    failures joined into one continuous region.
+
+    The practical consequence when you are diagnosing: **the coordinates in
+    `Error generating chunk x,z` are usually not where your mistake is.** They are
+    where something asked about it. Look for the building the message names, or use
+    the extent of the failed region to find its centre.
+
+!!! note "Which faults spread and which stay put"
+    The split is where in generation the throw happens, and it is worth knowing
+    because it tells you how far to look.
+
+    | Fault | Thrown while | Spreads |
+    |---|---|---|
+    | A level matching no part, an empty selector, a bad `range` | Building the chunk's `BuildingInfo` | **Yes.** Neighbours build that same info. |
+    | An undefined palette character | Placing blocks | **No.** One chunk, one line. |
+    | A `loot` or `mob` name that is not a Condition | The post-generation pass | **No.** One chunk. |
+
+    Measured in the same run: 3 buildings with uncovered levels took out 77 chunks,
+    while a building with a circular palette alias standing 6 chunks away failed
+    exactly 1, its own, and its four neighbours generated normally.
 
 !!! danger "Volume is the real symptom, and the traces run out"
     A single misconfiguration produces one failure per affected chunk, so a short
@@ -87,6 +122,27 @@ The message names the **part**, not the palette, which misleads you when the fau
 | The character is defined in a palette that is not in this building's chain | Add it to the part's `refpalette`, or to the [Style](../reference/style.md)'s palettes. |
 | The character is a `frompalette` alias in a **circular reference** | A cycle resolves to nothing and leaves the character undefined, with no warning at load. See [How aliases resolve](../reference/palette.md#how-aliases-resolve). |
 | The character is a space and your style does not include the `common` palette | `" "` maps to air because `common` defines it, not because the mod special-cases it. |
+
+### `Error getting resource <name>!`
+
+**When:** chunk generation, and for `loot` specifically during the post-generation
+pass, after every block is already placed.
+
+A named asset is not in the mod's registry. The name in the message is exactly what
+you wrote, so the fault is a name that does not exist, a missing namespace, or the
+wrong **kind** of name.
+
+| Cause | Fix |
+|---|---|
+| A palette `loot` or `mob` key holds a loot table or entity ID | Both name a [Condition](../reference/condition.md). Wrap the value in a one-entry Condition and name that instead. This is by far the most common form. |
+| A bare name that resolved into the `minecraft` namespace | See [Namespaces](../getting-started/namespaces.md#the-default-namespace-trap). |
+| A genuine typo in an asset name | Compare against the file name, which is the asset name. |
+
+!!! warning "For `loot`, the symptom does not look like an exception"
+    The loot pass runs after placement, so the blocks are already in the world. What
+    you see is a building whose chests can be opened, are empty, and **render
+    invisible**, because their block entities were never completed. Nothing appears
+    in chat. Confirmed in game on 7.4.12.
 
 ### `Invalid palette entry for '<char>'! Not enough blocks in the random list (factor should go up to 128)`
 

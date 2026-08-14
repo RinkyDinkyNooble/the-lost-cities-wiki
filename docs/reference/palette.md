@@ -28,7 +28,7 @@
 | `frompalette` | | An alias to another character's resolved value. The same bare-name trap applies here, see [Namespaces](../getting-started/namespaces.md#the-default-namespace-trap). |
 | `damaged` | no | The block this character becomes when the building is ruined. Independent of the four keys above. |
 | `mob` | no | **Not a literal mob ID.** The name of a [Condition](condition.md). The mod places a real `mob_spawner` block, and the condition's resolved value becomes the mob it spawns. |
-| `loot` | no | The loot table to use here. The mod rolls it lazily, after the whole chunk finishes placing, and only if the block at that position is still unmodified. If a later part overwrites the position first, the mod skips the loot roll silently. |
+| `loot` | no | **Not a loot table ID.** The name of a [Condition](condition.md), exactly like `mob`. The condition's resolved value is the loot table. See [below](#loot-names-a-condition-not-a-loot-table). |
 | `torch` | no | Boolean. If `true`, the mod queues the block during placement and gives it a real attachment in a later pass, once the chunk exists. It checks the four cardinal neighbours, then straight down, for the first solid block. This is why a torch character never needs `facing=` in its `block` string. |
 | `tag` | no | A raw NBT compound. This is the mechanism behind the command-block palette technique. |
 
@@ -58,6 +58,53 @@ The mod resolves aliases after every concrete entry is in place. It sweeps the p
 
     The message names the part rather than the palette that is actually broken. If you get it for a character you are certain you defined, check whether that character is an alias in a cycle.
 
+## `loot` names a Condition, not a loot table
+
+This is the single easiest key on the page to get wrong, because the obvious thing
+to write looks right and fails hard.
+
+```json
+{ "char": "C", "block": "minecraft:chest", "loot": "chestloot" }
+```
+
+`chestloot` is a [Condition](condition.md). The mod looks the name up in its own
+Condition registry, resolves it against the position being generated, and uses the
+**resolved value** as the loot table. That is what the mod's own shipped palette
+does, and `conditions/chestloot.json` is why a chest deep in a cellar holds
+different loot from one on an upper floor:
+
+```json title="the mod's own conditions/chestloot.json, abridged"
+{
+  "values": [
+    { "factor": 8,  "value": "lostcities:chests/lostcitychest", "range": "4,100" },
+    { "factor": 8,  "value": "lostcities:chests/lostcitychest", "range": "-100,-3" },
+    { "factor": 20, "value": "lostcities:chests/raildungeonchest" }
+  ]
+}
+```
+
+!!! danger "Writing a loot table ID directly fails the chunk"
+    `"loot": "minecraft:chests/simple_dungeon"` is not a slightly wrong value that
+    yields an empty chest. There is no Condition by that name, so the mod throws:
+
+    ```
+    Error getting resource minecraft:chests/simple_dungeon!
+    ```
+
+    The throw happens in the **post-generation pass**, after the blocks are placed,
+    so the visible result is a chunk whose chests exist and can be opened but are
+    empty and render invisible, because their block entities were never finished.
+    Confirmed in game on 7.4.12.
+
+    To use a vanilla loot table, wrap it in a one-line Condition and name that:
+    ```json title="conditions/mychestloot.json"
+    { "values": [ { "factor": 1.0, "value": "minecraft:chests/simple_dungeon" } ] }
+    ```
+
+The mod rolls the loot lazily, after the whole chunk finishes placing, and only if
+the block at that position is still unmodified. If a later part overwrites the
+position first, the mod skips the roll silently.
+
 ## Why a chest generates empty
 
 A `loot` key that looks correct and still produces an empty chest is normal, and there are five separate reasons. They are independent, so ruling one out does not rule out the rest.
@@ -68,9 +115,15 @@ A `loot` key that looks correct and still produces an empty chest is normal, and
 | `buildingWithoutLootChance`, default `0.2`. One building in five is chosen to get neither loot nor spawners, before any chest is considered. | Profile, applied per building |
 | `chestWithoutLootChance`, default `0.2`. Of the chests that survive the above, one in five is still left empty. | Profile, applied per chest |
 | The mod rolls loot **after** the whole chunk finishes placing, and skips the roll if anything overwrote that position first. A floor above, or the ruin pass, can take the chest away. | Generation order |
-| The `loot` value names a loot table that does not exist. | Your JSON |
+| The Condition named by `loot` resolves to a loot table that does not exist. The Condition itself resolved, so nothing throws. | Your JSON |
 
 With both chances at their defaults, a chest in a randomly chosen building has roughly a **64%** chance of being filled, that is 0.8 multiplied by 0.8. Two empty chests in a row is not evidence of a broken palette.
+
+!!! note "An empty chest that is also invisible is a different fault"
+    A chest with no block entity renders as nothing at all, because a chest is drawn
+    by its block entity rather than by a block model. You can still walk into the
+    space and open it. That combination means generation threw before the chunk
+    finished, not that the loot roll came up empty. Check the log.
 
 !!! tip "Testing whether it is your JSON or the dice"
     Set `generateLoot: true`, `buildingWithoutLootChance: 0` and `chestWithoutLootChance: 0` in a test profile. Every eligible chest then fills. If yours is still empty after that, the fault is the loot table name or the overwrite case, not the chances.
