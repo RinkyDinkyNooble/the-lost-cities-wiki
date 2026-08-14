@@ -1,0 +1,15 @@
+{
+  "filler": "#",
+  "rubble": "#",
+  "refpalette": "wt8:test",
+  "minfloors": 2,
+  "maxfloors": 2,
+  "mincellars": 0,
+  "maxcellars": 0,
+  "overrideFloors": true,
+  "parts": [
+    {
+      "part": "wt8:ruinbox"
+    }
+  ]
+}

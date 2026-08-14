@@ -200,6 +200,15 @@ The same rule applies below ground. If cellars generate and no part matches a ne
 !!! tip "`parts2` never crashes"
     Only `parts` has to match. If nothing in `parts2` matches a level, that level simply gets no overlay.
 
+!!! note "`parts2` sits on the same level, it does not stack above it"
+    For each level the mod places the `parts` entry, then places the `parts2` entry
+    **at the same origin** if one matched. So the overlay writes into the space the
+    main part just filled, and anything it sets replaces what is already there.
+    Leave the positions you want kept as air in the overlay part.
+
+    Confirmed in game on 7.4.12: a base part of 1504 blocks with an 8-block overlay
+    generated all 1504 and all 8.
+
 ## Part references
 
 Each entry in `parts` is a part name plus any of **13** optional test keys. They are the same set a [Condition](condition.md) entry uses, so anything valid there is valid here.

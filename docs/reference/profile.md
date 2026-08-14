@@ -267,12 +267,12 @@ Normal and mini explosions are independent settings.
 
 | Key | Default | Range | Meaning |
 |---|---|---|---|
-| `explosionChance` | `0.002` | 0 – 1 | Per-chunk chance of a normal explosion. |
+| `explosionChance` | `0.002` | 0 – 1 | Per-chunk chance of a normal explosion. **Setting this to `0` does not turn explosions off.** `miniExplosionChance` is a separate roll, and its default is 15 times larger. |
 | `explosionMinRadius` | `15` | 1 – 1000 | The smallest blast radius, in blocks, that a normal explosion can roll. |
 | `explosionMaxRadius` | `35` | 1 – 3000 | The largest blast radius, in blocks. The mod rolls a radius between this and the minimum for each explosion. |
 | `explosionMinHeight` | `75` | 1 – 256 | The lowest Y the **centre** of a normal explosion can be placed at. The blast still reaches below it. |
 | `explosionMaxHeight` | `90` | 1 – 256 | The highest Y the centre can be placed at. |
-| `miniExplosionChance` | `0.03` | 0 – 1 | Per-chunk chance of a mini explosion. |
+| `miniExplosionChance` | `0.03` | 0 – 1 | Per-chunk chance of a mini explosion. This is the one that actually fires: at 15 times `explosionChance`, most damage in a default world comes from here. A test profile that wants undamaged buildings has to zero **both**. |
 | `miniExplosionMinRadius` | `5` | 1 – 1000 | The smallest blast radius, in blocks, for a mini explosion. |
 | `miniExplosionMaxRadius` | `12` | 1 – 3000 | The largest blast radius for a mini explosion. |
 | `miniExplosionMinHeight` | `60` | 1 – 256 | The lowest Y a mini explosion centre can be placed at. |

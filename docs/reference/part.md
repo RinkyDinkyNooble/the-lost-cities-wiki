@@ -39,6 +39,17 @@ That is one layer: a hollow 4 by 4 box made of whatever block `α` maps to.
 
     A row one character short pulls the next row's first character into its last slot. It shifts **everything after it in that layer** by one, which looks like a generation bug rather than a typo. If the whole layer ends up shorter than `xsize * zsize`, you get a string index crash during chunk generation instead.
 
+    The lookup is `slices[y].charAt(z * xsize + x)`, so **row breaks in the JSON are formatting only**. A layer is one 256-character sequence, and a wrong length anywhere in it moves every character after that point.
+
+    Confirmed in game on 7.4.12, both directions:
+
+    | Layer total | Result |
+    |---|---|
+    | 257 characters, one row written 17 long | No error. A marker at the extra position **was** placed, one column further on, and the character at index 256 was never read. |
+    | 255 characters, one row written 15 long | The chunk fails with `String index out of range: 255`, which is the last position of a 16 by 16 layer. |
+
+    So too long is silent and too short is loud, and neither is caught by anything at load.
+
     Count in **UTF-16 code units**, not characters. An emoji counts as two. See [Palette: what counts as a valid character](palette.md#what-counts-as-a-valid-character).
 
 !!! warning "A footprint larger than 16 loads, then generates wrong"

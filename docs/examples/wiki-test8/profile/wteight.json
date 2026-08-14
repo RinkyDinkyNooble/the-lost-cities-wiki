@@ -1,0 +1,20 @@
+{
+  "lostcity": {
+    "worldStyle": "wt8:test",
+    "description": "Wiki claim tests 8",
+    "ruinChance": 0.0,
+    "generateLoot": false,
+    "buildingChance": 0.7,
+    "buildingMinFloors": 2,
+    "buildingMaxFloors": 3,
+    "buildingMinCellars": 0,
+    "buildingMaxCellars": 0
+  },
+  "cities": {
+    "cityChance": 0.0
+  },
+  "explosions": {
+    "explosionChance": 0.0,
+    "miniExplosionChance": 0.0
+  }
+}

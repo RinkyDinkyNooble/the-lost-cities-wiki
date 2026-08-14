@@ -1,0 +1,71 @@
+{
+  "dimension": "lostcities:lostcity",
+  "chunkx": 8,
+  "chunkz": 8,
+  "radius": 8,
+  "citystyle": "wt8:test",
+  "buildings": [
+    {
+      "building": "wt8:ruinbox",
+      "chunkx": 0,
+      "chunkz": 0
+    },
+    {
+      "building": "wt8:ruinbox",
+      "chunkx": 2,
+      "chunkz": 0,
+      "preventruins": true
+    },
+    {
+      "building": "wt8:damagebox",
+      "chunkx": 4,
+      "chunkz": 0
+    },
+    {
+      "building": "wt8:rubblebox",
+      "chunkx": 6,
+      "chunkz": 0
+    },
+    {
+      "building": "wt8:smear",
+      "chunkx": 0,
+      "chunkz": 2
+    },
+    {
+      "building": "wt8:shortrow",
+      "chunkx": 2,
+      "chunkz": 2
+    },
+    {
+      "building": "wt8:parts2test",
+      "chunkx": 4,
+      "chunkz": 2
+    }
+  ],
+  "streets": [
+    {
+      "chunkx": 1,
+      "chunkz": 0
+    },
+    {
+      "chunkx": 3,
+      "chunkz": 0
+    },
+    {
+      "chunkx": 5,
+      "chunkz": 0
+    },
+    {
+      "chunkx": 1,
+      "chunkz": 2
+    },
+    {
+      "chunkx": 3,
+      "chunkz": 2
+    },
+    {
+      "chunkx": 5,
+      "chunkz": 2
+    }
+  ]
+}

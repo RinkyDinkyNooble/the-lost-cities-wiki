@@ -609,6 +609,38 @@ calls `getPart()`, and this measures the consequence without relying on that
 reading: under the documented behaviour the two levels differ, under the real
 behaviour they do not, and neither outcome fails a chunk.
 
+## Ruins, damage and row length
+
+`docs/examples/wiki-test8/` covers what makes a lost city look lost, plus the two
+silent failures nothing had exercised. It runs twice, once with `ruinChance: 0` and
+once with `ruinChance: 1.0`, from the same pack.
+
+| Claim | Result |
+|---|---|
+| `preventruins` protects a pinned building | **Confirmed.** The same asset pinned twice under `ruinChance: 1.0`: 1767 wall blocks left on the unprotected copy, 2224 on the protected one. |
+| `rubble` is used by the ruin pass | **Confirmed.** A building whose `rubble` was set to an otherwise unused character produced 40 of it once ruins were on, and none with ruins off. |
+| `parts2` is an overlay on the same level | **Confirmed.** Base part 1504 blocks, overlay 8 blocks, both present. |
+| A layer longer than `xsize * zsize` is silent | **Confirmed.** A 17-character row placed its marker one column along, and the character past position 255 was never read. No message. |
+| A layer shorter than that fails the chunk | **Confirmed.** `String index out of range: 255`. |
+| `damaged` swaps the block when a building is ruined | **Overstated.** See below. |
+
+### Two things worth knowing before you test anything with explosions
+
+**`explosionChance: 0` does not turn explosions off.** `miniExplosionChance` is a
+separate roll and its default, `0.03`, is fifteen times larger. A profile that
+zeroes only the first still gets damaged buildings, which is exactly what made
+earlier runs hard to read.
+
+**`damaged` covers a thin band, not the ruin.** On a three-storey building made
+entirely of one character mapped `iron_block` to `cobweb`, with `ruinChance: 1.0`
+and explosions off: 587 iron left standing, and **2** cobwebs. A control chunk with
+no iron in it held **5** cobwebs from ordinary decoration.
+
+The control is the point. Without it the decoration reads as the result, and the
+number moves in the direction you were hoping for. The swap is applied where the
+generator lays rubble, and the rest of a ruined building is removed rather than
+converted. [Palette](../reference/palette.md#damaged-covers-less-than-it-sounds-like).
+
 ## Recording a result
 
 A test that runs and disagrees with the wiki is the most valuable outcome here, not

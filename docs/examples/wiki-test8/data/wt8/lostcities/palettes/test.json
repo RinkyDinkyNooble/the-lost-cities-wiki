@@ -1,0 +1,41 @@
+{
+  "palette": [
+    {
+      "char": "_",
+      "block": "minecraft:air"
+    },
+    {
+      "char": "#",
+      "block": "minecraft:white_concrete"
+    },
+    {
+      "char": "S",
+      "block": "minecraft:stone"
+    },
+    {
+      "char": "L",
+      "block": "minecraft:lapis_block"
+    },
+    {
+      "char": "G",
+      "block": "minecraft:gold_block"
+    },
+    {
+      "char": "D",
+      "block": "minecraft:diamond_block"
+    },
+    {
+      "char": "Z",
+      "block": "minecraft:gray_concrete"
+    },
+    {
+      "char": "x",
+      "block": "minecraft:iron_block",
+      "damaged": "minecraft:cobweb"
+    },
+    {
+      "char": "v",
+      "block": "minecraft:sponge"
+    }
+  ]
+}

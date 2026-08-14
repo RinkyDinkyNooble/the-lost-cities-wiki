@@ -196,6 +196,24 @@ wrong **kind** of name.
     invisible**, because their block entities were never completed. Nothing appears
     in chat. Confirmed in game on 7.4.12.
 
+### `String index out of range: <n>`
+
+**When:** chunk generation, from a plain Java `StringIndexOutOfBoundsException`
+rather than a message the mod wrote.
+
+A [Part](../reference/part.md)'s layer holds fewer than `xsize * zsize`
+characters. The mod joins a layer's rows into one string and reads
+`charAt(z * xsize + x)`, so the generator eventually asks for a position that is
+not there.
+
+`n` is the position it wanted, and for a normal 16 by 16 part the number is
+**255**, the last one. That number tells you nothing about which row is wrong.
+Count the characters in every row of the part, and remember that a row two short
+and another one long cancel out in the total while still smearing the layer.
+
+Too **many** characters produces no message at all. See
+[A wrong row length produces a diagonal smear](../reference/part.md#the-shape-of-slices).
+
 ### `Bad landscape type: <name>!`
 
 **When:** mod construction, before the server or the world exists.
