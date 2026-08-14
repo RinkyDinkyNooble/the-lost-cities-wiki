@@ -37,6 +37,9 @@ public class Config {
     /** Repair 3.2. Makes the 'full' street shape reachable. */
     public final ForgeConfigSpec.BooleanValue fixFullStreetShape;
 
+    /** Repair 4.1. Keeps the Cities button anchored after a resize. Client only. */
+    public final ForgeConfigSpec.BooleanValue anchorCitiesButton;
+
     static {
         Pair<Config, ForgeConfigSpec> pair =
                 new ForgeConfigSpec.Builder().configure(Config::new);
@@ -170,6 +173,20 @@ public class Config {
                         "streetblocks.parts.full will start using whatever it inherits for",
                         "that shape.")
                 .define("fixFullStreetShape", false);
+
+        anchorCitiesButton = builder
+                .comment("Keep the Cities button anchored to the right edge on resize.",
+                        "",
+                        "The button is built at width - 100, correct for the width it was",
+                        "built with, and never recomputed. After a resize it keeps the old",
+                        "coordinate and lands over the middle of the screen, on top of the",
+                        "vanilla buttons. The preview image beside it is drawn from the",
+                        "current width every frame, so the picture moves and the button does",
+                        "not.",
+                        "",
+                        "Client only, and it changes nothing about generation, so unlike the",
+                        "other repairs this one defaults to on.")
+                .define("anchorCitiesButton", true);
 
         builder.pop();
     }

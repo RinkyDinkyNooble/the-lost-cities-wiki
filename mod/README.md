@@ -206,6 +206,22 @@ Verified on the same seed and the same chunk, with the toggle as the only change
 
 ## Commands
 
+### `/lcdev report block <block id>`
+
+The reverse lookup: which palette characters produce this block, here.
+
+```
+characters mapping to minecraft:gold_block in chunk 10,8
+'G'  U+0047: always
+'y'  U+0079: one of 3 in a weighted list
+```
+
+Reading a palette forwards answers "what is this character". Standing in front of a
+block and asking which character placed it is the question an author actually has,
+and no forward reading answers it, because the merged palette is assembled in memory
+from up to three sources. More than one character can map to the same block, and a
+weighted list can hold it among others, so every match is reported.
+
 ### `/lcdev report [character]`
 
 Reports what the generator decided for the chunk the caller is standing in, and
@@ -248,9 +264,22 @@ check: the part's palette, then the building's, then the style's, and whether it
 is a frompalette alias in a cycle
 ```
 
-The mod ships `/lostcities debug`, which covers some of the same ground and writes
-only to the server console, so on a dedicated server the person asking cannot read
-the answer. This writes to the caller.
+### How this differs from the mod's own commands
+
+| Command | Needs `editMode` | Output | Answers |
+|---|---|---|---|
+| `/lostcities debug` | no | server console only | The generator's decisions for a chunk: profile, building, floor and cellar counts, city level, street type, ruin height, highway and rail data |
+| `/lostcities listparts` | **yes** | chat | Which parts exist in the editor session |
+| `/lostcities locatepart` | **yes** | chat | Where a named part was placed |
+| `/lcdev report` | no | chat | The above, plus the part chosen for **each level**, plus what a character resolves to after the palette merge, plus the reverse lookup |
+
+Two practical differences. `listparts` and `locatepart` need a world created with
+`editMode: true`, so they are unavailable in any world not set up for the editor,
+including one that is merely misbehaving. And `debug` writes to the server console,
+so on a dedicated server the person asking cannot read the answer.
+
+What no existing command reports at all is the part chosen per level, and the merged
+palette. Those are the two things assembled in memory and written nowhere.
 
 If the chunk itself cannot be described, because its selection stage is what throws,
 the command says that too. It is the answer to the question.

@@ -72,7 +72,7 @@ Each changes what generates, so each is opt-in and separately switchable.
 
 | # | Feature | Notes |
 |---|---|---|
-| 4.1 | **Re-anchor the Cities button on resize** | It keeps its old position when the window grows instead of staying anchored top right. |
+| 4.1 | **Done.** **Re-anchor the Cities button on resize** | It keeps its old position when the window grows instead of staying anchored top right. |
 | 4.2 | **Right-click cycles profiles backwards** | Left-click already cycles forward. |
 | 4.3 | **Show non-selectable profiles** | A profile whose name contains a digit, uppercase letter, hyphen or dot loads and wires up correctly but is never offered on the world creation screen. Either list it or say why it is hidden. |
 
