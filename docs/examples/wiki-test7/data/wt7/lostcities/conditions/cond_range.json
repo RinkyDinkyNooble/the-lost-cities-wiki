@@ -1,0 +1,14 @@
+{
+  "values": [
+    {
+      "factor": 1.0,
+      "value": "minecraft:chests/desert_pyramid",
+      "range": "0,0"
+    },
+    {
+      "factor": 1.0,
+      "value": "minecraft:chests/jungle_temple",
+      "range": "1,100"
+    }
+  ]
+}

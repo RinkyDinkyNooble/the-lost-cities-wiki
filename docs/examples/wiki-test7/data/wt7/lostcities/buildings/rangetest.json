@@ -1,0 +1,20 @@
+{
+  "filler": "#",
+  "rubble": "#",
+  "refpalette": "wt7:test",
+  "minfloors": 6,
+  "maxfloors": 6,
+  "mincellars": 0,
+  "maxcellars": 0,
+  "overrideFloors": true,
+  "parts": [
+    {
+      "part": "wt7:rt_gold",
+      "range": "0,2,9"
+    },
+    {
+      "part": "wt7:rt_diamond",
+      "range": "3,6"
+    }
+  ]
+}

@@ -590,6 +590,25 @@ And a third, before any world existed: `landscapeType: "SPACE"` fails mod
 construction with `Bad landscape type: SPACE!` and the server never starts. The six
 values are lowercase. The uppercase spelling is the enum constant, not the value.
 
+## What the automated pack settled
+
+`docs/examples/wiki-test7/` is the same grid with four more probes and the torch
+test repaired. **28 of 28 pass**, and the only failing chunk in the world is the
+deliberate one.
+
+| Claim | Result |
+|---|---|
+| `torch: true` works once `generateLighting` is on | **Confirmed.** With the key set and the entry written as `wall_torch[facing=north]`, torches generate: floor torches where a block is below, wall torches where none is. |
+| `belowpart` reads the current part, not the one below | **Confirmed in a world.** Two levels, first entry gated `belowpart: "<none>"`, second gated on the part below it. Result: gold on **both** levels and **no diamond**, which only happens if the test never sees the part underneath. |
+| `inpart` works in a Condition reached from a palette | **Confirmed.** The chest's `LootTable` came out as the table on the `inpart`-gated entry, so the real part name does reach a Condition on that path. |
+| `range` works there too, and counts storeys | **Confirmed.** `"0,0"` gave one table on the ground floor and `"1,100"` gave the other two storeys up. This is the mechanism behind the mod's own `chestloot`. |
+| `allowDoors: false` leaves the wall intact | **Confirmed, and measured.** The same three-storey part placed **2240** wall blocks with doors allowed and **2256** with `allowDoors: false`. |
+
+The `belowpart` result is the useful one. Reading the code showed the predicate
+calls `getPart()`, and this measures the consequence without relying on that
+reading: under the documented behaviour the two levels differ, under the real
+behaviour they do not, and neither outcome fails a chunk.
+
 ## Recording a result
 
 A test that runs and disagrees with the wiki is the most valuable outcome here, not

@@ -1,0 +1,23 @@
+{
+  "lostcity": {
+    "worldStyle": "wt7:test",
+    "description": "Wiki claim tests 7",
+    "ruinChance": 0.0,
+    "generateLoot": true,
+    "generateSpawners": true,
+    "generateLighting": true,
+    "buildingWithoutLootChance": 0.0,
+    "chestWithoutLootChance": 0.0,
+    "buildingChance": 0.7,
+    "buildingMinFloors": 2,
+    "buildingMaxFloors": 3,
+    "buildingMinCellars": 0,
+    "buildingMaxCellars": 0
+  },
+  "cities": {
+    "cityChance": 0.0
+  },
+  "explosions": {
+    "explosionChance": 0.0
+  }
+}

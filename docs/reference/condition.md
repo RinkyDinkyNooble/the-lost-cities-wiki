@@ -63,10 +63,12 @@ An entry with no test keys always matches. That is the standard way to write a f
     declare the key at all, which is the only release where writing it is an error
     rather than a silent no-op.
 
-    Confirmed in game on 7.4.12: a three-part chain, each floor selected by the part
-    beneath it, failed every chunk with
-    `Misconfiguration! Floor were generated for a building where no part condition
-    matches!`.
+    Confirmed in game on 7.4.12, twice. A three-part chain selected by what sits
+    beneath each floor failed every chunk. A second, non-failing probe then measured
+    the difference directly: a two-level building whose first entry is gated
+    `belowpart: "<none>"` and whose second is gated on the part below it came out
+    **gold on both levels with no diamond at all**, which is only possible if
+    `belowpart` is reading the current part.
 
 There is a second, separate problem, and it applies to `inpart` too.
 
@@ -87,7 +89,14 @@ Use `floor`, `range`, `ground` and `top` to select parts by height. They are the
 only level tests that work in a building.
 
 `inpart` is genuinely useful in a Condition reached from a palette, which is where
-the mod's own content uses this family of keys.
+the mod's own content uses this family of keys. Confirmed in game on 7.4.12: a
+palette `loot` key pointing at a Condition whose only matching entry was gated
+`inpart` resolved to that entry's table, so the real part name does reach it.
+
+`range` works there too, and indexes by storey. A Condition with `range: "0,0"` and
+`range: "1,100"` gave one loot table on the ground floor and the other two storeys
+up. That is the mechanism behind the mod's own `chestloot`, which uses `"4,100"` and
+`"-100,-3"` to give cellars different loot from upper floors.
 
 ## Writing `range`
 

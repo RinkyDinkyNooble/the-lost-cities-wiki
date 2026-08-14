@@ -18,7 +18,7 @@
 | `palette` | no | | An embedded palette, used instead of `refpalette`. |
 | `minfloors` / `maxfloors` | no | `-1` | Bounds on the number of floors above ground. By default these only narrow the count the profile already chose. They do not replace it. See [Floor counts](#how-floor-and-cellar-counts-are-decided). |
 | `mincellars` / `maxcellars` | no | `-1` | The same, for levels below ground. |
-| `allowDoors` | no | `true` | If `true`, the mod generates doorways to adjacent city chunks on this building's floors. If `false`, the building is sealed and has no side connections. The top floor never gets doors either way. |
+| `allowDoors` | no | `true` | If `true`, the mod cuts doorways through this building's walls to adjacent city chunks. If `false`, the walls are left exactly as the part draws them and the building is sealed. The top floor never gets doors either way. Measured on 7.4.12: the same three-storey part placed 2240 wall blocks with doors allowed and 2256 with `allowDoors: false`. |
 | `allowFillers` | no | `true` | If `true`, the mod generates the filler skirt around a building **that has cellars**. If `false`, it does not. On a building with no cellars this key changes nothing. See [Filler](#filler-what-it-is-and-why-it-is-required). |
 | `overrideFloors` | no | `false` | If `false`, this building's floor bounds clamp the profile's count. If `true`, they replace it. See [Floor counts](#how-floor-and-cellar-counts-are-decided). |
 | `preferslonely` | no | `0` | The chance, from 0 to 1, that this building type suppresses a building in each neighbouring chunk. `0` disables it. See [preferslonely](#preferslonely). |

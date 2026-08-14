@@ -1,0 +1,14 @@
+{
+  "values": [
+    {
+      "factor": 1.0,
+      "value": "minecraft:chests/buried_treasure",
+      "inpart": "wt7:lootcond"
+    },
+    {
+      "factor": 1.0,
+      "value": "minecraft:chests/igloo_chest",
+      "inpart": "wt7:nope"
+    }
+  ]
+}
