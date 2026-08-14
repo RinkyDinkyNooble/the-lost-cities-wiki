@@ -3,6 +3,7 @@ package com.rinkynooble.lostcitiesdevtool.validate;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.rinkynooble.lostcitiesdevtool.Config;
+import com.rinkynooble.lostcitiesdevtool.json5.Json5;
 import com.rinkynooble.lostcitiesdevtool.LostCitiesDevTool;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
@@ -61,7 +62,12 @@ public class ValidationListener extends SimplePreparableReloadListener<List<Find
         }
         JsonObject json;
         try {
-            json = JsonParser.parseString(raw).getAsJsonObject();
+            // Parse the relaxed form, since that is what the loader will see. Blanking
+            // preserves offsets, so a line number found here still matches the file on
+            // disk, comments and all.
+            String forParsing = Config.INSTANCE.acceptCommentsAndTrailingCommas.get()
+                    ? Json5.sanitise(raw) : raw;
+            json = JsonParser.parseString(forParsing).getAsJsonObject();
         } catch (Exception e) {
             // The registry loader reports this too, but without saying which rule of
             // JSON was broken in a way an author can act on.

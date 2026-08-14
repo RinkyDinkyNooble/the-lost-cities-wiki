@@ -50,7 +50,7 @@ No behaviour. Everything else depends on it.
 
 | # | Feature | Notes |
 |---|---|---|
-| 2.1 | **JSON5 for Lost Cities assets** | Comments and trailing commas in `data/<ns>/lostcities/**`. **Scoped by path**, not global: no other mod's or Minecraft's own JSON is touched. |
+| 2.1 | **JSON5 for Lost Cities assets** | **Done.** Comments and trailing commas in `data/<ns>/lostcities/**`. **Scoped by path**, not global: no other mod's or Minecraft's own JSON is touched. |
 
 Asset export was considered and dropped. Writing a merged city style or a resolved
 palette to disk is easy, but nothing consumes the result: the mod reads assets, not

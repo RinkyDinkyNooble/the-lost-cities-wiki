@@ -130,6 +130,40 @@ and `top: false` cover every level at any height, which is what the mod's own co
 does, so where bounds are absent the check tests every height the profile could roll
 rather than demanding a declaration.
 
+### `acceptCommentsAndTrailingCommas`
+
+Lost Cities asset files may carry comments and trailing commas:
+
+```json
+// the marker tower at the city centre
+/* pinned at relative 0,0 so it lands on the city's own chunk */
+{
+  "filler": "#",
+  "parts": [
+    { "part": "wt7:origin" },
+  ],
+}
+```
+
+Without this, the same file stops the server starting with
+`MalformedJsonException: Expected name at line 17 column 2`.
+
+This is a **subset of JSON5**, not the whole of it. Unquoted keys and single quotes
+are not accepted, because they change what a valid file looks like without solving a
+problem an author has.
+
+**Scoped by path.** Only files under `data/<namespace>/lostcities/` are affected. The
+hook is the one place where a datapack registry's files are listed together with the
+location each came from, so Lost Cities assets can be told apart from everything
+else. No other mod's files, and none of Minecraft's own, are touched.
+
+Comments and trailing commas are replaced with spaces rather than deleted, so every
+remaining character keeps its original offset. Line numbers reported by the asset
+check, and by any parse error, still point at the right line of the file as written.
+
+!!! note
+    A pack that uses comments will not load for anyone without this mod.
+
 ## Commands
 
 ### `/lcdev report [character]`

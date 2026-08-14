@@ -26,6 +26,9 @@ public class Config {
     /** Feature 1.4. Check every asset file when datapacks load. */
     public final ForgeConfigSpec.BooleanValue validateOnLoad;
 
+    /** Feature 2.1. Comments and trailing commas in Lost Cities asset files. */
+    public final ForgeConfigSpec.BooleanValue acceptCommentsAndTrailingCommas;
+
     static {
         Pair<Config, ForgeConfigSpec> pair =
                 new ForgeConfigSpec.Builder().configure(Config::new);
@@ -96,6 +99,24 @@ public class Config {
                         "",
                         "Reports only. Nothing is prevented from loading.")
                 .define("validateOnLoad", true);
+
+        acceptCommentsAndTrailingCommas = builder
+                .comment("Accept comments and trailing commas in Lost Cities asset files.",
+                        "",
+                        "Both are rejected by strict JSON with a message that names an",
+                        "offset rather than a cause, and both are what a hand-written asset",
+                        "file wants. This is a subset of JSON5: unquoted keys and single",
+                        "quotes are not accepted, because they change what a valid file looks",
+                        "like without solving a problem an author has.",
+                        "",
+                        "Scoped by path. Only files under data/<namespace>/lostcities/ are",
+                        "affected. No other mod's files, and none of Minecraft's own, are",
+                        "touched.",
+                        "",
+                        "A file written with comments will not load for anyone who does not",
+                        "have this mod. Keep that in mind before shipping a pack that uses",
+                        "them.")
+                .define("acceptCommentsAndTrailingCommas", true);
 
         builder.pop();
 

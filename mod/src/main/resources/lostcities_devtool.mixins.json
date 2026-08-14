@@ -9,6 +9,7 @@
   },
   "mixins": [
     "BuildingInfoMixin",
+    "FileToIdConverterMixin",
     "LostCityFeatureMixin",
     "LostCitySphereFeatureMixin"
   ],
