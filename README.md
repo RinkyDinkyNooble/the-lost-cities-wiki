@@ -32,7 +32,7 @@ Testing has corrected several pages here and turned up two mod bugs. Those are o
 | Target | State |
 |---|---|
 | Lost Cities **7.4.12**, Minecraft 1.20.1, Forge | Primary. Read from the mod and run in a world. |
-| **7.5.1**, Minecraft 1.20.1, Forge | In progress. Read from the mod, not yet run in a world. |
+| **7.5.1**, Minecraft 1.20.1, Forge | Read from the mod and run in a world. The 7.4.12 claim-test pack passes unchanged on it. |
 | 8.x, 9.x, 10.x on NeoForge | In progress. Key and default differences are mapped; behaviour is not yet tested. |
 | Before 5.3.29 | Out of scope. Those versions load content from inside the jar rather than from datapacks. |
 
@@ -44,7 +44,7 @@ The [Versions](https://rinkydinkynooble.github.io/the-lost-cities-wiki/versions/
 |---|---|
 | `docs/` | The wiki, built with MkDocs Material |
 | `docs/examples/first-city/` | A complete example datapack that loads as it is |
-| `docs/examples/wiki-test6/` | A claim-test pack, pinned to fixed coordinates |
+| `docs/examples/wiki-test7/` | A claim-test pack, pinned to fixed coordinates |
 | `docs/examples/validate.py` | Checks a datapack against the rules the wiki documents |
 | `docs/examples/mod-keys.json` | The mod's real codec and profile keys, extracted from the jars |
 | `STYLE.md` | Writing rules |
@@ -87,7 +87,7 @@ Together they stop the docs, the example, and the mod's real schema from driftin
 
 ## Testing claims in a world
 
-`docs/examples/wiki-test6/` is a datapack whose only job is to be checked. A predefined city pins it to fixed chunk coordinates, so every test has a block address rather than needing to be found.
+`docs/examples/wiki-test7/` is a datapack whose only job is to be checked. A predefined city pins it to fixed chunk coordinates, so every test has a block address rather than needing to be found.
 
 It also runs unattended on a headless Forge server: force load the grid, then read the result back over RCON, using a filtered `/clone` to count blocks. Setup and the probe list are on [Claim Tests](https://rinkydinkynooble.github.io/the-lost-cities-wiki/examples/claim-tests/).
 

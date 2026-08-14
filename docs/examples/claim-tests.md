@@ -641,6 +641,43 @@ number moves in the direction you were hoping for. The swap is applied where the
 generator lays rubble, and the rest of a ruined building is removed rather than
 converted. [Palette](../reference/palette.md#damaged-covers-less-than-it-sounds-like).
 
+## The same pack on 7.5.1
+
+`wiki-test7` was written for 7.4.12. Run unchanged against **7.5.1** on the same
+Minecraft version and the same Forge, it gives **28 of 28** again, and the only
+failing chunk is still the deliberate one.
+
+Every claim on this page that was established on 7.4.12 therefore holds on 7.5.1:
+the palette merge order, the 128-slot cutoff, `loot` and `mob` resolving through a
+Condition, `range` counting storeys, stair shape recalculation, the torch gate,
+`tag`, character truncation, and the `belowpart` bug.
+
+That is worth stating plainly, because 7.5.0 changed generation noticeably. **It
+changed where cities put things, not what a datapack means.**
+
+### What did move
+
+Four counts differ, all of them wall totals, and all for the same reason:
+
+| Probe | 7.4.12 | 7.5.1 |
+|---|---|---|
+| `origin-tower` | 3760 | 3744 |
+| `char-truncate` | 708 | 720 |
+| `doors-on` | 2240 | 2256 |
+| `doors-off` | 2256 | 2256 |
+
+A doorway is 16 blocks, and every difference here is a multiple of 16. The mod cuts
+doorways toward **adjacent city chunks**, so which walls get opened depends on what
+the neighbours turned out to be. The 7.5 road planner claims chunks before
+`buildingchance` is rolled, so the neighbours are not the same even with the
+buildings pinned to identical coordinates.
+
+Nothing about the buildings changed. The holes in them moved.
+
+!!! tip "If you are comparing versions, count something the neighbours cannot reach"
+    An interior block, or a block entity, gives the same number on both. A wall
+    total does not, and the difference is easy to misread as a generation change.
+
 ## Recording a result
 
 A test that runs and disagrees with the wiki is the most valuable outcome here, not

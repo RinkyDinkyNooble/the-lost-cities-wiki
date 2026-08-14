@@ -19,12 +19,14 @@ Anyone building a custom city for their own modpack or server. You do not need J
 
 Pages are written against Lost Cities **7.4.12** for **Minecraft 1.20.1** on Forge, and most claims were read out of that version's own code and shipped content. A growing number have also been run in a world, and those are listed on [Claim Tests](examples/claim-tests.md).
 
-Other versions are **in progress**. Their keys, defaults and bounds are mapped, but their behaviour has not been tested the same way, so treat anything version-specific outside 7.4.12 as unconfirmed until a page says otherwise.
+The claim-test pack written for 7.4.12 also passes unchanged on **7.5.1**, so the two share the same datapack behaviour even though 7.5 changed where cities put things.
+
+The NeoForge line is **in progress**. Its keys, defaults and bounds are mapped, but its behaviour has not been tested the same way, so treat anything version-specific there as unconfirmed until a page says otherwise.
 
 | Target | State |
 |---|---|
 | 7.4.12, Minecraft 1.20.1, Forge | Primary. Read from the mod and run in a world. |
-| 7.5.1, Minecraft 1.20.1, Forge | In progress. Read from the mod. |
+| 7.5.1, Minecraft 1.20.1, Forge | Read from the mod and run in a world. |
 | 8.x, 9.x, 10.x, NeoForge | In progress. Keys and defaults mapped. |
 | Before 5.3.29 | Out of scope. Content lives inside the jar, not in datapacks. |
 
