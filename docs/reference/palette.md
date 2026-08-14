@@ -78,14 +78,26 @@ same way, which is why the shipped buildings are unlit under a default profile.
 { "lostcity": { "generateLighting": true } }
 ```
 
-!!! warning "The attachment pass ignores your `block` value"
-    When it does run, the pass places `minecraft:torch` or `minecraft:wall_torch`
-    and nothing else. It looks straight down first, then at the cardinal
-    neighbours, and picks whichever the first solid block supports.
+Write the entry the way the mod's own `common` palette does, with a real wall
+torch and a facing:
 
-    That means `torch: true` cannot give you a lantern, a soul torch, or a modded
-    light. Those need a plain `block` entry with no `torch` key, and then you keep
-    whatever `facing=` you wrote, with no attachment checking.
+```json
+{ "char": "T", "block": "minecraft:wall_torch[facing=north]", "torch": true }
+```
+
+That block is what gets placed during the main pass. The later pass then replaces
+it with a vanilla torch pointing the right way, so the `facing=` you write is a
+starting state rather than the final answer.
+
+!!! warning "The attachment pass always lands on a vanilla torch"
+    It looks straight down first: a solid block below gives `minecraft:torch`, and
+    otherwise it checks the cardinal neighbours and gives `minecraft:wall_torch`
+    with the matching facing. Either way the block is one of those two.
+
+    So `torch: true` cannot give you a lantern, a soul torch, or a modded light.
+    Those need a plain `block` entry with **no** `torch` key, and then you keep
+    whatever `facing=` you wrote, with no attachment checking and no
+    `generateLighting` gate.
 
     Confirmed in game on 7.4.12: with `generateLighting` at its default, a part
     placing two torch characters produced no torch anywhere, and no log line.
