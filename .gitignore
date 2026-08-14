@@ -4,3 +4,6 @@ site/
 __pycache__/
 *.pyc
 .claude/
+
+# The Lost Cities jar is compile-only. It is not ours to redistribute.
+mod/libs/
