@@ -1,7 +1,7 @@
 # How a Chunk Becomes a City
 
 !!! info "You do not need this page to build a custom city"
-    Everything required to author content lives in [Reference](../reference/profile.md) and [Concepts](../concepts/matchers.md). This section explains *why* the generator behaves the way it does, for readers who want the mental model behind the keys they are already setting, or who are debugging something that does not look right.
+    Everything required to author content lives in [Reference](../reference/profile.md) and [Concepts](../concepts/matchers.md). This section explains *why* the generator behaves the way it does. It is background for the keys documented elsewhere, and a starting point when a world does not look the way the settings say it should.
 
 !!! tip "TL;DR"
     Every chunk's city/building decision is made once, the first time that chunk generates, from the world seed and chunk coordinates. It is cached for that chunk forever after. Changing a profile or city style has zero effect on chunks that already exist, only on chunks generated from then on.
@@ -10,7 +10,7 @@
 
 Minecraft only ever asks a chunk generator to generate a given chunk once. Everything on this page, is-it-a-city, which building, how many floors, which city style, happens exactly once for that chunk and gets written into the actual placed blocks. Editing your profile or city style JSON afterward changes nothing about chunks that were already generated, only chunks generated after the change see it.
 
-This is the actual explanation behind "I changed a setting and nothing happened": the setting works, but the chunks you are looking at already existed before you changed it. Testing a change properly means generating into brand-new terrain, or using a tool that force-regenerates specific chunks.
+This is why a changed setting appears to do nothing. The setting works, and the chunks being looked at were written to disk before it changed. Testing a change means generating into new terrain, or force-regenerating the chunks.
 
 ## Two ways a chunk becomes part of a city
 
@@ -24,7 +24,7 @@ Controlled by the sign of a profile's `cityChance` (see [Profile Reference](../r
 
 === "Continuous noise (cityChance = -1)"
 
-    No discrete centers or radius at all. A 4-octave Perlin noise key, shaped by `cityPerlinScale`/`cityPerlinOffset`/`cityPerlinInnerScale`, covers the whole map, and `cityThreshold` gates it the same way. The result reads as organic, uneven city coverage instead of clean circles, useful for a wasteland/sprawl theme where "the whole region is basically city, with pockets that are not" is the goal rather than distinct, separated cities.
+    No discrete centers or radius at all. A 4-octave Perlin noise key, shaped by `cityPerlinScale`/`cityPerlinOffset`/`cityPerlinInnerScale`, covers the whole map, and `cityThreshold` gates it the same way. The result reads as organic, uneven city coverage instead of clean circles, useful for a wasteland or sprawl theme, where the goal is a region that is mostly city with pockets that are not, rather than distinct separated cities.
 
 Either mode, being near spawn can also scale the effective city factor down via `citySpawnDistance1`/`2` and `citySpawnMultiplier1`/`2`, e.g. to keep the immediate spawn area less city-dense.
 
@@ -44,7 +44,7 @@ Relevant to the `space`, `spheres` and `cavernspheres` [landscape types](../refe
 
 The grid test is a bitmask on the chunk coordinate. By default a chunk is a candidate when both `chunkX & 15` and `chunkZ & 15` equal 8, which is one candidate every 16 chunks, offset to the middle of each block of 16. With `grid32` the mask becomes 31, giving one every 32 chunks. The offset of 8 is why candidates sit mid-grid rather than on the corners. Overlapping spheres resolve by disabling the smaller one. A [Predefined Sphere](../reference/predefined.md) always wins over a randomly-generated one at the same spot.
 
-**Monorails need agreement from both sides**: each sphere independently rolls, per direction, whether it wants a monorail connection that way. A line only actually generates between two spheres if **both** rolled true facing each other. Setting `monorailChance: 1.0` does not mean every possible connection appears, it means every sphere always wants one, which is different from every pair of neighbours agreeing (it does mean every geometrically possible connection appears, since both sides are guaranteed to roll true, but it is worth knowing the check is per-pair, not global).
+**Monorails need agreement from both sides**: each sphere independently rolls, per direction, whether it wants a monorail connection that way. A line only actually generates between two spheres if **both** rolled true facing each other. Setting `monorailChance: 1.0` means every sphere always wants one, which is not the same as every pair agreeing. At `1.0` both sides do roll true, so every geometrically possible connection appears, but the check remains per-pair rather than global.
 
 ## Highways
 

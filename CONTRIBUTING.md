@@ -63,13 +63,18 @@ deliberately plain register, so a correct change written in a different voice st
 needs rewriting before it can be merged. Sending the fact and letting a maintainer
 word it is completely fine.
 
-Two rules that catch people:
+Four rules that catch most first drafts:
 
 - **No em dashes.** Use a full stop, a colon, or brackets.
 - **Say what a value does, not what a key is called.** A table cell that only names
   the topic is treated as a defect. `avoidWater` is not "replace water with air", it
   is "if `true`, any liquid a part places becomes air instead, and water already in
   the world is not affected".
+- **Write about the mod, not about the work.** No `I` or `we`, and no account of how
+  a fact was found. "`belowpart` tests the current part. Confirmed on 7.4.12" rather
+  than "a test was run and it turned out to be broken".
+- **No roadmap.** Nothing about what is planned, being built, or coming soon. If a
+  page covers less than its title suggests, state the scope.
 
 ## Testing a claim in a world
 

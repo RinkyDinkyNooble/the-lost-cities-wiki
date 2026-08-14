@@ -4,13 +4,12 @@ status: in-progress
 
 # Known Issues & Workarounds
 
-!!! info "This page grows as issues are traced"
-    Each entry below is a behaviour traced to its cause in the 7.4.12 source, with a workaround that works today. More will be added as they are confirmed. If something looks like a bug but is not listed, it may not be traced yet.
+Each entry is a behaviour traced to its cause in the 7.4.12 source, with a workaround that needs nothing but JSON. An absence from this page means the behaviour has not been traced, not that it is correct.
 
 Two kinds of thing live here:
 
 - **Genuine oddities** in how the mod behaves, where the fix is a workaround rather than a setting.
-- **Things that look like bugs but are working as designed**, which are worth knowing so you stop trying to fix them.
+- **Things that look like bugs but are working as designed**, listed so that time is not spent trying to fix them.
 
 Anything that produces an actual error message belongs on [Error Messages](errors.md) instead.
 
@@ -24,7 +23,7 @@ Whatever `shape=` you write in a palette's `block` string is **discarded**. Ever
 
     The correction produces the right corner **on its own** when real neighbouring stairs back it up: same `half`, perpendicular `facing`, adjacent position. If your part places those neighbours correctly, you do not need `shape=` at all, and you should not write one, since it is overwritten regardless.
 
-    Worth checking before reaching for Fix B. It is usually one fewer thing to hand-author, not more.
+    Check this before reaching for Fix B. It is usually one fewer thing to hand-author, not more.
 
 === "Fix B: a self-replacing command block"
 
@@ -61,10 +60,8 @@ Whatever `shape=` you write in a palette's `block` string is **discarded**. Ever
 
 Nothing to randomize means nothing to stripe. One palette edit, pure JSON.
 
-!!! note "Wanting per-block variety instead is a code change"
-    The number of times the palette is sampled per chunk is fixed in the compiled method. The mod already has a `get(char, Random)` overload that would give per-block variation, the railway code just does not call it. Getting that behaviour means a Mixin or a patched jar, not configuration.
-
-    This is one of the cases a companion mod would genuinely solve. See [below](#a-companion-mod-is-planned).
+!!! note "Per-block variety is a code change, not a setting"
+    The number of times the palette is sampled per chunk is fixed in the compiled method. The mod already has a `get(char, Random)` overload that would give per-block variation, and the railway code does not call it. Reaching that behaviour requires a Mixin or a patched jar.
 
 ## Four keys parse and then do nothing
 
@@ -75,16 +72,16 @@ These keys load without complaint, survive inheritance, and never affect generat
 | Key | Where | How dead |
 |---|---|---|
 | `streetblocks.width` | City Style | Reaches the city style and the public API. No generator reads it. |
-| `streetblocks.streetbase` | City Style | The same. |
-| `streetblocks.streetvariant` | City Style | The same. |
-| `rotatable` | Scattered Building | Worse. Parsed into the codec record and never copied into the asset the generator uses. No API method exposes it either. |
+| `streetblocks.streetbase` | City Style | Reaches the city style and the public API. No generator reads it. |
+| `streetblocks.streetvariant` | City Style | Reaches the city style and the public API. No generator reads it. |
+| `rotatable` | Scattered Building | Does not even reach the asset. Parsed into the codec record and never copied into the object the generator uses, and no API method exposes it. |
 
 All four look load-bearing because the mod's own content sets them. `citystyle_config` exists solely to set `width`, and `citystyle_common` and `citystyle_border` both set `streetbase` and `streetvariant`.
 
 **Fix:** for street appearance, edit the palette characters the street part uses, or override `streetblocks.parts` with your own part. For scattered structures, author them in the orientation you want. See [City Style](../reference/citystyle.md) and [Scattered Building](../reference/scattered.md).
 
-!!! note "How these were found"
-    Every accessor on every asset class was checked for a caller outside its own class. Anything with no consumer is a candidate, and each candidate was then read by hand. The same sweep confirmed the rest of the asset surface is live, so this table is expected to be the complete set for 7.4.12 rather than a sample.
+!!! note "How to reproduce"
+    Check every accessor on every asset class for a caller outside its own class. Anything with no consumer is a candidate, and each candidate then has to be read by hand. That sweep also confirms the rest of the asset surface is live, so this table is the complete set for 7.4.12 rather than a sample.
 
     Two meta value types, `string` and `float`, are also accepted and never read, but those are storage slots rather than settings. See [Part](../reference/part.md#any-other-key).
 
@@ -115,7 +112,7 @@ anything from a building's `parts` list even once `belowpart` is fixed.
 chain that depends on what generated below it is not expressible in 7.4.12. If
 your building has entries gated on `belowpart`, those levels match nothing and
 every chunk holding the building fails, which also takes out its neighbours. See
-[Condition](../reference/condition.md#belowpart-is-broken-and-inpart-is-useless-in-a-building).
+[Condition](../reference/condition.md#belowpart-and-inpart-in-a-building).
 
 ## Out-of-range profile numbers are accepted silently
 
@@ -158,22 +155,17 @@ See [Inheritance](../reference/citystyle.md#inheritance).
 
 See [Seeing your changes](../tooling/commands.md#seeing-your-changes) for the full table of what does and does not pick up an edit.
 
-## A companion mod is planned
+## What cannot be fixed from JSON
 
-Some of the above cannot be fixed from JSON at all, because the behaviour is fixed in compiled code. A small companion Forge mod is planned to address that class of problem.
+Three of the entries above are fixed in compiled code and no datapack or config reaches them.
 
-**What it could reasonably fix**, based on what has been traced so far:
-
-| Issue | Why a mod can fix it |
+| Issue | What it would take |
 |---|---|
-| Per-block rail variation | The needed palette method already exists, the railway code just does not call it |
-| Validation at load time | Nothing currently checks ranges, row lengths, or floor coverage. A mod could fail loudly at load instead of mid-generation |
-| Better error messages | Several errors name the wrong file. A mod could report the palette rather than the part |
+| Per-block rail variation | The palette method that would give it exists and the railway code does not call it, so a Mixin or a patched jar |
+| `streetblocks.parts.full` never generating | The bound is off by one in a compiled method |
+| `belowpart` testing the current part | The accessor it needs does not exist on `ConditionContext` |
 
-The mod's own API is unusually good for this. It posts `LostCityEvent.CharacteristicsEvent` **before** it caches the result, and every key on the characteristics object is a public mutable one. A companion mod can therefore change, per chunk and from outside: whether the chunk is a city at all, whether it could hold a building, the city level, the city style, the building type, and the multi-building. That is enough to redirect most placement decisions without touching the mod's own code.
-
-!!! info "Not written yet"
-    This section is a statement of intent, not a release. It will be replaced with real documentation once the mod exists. Nothing on this page depends on it, every workaround above works today with vanilla Lost Cities.
+Every other entry has a workaround that needs nothing but JSON.
 
 ## See also
 

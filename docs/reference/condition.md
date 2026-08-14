@@ -48,7 +48,7 @@ Every key is optional.
 
 An entry with no test keys always matches. That is the standard way to write a fallback. An unconditioned entry guarantees that something always matches, which is what prevents the [missing-part failure](building.md#floor-coverage-the-most-common-failure) on a building.
 
-## `belowpart` is broken, and `inpart` is useless in a Building
+## `belowpart` and `inpart` in a Building
 
 !!! bug "`belowpart` tests the current part, not the part below it"
     `ConditionContext` is given the part below and stores it in a field called

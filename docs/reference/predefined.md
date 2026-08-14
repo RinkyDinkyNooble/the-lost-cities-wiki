@@ -43,7 +43,7 @@ data/<namespace>/lostcities/predefinedspheres/<name>.json
 
     Writing a world coordinate on a pinned building therefore lands it that many
     chunks past where you meant, and if the result falls outside `radius` it
-    simply never appears. Nothing is logged either way.
+    never appears. Nothing is logged either way.
 
 ### A pinned street
 

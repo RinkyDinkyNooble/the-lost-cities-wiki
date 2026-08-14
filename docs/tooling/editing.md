@@ -7,7 +7,7 @@ status: in-progress
 !!! info "The external converter section is still coming"
     The in-game editor below is fully traced and documented. A write-up of the schematic-to-JSON converter workflow lands here once that tool is ready to share.
 
-Three ways to author parts, in rough order of how most people end up working:
+Three ways to author parts, in rough order of how much hand-editing each involves:
 
 | Approach | Good for | Cost |
 |---|---|---|
@@ -50,7 +50,7 @@ All require op (permission level 1) and all refuse outright unless the world was
 
 Both `editpart` and `resumeedit` find the part by looking at your Y position: they pick whichever recorded part's vertical range contains you. Stand at the wrong height and you will edit the floor above or below.
 
-### The three things that will cost you work
+### Three traps in the editor
 
 !!! danger "`editpart` discards your unsaved in-world changes. `resumeedit` does not."
     The two commands look interchangeable and are not. `editpart` **overwrites the entire part volume with the contents of the saved JSON** before it hands control back, so anything you built and had not exported is gone with no confirmation prompt.
@@ -104,9 +104,6 @@ Whatever tool you use has to get these right, and none of them are checked by th
 | A character for every distinct block state used | Crash during generation |
 
 [`validate.py`](../examples/index.md#validatepy) checks all of these against a finished datapack, so it works as a post-conversion check regardless of which tool produced the files.
-
-!!! info "A dedicated converter is in progress"
-    A schematic-to-JSON converter is being built alongside this wiki, aimed squarely at the rules above: correct sizing, automatic palette extraction, and validation before you ever load the world. This section will be replaced with a proper guide, including its own limitations, once it is ready to share.
 
 ## See also
 

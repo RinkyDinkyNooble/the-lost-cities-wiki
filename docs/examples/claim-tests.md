@@ -1,561 +1,262 @@
 # Claim tests
 
-Everything on this wiki was traced from the mod's code. That is not the same as
-having watched it run.
+Most of this wiki is read out of the mod's compiled code. Reading establishes what
+the code says. It does not establish what a world does.
 
-This page describes a datapack that exists to close that gap. Each asset in it
-tests one claim the wiki makes, and each test is designed so that the result is
-visible from the air with no commands and no guessing.
+This page is the register of claims that have been checked in a running world, the
+packs that check them, and how to run those packs.
 
-The pack is at `docs/examples/wiki-test/` in the repository.
+Every result below is from Lost Cities **7.4.12** on Minecraft **1.20.1**, Forge,
+unless a row says otherwise. Results marked 7.5.1 were produced by running the same
+pack against that jar with nothing else changed.
 
-## Results
+## What has been checked in a world
 
-All tests below were run on 7.4.12, Minecraft 1.20.1, Forge, across 4 builds of the
-pack. Every claim tested is now either confirmed in a world or corrected.
+### Buildings and levels
 
 | Claim | Result |
 |---|---|
-| Multi-building grid is `buildings[x][z]`, outer list is X | **Confirmed.** Red north-west, yellow south-west, blue north-east, green south-east. |
-| A weighted `blocks` list must fill 128 slots | **Confirmed.** The 100 + 28 list generated speckled decks. |
-| A concrete definition beats a `frompalette` alias | **Confirmed.** A probe aliasing `A`, which the shipped style defines concretely, came out as the style's stone stairs rather than the alias target. |
-| `frompalette` resolves to the aliased character | **Confirmed.** Moved to `λ`, which no shipped palette defines, and the walls generated red. |
-| `overrideFloors` replaces the profile's bounds instead of narrowing them | **Confirmed.** The overriding building generates at 1 storey beside 5 storey towers that declare the same bounds without the key. |
-| A street part name accepts a list, sampled per chunk | **Confirmed.** Both marked variants appear across the road network, mixed. |
-| `streetblocks.parts` is all or nothing on inheritance | **Confirmed.** All 7 shapes were restated and all generate. |
-| `streetblocks.parts.full` | **Refuted, and it is a mod bug.** The `full` shape never generates. See [Streets](../concepts/infrastructure-parts.md#streets). |
+| Levels run `0` to `maxfloors` **inclusive**, so `maxfloors: 3` is a four-storey building | Confirmed. `maxfloors: 6` produced 7 storeys, `maxfloors: 2` produced 3. |
+| `overrideFloors` replaces the profile's bounds rather than narrowing them | Confirmed. The overriding building generated at 1 storey beside 5-storey towers declaring the same bounds without the key. |
+| `minfloors` is a `max()` applied after the maximum, so it can exceed every ceiling | Confirmed. Two buildings declaring `minfloors: 6` and `maxfloors: 6`, one with `overrideFloors` and one without, both generated 6 storeys under a profile allowing 2 to 3. |
+| A level that matches no part reference fails the chunk | Confirmed. `Misconfiguration! Floor were generated for a building where no part condition matches!` |
+| `parts2` is an overlay placed at the same origin on the same level | Confirmed. Base part 1504 blocks, overlay 8 blocks, both present. |
+| `allowDoors: false` leaves the wall as the part draws it | Confirmed. The same three-storey part placed 2240 wall blocks with doors allowed and 2256 with `allowDoors: false`. |
+| `filler` and `rubble` resolve against the **building's** palette, not the part's | Confirmed, by 590 failed chunks when they did not. |
+| `rubble` is used by the ruin pass | Confirmed. 40 blocks of an otherwise unused character with ruins on, none with ruins off. |
 
-### Two wiki errors this found
+### Conditions and part selection
 
-**`filler` and `rubble` resolve against the building's palette, not the part's.**
-The page said otherwise, and the wiki's own tutorial example carried the fault. It
-produced 590 failed chunks on the first run, almost all of them logging only `null`
-because the JVM stops recording traces for a repeated `NullPointerException`.
-[Corrected](../reference/building.md#filler-what-it-is-and-why-it-is-required).
+| Claim | Result |
+|---|---|
+| Test keys chain with AND, never OR | Confirmed. A building gated `ground: false` **and** `top: false` came out banded rather than mixed. |
+| `range` includes both ends | Confirmed. |
+| A third number in `range` is discarded silently | Confirmed. `"0,2,9"` gave levels 0 to 2, not 0 to 9. |
+| `belowpart` tests the **current** part, not the one below | Confirmed, and it is a mod bug. A two-level building whose first entry was gated `belowpart: "<none>"` came out gold on both levels with no diamond. See [Known Issues](../troubleshooting/known-issues.md#belowpart-tests-the-wrong-part-in-every-version-that-has-it). |
+| `inpart` and `belowpart` never match from a building's `parts` list | Confirmed. The floor loop passes the literal `<none>` as the current part. |
+| `inpart` does work in a Condition reached from a palette | Confirmed. The chest's `LootTable` came out as the table on the `inpart`-gated entry. |
+| `range` works there too, and counts storeys | Confirmed. `"0,0"` gave one table on the ground floor, `"1,100"` gave another two storeys up. |
 
-**A building's `minfloors` can push it past every maximum.** The page said a
-building "can only make itself shorter than the profile allows, never taller". The
-minimum is a `max()` applied after the maximum, so the opposite is true.
-[Corrected](../reference/building.md#how-floor-and-cellar-counts-are-decided).
+### Palettes
 
-Both errors were found because a test failed and the reason had to be chased. Two
-of the tests were also badly designed, and rebuilding them is what exposed the
-`full` bug.
+| Claim | Result |
+|---|---|
+| The merge order is style, then building, then part | Confirmed. The same character gave gold from the building palette, diamond from the part palette, and lapis where the building overrode a character the shipped style defines concretely. |
+| A part palette **merges** into the building's rather than replacing it | Confirmed. A part palette defining one character still resolved every other character from the building's. |
+| A weighted `blocks` list fills 128 slots, and entries after the one that fills the last slot are unreachable | Confirmed. A list of 120 white, 20 black, then 100 red produced **no red block anywhere**. |
+| `frompalette` resolves to the aliased character | Confirmed. |
+| A concrete definition beats an alias, whatever the order | Confirmed. An alias on a character the shipped style defines concretely lost to that definition. |
+| A circular `frompalette` leaves the character undefined, and reports nothing at load | Confirmed. `Could not find entry '<char>' in the palette for part '<part>'!` at generation, nothing at load. |
+| A `char` of more than one character keeps the first, silently | Confirmed. `"char": "王zz"` registered `王`. |
+| `mob` names a Condition, not an entity | Confirmed. A condition resolving to `minecraft:blaze` produced blaze spawners. |
+| `loot` names a Condition, not a loot table | Confirmed, and the page said otherwise. |
+| With `generateLoot` on and both loot chances at `0`, every chest is filled | Confirmed. 12 of 12. |
+| `tag` places raw NBT | Confirmed. |
+| `torch: true` requires `generateLighting`, and without it the character becomes air | Confirmed. |
+| `damaged` covers the rubble band, not the ruined section | Confirmed, and the page overstated it. See [the control-chunk note](#counting-needs-a-control). |
 
-## What it targets
+### Parts
 
-Lost Cities **7.4.12**, Minecraft **1.20.1**, Forge. The claims tested are
-version-specific and the pack is not meaningful on another version.
+| Claim | Result |
+|---|---|
+| A layer is one flat string read as `charAt(z * xsize + x)`, so row breaks are formatting | Confirmed in both directions. |
+| A layer longer than `xsize * zsize` shifts characters and drops the tail, silently | Confirmed. A 17-character row placed its marker one column along; position 256 was never read. |
+| A layer shorter than that fails the chunk | Confirmed. `String index out of range: 255`. |
+| `shape=` in a stair block string is discarded and recomputed | Confirmed. Five isolated stairs written `shape=outer_right` all came out straight, and a perpendicular pair produced a corner. |
 
-## Installing it
+### City styles, streets and selectors
 
-The datapack and the profile go in different places. This trips people up, so it
-is spelled out.
+| Claim | Result |
+|---|---|
+| A multi-building grid is `buildings[x][z]`, outer list X | Confirmed. Red north-west, yellow south-west, blue north-east, green south-east. |
+| A street part name accepts a list, sampled per chunk | Confirmed. Both marked variants appear across the road network, mixed. |
+| `streetblocks.parts` is all or nothing on inheritance | Confirmed. All 7 shapes restated, all generate. |
+| `streetblocks.parts.full` never generates | **Refuted**, and it is a mod bug. See [Streets](../concepts/infrastructure-parts.md#streets). |
+| Selector inheritance is additive, so an inherited selector cannot be emptied | Confirmed, indirectly: emptying one required not inheriting at all. |
+| An empty `bridges` selector fails even at `bridgeChance: 0` | Confirmed. 1842 failed chunks, `Invalid name given to minecraft:root getOrThrow!`. |
+| `parks`, `fountains`, `stairs`, `fronts` and `raildungeons` are safe to leave empty | Confirmed. Zero failed chunks with all five empty. |
+| A city style that inherits nothing must define every character the generator dereferences unguarded | Confirmed. Each run reveals only the next missing character. |
+| Omitting a selector and writing `[]` are the same thing | Confirmed. Both end at an empty list. |
 
-**1. The datapack.** Copy `wiki-test/` into the world, keeping the folder:
+### Predefined cities
 
-```
-<world>/datapacks/wiki-test/
-  pack.mcmeta
-  data/wikitest/lostcities/...
-```
+| Claim | Result |
+|---|---|
+| A pinned building's `chunkx` and `chunkz` are offsets from the city centre | Confirmed, and the page said they were world coordinates. |
+| A predefined city generates at `cityChance: 0.0` | Confirmed. One city, where it was pinned, in an otherwise empty world. |
+| `preventruins` protects a pinned building | Confirmed. Under `ruinChance: 1.0`, 1767 wall blocks on the unprotected copy against 2224 on the protected one. |
 
-You can also add it on the world creation screen with the **Data Packs** button,
-which is easier because the pack must be present before the world generates.
+### Profiles
 
-**2. The profile.** This is config, not datapack. Copy the file out of the pack:
+| Claim | Result |
+|---|---|
+| A profile name containing a digit, an uppercase letter, a hyphen or a dot is read normally but is **not offered on the world creation screen** | Confirmed. Wiring it through `dimensionsWithProfiles` works; picking it by hand is impossible. Nothing is logged. |
+| A profile key in the wrong section is never read | Confirmed indirectly: a wrong config **section** caused Forge to reset the file to its defaults with no error. |
 
-```
-config/lostcities/profiles/wikitest.json
-```
+### Failure behaviour
 
-**3. The wiring.** In `config/lostcities/common.toml`:
+| Claim | Result |
+|---|---|
+| A mistake in an asset does not crash the game | Confirmed across every pack. The mod catches it per chunk and logs. |
+| A profile naming a `worldStyle` no loaded datapack defines **does** crash | Confirmed. `Description: Feature placement`, because it resolves before the catch. |
+| A fault raised while building a chunk's `BuildingInfo` spreads to neighbouring chunks | Confirmed. 3 broken buildings produced 77 failed chunks across a 13 by 10 chunk area. |
+| A fault raised while placing blocks stays in its own chunk | Confirmed. A circular palette alias 6 chunks from those three failed exactly 1 chunk. |
+| On a sphere landscape nothing catches either | Confirmed. Same pack, same broken building: `default` gave 35 caught and 0 uncaught, `spheres` gave 18 caught and 21 uncaught, and the server shut down. |
+| `landscapeType` takes lowercase values, and a wrong one stops the game starting | Confirmed. `"SPACE"` gives `Bad landscape type: SPACE!` during mod construction. |
+| A sphere landscape needs `cityspheres.outsideProfile` | Confirmed. Without it, `getOutsideProfile() is null`, uncaught. |
 
-```toml
-dimensionsWithProfiles = [
-    "lostcities:lostcity=wikitest"
-]
-```
+### Version comparison
 
-**4. Restart**, then create a new world and travel to the Lost City dimension.
-`cityChance` is `0.2`, so cities are common. `buildingchance` is `0.15`, so most
-city chunks are streets, which is what the street test needs. Ruins and explosions
-are both off, so the test buildings stay readable.
+| Claim | Result |
+|---|---|
+| A datapack means the same thing on 7.4.12 and 7.5.1 | Confirmed. The pack written for 7.4.12 gives 28 of 28 on 7.5.1 unchanged. |
+| 7.5 changed placement, not asset handling | Confirmed. The only counts that moved were wall totals, each by a multiple of 16, which is one doorway. |
 
-## The tests
+## What has not been checked in a world
 
-### 1. Multi-building grid order
+Everything below is documented from the compiled code and has never been generated.
+The pages that describe it are not marked differently, so this list is the way to
+tell. A claim being here means untested, not suspect.
 
-**Claim:** `buildings[x][z]`. The outer list is X, so index 0 is west. Inside each
-list, index 0 is north.
+| Area | Why it is not covered |
+|---|---|
+| Cellars | Every pack so far runs with `mincellars` and `maxcellars` at 0. Negative level indices, `cellar: true`, and the city level added to the cellar maximum are all untraced in a world. |
+| Highways, railways, monorails | Only streets have been generated. Infrastructure parts need a much wider force-loaded area than the pinned grid uses. |
+| City spheres | Sphere generation itself, `onlyPredefined`, and monorail agreement between spheres. One bug has already been found in this area by accident. |
+| Scattered buildings and `stuff` | Both asset types are documented from their codecs and neither has been placed. |
+| Building fronts | `fronts`, `buildingFrontChance`, and the claim that a front is drawn by the adjacent street chunk. |
+| `preferslonely` | Needs a count over many chunks rather than a pinned grid. |
+| Part rotation and `lostcities:rotatable` | The claim that an untagged block keeps its facing when a part is rotated. |
+| `avoidWater` and `avoidFoliage` | Including the finding that `avoidFoliage` is what controls flooding. |
+| `isbuilding`, `issphere`, `chunkx`, `chunkz` | Four condition keys with no coverage. |
+| Predefined spheres | The city half is covered, the sphere half is not. |
+| The in-game editor | Six commands documented from the code. They need a client, not a headless server. |
+| KubeJS loading | The path is documented, the load has not been observed. |
 
-**How to read it:** find the 2 by 2 building made of 4 solid colours and look
-straight down with F3 open so you know which way north is.
+## Corrections this produced
 
-| | West | East |
+Seven pages were wrong before a world was involved. Each is corrected and linked
+from the register above.
+
+| Was documented as | Actually |
+|---|---|
+| `filler` and `rubble` resolve against the part's palette | They resolve against the **building's** |
+| `minfloors` can only make a building shorter | It is applied last and can exceed every maximum |
+| Generation errors crash the game and write a crash report | They are caught per chunk. The wiring between profile and datapack is the exception |
+| A pinned building's coordinates are world chunk coordinates | They are offsets from the city centre |
+| `loot` names a loot table | It names a Condition |
+| A bad `loot` value is one of the silent causes of an empty chest | It throws, and leaves invisible chests |
+| `damaged` is what a character becomes when a building is ruined | It applies to the rubble band only |
+
+## Bugs this produced
+
+Two, both on [Known Issues](../troubleshooting/known-issues.md) with the evidence:
+`streetblocks.parts.full` never generates, and `belowpart` tests the current part.
+
+## The packs
+
+| Pack | Covers | Read by |
 |---|---|---|
-| **North** | Red | Blue |
-| **South** | Yellow | Green |
+| `docs/examples/wiki-test/` | Positive claims about palettes, streets and multi-buildings | Eye |
+| `docs/examples/wiki-fail/` | Failure claims. Two of its three profiles are meant to fail | Log |
+| `docs/examples/wiki-test7/` | The pinned grid: 21 assets, 28 probes | Eye or harness |
+| `docs/examples/wiki-test8/` | Ruins, damage, row length, `parts2` | Harness |
 
-**If the wiki is wrong** and the outer list is Z, then yellow and blue swap. Red
-and green stay put either way, so they tell you nothing. **Yellow and blue are the
-whole test.**
+`wiki-test7` supersedes `wiki-test5` and `wiki-test6`, which are earlier builds of
+the same grid kept only because their failures are documented above.
 
-### 2. `overrideFloors`
-
-**Claim:** with `overrideFloors`, a building's `maxfloors` is used alone. Without
-it, the smallest of the profile, city style and building values wins the maximum,
-and the largest wins the minimum.
-
-The profile asks for 5 to 6 floors. Both test buildings set `minfloors: 1` and
-`maxfloors: 1`. Both bounds are needed, because the minimum is applied last and is
-a `max()`, so leaving `minfloors` out lets the profile's 5 win in both cases. That
-is what made builds 2 and 3 unreadable.
-
-| Building | Colour | `overrideFloors` | Expected |
-|---|---|---|---|
-| `clamped` | Purple | absent | 5 or 6 floors. The profile's minimum of 5 beats the building's 1 in the `max()`. |
-| `overridden` | Orange | `true` | 1 floor. Both of the building's own bounds are used alone. |
-
-**How to read it:** orange should be a single storey next to 5 or 6 storey purple
-towers. That difference is unmissable. Same height means the override does nothing.
-
-### 3. Street part names accept a list
-
-**Claim:** a street part name may be a list, and the mod picks one uniformly at
-random per chunk. No file the mod ships uses the list form, so this has never been
-exercised.
-
-**Every** street shape is set to the same 2 parts, one marked with a **gold** block
-square and one with a **diamond** block square. Build 3 marked only `full`, which
-turned out to be unreachable, so no marker ever appeared.
-
-**How to read it:** follow the roads. Full-street chunks should show both gold and
-diamond markers, mixed with no pattern. Only one marker appearing across many
-chunks means the list is not being sampled.
-
-Since every shape is overridden, every street chunk should carry a marker. A world
-of streets with no marker at all would mean the list form does not work.
-
-### 4. Palette features
-
-**Claim A:** a weighted `blocks` list must fill 128 slots. The probe building's
-floors and ceilings use a list of `100` white concrete and `28` black concrete,
-totalling exactly 128.
-
-**Claim B:** `frompalette` is a character alias. The probe building's walls use the
-character `λ`, aliased to red.
-
-The first attempt used `A`, which the shipped style already defines concretely, so
-the concrete definition won and the walls came out as stone stairs. `λ` is not used
-by any shipped palette, so nothing competes with the alias this time.
-
-**How to read it:** find the building with speckled white and black decks. Its
-walls should be **red**. Roughly 1 block in 5 of the deck should be black.
-
-If the walls come out as anything other than red, look for
-`Could not find entry 'λ' in the palette for part 'wikitest:palette_probe'!` in the
-log. That would mean the alias did not resolve at all, rather than losing to a
-concrete definition.
-
-## If nothing generates
-
-Run this first:
-
-```
-/lostcities locate wikitest:overridden
-```
-
-A hit means the whole chain resolved. If it reports nothing, stand in a city chunk
-and run `/lostcities debug`, which dumps the generator's decisions for that chunk to
-the **server console**, not to chat.
-
-Then work through [When nothing happens](../getting-started/first-city.md#when-nothing-happens).
-
-## The failure-mode pack
-
-Every test above is a positive claim: do this, and that happens. The wiki also
-makes **failure** claims, and those are the ones that cost a reader most when they
-are wrong. A second pack tests them, at `docs/examples/wiki-fail/`.
-
-It ships **3 profiles**. Each isolates one claim, and 2 of them are expected to
-crash world generation, so they must be run one at a time. A crash in the first
-would hide anything after it.
-
-!!! warning "2 of these deliberately break world generation"
-    Use a throwaway world for each, and make a new one between runs. That is the
-    test, not a mistake.
-
-### Installing
-
-The datapack goes in as usual. All 3 profiles go into
-`config/lostcities/profiles/`. Then run them one at a time by changing a single
-line in `config/lostcities/common.toml` and restarting:
-
-```toml
-dimensionsWithProfiles = [ "lostcities:lostcity=wtfailbridge" ]
-```
-
-Then `wtfailfloors`, then `wtfailsafe`.
-
-### What each one tests
-
-| Profile | Claim | Result |
-|---|---|---|
-| `wtfailbridge` | An empty `bridges` selector fails **even when `bridgeChance` is 0**, because the bridge part is resolved eagerly for every building chunk | **Confirmed.** 1842 failed chunks, all `Invalid name given to minecraft:root getOrThrow!`, with `bridgeChance` at `0.0`. |
-| `wtfailfloors` | A building whose only part reference is gated on `top` matches nothing on lower floors | **Confirmed.** 1471 failed chunks, `Misconfiguration! Floor were generated for a building where no part condition matches!` |
-| `wtfailsafe` | `parks`, `fountains`, `stairs`, `fronts` and `raildungeons` are safe to leave empty | **Confirmed.** Zero `Error generating chunk` lines and zero exceptions, with buildings generating normally and no parks, fountains, stairs, fronts or rail dungeons anywhere. |
-
-The 3 city styles deliberately do **not** inherit `citystyle_common`. Selector
-inheritance is additive, so an inherited selector cannot be emptied, and emptying
-one is the whole point of the first test. That is itself a confirmation of the
-[additive inheritance rule](../reference/citystyle.md#inheritance).
-
-The `safe` result is a clean comparison rather than a single observation. The same
-5 selectors were empty in all 3 runs. The first 2 produced 1892 failed chunks and
-**not one** came from a selector. The only change in the third was supplying the
-missing city style characters, after which the count went to 0.
-
-!!! danger "Not inheriting has a second consequence, which cost 2 runs"
-    A standalone city style must define every character the generator dereferences
-    without a null check, not just the selectors. Build 1 omitted them all and
-    failed on `streetblocks.street`. Build 2 supplied the street characters and
-    failed on `corridorblocks.roof`. Each run only reveals the next missing one.
-
-    Build 3 supplies the complete set, taken from `citystyle_common`. The full list
-    is in [City Style](../reference/citystyle.md).
-
-    The 2 crash tests were unaffected, because their own faults hit first and
-    produced the exact predicted messages.
-
-!!! note "Omitting a selector and writing `[]` are the same thing"
-    `Selectors` stores an omitted list as `null`, but the city style initialises
-    every selector to an empty list and only adds to it when the codec supplies
-    one. Both routes end at an empty list, so the bridge test omits `bridges`
-    rather than writing `[]`, and the result is identical.
-
-### The validator already catches one of them
-
-Running `validate.py` against this pack reports exactly 1 error:
-
-```
-ERROR  toponly.json: no unconditioned part reference;
-       some floor will match nothing and crash generation
-```
-
-That is the `wtfailfloors` crash, caught before the game ever starts. If the
-in-game result matches, the rule the future DevTool will enforce is correct.
-
-## The pinned-grid pack
-
-The two packs above both had the same weakness: the tests generate wherever the
-world happens to put them, so reading a result starts with hunting for the
-building. This third pack removes that. It is at `docs/examples/wiki-test6/`,
-and `wiki-test5/` is the first build of it, kept because its failures are the
-finding.
+### The pinned grid
 
 A [predefined city](../reference/predefined.md) pins one city to world chunk
 **8, 8** with a radius of 8, and pins every test building to a fixed chunk inside
-it. `cityChance` is `0.0`, so that city is the only one in the world. Each test
-therefore has a block coordinate you can fly straight to.
+it. `cityChance` is `0.0`, so that city is the only one in the world. Each test has
+a block address rather than needing to be found.
 
-### Installing
+| Block corner | Building | Tests |
+|---|---|---|
+| 128, 128 | `origin` | Pinned coordinates are relative |
+| 160, 128 | `rangetest` | A third number in `range` |
+| 192, 128 | `andtest` | AND, never OR |
+| 224, 128 | `belowsem` | `belowpart` semantics |
+| 128, 160 | `prectest` | Palette precedence, all three levels |
+| 160, 160 | `slottest` | The 128-slot cutoff |
+| 192, 160 | `stairtest` | `shape=` is discarded |
+| 224, 160 | `torchtest` | The `torch` attachment pass |
+| 128, 192 | `loottest` | `loot` through a Condition |
+| 160, 192 | `mobtest` | `mob` through a Condition |
+| 192, 192 | `tagtest` | Raw NBT |
+| 224, 192 | `chartest` | A `char` longer than one character |
+| 128, 224 | `circulartest` | A circular alias. **This chunk is meant to fail** |
+| 160, 224 | `doors_on` | `allowDoors` default |
+| 192, 224 | `doors_off` | `allowDoors: false` |
+| 128, 256 | `lootcond` | `inpart` and `range` on the loot path |
 
-Same split as before. The datapack goes in the world, the profile goes in the
-config folder:
+Grey buildings are backdrop. The gaps between test buildings are pinned streets.
+
+## Installing a pack by hand
+
+The datapack and the profile go in different places.
+
+**1. The datapack.** Copy the pack folder into the world, keeping the folder:
 
 ```
-<world>/datapacks/wiki-test6/
-config/lostcities/profiles/wtsix.json
+<world>/datapacks/wiki-test7/
+  pack.mcmeta
+  data/wt7/lostcities/...
 ```
+
+The **Data Packs** button on the world creation screen also works, and is easier,
+because the pack has to be present before the world generates.
+
+**2. The profile.** This is config, not datapack:
+
+```
+config/lostcities/profiles/wtseven.json
+```
+
+**3. The wiring.** In `config/lostcities/common.toml`, under `[profiles]`:
 
 ```toml
-dimensionsWithProfiles = [ "lostcities:lostcity=wtsix" ]
+dimensionsWithProfiles = [ "lostcities:lostcity=wtseven" ]
 ```
 
-Restart, make a new world, enter the Lost City dimension, then go to the grid:
+**4. Restart**, create a new world, enter the Lost City dimension, then travel to
+the grid:
 
 ```
 /execute in lostcities:lostcity run tp @s 136 120 136
 ```
 
-### Where everything is
-
-Every test building is one chunk. The gaps between them are pinned streets, and
-the grey buildings filling the rest of the city are backdrop, not a test.
-
-| # | Test | Building | Chunk | Block corner | Floors |
-|---|---|---|---|---|---|
-| 1 | Pinned coordinates are relative | `origin` | 8, 8 | 128, 128 | 4 |
-| 2 | A third number in `range` | `rangetest` | 10, 8 | 160, 128 | 6 |
-| 3 | Conditions are AND, never OR | `andtest` | 12, 8 | 192, 128 | 4 |
-| 4 | `belowpart` | `belowtest` | 14, 8 | 224, 128 | 3 |
-| 5 | Palette precedence | `prectest` | 8, 10 | 128, 160 | 3 |
-| 6 | The 128-slot cutoff | `slottest` | 10, 10 | 160, 160 | 2 |
-| 7 | `shape=` on stairs is discarded | `stairtest` | 12, 10 | 192, 160 | 1 |
-| 8 | `torch` attachment pass | `torchtest` | 14, 10 | 224, 160 | 1 |
-| 9 | Loot with both chances at 0 | `loottest` | 8, 12 | 128, 192 | 2 |
-| 10 | `mob` names a Condition | `mobtest` | 10, 12 | 160, 192 | 1 |
-| 11 | `tag` raw NBT | `tagtest` | 12, 12 | 192, 192 | 1 |
-| 12 | A `char` longer than one character | `chartest` | 14, 12 | 224, 192 | 2 |
-| 13 | A circular `frompalette` | `circulartest` | 8, 14 | 128, 224 | 2 |
-
-### What each one should look like
-
-**1. Pinned coordinates are relative.** A solid emerald tower, 4 floors. It is
-pinned at `chunkx: 0, chunkz: 0` while the city is at 8, 8. If the coordinates
-are relative, as the code says, it stands on chunk 8, 8. If they were absolute it
-would stand at block 0, 0, far outside the city, and probably nowhere at all.
-
-**2. A third number in `range`.** Six floors. The lower part is gated
-`range: "0,2,9"` and the upper one `range: "3,5"`.
-
-| Result | Means |
-|---|---|
-| Gold on floors 0 to 2, diamond on 3 to 5 | The mod read `0,2` and threw the `9` away. What the wiki says. |
-| Gold and diamond mixed on every floor | The mod used the `9`, so both entries match most floors. |
-| The chunk fails, `Bad range specification` | The mod rejects a third number rather than ignoring it. |
-
-**3. Conditions are AND, never OR.** Four floors: white bottom, two gold, red
-top. The middle entry sets `ground: false` **and** `top: false`. Under OR that
-entry would match every floor, and the tower would come out mixed instead of
-banded.
-
-**4. `belowpart`.** Three floors: white, gold, diamond, bottom to top. Each floor
-above the first is selected only by what sits under it. If `belowpart` does not
-match on a fully qualified name, floors 1 and 2 match nothing and the chunk fails
-with `Misconfiguration! Floor were generated for a building where no part
-condition matches!`.
-
-**5. Palette precedence.** Three floors, each one a different level of the
-palette merge for the same character.
-
-| Floor | Comes out | Confirms |
-|---|---|---|
-| 0, gold | The building's `refpalette` | Building level applies when the part has no palette |
-| 1, diamond | The part's `refpalette` | Part beats building |
-| 2, lapis | The building redefines `A`, which the shipped standard style defines concretely | Building beats style |
-
-The part on floor 1 has a palette holding **one** character. It still needs `#`
-and `_` from the building's palette, so if it comes out at all, a part palette
-merges rather than replaces. If instead the chunk fails on
-`Could not find entry '#'`, it replaces.
-
-**6. The 128-slot cutoff.** A white and black speckled block, 2 floors. The
-weighted list is 120 white, then 20 black, then 100 red. The wiki says the black
-entry is cut short at 8 slots and the red entry gets nothing. **One red block
-anywhere on this building refutes it.**
-
-**7. `shape=` on stairs is discarded.** A stone deck holding five oak stairs with
-nothing next to any of them, all written `shape=outer_right`. They should all be
-straight. Four rows further along is a perpendicular pair, which is the geometry
-that does produce a corner.
-
-**8. `torch` attachment pass.** Two torches. One stands on the deck, which is the
-easy case. The other sits one block up with air underneath and a stone block to
-its west, so it can only survive as a wall torch. If the attachment pass works it
-is attached to that stone. If it does not, it is missing.
-
-**9. Loot with both chances at 0.** Eight chests, four per floor. The profile sets
-`generateLoot: true`, `buildingWithoutLootChance: 0.0` and
-`chestWithoutLootChance: 0.0`, so the wiki says **every one** of them is filled.
-Nothing is above them to overwrite. One empty chest here means one of the five
-causes on [Palette](../reference/palette.md#why-a-chest-generates-empty) is
-missing from that list.
-
-**10. `mob` names a Condition.** Three spawners. The palette gives them
-`mob: "wt5:mobpick"`, and that condition resolves to `minecraft:blaze`. Blaze
-spawners confirm it. Pig spawners, the vanilla default, would mean the value
-never reached the spawner.
-
-**11. `tag` raw NBT.** Three chests carrying a `CustomName`. Open one. The title
-should read **WIKITAG**.
-
-**12. A `char` longer than one character.** Gold walls. The palette entry is
-written `"char": "王zz"` and the part uses `王`. Gold walls mean the mod kept the
-first code unit and discarded the rest without complaining.
-
-**13. A circular `frompalette`.** This one is **meant to fail**, and it is the
-only chunk in the world that should. `Ѱ` aliases `Ѳ` and `Ѳ` aliases `Ѱ`, so
-neither resolves. Expect nothing at block 128, 224, no message at load, and this
-in the log:
+### If nothing generates
 
 ```
-Could not find entry 'Ѱ' in the palette for part 'wt5:ct_box'!
+/lostcities locate wt7:origin
 ```
 
-That the other twelve buildings are unaffected is itself the point. A failure is
-scoped to the chunk that caused it.
+A hit means the whole chain resolved. If it reports nothing, stand in a city chunk
+and run `/lostcities debug`, which dumps the generator's decisions for that chunk to
+the **server console**, not to chat. Then work through
+[When nothing happens](../getting-started/first-city.md#when-nothing-happens).
 
-### Results from the first build
+### The failure pack needs one profile at a time
 
-Run on 7.4.12, Minecraft 1.20.1, Forge. The game did not crash.
+`wiki-fail` ships three profiles and two of them are meant to fail. Run them one at
+a time by changing a single line in `common.toml` and restarting, using a throwaway
+world for each. A failure in the first would hide anything after it.
 
-| Claim | Result |
-|---|---|
-| A pinned building's coordinates are relative to the city | **Confirmed.** The tower pinned at `0, 0` stands on world chunk 8, 8 while the city is at 8, 8. |
-| A predefined city generates at `cityChance: 0.0` | **Confirmed.** One city, exactly where it was pinned, in an otherwise empty world. |
-| Condition keys chain with AND, never OR | **Confirmed.** Banded white, gold, red rather than mixed. |
-| `mob` names a Condition | **Confirmed.** Blaze spawners, from a condition resolving to `minecraft:blaze`. |
-| `tag` places raw NBT | **Confirmed.** The chests read WIKITAG. |
-| A `char` of more than one character keeps the first | **Confirmed.** `"char": "王zz"` gave gold walls under `王`. |
-| A circular `frompalette` leaves the character undefined, silently at load | **Confirmed.** Nothing at load, then `Could not find entry 'Ѱ' in the palette for part 'wt5:ct_box'!` and one empty chunk. |
-| `shape=` on a stair block string is discarded | **Confirmed.** The five isolated stairs came out straight, and the perpendicular pair produced a corner. |
+Its three city styles deliberately do **not** inherit `citystyle_common`, because
+selector inheritance is additive and emptying a selector is the point of the first
+test. A standalone city style then has to define every character the generator
+dereferences without a null check. The full list is in
+[City Style](../reference/citystyle.md).
 
-Four tests did not report, because I built them wrong, and one reported
-something better than what it was testing.
+## Running a pack without a player
 
-**`loot` does not name a loot table.** It names a
-[Condition](../reference/palette.md#loot-names-a-condition-not-a-loot-table),
-exactly as `mob` does. `"loot": "minecraft:chests/simple_dungeon"` threw
-`Error getting resource minecraft:chests/simple_dungeon!` in the post-generation
-pass, which left chests that open, are empty, and **render invisible**, because
-their block entities were never finished. The page had called `loot` a loot table
-and had listed a bad name as one of the silent causes of an empty chest. Both are
-corrected.
-
-**Three tests declared one level fewer than they generate.** `rangetest`,
-`belowtest` and `prectest` each covered levels `0` to `maxfloors - 1`, when levels
-run `0` to `maxfloors` **inclusive**. The wiki says this plainly and I did not
-follow it. Every one of them failed on
-`Misconfiguration! Floor were generated for a building where no part condition
-matches!`. `andtest` was the only conditioned building to survive, because
-`ground` and `top` cover any height.
-
-### Results from the corrected build
-
-Every test that had been obscured reported. Same version, same method.
-
-| Claim | Result |
-|---|---|
-| A third number in `range` is discarded | **Confirmed.** `"0,2,9"` gave gold on levels 0 to 2 and diamond on 3 to 6, so the mod read `0,2`. |
-| Levels run 0 to `maxfloors` inclusive | **Confirmed again.** `maxfloors: 6` produced 7 storeys, `maxfloors: 2` produced 3. |
-| A part palette beats a building palette | **Confirmed.** Gold on level 0, diamond on level 1 from a part palette holding that one character. |
-| A part palette **merges**, it does not replace | **Confirmed.** That part palette defines one character and the part still resolved `#` and `_` from the building's. |
-| A building palette beats the style's | **Confirmed.** Level 2 came out lapis, not the standard style's stone stairs, for a character the shipped style defines concretely. |
-| The 128-slot cutoff | **Confirmed.** White and black speckle with **no red block anywhere**, from a list of 120 white, 20 black, then 100 red. |
-| `loot` names a Condition | **Confirmed.** 12 chests, all rendered, all filled, once the value went through a Condition. |
-| Both loot chances at `0` fill every chest | **Confirmed.** 12 of 12. |
-| A palette fault stays in its own chunk | **Confirmed.** The circular alias failed chunk 8, 14 and nothing else, in two separate worlds. |
-
-Two tests reported something other than what they were testing.
-
-### `belowpart` does not do what its name says
-
-The `belowpart` chain failed every chunk, in open ground and again over ocean.
-Reading the mod explains why, and it is the second bug this wiki has found.
-
-`ConditionContext` is handed the part below the current level and stores it in a
-field called `belowPart`. **That field has no accessor and nothing reads it.** The
-predicate compiled for `belowpart` calls `getPart()`, the current part, which is
-exactly what `inpart` compiles to. The two tests are the same test.
-
-Underneath that sits a second problem: a building's floor loop builds its condition
-context before it has picked a part, so the current part is the literal `<none>`.
-Neither `inpart` nor `belowpart` can match anything from a building's `parts` list,
-and fixing the first bug would not change that.
-
-Present in 7.4.12, 7.5.1, 8.4.1, 9.5.1 and 10.0.1. Written up on
-[Known Issues](../troubleshooting/known-issues.md#belowpart-tests-the-wrong-part-in-every-version-that-has-it).
-
-### `torch: true` deletes the block by default
-
-No torch generated, in any run, with no log line. The cause is a profile key rather
-than the palette:
-
-```
-if (isTorch) {
-    if (profile.GENERATE_LIGHTING) queue it for the attachment pass;
-    else                           blockState = air;
-}
-```
-
-`generateLighting` defaults to `false`, so a `torch` entry becomes **air** and the
-`block` you wrote is discarded. The mod's own `common` palette marks `T` the same
-way, which is why shipped buildings are unlit under a default profile.
-
-When it is on, the pass places a vanilla `torch` or `wall_torch` and still ignores
-your `block` value, so `torch: true` cannot produce a lantern or a modded light.
-Written up on [Palette](../reference/palette.md#torch-is-off-by-default-and-off-means-air).
-
-### The second build crashed, which no asset mistake had managed
-
-Running pack 6's datapack against pack 5's profile, so the profile named a
-`worldStyle` that was no longer loaded, produced a real crash report with
-`Description: Feature placement`. Nothing in either earlier pack had done that,
-including two profiles written deliberately to fail.
-
-The catch in `LostCityFeature` covers the call to `LostCityTerrainFeature.generate`
-and nothing else. `getDimensionInfo` runs before it, and resolving the profile's
-world style is part of that. So:
-
-| Mistake in | Result |
-|---|---|
-| Your assets: parts, palettes, buildings, city styles, selectors | Failed chunks and log lines. No crash. |
-| The wiring between profile and datapack | **Crash**, with a crash report. |
-
-The line number on `m_142674_` in the trace tells you which you have. 49 is the
-unguarded setup, 62 is inside the catch. Written up on
-[Error Messages](../troubleshooting/errors.md#thrown-during-chunk-generation).
-
-The validator now rejects a profile whose `worldStyle` sits in the pack's own
-namespace with no file behind it, and a profile whose file name is not lowercase
-letters, which is the other way to get a profile the game will not offer you.
-
-### The finding that came out of my own mistake
-
-Those 3 broken buildings produced **77 failed chunks**, over a 13 by 10 chunk
-area. They stand up to 6 chunks apart and the failures joined into one region.
-
-A chunk asks its neighbours for their `BuildingInfo` in order to shape terrain at
-its edges, lay railways and spread debris, and building that info is what
-evaluates part conditions. So a building with an uncovered level fails **every
-chunk that looks at it**, and those queries chain outward.
-
-The circular-alias building, 6 chunks from the nearest of the three, failed
-exactly one chunk: its own. That is the difference between a fault thrown while
-building the chunk's info and one thrown while placing blocks. Both are now on
-[Error Messages](../troubleshooting/errors.md#where-you-actually-see-these).
-
-I had written on this page that a failure is scoped to the chunk that caused it.
-That is true only for the second kind.
-
-### What the validator says about this pack in advance
-
-The rule that fired on the first build was "a building needs one part entry with
-no conditions on it". That was a proxy, and it was wrong in both directions: it
-rejected `andtest`, which generates perfectly, and it gave no clue why the other
-three failed.
-
-It now computes coverage instead, over the real level range, and reproduces all
-four in-game outcomes before the game starts:
-
-```
-ERROR  rangetest.json: levels [6] match no part. Levels run from -0 to 6 INCLUSIVE,
-       so 'maxfloors': 6 is a 7-storey building.
-ERROR  prectest.json:  levels [3] match no part.
-ERROR  belowtest.json: no unconditioned part reference, and coverage cannot be proven
-       because ['belowpart'] depend on more than the level index
-ERROR  test.json: char 'loot' on 'c': 'minecraft:chests/simple_dungeon' is a loot table
-       ID, but 'loot' names a Condition
-```
-
-`andtest` passes. On the corrected pack only two errors remain, and both are
-deliberate: the 128-slot cutoff, which is test 6, and `belowpart`, which no static
-checker can resolve because the answer depends on what generated underneath.
-
-## Running the pack without a player
-
-Everything above was read by flying around and looking. The same pack now also runs
-on a headless Forge server, which force loads the grid so generation happens with
-no player, then asks the world what it built over RCON.
-
-All 21 probes pass, and the run reproduces the manual results exactly: 35 failed
-chunks around the one broken building, 1 at the circular alias.
+The pinned grid also runs on a headless Forge server. The server force loads the
+grid so generation happens with no player, then the result is read back over RCON.
 
 The command set has no block counter, so counts come from a **filtered clone**,
-which reports how many blocks it copied. That is what turns "I did not see any red"
-into `0`:
+which reports how many blocks it copied:
 
 ```
 execute in lostcities:lostcity run clone 160 40 160 175 167 175 992 40 992 filtered minecraft:red_concrete
@@ -563,101 +264,51 @@ execute in lostcities:lostcity run clone 160 40 160 175 167 175 992 40 992 filte
 
 `/clone` caps at 32768 blocks, which is exactly one chunk footprint by 128 levels,
 so a count box is one chunk and 128 levels tall. The destination has to be loaded
-too, so the harness force loads a scratch chunk well clear of the grid.
+as well, so a scratch chunk well clear of the grid is force loaded too.
 
-Two traps worth knowing if you build something similar:
+`/data get block` covers what a count cannot: a chest's `LootTable`, a spawner's
+entity, a `CustomName`, an exact stair `shape=`.
 
-| Trap | What happens |
+## Traps when testing
+
+### `/forceload` takes block coordinates
+
+Not chunk coordinates. Passing chunk numbers loads chunk 0,0 and nothing else, and
+every probe then answers `That position is not loaded`, which reads as an empty
+world rather than as an error.
+
+### The config section is `[profiles]`
+
+Not `[general]`. Forge does not reject a wrong section: it rewrites the file to the
+mod's defaults, which point the lost city dimension at `biosphere`. A predefined
+city is consulted whatever the profile is, so the pack half works and the failure
+looks like a generation bug.
+
+### Counting needs a control
+
+`damaged` maps a character to another block when a building is ruined. Measured on
+a three-storey building made entirely of one character mapped `iron_block` to
+`cobweb`, with `ruinChance: 1.0` and explosions off:
+
+| | |
 |---|---|
-| `/forceload` takes **block** coordinates, not chunk coordinates | Passing chunk numbers loads chunk 0,0 and nothing else. Every probe answers "That position is not loaded", which reads as an empty world rather than an error. |
-| `dimensionsWithProfiles` lives under `[profiles]`, not `[general]` | Forge does not reject a wrong section. It silently rewrites the file to the mod's defaults, which point the lost city dimension at `biosphere`. |
+| Iron left standing | 587 of 2256 |
+| Cobweb from the swap | 2 |
+| Cobweb in a control chunk containing no iron | 5 |
 
-The second one produced a finding on its own. `biosphere` is a **sphere** profile,
-and on a sphere landscape the fault that had been logging cleanly started escaping
-instead, because `LostCitySphereFeature` has no `try` anywhere in it. Same pack,
-same broken building:
+The control holds more than the swap produced. Without it, ordinary decoration
+reads as the result, and it reads in the direction the test was hoping for.
 
-| `landscapeType` | Caught | Uncaught |
-|---|---|---|
-| `default` | 35 | 0 |
-| `spheres` | 18 | **21**, and the server shut down |
+### `explosionChance: 0` does not turn explosions off
 
-Deliberately re-running under `spheres` also turned up that `outsideProfile` is
-effectively required there: without it the first chunk that asks about the world
-outside a sphere throws `getOutsideProfile() is null`, and nothing catches it.
+`miniExplosionChance` is a separate roll and its default, `0.03`, is fifteen times
+larger. A profile that zeroes only the first still gets damaged buildings.
 
-And a third, before any world existed: `landscapeType: "SPACE"` fails mod
-construction with `Bad landscape type: SPACE!` and the server never starts. The six
-values are lowercase. The uppercase spelling is the enum constant, not the value.
+### A wall count is not comparable across versions
 
-## What the automated pack settled
-
-`docs/examples/wiki-test7/` is the same grid with four more probes and the torch
-test repaired. **28 of 28 pass**, and the only failing chunk in the world is the
-deliberate one.
-
-| Claim | Result |
-|---|---|
-| `torch: true` works once `generateLighting` is on | **Confirmed.** With the key set and the entry written as `wall_torch[facing=north]`, torches generate: floor torches where a block is below, wall torches where none is. |
-| `belowpart` reads the current part, not the one below | **Confirmed in a world.** Two levels, first entry gated `belowpart: "<none>"`, second gated on the part below it. Result: gold on **both** levels and **no diamond**, which only happens if the test never sees the part underneath. |
-| `inpart` works in a Condition reached from a palette | **Confirmed.** The chest's `LootTable` came out as the table on the `inpart`-gated entry, so the real part name does reach a Condition on that path. |
-| `range` works there too, and counts storeys | **Confirmed.** `"0,0"` gave one table on the ground floor and `"1,100"` gave the other two storeys up. This is the mechanism behind the mod's own `chestloot`. |
-| `allowDoors: false` leaves the wall intact | **Confirmed, and measured.** The same three-storey part placed **2240** wall blocks with doors allowed and **2256** with `allowDoors: false`. |
-
-The `belowpart` result is the useful one. Reading the code showed the predicate
-calls `getPart()`, and this measures the consequence without relying on that
-reading: under the documented behaviour the two levels differ, under the real
-behaviour they do not, and neither outcome fails a chunk.
-
-## Ruins, damage and row length
-
-`docs/examples/wiki-test8/` covers what makes a lost city look lost, plus the two
-silent failures nothing had exercised. It runs twice, once with `ruinChance: 0` and
-once with `ruinChance: 1.0`, from the same pack.
-
-| Claim | Result |
-|---|---|
-| `preventruins` protects a pinned building | **Confirmed.** The same asset pinned twice under `ruinChance: 1.0`: 1767 wall blocks left on the unprotected copy, 2224 on the protected one. |
-| `rubble` is used by the ruin pass | **Confirmed.** A building whose `rubble` was set to an otherwise unused character produced 40 of it once ruins were on, and none with ruins off. |
-| `parts2` is an overlay on the same level | **Confirmed.** Base part 1504 blocks, overlay 8 blocks, both present. |
-| A layer longer than `xsize * zsize` is silent | **Confirmed.** A 17-character row placed its marker one column along, and the character past position 255 was never read. No message. |
-| A layer shorter than that fails the chunk | **Confirmed.** `String index out of range: 255`. |
-| `damaged` swaps the block when a building is ruined | **Overstated.** See below. |
-
-### Two things worth knowing before you test anything with explosions
-
-**`explosionChance: 0` does not turn explosions off.** `miniExplosionChance` is a
-separate roll and its default, `0.03`, is fifteen times larger. A profile that
-zeroes only the first still gets damaged buildings, which is exactly what made
-earlier runs hard to read.
-
-**`damaged` covers a thin band, not the ruin.** On a three-storey building made
-entirely of one character mapped `iron_block` to `cobweb`, with `ruinChance: 1.0`
-and explosions off: 587 iron left standing, and **2** cobwebs. A control chunk with
-no iron in it held **5** cobwebs from ordinary decoration.
-
-The control is the point. Without it the decoration reads as the result, and the
-number moves in the direction you were hoping for. The swap is applied where the
-generator lays rubble, and the rest of a ruined building is removed rather than
-converted. [Palette](../reference/palette.md#damaged-covers-less-than-it-sounds-like).
-
-## The same pack on 7.5.1
-
-`wiki-test7` was written for 7.4.12. Run unchanged against **7.5.1** on the same
-Minecraft version and the same Forge, it gives **28 of 28** again, and the only
-failing chunk is still the deliberate one.
-
-Every claim on this page that was established on 7.4.12 therefore holds on 7.5.1:
-the palette merge order, the 128-slot cutoff, `loot` and `mob` resolving through a
-Condition, `range` counting storeys, stair shape recalculation, the torch gate,
-`tag`, character truncation, and the `belowpart` bug.
-
-That is worth stating plainly, because 7.5.0 changed generation noticeably. **It
-changed where cities put things, not what a datapack means.**
-
-### What did move
-
-Four counts differ, all of them wall totals, and all for the same reason:
+Doorways are cut toward adjacent **city** chunks, and the 7.5 road planner changes
+which neighbours those are. On an identical pinned grid, four wall totals moved
+between 7.4.12 and 7.5.1, each by a multiple of 16:
 
 | Probe | 7.4.12 | 7.5.1 |
 |---|---|---|
@@ -666,20 +317,30 @@ Four counts differ, all of them wall totals, and all for the same reason:
 | `doors-on` | 2240 | 2256 |
 | `doors-off` | 2256 | 2256 |
 
-A doorway is 16 blocks, and every difference here is a multiple of 16. The mod cuts
-doorways toward **adjacent city chunks**, so which walls get opened depends on what
-the neighbours turned out to be. The 7.5 road planner claims chunks before
-`buildingchance` is rolled, so the neighbours are not the same even with the
-buildings pinned to identical coordinates.
+Count an interior block or a block entity instead. Both give the same number on
+both versions.
 
-Nothing about the buildings changed. The holes in them moved.
+## What the validator predicts
 
-!!! tip "If you are comparing versions, count something the neighbours cannot reach"
-    An interior block, or a block entity, gives the same number on both. A wall
-    total does not, and the difference is easy to misread as a generation change.
+`validate.py` reproduces four of the in-game outcomes before the game starts:
 
-## Recording a result
+```
+ERROR  rangetest.json: levels [6] match no part. Levels run from -0 to 6 INCLUSIVE,
+       so 'maxfloors': 6 is a 7-storey building.
+ERROR  prectest.json:  levels [3] match no part.
+ERROR  belowsem.json:  part reference uses 'belowpart', which never matches from a
+       building's parts list
+ERROR  test.json: char 'loot' on 'c': 'minecraft:chests/simple_dungeon' is a loot
+       table ID, but 'loot' names a Condition
+```
 
-A test that runs and disagrees with the wiki is the most valuable outcome here, not
-a failure of the exercise. Note which test, what you saw, and the mod version, then
-open an issue. See [Contributing](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki#contributing).
+Its earlier rule was that a building needs one part entry with no conditions on it.
+That rejected a building which generates correctly and explained none of the three
+that failed. It now computes level coverage instead.
+
+## Reporting a result
+
+A run that disagrees with this page is the most useful outcome available, not a
+failed exercise. Note which claim, what the world did, and the mod version, then
+open an issue. See
+[Contributing](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki#contributing).

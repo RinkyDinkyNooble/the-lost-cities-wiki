@@ -59,7 +59,7 @@ Absent in 5.3.29, 6.0.3, 6.1.6 and 6.2.3. Present in 6.2.2, 7.4.12 and later.
 Absent in every 5.x and 6.x version, and also absent in **8.2.2**. Present in
 7.4.12, 7.5.1, 8.4.1 and later.
 
-23 keys. This is the group that catches people on 8.2.2, whose version number
+23 keys. This is the group that catches an upgrade to 8.2.2, whose version number
 looks newer than 7.4.12 but whose feature set is older.
 
 | Wiki page | Keys |

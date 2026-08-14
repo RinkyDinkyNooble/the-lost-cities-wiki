@@ -7,7 +7,7 @@ Messages are quoted **exactly** as the mod produces them, with `<...>` marking a
 
 Most of this page is 7.4.12. Version 7.5.1 has 36 messages that 7.4.12 does not, and removes none of the older ones. All 36 come from the new road and highway planners. They are in [Messages added in 7.5](#messages-added-in-75).
 
-## Where you actually see these
+## Where these appear
 
 None of these strings are written to a file by the mod as a matter of course. They reach you in one of two ways, and the difference decides which file to open.
 
@@ -108,8 +108,8 @@ every version this wiki covers.
     the extent of the failed region to find its centre.
 
 !!! note "Which faults spread and which stay put"
-    The split is where in generation the throw happens, and it is worth knowing
-    because it tells you how far to look.
+    The split is where in generation the throw happens, and it decides how far
+    from the message to look.
 
     | Fault | Thrown while | Spreads |
     |---|---|---|
@@ -152,7 +152,7 @@ The line looks like this:
 [Server thread/WARN] [lostcities/]: Cannot find 'mycity:my_street' in minecraft:root!
 ```
 
-This is the quiet failure mode behind streets, parks, fountains, stairs, rail dungeons and building fronts that simply never appear. If content is missing and the game has not crashed, search `latest.log` for `lostcities` before you touch your JSON.
+This is the quiet failure mode behind streets, parks, fountains, stairs, rail dungeons and building fronts that never appear. If content is missing and the game has not crashed, search `latest.log` for `lostcities` before you touch your JSON.
 
 !!! tip "Grep the log rather than scrolling it"
     `latest.log` is large. On Windows, `findstr /C:"lostcities" logs\latest.log` is enough. The mod's own lines are the only ones carrying that logger name.
@@ -347,7 +347,7 @@ The city style's `railblocks.railmain` character is not in the palette for that 
 
 ### A part comes out smeared diagonally, with no error
 
-This is not an exception, but readers search for it, so it belongs here. A `slices` row that is not exactly `xsize` characters long shifts every block after it in that layer. The mod concatenates the rows and indexes them by position, and nothing validates their length. Count in UTF-16 units: an emoji counts as two. See [Part](../reference/part.md).
+This is not an exception. It is listed here because it is what the symptom gets searched for. A `slices` row that is not exactly `xsize` characters long shifts every block after it in that layer. The mod concatenates the rows and indexes them by position, and nothing validates their length. Count in UTF-16 units: an emoji counts as two. See [Part](../reference/part.md).
 
 ## Multi-building errors
 
@@ -414,7 +414,7 @@ A missing namespace is by far the most common cause. A bare name resolves agains
 
     Keep at least one entry in `bridges` and set `bridgeChance` to `0` if you do not want bridges. See [City Style](../reference/citystyle.md#an-empty-selector-list-is-safe-for-five-of-the-eight-and-fatal-for-three).
 
-### Streets that are simply absent, with a warning in the log
+### Streets that are absent, with a warning in the log
 
 This is not a crash. A street part lookup **warns and skips** instead of throwing, so a bad street part name produces `Cannot find '<name>' in minecraft:root!` as a **warning**, and a chunk with no street layer.
 
@@ -526,7 +526,7 @@ match on the exact text to tell which check failed.
 `LEGACY`.
 
 The two modes are not interchangeable at runtime. Set `highwayGenerationMode` to
-`INTERCITY_NETWORK_V1`, or leave the caller alone. Note that this is a separate key
+`INTERCITY_NETWORK_V1`, or leave the caller alone. This is a separate key
 from `streetGenerationMode`: setting one to `LEGACY` does not set the other.
 
 ### Logged warnings, not crashes
@@ -562,7 +562,7 @@ These carry no useful information for an author.
 
 ## Errors that indicate a mod bug, not your content
 
-These carry no useful information for an author. If you hit one with plain JSON content, it is worth reporting upstream.
+These carry no useful information for an author. Plain JSON content that produces one is worth reporting upstream.
 
 | Message | Where it comes from |
 |---|---|

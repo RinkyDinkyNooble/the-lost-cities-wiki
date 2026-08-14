@@ -4,8 +4,8 @@ status: in-progress
 
 # KubeJS Integration
 
-!!! info "This page is still being written"
-    What is here is accurate and enough to get content loading. Deeper KubeJS integration (scripted generation, custom commands called from generated content) is planned.
+!!! info "Scope"
+    This page covers loading Lost Cities assets through KubeJS instead of a datapack folder. Scripted generation and calling commands from generated content are not covered.
 
 !!! tip "TL;DR"
     Lost Cities content is loaded through Minecraft's normal datapack registry system, and KubeJS auto-merges anything under `kubejs/data/` into that same system. Drop your Lost Cities JSON there, no scripting, no separate datapack folder to manage.

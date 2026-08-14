@@ -5,7 +5,7 @@
 
 This is a contract, not a suggestion. If a part named `street_full` does not exist and nothing overrides that name, that piece of infrastructure does not generate.
 
-## Yes, you can have more than one variation
+## One shape can have several parts
 
 The single most common assumption is that each street shape is locked to exactly one part. It is not. **Streets, highways, and railways accept either a single name or a list of names**, and the mod picks one at random each time it places that piece:
 
@@ -30,7 +30,7 @@ The single most common assumption is that each street shape is locked to exactly
 Passing a list to a monorail key is a datapack load error, not a silent fallback.
 
 !!! note "There is no weighting"
-    Unlike [building selectors](../reference/citystyle.md) or [Conditions](../reference/condition.md), these lists have no `factor` key. Every entry in the list is equally likely. If you want one variant to be rare, you cannot express that here, list it once among many common ones, or use a [Variant](../reference/variant.md) inside the palette instead (see [below](#often-a-better-answer-vary-the-material-not-the-part)).
+    Unlike [building selectors](../reference/citystyle.md) or [Conditions](../reference/condition.md), these lists have no `factor` key. Every entry in the list is equally likely. If you want one variant to be rare, you cannot express that here, list it once among many common ones, or use a [Variant](../reference/variant.md) inside the palette instead (see [below](#varying-the-material-instead-of-the-part)).
 
 Adjacent chunks roll independently, with no attempt to match neighbours. Two touching straight-street chunks can and often will pick different variants, so **variants need to line up seamlessly at chunk edges** or the seams will be obvious. Do not count on predicting which variant a given chunk gets before you visit it; once a chunk is generated it is saved, so it will not change afterward.
 
@@ -178,7 +178,7 @@ A surface station gets one extra step. The mod flips a fair coin between the `st
     There is never a fallback to the default part name. Check your spelling, and remember that a bare name means `lostcities:<name>`, so your own parts need your namespace. See [Namespaces](../getting-started/namespaces.md).
 
 !!! warning "The silent warn-and-skip is wider than streets"
-    Streets are the case people meet first, but the mod uses the same warn-and-skip lookup for every one of these:
+    Streets are the most visible case. The mod uses the same warn-and-skip lookup for every one of these:
 
     fountains, parks, stairs, rail dungeons, building fronts, and a city sphere's `centerpart`.
 
@@ -194,7 +194,7 @@ This is a rule about these four families, not about parts in general. A [buildin
 
 For streets, the character that matters is the city style's `street`. Its `streetbase` and `streetvariant` neighbours look like they belong in the same list, but neither is read during generation. See [City Style](../reference/citystyle.md#keys). What a street is actually built from is the characters inside the street **part**, resolved against the merged palette like any other part.
 
-## Often a better answer: vary the material, not the part
+## Varying the material instead of the part
 
 If the goal is "my streets look too repetitive," authoring several near-identical parts is usually the harder path. The [Style](../reference/style.md) and [Variant](../reference/variant.md) systems already randomize *blocks* underneath a single part:
 

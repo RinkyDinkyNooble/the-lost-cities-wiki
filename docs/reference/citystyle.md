@@ -160,12 +160,12 @@ Setting a selector to `[]` is not uniformly safe. The weighted picker returns `n
 | `multibuildings` | **Crashes** | `Cannot find multibuilding: null` |
 | `bridges` | **Crashes** | `Invalid name given to minecraft:root getOrThrow!` |
 
-The five safe ones go through the mod's warn-and-skip lookup, which returns immediately when the name is `null`. It does not even log, because the null check happens before the registry is consulted. The feature simply does not appear.
+The five safe ones go through the mod's warn-and-skip lookup, which returns immediately when the name is `null`. It does not even log, because the null check happens before the registry is consulted. The feature does not appear.
 
 The three fatal ones reach a lookup that refuses a null name.
 
 !!! danger "`bridges` must be non-empty even when `bridgeChance` is `0`"
-    This is the trap worth knowing. The mod resolves the bridge part **eagerly**, in the same straight run of code that sets the door block and the stair part, for every city chunk that has a building. No chance value is tested first.
+    The mod resolves the bridge part **eagerly**, in the same straight run of code that sets the door block and the stair part, for every city chunk that has a building. No chance value is tested first.
 
     So `bridgeChance: 0` does **not** protect an empty `bridges` list. Setting the chance to zero and the list to `[]` still fails every building chunk. Confirmed in game: 1842 failed chunks in one session, with `bridgeChance` at `0.0`.
 
@@ -176,9 +176,9 @@ The three fatal ones reach a lookup that refuses a null name.
 !!! warning "Remember that inheritance is additive, so `[]` may not mean empty"
     Writing `"buildings": []` in a style that inherits from `citystyle_common` does not give you an empty list. You inherit the parent's 8 entries and add nothing. The crash above only happens when the **merged** list is empty, which means you either inherited nothing or inherited from a style that has none.
 
-## What a building front actually is
+## What a building front is
 
-`fronts` is the least self-explanatory selector, so it is worth spelling out.
+`fronts` is the least self-explanatory selector.
 
 A front is an extra part that belongs to a **building** but generates in the **adjacent street chunk**, along the edge facing that building. It is the shop awning, porch, step or overhang that makes a building meet the street instead of stopping dead at the chunk line.
 
@@ -296,7 +296,7 @@ A city's visual identity comes from the palette layer, not from authoring a sepa
 
 **2. `citystyle_config` exists to be overridden.** It sits at the bottom of the chain and holds one setting, so a modpack can replace one small file through the [`lostcities` namespace](../getting-started/namespaces.md) and have it apply to every city style, without copying anything else.
 
-The pattern is worth copying: put the settings you expect people to change in their own small file at the base of the chain. The particular setting this file holds, `streetblocks.width`, does nothing in 7.4.12, so do not read the file as evidence that street width is adjustable.
+The pattern is worth copying: put the settings most likely to be changed in their own small file at the base of the chain. The particular setting this file holds, `streetblocks.width`, does nothing in 7.4.12, so do not read the file as evidence that street width is adjustable.
 
 **3. `citystyle_border` is what city edges use.** It inherits `citystyle_common` and adds `buildingsettings` with `maxfloors: 1`, `maxcellars: 1` and `buildingchance: 0.2`, which gives low, sparse buildings.
 
@@ -313,7 +313,7 @@ The practical decision is what to inherit from.
 | Retheme an existing city, with different materials and the same content | Set `inherit: "citystyle_common"` and point `style` at your own [Style](style.md). Two lines, exactly like `citystyle_desert`. |
 | Add a few buildings on top of the defaults | Set `inherit: "citystyle_common"` and list only your additions in `selectors.buildings`. The mod appends them to the built-in ones. |
 | Use only your own buildings | **Do not inherit from `citystyle_common`.** Its selectors would be merged in and you would keep getting the built-in buildings. Declare everything yourself. |
-| Apply one setting across every city style | Override `citystyle_config` in the `lostcities` namespace. Note that the only key it currently holds, `width`, has no effect, so this is a pattern to copy rather than a working knob. |
+| Apply one setting across every city style | Override `citystyle_config` in the `lostcities` namespace. The only key it holds, `width`, has no effect, so this is a pattern to copy rather than a working knob. |
 
 ## Example: a minimal retheme
 

@@ -47,6 +47,19 @@ The name is used as a plain map key. It is not a resource location, so it is not
 restricted to lowercase, and it does not need a namespace. What matters is that the
 name in `dimensionsWithProfiles` matches the file name exactly, including case.
 
+!!! warning "Loading a profile and being offered it are two different things"
+    The rules above govern whether the mod **reads** the file. The world creation
+    screen applies its own filter on top, and it is stricter.
+
+    Observed on 7.4.12: a profile whose name contains a digit, an uppercase letter,
+    a hyphen or a dot is read normally and wired up normally through
+    `dimensionsWithProfiles`, and **does not appear as a choice on the world
+    creation screen**. Nothing is logged.
+
+    A profile reached only through `dimensionsWithProfiles` is unaffected, because
+    that path never consults the screen. A profile intended to be picked by hand
+    needs a name of lowercase letters only.
+
 ## File shape
 
 ```json
@@ -174,7 +187,7 @@ Tables below: **Range** is the window the mod was designed and tested against, a
 | `buildingMinCellars` | `0` | 0 – 20 | The fewest cellar levels. `0` means no cellar. |
 | `buildingMaxCellars` | `3` | 0 – 20 | The most cellar levels. The chunk's city level is added to this, so buildings on higher terrain may go deeper. |
 | `buildingDoorwayChance` | `0.6` | 0 – 1 | Chance of a doorway per eligible side/level. |
-| `buildingFrontChance` | `0.2` | 0 – 1 | Chance that a building is given a front part. The front is then drawn by each adjacent street chunk, not by the building itself. See [City Style](citystyle.md#what-a-building-front-actually-is). |
+| `buildingFrontChance` | `0.2` | 0 – 1 | Chance that a building is given a front part. The front is then drawn by each adjacent street chunk, not by the building itself. See [City Style](citystyle.md#what-a-building-front-is). |
 | `parkChance` | `0.2` | 0 – 1 | Chance a non-building section is a park. |
 | `parkElevation` | `true` | | If `true`, parks get an extra layer of elevation. `false` leaves them flush with the street. |
 | `parkBorder` | `true` | | If `true`, a park's border uses the street block as its base. |

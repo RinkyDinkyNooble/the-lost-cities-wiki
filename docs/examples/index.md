@@ -60,21 +60,41 @@ The [tutorial](../getting-started/first-city.md) explains why each step is there
 python docs/examples/validate.py docs/examples/first-city
 ```
 
-What it catches, and where each rule is documented:
+What it catches in a datapack, and where each rule is documented:
 
 | Check | Documented at |
 |---|---|
-| `char` is a single UTF-16 code unit (emoji fail) | [Palette](../reference/palette.md#what-counts-as-a-valid-character) |
+| `char` is one UTF-16 code unit, and a longer string is truncated to its first | [Palette](../reference/palette.md#what-counts-as-a-valid-character) |
 | Exactly one of `block`/`variant`/`blocks`/`frompalette` per entry | [Palette](../reference/palette.md) |
 | Weighted lists reach 128, and no entry sits past the fill point | [Palette](../reference/palette.md#the-128-slot-rule-for-blocks-and-variant) |
-| Parts are 16×16, every row exactly `xsize` **UTF-16 units** long | [Part](../reference/part.md) |
+| `loot` and `mob` name a Condition, not a loot table or an entity | [Palette](../reference/palette.md#loot-names-a-condition-not-a-loot-table) |
+| Parts are 16×16, every row exactly `xsize` **UTF-16 units** long | [Part](../reference/part.md#the-shape-of-slices) |
 | `meta`, not `metadata` | [Part](../reference/part.md#meta) |
-| Buildings have `filler` and at least one unconditioned part | [Building](../reference/building.md#floor-coverage-the-most-common-failure) |
+| Buildings have `filler` | [Building](../reference/building.md#filler-what-it-is-and-why-it-is-required) |
+| Every level from `-cellars` to `maxfloors` matches a part | [Building](../reference/building.md#floor-coverage-the-most-common-failure) |
+| `range` parses as two integers | [Condition](../reference/condition.md#writing-range) |
+| `inpart` and `belowpart` are not used in a building's `parts` | [Condition](../reference/condition.md#belowpart-and-inpart-in-a-building) |
 | Floor and cellar bounds inside their windows | [Building](../reference/building.md) |
+| `filler` and `rubble` resolve in the **building's** palette | [Building](../reference/building.md#filler-what-it-is-and-why-it-is-required) |
 | Stuff `maxcount` > `mincount`, `maxheight` > `minheight` | [Stuff Object](../reference/stuff.md) |
 | Part characters are defined somewhere | [Palette](../reference/palette.md#collisions-and-merge-order) |
 
-It is also how this wiki keeps itself honest: if `validate.py` and the mod ever disagree, one of them is wrong and it is worth finding out which. The bundle above passes with zero errors and zero warnings.
+And in a profile, if the pack ships one:
+
+| Check | Documented at |
+|---|---|
+| Every key exists, and sits in the section the mod registered it under | [Profile](../reference/profile.md) |
+| `worldStyle` names a world style the pack defines | [Error Messages](../troubleshooting/errors.md#thrown-during-chunk-generation) |
+| The file name is lowercase letters only | [Profile](../reference/profile.md#the-file-name-is-the-profile-name) |
+
+It also gates the wiki itself. Reference tables are checked against
+[`mod-keys.json`](mod-keys.json), the keys the mod's codecs declare, so a key the
+wiki documents that the mod does not have fails the build. If `validate.py` and the
+mod disagree, one of them is wrong.
+
+The bundle above passes with zero errors and zero warnings.
 
 !!! note "It does not check everything"
-    Nothing here can verify that a name resolves, that a block ID exists, or that your files are in the right folder. Those need the game. It catches the mechanical mistakes, not the wiring ones.
+    Nothing here can verify that a block ID exists, or that files are in the right
+    folder. Those need the game. It catches the mechanical mistakes, not the wiring
+    ones.

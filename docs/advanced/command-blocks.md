@@ -4,8 +4,8 @@ status: in-progress
 
 # Command Blocks & Third-Party Mod Integration
 
-!!! info "More integration patterns are planned"
-    Everything below is accurate and works today. What is still to come is the wider mod-integration side: more worked patterns for reaching behaviour no Lost Cities key exposes.
+!!! info "Scope"
+    This page covers one technique: reaching behaviour no Lost Cities key exposes, by having a palette character place a command block that runs once and removes itself. It does not cover mod-to-mod integration generally.
 
 !!! tip "TL;DR"
     A palette entry's `tag` key is raw NBT. Point `block` at `minecraft:command_block` and set `tag.Command`, and a palette character can run any command the moment that chunk generates. Everything on this page works in vanilla, no other mods required.
@@ -93,7 +93,7 @@ A function run from a command block inherits that block's position, so `~ ~ ~` i
 
 Note the folder is `functions` (plural) on 1.20.1. It was renamed to `function` in 1.21, so a function copied from a newer pack will not be found.
 
-This covers most of what people reach for a custom command to do: multiple blocks, entities, NBT, all in one palette character, and it works in any pack that has your datapack.
+This covers most of what a custom command would be reached for: multiple blocks, entities, NBT, all in one palette character, and it works in any pack that has your datapack.
 
 ## Practical notes
 

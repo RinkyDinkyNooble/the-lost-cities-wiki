@@ -65,7 +65,7 @@ This controls [Scattered Buildings](scattered.md), the structures out in the wil
 | `areasize` | *(required)* | 1 or more, and at least as large as any referenced multi-building's `dimx` and `dimz` | The side of the area, in chunks. Shipped value `8`. |
 | `chance` | *(required)* | 0 to 1 | The chance **per area**, not per chunk. The mod multiplies it by the profile's `scatteredChanceMultiplier` before rolling, so `0` on either side disables scattered buildings entirely. Shipped value `0.7`. |
 | `weightnone` | *(required)* | 0 or more | The weight of the "place nothing" outcome, drawn against the entries in `list`. Shipped value `30`. |
-| `list` | *(required)* | | Weighted references. See [Scattered Building Reference](scattered.md#where-placement-is-actually-controlled). |
+| `list` | *(required)* | | Weighted references. See [Scattered Building Reference](scattered.md#where-placement-is-controlled). |
 
 At most **one** structure spawns per area, at a random offset inside it, from a roll seeded by the area's coordinates. So `areasize` sets the spacing and `chance` sets how many of those slots are filled.
 

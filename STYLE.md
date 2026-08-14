@@ -22,6 +22,40 @@ that something is broken. What it drops is idiom, metaphor, hedging and variatio
 Keep procedural sentences under about 20 words. Descriptive sentences may run to about 25. If a
 sentence needs a second comma to survive, split it.
 
+## Point of view
+
+**The subject of a sentence is the mod, not the author.** This wiki's value comes from
+provenance, and provenance is exactly what tempts an author into telling the story of how a
+fact was obtained. State the fact and attribute the evidence. Delete the narrative.
+
+| Do | Do not |
+|---|---|
+| "`belowpart` tests the current part. Confirmed on 7.4.12." | "A test was run and it turned out `belowpart` was broken." |
+| "Levels run 0 to `maxfloors` inclusive." | "Four tests did not report, because they were built wrong." |
+| "How to reproduce" | "How these were found" |
+
+Never write `I`, `we`, `my` or `our`. `you` is allowed in instructions, and only there.
+
+Do not write about the wiki's own history. A page that once said something different is not a
+fact about the mod. Corrections belong in the commit message and, when the old belief is a trap
+a reader may still hold, as a plain statement of the correct behaviour.
+
+## No roadmap
+
+Documentation describes what exists. It does not announce what is coming.
+
+Delete "is planned", "is being built", "will be replaced", "coming soon", and every pointer to
+an unreleased thing. They cannot be verified when written and are stale when shipped. When a
+page covers less than its title suggests, state the scope instead:
+
+```
+!!! info "Scope"
+    This page covers loading assets through KubeJS. Scripted generation is not covered.
+```
+
+A statement about what a fix *would take* is different, and is allowed, because it is a fact
+about the code: "the accessor it needs does not exist on `ConditionContext`".
+
 ## Warnings
 
 State the consequence, then the action. The reader must learn the risk before the instruction.
@@ -75,6 +109,10 @@ value. A cell that only names the topic is wrong.
 For a boolean, say what `true` does. Say what `false` does only when it is not simply the absence
 of the `true` behaviour. For an enum, say what each accepted value does. For a sentinel number, say
 what the sentinel means, for example `-1` means unset and `0` disables the feature.
+
+**Every cell has to be readable on its own.** A reader scanning a table lands on one row and does
+not read the row above it. Never write "The same", "Ditto", "As above", or "See previous". Repeat
+the text, however repetitive that looks in the source.
 
 ## Claims
 

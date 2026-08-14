@@ -5,7 +5,7 @@
 
 No error, no crash, no log warning. The asset just is not found. Worth understanding this before writing anything.
 
-## What a name actually is
+## What a name is
 
 A resource location, `namespace:path`. Examples:
 
@@ -79,7 +79,7 @@ Anywhere the mod expects a *name* (a profile's `worldStyle` key, a world style's
 
 Most modpacks should default to their own namespace. Override only when you deliberately want to replace a specific built-in default.
 
-### How an override actually resolves
+### How an override resolves
 
 Ordinary datapack rules, with one consequence worth spelling out:
 

@@ -48,7 +48,7 @@ Ruin generation is chance-gated on `ruinChance`, and destroys a band of the buil
 
 ## You cannot exempt one building from ruin
 
-This is the first thing people look for, so it is worth stating plainly: **a Building asset has no key that protects it from the ruin pass.** There is no `preventruins`, no `noruin`, and no equivalent under another name.
+**A Building asset has no key that protects it from the ruin pass.** There is no `preventruins`, no `noruin`, and no equivalent under another name.
 
 The full set of controls:
 

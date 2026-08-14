@@ -26,10 +26,10 @@
 | `variant` | | The name of a [Variant](variant.md), which is a shared weighted block list. |
 | `blocks` | | An inline weighted list. Same shape as a Variant, but not reusable elsewhere. |
 | `frompalette` | | An alias to another character's resolved value. The same bare-name trap applies here, see [Namespaces](../getting-started/namespaces.md#the-default-namespace-trap). |
-| `damaged` | no | The block this character becomes where damage is laid over it, by the ruin pass or by an explosion. It affects a thin band, not the whole ruined section. See [below](#damaged-covers-less-than-it-sounds-like). |
+| `damaged` | no | The block this character becomes where damage is laid over it, by the ruin pass or by an explosion. It affects a thin band, not the whole ruined section. See [below](#what-damaged-replaces). |
 | `mob` | no | **Not a literal mob ID.** The name of a [Condition](condition.md). The mod places a real `mob_spawner` block, and the condition's resolved value becomes the mob it spawns. |
 | `loot` | no | **Not a loot table ID.** The name of a [Condition](condition.md), exactly like `mob`. The condition's resolved value is the loot table. See [below](#loot-names-a-condition-not-a-loot-table). |
-| `torch` | no | Boolean. **Gated on the profile's `generateLighting`, which is `false` by default, and when it is off the character becomes air.** See [below](#torch-is-off-by-default-and-off-means-air). |
+| `torch` | no | Boolean. **Gated on the profile's `generateLighting`, which is `false` by default, and when it is off the character becomes air.** See [below](#torch-requires-generatelighting). |
 | `tag` | no | A raw NBT compound. This is the mechanism behind the command-block palette technique. |
 
 !!! note "`frompalette` is an alias, not inheritance"
@@ -58,14 +58,14 @@ The mod resolves aliases after every concrete entry is in place. It sweeps the p
 
     The message names the part rather than the palette that is actually broken. If you get it for a character you are certain you defined, check whether that character is an alias in a cycle.
 
-## `damaged` covers less than it sounds like
+## What `damaged` replaces
 
 The name suggests every one of that character turns into the damaged block once a
 building is ruined. It does not.
 
 The swap is applied where the generator is laying **rubble**, which is a thin band,
-and the same lookup serves explosion damage. The rest of a ruined building is simply
-removed, keeping its original blocks on the way down.
+and the same lookup serves explosion damage. The rest of a ruined building is removed,
+keeping its original blocks on the way down.
 
 Measured on 7.4.12, `ruinChance: 1.0` with explosions off, on a three-storey
 building made entirely of one character mapped `iron_block` to `cobweb`:
@@ -82,7 +82,7 @@ against a control chunk**, or you will read the decoration as your result.
 `damaged` is worth setting for the look of a blast edge. It is not a way to
 recolour a ruin.
 
-## `torch` is off by default, and off means air
+## `torch` requires `generateLighting`
 
 `torch: true` does not describe the block. It hands the character to a separate
 pass, and the [Profile](profile.md)'s `generateLighting` decides whether that pass

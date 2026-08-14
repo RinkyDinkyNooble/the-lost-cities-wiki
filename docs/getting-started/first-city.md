@@ -25,7 +25,7 @@ This is the part nobody states, so: to get one custom building into a world you 
 
 Skip any one and nothing happens, usually with no error at all. That silence is why this page exists.
 
-!!! warning "Two things worth knowing before you start"
+!!! warning "Two things to settle before you start"
     - **Assets load once, when the world loads.** `/reload` does nothing. See [Seeing your changes](../tooling/commands.md#seeing-your-changes).
     - **Already-generated chunks never change.** Test in a fresh world, or travel somewhere you have never been.
 

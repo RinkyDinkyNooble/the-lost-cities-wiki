@@ -29,7 +29,7 @@
 !!! warning "A scattered asset with neither `buildings` nor `multibuilding` throws"
     Both keys are optional in the codec, so a file with neither loads. The mod then throws `Missing buildings for scattered '<name>'!` when it tries to place the structure.
 
-## Where placement is actually controlled
+## Where placement is controlled
 
 This asset defines only the **structure**. Where and how often it spawns lives in a [World Style](worldstyle.md)'s [`scattered`](worldstyle.md#scattered) block, and the per-structure filters live on each entry of its `list`, not here.
 
