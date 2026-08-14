@@ -23,6 +23,9 @@ public class Config {
     /** Features 1.2 and 1.3. A fuller report beside each caught generation fault. */
     public final ForgeConfigSpec.BooleanValue detailedFaultReports;
 
+    /** Feature 1.4. Check every asset file when datapacks load. */
+    public final ForgeConfigSpec.BooleanValue validateOnLoad;
+
     static {
         Pair<Config, ForgeConfigSpec> pair =
                 new ForgeConfigSpec.Builder().configure(Config::new);
@@ -74,6 +77,25 @@ public class Config {
                         "and for a missing palette character its code point and where to",
                         "look for it. Nothing the mod logs is suppressed.")
                 .define("detailedFaultReports", true);
+
+        validateOnLoad = builder
+                .comment("Check every Lost Cities asset file when datapacks load.",
+                        "",
+                        "The mod discovers these faults during generation instead, one chunk",
+                        "at a time, often thousands of times over and with the coordinates of",
+                        "a chunk that only asked about the one at fault. Everything checked",
+                        "here is decidable from a single file, so it is reported once, at",
+                        "load, with a file name and a line number.",
+                        "",
+                        "Checked: level coverage against the declared floor and cellar",
+                        "bounds, inpart and belowpart in a building's parts, a range that",
+                        "does not parse or carries a third number, loot and mob holding an ID",
+                        "rather than a Condition name, a char longer than one code unit or",
+                        "starting above U+FFFF, a weighted list that misses or overruns its",
+                        "128 slots, and a slices layer that is not xsize by zsize characters.",
+                        "",
+                        "Reports only. Nothing is prevented from loading.")
+                .define("validateOnLoad", true);
 
         builder.pop();
 

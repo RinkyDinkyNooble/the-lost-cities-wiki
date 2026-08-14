@@ -90,6 +90,46 @@ Lost Cities generation fault
       ...
 ```
 
+### `validateOnLoad`
+
+Every Lost Cities asset file is checked when datapacks load, and what will fail is
+reported once, with a file name and a line number:
+
+```
+Lost Cities asset check: 6 errors, 2 warnings
+  ERROR  wt5:lostcities/buildings/prectest.json:10  levels [3] match no part
+         Levels run -0 to 3 INCLUSIVE, so 'maxfloors': 3 is a 4-storey building.
+         Generation throws 'Misconfiguration! ...', and every chunk that queries
+         this one fails the same way
+  ERROR  wt5:lostcities/palettes/test.json:72  'loot': "minecraft:chests/simple_dungeon"
+         looks like an ID, but 'loot' names a Condition
+  WARN   wt5:lostcities/buildings/rangetest.json:13  range "0,2,9" has more than two numbers
+         The mod reads the first two and discards the rest, silently
+```
+
+The mod finds these during generation instead, one chunk at a time, often thousands
+of times over and with the coordinates of a chunk that merely asked about the one at
+fault.
+
+Checked, all decidable from a single file:
+
+| Rule | Otherwise found as |
+|---|---|
+| Level coverage against the declared bounds, or against every height the profile could roll | `Misconfiguration! Floor were generated...` on every affected chunk |
+| `inpart` and `belowpart` in a building's `parts` | Silence. Neither key can ever match there |
+| A `range` that does not parse, or carries a third number | A throw, or a floor range that is not the one written |
+| `loot` or `mob` holding an ID rather than a Condition name | `Error getting resource ...`, after placement, leaving invisible chests |
+| A `char` longer than one code unit, or starting above U+FFFF | Silence, or a smeared layer |
+| A weighted list that misses or overruns its 128 slots | `Not enough blocks in the random list`, or entries that never appear |
+| A `slices` layer that is not `xsize * zsize` characters | `String index out of range`, or a silent shift |
+
+Nothing is prevented from loading. The check reports and steps aside.
+
+A building does not have to declare floor bounds. Conditions written as `top: true`
+and `top: false` cover every level at any height, which is what the mod's own content
+does, so where bounds are absent the check tests every height the profile could roll
+rather than demanding a declaration.
+
 ## Building
 
 ```bash
