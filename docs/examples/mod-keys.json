@@ -820,12 +820,10 @@
     },
     "horizon": {
      "section": "client",
-     "type": "Enum(LandscapeType)",
+     "type": "Float",
      "default": -1.0,
-     "values": [
-      "DEFAULT",
-      "DEFAULT"
-     ]
+     "min": -1.0,
+     "max": 256.0
     },
     "icon": {
      "section": "lostcity",
@@ -834,13 +832,16 @@
     "landscapeType": {
      "section": "lostcity",
      "type": "Enum(LandscapeType)",
-     "default": "DEFAULT",
+     "default": "default",
      "values": [
-      "DEFAULT",
-      "FLOATING",
-      "SPACE",
-      "CAVERN"
-     ]
+      "default",
+      "floating",
+      "space",
+      "cavern",
+      "spheres",
+      "cavernspheres"
+     ],
+     "case": "lowercase only"
     },
     "liquidBlock": {
      "section": "lostcity",
@@ -1941,7 +1942,8 @@
      "values": [
       "LEGACY",
       "INTERCITY_NETWORK_V1"
-     ]
+     ],
+     "case": "uppercased before matching"
     },
     "highwayHubMinimumPotential": {
      "section": "lostcity",
@@ -2053,18 +2055,10 @@
     },
     "horizon": {
      "section": "client",
-     "type": "Enum(HighwayGenerationMode)",
+     "type": "Float",
      "default": -1.0,
-     "values": [
-      "INTERCITY_NETWORK_V1",
-      "HIERARCHICAL_GRID_V1",
-      "OVERRIDE_MINOR",
-      "DEFAULT",
-      "INTERCITY_NETWORK_V1",
-      "HIERARCHICAL_GRID_V1",
-      "OVERRIDE_MINOR",
-      "DEFAULT"
-     ]
+     "min": -1.0,
+     "max": 256.0
     },
     "icon": {
      "section": "lostcity",
@@ -2073,13 +2067,16 @@
     "landscapeType": {
      "section": "lostcity",
      "type": "Enum(LandscapeType)",
-     "default": "DEFAULT",
+     "default": "default",
      "values": [
-      "DEFAULT",
-      "FLOATING",
-      "SPACE",
-      "CAVERN"
-     ]
+      "default",
+      "floating",
+      "space",
+      "cavern",
+      "spheres",
+      "cavernspheres"
+     ],
+     "case": "lowercase only"
     },
     "liquidBlock": {
      "section": "lostcity",
@@ -2157,7 +2154,8 @@
       "BLOCK_ALL",
       "OVERRIDE_MINOR",
       "OVERRIDE_ALL"
-     ]
+     ],
+     "case": "uppercased before matching"
     },
     "multiUseCorner": {
      "section": "lostcity",
@@ -2442,7 +2440,8 @@
      "values": [
       "LEGACY",
       "HIERARCHICAL_GRID_V1"
-     ]
+     ],
+     "case": "uppercased before matching"
     },
     "terrainFixLowerMaxOffset": {
      "section": "lostcity",
