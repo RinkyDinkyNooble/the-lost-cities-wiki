@@ -64,7 +64,7 @@ Each changes what generates, so each is opt-in and separately switchable.
 | # | Feature | The bug | Risk |
 |---|---|---|---|
 | 3.1 | **Done.** **`belowpart` reads the part below** | `ConditionContext` stores `belowPart` in a field with no accessor, and the predicate calls `getPart()`. The floor loop already tracks the previous level's part and passes it in, so only the accessor and the predicate are missing. Present in 7.4.12 through 10.0.1. | Medium. Buildings written against the broken behaviour would change. |
-| 3.2 | **Roll repaired, placement unverified.** **`streetblocks.parts.full` generates** | `StreetType.values()[random.nextInt(0, values().length - 2)]` makes the `full` shape unreachable. Off by one on the bound. | Medium. Street layouts change wherever `full` becomes reachable. |
+| 3.2 | **Done.** **`streetblocks.parts.full` generates** | `StreetType.values()[random.nextInt(0, values().length - 2)]` makes the `full` shape unreachable. Off by one on the bound. | Medium. Street layouts change wherever `full` becomes reachable. |
 | 3.3 | **Per-block rail variation** | `railmain` is resolved once per chunk, producing 16-block colour strips. The palette already has a `get(char, Random)` overload the railway code does not call. | Low. Affects rail beds only. |
 | 3.4 | **Corner stairs** | The neighbour-aware correction discards any `shape=` written in a palette. A per-part or per-character opt-out would let an author force a shape without the command-block workaround. | Medium. Needs a design decision on where the opt-out is declared. |
 

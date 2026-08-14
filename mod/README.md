@@ -197,14 +197,12 @@ The same expression appears twice, in `BuildingInfo` and in
 `LostCityTerrainFeature.generateStreet`. The second re-rolls and overwrites the
 stored value before switching on it, so both are patched.
 
-!!! warning "Partly verified"
-    The roll is repaired: `/lcdev report` on street chunks reports
-    `street type: FULL` with this on, where every chunk read `NORMAL` before.
+Verified on the same seed and the same chunk, with the toggle as the only change:
 
-    Placement of a **custom** `full` part is not verified. In the demonstration pack
-    no custom street part places at all, including ones unrelated to this repair,
-    which points at that pack rather than at the fix. Treat this repair as
-    unfinished until that is resolved.
+| Repair | A custom `full` street part |
+|---|---|
+| off | 0 blocks placed, and every chunk reports `street type: NORMAL` |
+| on | 256 blocks, one full layer, and chunks report `street type: FULL` |
 
 ## Commands
 
