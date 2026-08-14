@@ -422,6 +422,30 @@ follow it. Every one of them failed on
 matches!`. `andtest` was the only conditioned building to survive, because
 `ground` and `top` cover any height.
 
+### The second build crashed, which no asset mistake had managed
+
+Running pack 6's datapack against pack 5's profile, so the profile named a
+`worldStyle` that was no longer loaded, produced a real crash report with
+`Description: Feature placement`. Nothing in either earlier pack had done that,
+including two profiles written deliberately to fail.
+
+The catch in `LostCityFeature` covers the call to `LostCityTerrainFeature.generate`
+and nothing else. `getDimensionInfo` runs before it, and resolving the profile's
+world style is part of that. So:
+
+| Mistake in | Result |
+|---|---|
+| Your assets: parts, palettes, buildings, city styles, selectors | Failed chunks and log lines. No crash. |
+| The wiring between profile and datapack | **Crash**, with a crash report. |
+
+The line number on `m_142674_` in the trace tells you which you have. 49 is the
+unguarded setup, 62 is inside the catch. Written up on
+[Error Messages](../troubleshooting/errors.md#thrown-during-chunk-generation).
+
+The validator now rejects a profile whose `worldStyle` sits in the pack's own
+namespace with no file behind it, and a profile whose file name is not lowercase
+letters, which is the other way to get a profile the game will not offer you.
+
 ### The finding that came out of my own mistake
 
 Those 3 broken buildings produced **77 failed chunks**, over a 13 by 10 chunk

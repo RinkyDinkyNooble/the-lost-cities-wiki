@@ -435,6 +435,28 @@ def check_profiles(root: Path) -> None:
                         f"`{key}` is in section '{section}' but belongs in "
                         f"'{known[key]['section']}', so the mod will never read it")
 
+        # The profile's worldStyle is resolved OUTSIDE the catch that makes every
+        # other asset mistake survivable, so naming one this pack does not ship
+        # crashes the server rather than failing a chunk.
+        style = data.get("lostcity", {}).get("worldStyle")
+        if isinstance(style, str) and ":" in style:
+            ns, name = style.split(":", 1)
+            if (root / "data" / ns).is_dir():
+                if not (root / "data" / ns / "lostcities" / "worldstyles"
+                        / f"{name}.json").is_file():
+                    err(f"profile/{path.name}",
+                        f"worldStyle '{style}' is in this pack's namespace but no "
+                        f"worldstyles/{name}.json defines it. This CRASHES the "
+                        "server, it does not fail a chunk: the world style is "
+                        "resolved before the generation try/catch")
+
+        # A profile name has to be lowercase letters only. Anything else and the
+        # world creation screen silently does not offer it.
+        if not path.stem.isalpha() or not path.stem.islower():
+            err(f"profile/{path.name}",
+                f"profile name '{path.stem}' is not lowercase letters only, so it "
+                "will not appear as a choice on the world creation screen")
+
 
 def main() -> int:
     root = Path(sys.argv[1] if len(sys.argv) > 1 else Path(__file__).parent / "first-city")

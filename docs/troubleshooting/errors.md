@@ -16,10 +16,42 @@ None of these strings are written to a file by the mod as a matter of course. Th
 **The game does not crash.** This is the single most important thing to know about
 every message on this page that comes from generation.
 
-`LostCityFeature` wraps the whole generation of a chunk in a `try` block that
-catches `Exception`. When anything throws, the mod logs
+`LostCityFeature` wraps the generation of a chunk in a `try` block that catches
+`Exception`. When anything throws, the mod logs
 `Error generating chunk <x>,<z>: <message>`, prints the stack trace, and carries on
 with the next chunk.
+
+!!! danger "The catch is narrower than the method, and outside it the game does crash"
+    The guarded region is the call to `LostCityTerrainFeature.generate` and nothing
+    else. Three things happen **before** it, unguarded:
+
+    1. `getDimensionInfo`, which resolves the profile and, through it, the profile's
+       `worldStyle` and outside style
+    2. the biome lookup for the chunk
+    3. `setWorld` on the dimension info
+
+    A throw in any of those leaves `LostCityFeature` entirely, reaches vanilla's
+    feature placer, and produces a genuine crash with a `Description: Feature
+    placement` crash report in `crash-reports/`.
+
+    The realistic way to hit this is a **profile naming a `worldStyle` that no
+    loaded datapack defines**, which is easy to do by editing a datapack and
+    forgetting the profile, or the reverse:
+
+    ```
+    java.lang.RuntimeException: Error getting resource mypack:mystyle!
+      at DefaultDimensionInfo.<init>(DefaultDimensionInfo.java:44)
+      at LostCityFeature.getDimensionInfo(LostCityFeature.java:90)
+      at LostCityFeature.m_142674_(LostCityFeature.java:49)
+    Caused by: java.lang.NullPointerException: Cannot invoke
+      "WorldStyleRE.getRegistryName()" because "object" is null
+    ```
+
+    The tell is the line number on `m_142674_`. **49 is the unguarded setup and
+    crashes. 62 is inside the catch and does not.** Confirmed in game on 7.4.12.
+
+    So the rule is: a mistake in your **assets** fails chunks and logs. A mistake in
+    the **wiring between profile and datapack** crashes.
 
 | What actually happens | |
 |---|---|
@@ -134,6 +166,7 @@ wrong **kind** of name.
 
 | Cause | Fix |
 |---|---|
+| The profile's `worldStyle` names a World Style no loaded datapack defines | **This one crashes the game**, because it is resolved before the catch. See [above](#thrown-during-chunk-generation). Check that the profile and the datapack in the world are the same generation of your pack. |
 | A palette `loot` or `mob` key holds a loot table or entity ID | Both name a [Condition](../reference/condition.md). Wrap the value in a one-entry Condition and name that instead. This is by far the most common form. |
 | A bare name that resolved into the `minecraft` namespace | See [Namespaces](../getting-started/namespaces.md#the-default-namespace-trap). |
 | A genuine typo in an asset name | Compare against the file name, which is the asset name. |
