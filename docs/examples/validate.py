@@ -11,6 +11,12 @@ import sys
 import unicodedata
 from pathlib import Path
 
+# Findings quote palette characters, which are routinely Greek, Cyrillic or CJK.
+# A Windows console defaults to cp1252 and would abort on the first one.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 errors: list[str] = []
 warnings: list[str] = []
 
@@ -39,11 +45,23 @@ def check_palette(path: Path, data) -> set[str]:
         if c is None:
             err(path.name, "palette entry has no 'char'")
             continue
-        if len(c.encode("utf-16-le")) // 2 != 1:
-            err(path.name, f"char {c!r} is not a single UTF-16 code unit (emoji?)")
-        if c in chars:
-            err(path.name, f"duplicate char {c!r} within one file")
-        chars.add(c)
+        if c == "":
+            err(path.name, "palette entry has an empty 'char'; the mod throws at load")
+            continue
+        # The mod keeps the first UTF-16 code unit and discards the rest, so that
+        # is the key everything else has to be judged against.
+        units = len(c.encode("utf-16-le")) // 2
+        key = c[0]
+        if "\ud800" <= key <= "\udfff":
+            err(path.name, f"char {c!r} starts above U+FFFF (emoji?); the mod keeps "
+                           "only the leading surrogate, so every character in the "
+                           "same block of 1024 collapses onto one key")
+        elif units != 1:
+            warn(path.name, f"char {c!r} is {units} code units; the mod registers "
+                            f"{key!r} and discards the rest silently")
+        if key in chars:
+            err(path.name, f"duplicate char {key!r} within one file")
+        chars.add(key)
 
         kinds = [k for k in ("block", "variant", "blocks", "frompalette") if k in entry]
         if len(kinds) != 1:

@@ -246,6 +246,164 @@ ERROR  toponly.json: no unconditioned part reference;
 That is the `wtfailfloors` crash, caught before the game ever starts. If the
 in-game result matches, the rule the future DevTool will enforce is correct.
 
+## The pinned-grid pack
+
+The two packs above both had the same weakness: the tests generate wherever the
+world happens to put them, so reading a result starts with hunting for the
+building. This third pack removes that. It is at `docs/examples/wiki-test5/`.
+
+A [predefined city](../reference/predefined.md) pins one city to world chunk
+**8, 8** with a radius of 8, and pins every test building to a fixed chunk inside
+it. `cityChance` is `0.0`, so that city is the only one in the world. Each test
+therefore has a block coordinate you can fly straight to.
+
+### Installing
+
+Same split as before. The datapack goes in the world, the profile goes in the
+config folder:
+
+```
+<world>/datapacks/wiki-test5/
+config/lostcities/profiles/wtfive.json
+```
+
+```toml
+dimensionsWithProfiles = [ "lostcities:lostcity=wtfive" ]
+```
+
+Restart, make a new world, enter the Lost City dimension, then go to the grid:
+
+```
+/execute in lostcities:lostcity run tp @s 136 120 136
+```
+
+### Where everything is
+
+Every test building is one chunk. The gaps between them are pinned streets, and
+the grey buildings filling the rest of the city are backdrop, not a test.
+
+| # | Test | Building | Chunk | Block corner | Floors |
+|---|---|---|---|---|---|
+| 1 | Pinned coordinates are relative | `origin` | 8, 8 | 128, 128 | 4 |
+| 2 | A third number in `range` | `rangetest` | 10, 8 | 160, 128 | 6 |
+| 3 | Conditions are AND, never OR | `andtest` | 12, 8 | 192, 128 | 4 |
+| 4 | `belowpart` | `belowtest` | 14, 8 | 224, 128 | 3 |
+| 5 | Palette precedence | `prectest` | 8, 10 | 128, 160 | 3 |
+| 6 | The 128-slot cutoff | `slottest` | 10, 10 | 160, 160 | 2 |
+| 7 | `shape=` on stairs is discarded | `stairtest` | 12, 10 | 192, 160 | 1 |
+| 8 | `torch` attachment pass | `torchtest` | 14, 10 | 224, 160 | 1 |
+| 9 | Loot with both chances at 0 | `loottest` | 8, 12 | 128, 192 | 2 |
+| 10 | `mob` names a Condition | `mobtest` | 10, 12 | 160, 192 | 1 |
+| 11 | `tag` raw NBT | `tagtest` | 12, 12 | 192, 192 | 1 |
+| 12 | A `char` longer than one character | `chartest` | 14, 12 | 224, 192 | 2 |
+| 13 | A circular `frompalette` | `circulartest` | 8, 14 | 128, 224 | 2 |
+
+### What each one should look like
+
+**1. Pinned coordinates are relative.** A solid emerald tower, 4 floors. It is
+pinned at `chunkx: 0, chunkz: 0` while the city is at 8, 8. If the coordinates
+are relative, as the code says, it stands on chunk 8, 8. If they were absolute it
+would stand at block 0, 0, far outside the city, and probably nowhere at all.
+
+**2. A third number in `range`.** Six floors. The lower part is gated
+`range: "0,2,9"` and the upper one `range: "3,5"`.
+
+| Result | Means |
+|---|---|
+| Gold on floors 0 to 2, diamond on 3 to 5 | The mod read `0,2` and threw the `9` away. What the wiki says. |
+| Gold and diamond mixed on every floor | The mod used the `9`, so both entries match most floors. |
+| The chunk fails, `Bad range specification` | The mod rejects a third number rather than ignoring it. |
+
+**3. Conditions are AND, never OR.** Four floors: white bottom, two gold, red
+top. The middle entry sets `ground: false` **and** `top: false`. Under OR that
+entry would match every floor, and the tower would come out mixed instead of
+banded.
+
+**4. `belowpart`.** Three floors: white, gold, diamond, bottom to top. Each floor
+above the first is selected only by what sits under it. If `belowpart` does not
+match on a fully qualified name, floors 1 and 2 match nothing and the chunk fails
+with `Misconfiguration! Floor were generated for a building where no part
+condition matches!`.
+
+**5. Palette precedence.** Three floors, each one a different level of the
+palette merge for the same character.
+
+| Floor | Comes out | Confirms |
+|---|---|---|
+| 0, gold | The building's `refpalette` | Building level applies when the part has no palette |
+| 1, diamond | The part's `refpalette` | Part beats building |
+| 2, lapis | The building redefines `A`, which the shipped standard style defines concretely | Building beats style |
+
+The part on floor 1 has a palette holding **one** character. It still needs `#`
+and `_` from the building's palette, so if it comes out at all, a part palette
+merges rather than replaces. If instead the chunk fails on
+`Could not find entry '#'`, it replaces.
+
+**6. The 128-slot cutoff.** A white and black speckled block, 2 floors. The
+weighted list is 120 white, then 20 black, then 100 red. The wiki says the black
+entry is cut short at 8 slots and the red entry gets nothing. **One red block
+anywhere on this building refutes it.**
+
+**7. `shape=` on stairs is discarded.** A stone deck holding five oak stairs with
+nothing next to any of them, all written `shape=outer_right`. They should all be
+straight. Four rows further along is a perpendicular pair, which is the geometry
+that does produce a corner.
+
+**8. `torch` attachment pass.** Two torches. One stands on the deck, which is the
+easy case. The other sits one block up with air underneath and a stone block to
+its west, so it can only survive as a wall torch. If the attachment pass works it
+is attached to that stone. If it does not, it is missing.
+
+**9. Loot with both chances at 0.** Eight chests, four per floor. The profile sets
+`generateLoot: true`, `buildingWithoutLootChance: 0.0` and
+`chestWithoutLootChance: 0.0`, so the wiki says **every one** of them is filled.
+Nothing is above them to overwrite. One empty chest here means one of the five
+causes on [Palette](../reference/palette.md#why-a-chest-generates-empty) is
+missing from that list.
+
+**10. `mob` names a Condition.** Three spawners. The palette gives them
+`mob: "wt5:mobpick"`, and that condition resolves to `minecraft:blaze`. Blaze
+spawners confirm it. Pig spawners, the vanilla default, would mean the value
+never reached the spawner.
+
+**11. `tag` raw NBT.** Three chests carrying a `CustomName`. Open one. The title
+should read **WIKITAG**.
+
+**12. A `char` longer than one character.** Gold walls. The palette entry is
+written `"char": "王zz"` and the part uses `王`. Gold walls mean the mod kept the
+first code unit and discarded the rest without complaining.
+
+**13. A circular `frompalette`.** This one is **meant to fail**, and it is the
+only chunk in the world that should. `Ѱ` aliases `Ѳ` and `Ѳ` aliases `Ѱ`, so
+neither resolves. Expect nothing at block 128, 224, no message at load, and this
+in the log:
+
+```
+Could not find entry 'Ѱ' in the palette for part 'wt5:ct_box'!
+```
+
+That the other twelve buildings are unaffected is itself the point. A failure is
+scoped to the chunk that caused it.
+
+### What the validator says about this pack in advance
+
+```
+ERROR  test.json: char 'm' entry #2 (minecraft:red_concrete) is unreachable, 128 slots already filled
+ERROR  andtest.json:   no unconditioned part reference
+ERROR  belowtest.json: no unconditioned part reference
+ERROR  prectest.json:  no unconditioned part reference
+ERROR  rangetest.json: no unconditioned part reference
+```
+
+The first is test 6, predicted before the game starts.
+
+The other four are a **question this run settles**. The validator's rule is that a
+building needs one part entry with no conditions on it, because that is the only
+way it can be sure every floor matches something. These four buildings instead
+partition the floors exactly, with no fallback and no overlap. If they generate,
+the rule is stricter than the mod is and should be replaced by a real coverage
+check. If they fail, the rule is right and a fallback entry is not optional.
+
 ## Recording a result
 
 A test that runs and disagrees with the wiki is the most valuable outcome here, not

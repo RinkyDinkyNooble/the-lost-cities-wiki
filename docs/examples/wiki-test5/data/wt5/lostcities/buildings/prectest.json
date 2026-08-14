@@ -1,0 +1,24 @@
+{
+  "filler": "#",
+  "rubble": "#",
+  "refpalette": "wt5:prec_building",
+  "minfloors": 3,
+  "maxfloors": 3,
+  "mincellars": 0,
+  "maxcellars": 0,
+  "overrideFloors": true,
+  "parts": [
+    {
+      "part": "wt5:pt_nopal",
+      "floor": 0
+    },
+    {
+      "part": "wt5:pt_pal",
+      "floor": 1
+    },
+    {
+      "part": "wt5:pt_style",
+      "floor": 2
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "filler": "#",
+  "rubble": "#",
+  "refpalette": "wt5:test",
+  "minfloors": 1,
+  "maxfloors": 1,
+  "mincellars": 0,
+  "maxcellars": 0,
+  "overrideFloors": true,
+  "parts": [
+    {
+      "part": "wt5:tag"
+    }
+  ]
+}

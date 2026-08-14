@@ -1,0 +1,12 @@
+{
+  "palette": [
+    {
+      "char": "Ѱ",
+      "frompalette": "Ѳ"
+    },
+    {
+      "char": "Ѳ",
+      "frompalette": "Ѱ"
+    }
+  ]
+}

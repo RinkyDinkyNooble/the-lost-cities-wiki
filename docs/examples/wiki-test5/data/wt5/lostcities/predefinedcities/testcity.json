@@ -1,0 +1,124 @@
+{
+  "dimension": "lostcities:lostcity",
+  "chunkx": 8,
+  "chunkz": 8,
+  "radius": 8,
+  "citystyle": "wt5:test",
+  "buildings": [
+    {
+      "building": "wt5:origin",
+      "chunkx": 0,
+      "chunkz": 0
+    },
+    {
+      "building": "wt5:rangetest",
+      "chunkx": 2,
+      "chunkz": 0
+    },
+    {
+      "building": "wt5:andtest",
+      "chunkx": 4,
+      "chunkz": 0
+    },
+    {
+      "building": "wt5:belowtest",
+      "chunkx": 6,
+      "chunkz": 0
+    },
+    {
+      "building": "wt5:prectest",
+      "chunkx": 0,
+      "chunkz": 2
+    },
+    {
+      "building": "wt5:slottest",
+      "chunkx": 2,
+      "chunkz": 2
+    },
+    {
+      "building": "wt5:stairtest",
+      "chunkx": 4,
+      "chunkz": 2
+    },
+    {
+      "building": "wt5:torchtest",
+      "chunkx": 6,
+      "chunkz": 2
+    },
+    {
+      "building": "wt5:loottest",
+      "chunkx": 0,
+      "chunkz": 4
+    },
+    {
+      "building": "wt5:mobtest",
+      "chunkx": 2,
+      "chunkz": 4
+    },
+    {
+      "building": "wt5:tagtest",
+      "chunkx": 4,
+      "chunkz": 4
+    },
+    {
+      "building": "wt5:chartest",
+      "chunkx": 6,
+      "chunkz": 4
+    },
+    {
+      "building": "wt5:circulartest",
+      "chunkx": 0,
+      "chunkz": 6
+    }
+  ],
+  "streets": [
+    {
+      "chunkx": 1,
+      "chunkz": 0
+    },
+    {
+      "chunkx": 3,
+      "chunkz": 0
+    },
+    {
+      "chunkx": 5,
+      "chunkz": 0
+    },
+    {
+      "chunkx": 1,
+      "chunkz": 2
+    },
+    {
+      "chunkx": 3,
+      "chunkz": 2
+    },
+    {
+      "chunkx": 5,
+      "chunkz": 2
+    },
+    {
+      "chunkx": 1,
+      "chunkz": 4
+    },
+    {
+      "chunkx": 3,
+      "chunkz": 4
+    },
+    {
+      "chunkx": 5,
+      "chunkz": 4
+    },
+    {
+      "chunkx": 1,
+      "chunkz": 6
+    },
+    {
+      "chunkx": 3,
+      "chunkz": 6
+    },
+    {
+      "chunkx": 5,
+      "chunkz": 6
+    }
+  ]
+}
