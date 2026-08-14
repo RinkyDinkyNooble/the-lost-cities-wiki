@@ -130,6 +130,57 @@ and `top: false` cover every level at any height, which is what the mod's own co
 does, so where bounds are absent the check tests every height the profile could roll
 rather than demanding a declaration.
 
+## Commands
+
+### `/lcdev report [character]`
+
+Reports what the generator decided for the chunk the caller is standing in, and
+optionally what a palette character resolves to there.
+
+```
+chunk 10,8   block 160,128
+profile: wtseven
+world style: wt7:test
+is city: true
+city level: 4
+city style: wt7:test
+building: wt7:rangetest
+floors: 6, cellars 0   levels 0 to 6 inclusive
+level 0: wt7:rt_gold
+level 1: wt7:rt_gold
+level 2: wt7:rt_gold
+level 3: wt7:rt_diamond
+level 4: wt7:rt_diamond
+level 5: wt7:rt_diamond
+level 6: wt7:rt_diamond
+character 'G'  U+0047
+resolves to: Block{minecraft:gold_block}
+```
+
+Two things there are not available any other way.
+
+**The part chosen for each level.** That is the direct answer to a coverage
+question, and to any question about which condition won. The listing above shows
+`range: "0,2,9"` covering levels 0 to 2, which is the third number being discarded.
+
+**What a character resolves to after the merge.** A palette is merged from the
+style, then the building, then the part, and the result is written nowhere. For an
+unresolved character the report says so, rather than waiting for the chunk to fail:
+
+```
+character 'Ѱ'  U+0470
+resolves to: NOTHING. Generation would fail this chunk with 'Could not find entry'
+check: the part's palette, then the building's, then the style's, and whether it
+is a frompalette alias in a cycle
+```
+
+The mod ships `/lostcities debug`, which covers some of the same ground and writes
+only to the server console, so on a dedicated server the person asking cannot read
+the answer. This writes to the caller.
+
+If the chunk itself cannot be described, because its selection stage is what throws,
+the command says that too. It is the answer to the question.
+
 ## Building
 
 ```bash

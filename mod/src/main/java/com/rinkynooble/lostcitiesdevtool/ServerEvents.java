@@ -1,7 +1,9 @@
 package com.rinkynooble.lostcitiesdevtool;
 
+import com.rinkynooble.lostcitiesdevtool.command.ReportCommand;
 import com.rinkynooble.lostcitiesdevtool.validate.ValidationListener;
 import net.minecraftforge.event.AddReloadListenerEvent;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -20,5 +22,10 @@ public class ServerEvents {
     @SubscribeEvent
     public static void onAddReloadListener(AddReloadListenerEvent event) {
         event.addListener(new ValidationListener());
+    }
+
+    @SubscribeEvent
+    public static void onRegisterCommands(RegisterCommandsEvent event) {
+        ReportCommand.register(event.getDispatcher());
     }
 }
