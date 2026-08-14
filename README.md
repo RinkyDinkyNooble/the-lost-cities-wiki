@@ -1,45 +1,54 @@
 # The Lost Cities Wiki
 
-An in-depth, unofficial guide to building custom cities with [The Lost Cities](https://www.curseforge.com/minecraft/mc-mods/the-lost-cities), a Minecraft mod by McJty.
+An unofficial, community guide to building custom cities with [The Lost Cities](https://www.curseforge.com/minecraft/mc-mods/the-lost-cities), a Minecraft mod by McJty.
 
 **Read it at [rinkydinkynooble.github.io/the-lost-cities-wiki](https://rinkydinkynooble.github.io/the-lost-cities-wiki/)**
 
-## What this is
+Not affiliated with or endorsed by McJty. The Lost Cities is his work, and he answers questions in Discord daily on top of writing it. This is an independent guide, meant to sit alongside his documentation rather than replace it.
 
-The mod has its own documentation in three places: the [general docs](https://mcjty.eu/docs/mods/lost-cities), the [asset-datapack page](https://www.mcjty.eu/docs/mods/lost-cities/asset-datapack), and a newer, much longer [`asset_structure.md`](https://github.com/McJtyMods/LostCities/blob/1.20/docs/asset_structure.md) on GitHub that the author points people to in support and states was AI generated. Read them alongside this site.
+## The mod's own documentation
 
-This site covers what they do not: the behaviour you otherwise find only by reading the decompiled source or by breaking a world and working out why.
+Read these first. They are the authoritative sources:
 
-Every claim here is verified against **Lost Cities 7.4.12, Minecraft 1.20.1, Forge**. The source of truth is the mod's own code and shipped content, not other documentation. Where a page states a behaviour, it also states what happens when you get it wrong.
+- [mcjty.eu/docs/mods/lost-cities](https://mcjty.eu/docs/mods/lost-cities), the general documentation
+- [asset-datapack page](https://www.mcjty.eu/docs/mods/lost-cities/asset-datapack), on the datapack asset system
+- [`asset_structure.md`](https://github.com/McJtyMods/LostCities/blob/1.20/docs/asset_structure.md), a key-by-key reference
 
-**On other versions:** the [Versions](https://rinkydinkynooble.github.io/the-lost-cities-wiki/versions/) section covers the mod's full history, from Minecraft 1.11.2 to Minecraft 26.1, checked the same way. It states which release uses which asset system, and which pages here apply to it.
+## What this adds
 
-Two findings from that work are worth naming here:
+Depth on the parts you hit while authoring: what a value does rather than what a key is called, what happens when you get it wrong, and which log line to expect.
 
-- **7.5.0 turned on a planned road system by default.** The mod refuses a building in any chunk the road planner claims, and it does so before it rolls `buildingchance`. Setting `buildingchance` to `1.0` therefore stopped filling every eligible chunk. This is verified against the 7.5.1 jar, not inferred from release notes.
-- **7.5.1 through 10.0.1 are one documentation target.** Those four releases declare the same 160 profile keys and the same 231 datapack keys, with identical defaults and bounds. A datapack written for Minecraft 1.20.1 is structurally valid on Minecraft 26.1.
+Claims are checked one of two ways, and pages say which:
 
-Claims here are traced to the code that implements them, and a growing number have also been run in a world. See [Claim Tests](https://rinkydinkynooble.github.io/the-lost-cities-wiki/examples/claim-tests/) for what has been verified in game, including the documentation errors and the mod bug that testing found. The largest of those: **a mistake in your assets does not crash the game.** The mod catches it per chunk and logs, so no crash report is written and the world simply comes out wrong. The exception is the wiring between a profile and its datapack, which is resolved outside that catch: a profile naming a `worldStyle` no loaded datapack defines crashes the server outright. Both boundaries were established by crashing a world on purpose, not by reading release notes.
+| How | What it means |
+|---|---|
+| Read from the mod | The behaviour was traced through the compiled code of the version named on the page. |
+| Run in a world | The behaviour was reproduced in game, and the result is on [Claim Tests](https://rinkydinkynooble.github.io/the-lost-cities-wiki/examples/claim-tests/). |
 
-Some things you will not find elsewhere:
+Testing has corrected several pages here and turned up two mod bugs. Those are on [Known Issues](https://rinkydinkynooble.github.io/the-lost-cities-wiki/troubleshooting/known-issues/) with the evidence.
 
-- Why a building fails every chunk with `Misconfiguration! Floor were generated for a building where no part condition matches!`, and the rule behind it
-- That a city style inherits selectors **additively**, so a child style cannot narrow the building list it inherits
-- That street part names accept a **list**, and that no shipped file uses one
-- What a palette `char` may legally be, and why an emoji fails in two separate ways
-- An [index of every error message](https://rinkydinkynooble.github.io/the-lost-cities-wiki/troubleshooting/errors/) the mod throws, with the cause and the fix for each
+## Version coverage
+
+| Target | State |
+|---|---|
+| Lost Cities **7.4.12**, Minecraft 1.20.1, Forge | Primary. Read from the mod and run in a world. |
+| **7.5.1**, Minecraft 1.20.1, Forge | In progress. Read from the mod, not yet run in a world. |
+| 8.x, 9.x, 10.x on NeoForge | In progress. Key and default differences are mapped; behaviour is not yet tested. |
+| Before 5.3.29 | Out of scope. Those versions load content from inside the jar rather than from datapacks. |
+
+The [Versions](https://rinkydinkynooble.github.io/the-lost-cities-wiki/versions/) section states which pages apply to which release. 7.5.1 through 10.0.1 declare the same 160 profile keys and 231 datapack keys, so one set of pages covers all four.
 
 ## Layout
 
 | Path | Contents |
 |---|---|
-| `docs/` | The wiki itself, built with MkDocs Material |
+| `docs/` | The wiki, built with MkDocs Material |
 | `docs/examples/first-city/` | A complete example datapack that loads as it is |
+| `docs/examples/wiki-test6/` | A claim-test pack, pinned to fixed coordinates |
 | `docs/examples/validate.py` | Checks a datapack against the rules the wiki documents |
-| `STYLE.md` | The writing rules this wiki follows |
-| `CONTRIBUTING.md` | How to report or send a correction, and the gates to run |
 | `docs/examples/mod-keys.json` | The mod's real codec and profile keys, extracted from the jars |
-| `.github/workflows/docs.yml` | Strict build gate, then deploy to Pages |
+| `STYLE.md` | Writing rules |
+| `CONTRIBUTING.md` | How to report or send a correction |
 
 ## Running it locally
 
@@ -53,30 +62,43 @@ mkdocs serve
 
 Then open <http://127.0.0.1:8000>.
 
-To run the same checks CI runs:
+## The checks
+
+Two gates run in CI on every push, and they block the Pages deploy:
 
 ```bash
-mkdocs build --strict && python docs/examples/validate.py
+mkdocs build --strict
 ```
 
-`--strict` turns any broken internal link into a build failure. The validator does three things:
+```bash
+python docs/examples/validate.py docs/examples/first-city
+```
 
-- Checks that the example datapack still satisfies every rule the wiki states, and that any page inlining a whole example file still matches it byte for byte.
-- Checks every key in the reference tables against `docs/examples/mod-keys.json`, which holds the keys the mod's own codecs declare, extracted from the jars. A key the wiki documents that the mod does not have is an error, and so is a key marked optional that the codec requires.
-- Checks that every key the version pages attribute to a reference page actually appears on that page.
+`--strict` turns a broken internal link or anchor into a build failure.
+
+`validate.py` checks a datapack against the wiki, and the wiki against the mod:
+
+- **The example still obeys the rules.** Every rule the wiki states is a check here, so the shipped example cannot drift from the pages that describe it. Pages that inline a whole example file are compared byte for byte.
+- **Every documented key exists.** Reference tables are checked against `mod-keys.json`, which holds the keys the mod's codecs actually declare, extracted from the jars. A key the wiki documents that the mod does not have is an error, and so is a key marked optional that the codec requires.
+- **Level coverage is computed, not assumed.** Levels run from `-cellars` to `maxfloors` inclusive, so `maxfloors: 3` is a four-storey building. The validator works out which levels no part matches and names them, because that mistake fails every chunk holding the building and its neighbours.
+- **Known-dead keys are rejected.** Keys that parse and then do nothing are errors, with a pointer to why.
 
 Together they stop the docs, the example, and the mod's real schema from drifting apart.
 
+## Testing claims in a world
+
+`docs/examples/wiki-test6/` is a datapack whose only job is to be checked. A predefined city pins it to fixed chunk coordinates, so every test has a block address rather than needing to be found.
+
+It also runs unattended on a headless Forge server: force load the grid, then read the result back over RCON, using a filtered `/clone` to count blocks. Setup and the probe list are on [Claim Tests](https://rinkydinkynooble.github.io/the-lost-cities-wiki/examples/claim-tests/).
+
+Adding a probe for something the wiki asserts and nobody has run is the most useful contribution available.
+
 ## Contributing
 
-Corrections are welcome, especially ones backed by observed behaviour. If a page is wrong, state **what you observed** and **which mod version** you observed it on. That is more useful than anything else you can send.
+Corrections are welcome, especially ones backed by something you observed. State **what you observed** and **which mod version**. You do not need to work out why.
 
-Full guidance is in [CONTRIBUTING.md](CONTRIBUTING.md). Read [STYLE.md](STYLE.md) before writing prose. The wiki uses one approved term per concept and a deliberately plain register, so a correction written in a different voice needs rewriting before it can be merged.
-
-Four pages are marked in-progress in the navigation. Each one states what is still missing.
+See [CONTRIBUTING.md](CONTRIBUTING.md), and [STYLE.md](STYLE.md) before writing prose.
 
 ## Licence
 
-[CC0 1.0](LICENSE). Use it however you like. No attribution required.
-
-Not affiliated with or endorsed by McJty. The Lost Cities is McJty's work. This is an independent guide to it.
+[CC0 1.0](LICENSE). No rights reserved, no attribution required.

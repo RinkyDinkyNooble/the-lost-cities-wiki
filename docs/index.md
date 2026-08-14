@@ -17,9 +17,18 @@ Anyone building a custom city for their own modpack or server. You do not need J
 
 ## Scope
 
-Everything in this wiki is verified against Lost Cities **7.4.12** for **Minecraft 1.20.1**, by reading that version's own code and shipped content.
+Pages are written against Lost Cities **7.4.12** for **Minecraft 1.20.1** on Forge, and most claims were read out of that version's own code and shipped content. A growing number have also been run in a world, and those are listed on [Claim Tests](examples/claim-tests.md).
 
-The [Versions](versions/index.md) section covers the rest of the mod's history, checked the same way: every release from Minecraft 1.11.2 to Minecraft 26.1, which asset system each one uses, and which pages here apply to it.
+Other versions are **in progress**. Their keys, defaults and bounds are mapped, but their behaviour has not been tested the same way, so treat anything version-specific outside 7.4.12 as unconfirmed until a page says otherwise.
+
+| Target | State |
+|---|---|
+| 7.4.12, Minecraft 1.20.1, Forge | Primary. Read from the mod and run in a world. |
+| 7.5.1, Minecraft 1.20.1, Forge | In progress. Read from the mod. |
+| 8.x, 9.x, 10.x, NeoForge | In progress. Keys and defaults mapped. |
+| Before 5.3.29 | Out of scope. Content lives inside the jar, not in datapacks. |
+
+The [Versions](versions/index.md) section covers the mod's history from Minecraft 1.11.2 to Minecraft 26.1, which asset system each release uses, and which pages here apply to it.
 
 !!! warning "On 7.5.0 or later, read the 7.5 page before anything else"
     Version 7.5.0 added a planned road system and an inter-city highway network,
@@ -44,9 +53,11 @@ Read it alongside this site. There are three places, and they are not the same:
 |---|---|
 | [mcjty.eu/docs/mods/lost-cities](https://mcjty.eu/docs/mods/lost-cities) | The general mod documentation. |
 | [mcjty.eu asset-datapack page](https://www.mcjty.eu/docs/mods/lost-cities/asset-datapack) | The deeper page on the datapack asset system. |
-| [`docs/asset_structure.md` on GitHub](https://github.com/McJtyMods/LostCities/blob/1.20/docs/asset_structure.md) | A newer and much longer reference, which the author points people to in support. He states that it was AI generated. |
+| [`docs/asset_structure.md` on GitHub](https://github.com/McJtyMods/LostCities/blob/1.20/docs/asset_structure.md) | A newer and much longer reference covering the datapack assets key by key. |
 
-This site exists to go further than all three, and to be checkable: every behaviour claim here was traced to the code that implements it, in the version named above.
+Those are the authoritative sources. This site adds depth on top of them and shows
+its working: each behaviour claim names the version it was checked against, and
+most were read out of the mod's own code or run in a world.
 
 ## Where to start
 
