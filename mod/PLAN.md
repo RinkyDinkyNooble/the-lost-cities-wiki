@@ -41,8 +41,8 @@ No behaviour. Everything else depends on it.
 | # | Feature | What it fixes | Evidence |
 |---|---|---|---|
 | 1.1 | **Catch on the sphere feature** | `LostCitySphereFeature` has no `try` anywhere. On `landscapeType: spheres`, `cavernspheres` or `space`, a fault that `LostCityFeature` catches and logs instead escapes to vanilla's feature placer. Measured: 35 caught and 0 uncaught on `default`, against 18 caught and 21 uncaught on `spheres`, where the server then shut down. | [Known Issues](../docs/troubleshooting/known-issues.md), `research/bug-fixes.md` |
-| 1.2 | **Name the palette, not the part** | `Could not find entry 'X' in the palette for part 'Y'!` names the part when the fault is usually a palette that failed to define or resolve `X`. The palette identity is known at throw time. Add it rather than replacing the existing text. | [Palette](../docs/reference/palette.md) |
-| 1.3 | **Report the failing building, not the querying chunk** | A fault raised while building a chunk's `BuildingInfo` spreads to every neighbour that queries it. Measured: 3 broken buildings, 77 failed chunks over a 13 by 10 area. The message names the chunk that asked, not the building at fault. | [Error Messages](../docs/troubleshooting/errors.md) |
+| 1.2 | **Name the palette, not the part** | **Done.** `Could not find entry 'X' in the palette for part 'Y'!` names the part when the fault is a palette. The report now gives the character's code point and Unicode name, which a log cannot render, and the four places to look. | [Palette](../docs/reference/palette.md) |
+| 1.3 | **Report the failing building, not the querying chunk** | **Done.** A fault raised while building a chunk's `BuildingInfo` spreads to every neighbour that queries it, and those queries chain. The message is now enriched at the throw, where the building and chunk are known exactly, so no search is needed. 78 undifferentiated failures became 3 named faults. | [Error Messages](../docs/troubleshooting/errors.md) |
 | 1.4 | **Load-time validation** | Port the rules from `docs/examples/validate.py`, which already reproduces four real in-game failures statically: uncovered levels, `loot`/`mob` holding an ID rather than a Condition name, `inpart`/`belowpart` in a building's `parts`, and a layer that is not `xsize * zsize` characters. Report at datapack load, before a chunk is generated. | `docs/examples/validate.py` |
 | 1.5 | **Chunk report command** | `/lcdev report` dumping the resolved asset chain for the chunk the caller stands in: profile, world style, city style, building, the parts chosen per level, and the merged palette's source for a named character. `/lostcities debug` prints to the server console only and stops short of the palette. | [Commands](../docs/tooling/commands.md) |
 
@@ -51,7 +51,11 @@ No behaviour. Everything else depends on it.
 | # | Feature | Notes |
 |---|---|---|
 | 2.1 | **JSON5 for Lost Cities assets** | Comments and trailing commas in `data/<ns>/lostcities/**`. **Scoped by path**, not global: no other mod's or Minecraft's own JSON is touched. |
-| 2.2 | **Asset export** | Write the merged, fully resolved view of an asset to disk: a city style after inheritance, or a palette after merging and alias resolution. Both are currently only inspectable by reading the mod. |
+
+Asset export was considered and dropped. Writing a merged city style or a resolved
+palette to disk is easy, but nothing consumes the result: the mod reads assets, not
+exports, so an edited export has no route back in. The information it would carry is
+better delivered by 1.5, which answers the same question about a live chunk.
 
 ### Tier 3: behaviour repairs, off by default, one toggle each
 

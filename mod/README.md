@@ -53,6 +53,43 @@ toggle changed:
 Nothing about what generates changes. A chunk that would have failed still fails and
 is left in the same partial state. Only the survivability changes.
 
+### `detailedFaultReports`
+
+The mod logs `Error generating chunk <x>,<z>: <message>`. Those coordinates are the
+chunk being generated, which for a whole class of faults is not the chunk at fault:
+a fault raised while a chunk's `BuildingInfo` is built spreads to every neighbour
+that queries it, and those queries chain.
+
+Two things are added, and nothing the mod logs is suppressed.
+
+**The misconfiguration message is enriched at the throw**, where the building and
+its chunk are known exactly:
+
+```
+Misconfiguration! Floor were generated for a building where no part condition matches!
+  [building wt5:rangetest at chunk 10,8, levels 0 to 6 inclusive.
+   Every chunk that queries this one fails the same way]
+```
+
+On a pack with three broken buildings, that turned 78 undifferentiated failures
+across a 13 by 10 chunk area into three named faults.
+
+**A fuller report is logged beside each caught fault**, naming the profile, world
+style, city style, building, floor and cellar counts, and the whole cause chain. For
+an unresolved palette character it gives the code point and Unicode name, which a
+console cannot render:
+
+```
+Lost Cities generation fault
+    chunk 8,14
+    fault: RuntimeException: Could not find entry '?' in the palette for part 'wt7:ct_box'!
+    undefined character: '?'  U+0470  CYRILLIC CAPITAL LETTER PSI
+    used by part: wt7:ct_box
+    the message names the part, but the fault is in a palette. Check, in this order:
+      1. the part's own 'palette' or 'refpalette'
+      ...
+```
+
 ## Building
 
 ```bash

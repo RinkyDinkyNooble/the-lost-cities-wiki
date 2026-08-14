@@ -20,6 +20,9 @@ public class Config {
     /** Feature 1.1. Wraps the sphere feature in the catch the terrain feature has. */
     public final ForgeConfigSpec.BooleanValue catchSphereFeatureErrors;
 
+    /** Features 1.2 and 1.3. A fuller report beside each caught generation fault. */
+    public final ForgeConfigSpec.BooleanValue detailedFaultReports;
+
     static {
         Pair<Config, ForgeConfigSpec> pair =
                 new ForgeConfigSpec.Builder().configure(Config::new);
@@ -53,6 +56,24 @@ public class Config {
                         "With this on, those faults are logged in the same shape the terrain",
                         "feature uses and generation continues to the next chunk.")
                 .define("catchSphereFeatureErrors", true);
+
+        detailedFaultReports = builder
+                .comment("Add a fuller report beside each caught generation fault.",
+                        "",
+                        "The mod logs 'Error generating chunk x,z: message'. Those",
+                        "coordinates are the chunk being generated, which is often not the",
+                        "chunk at fault, because a fault raised while building a chunk's",
+                        "info spreads to every neighbour that queries it. The palette",
+                        "message names the part rather than the palette that failed to",
+                        "define the character. And the JVM stops recording stack traces for",
+                        "a repeatedly thrown exception, so most lines in a long run carry",
+                        "only a message.",
+                        "",
+                        "This adds a second line naming the profile, world style, city",
+                        "style, building, floor and cellar counts, the whole cause chain,",
+                        "and for a missing palette character its code point and where to",
+                        "look for it. Nothing the mod logs is suppressed.")
+                .define("detailedFaultReports", true);
 
         builder.pop();
 
