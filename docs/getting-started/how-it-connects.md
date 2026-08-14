@@ -1,16 +1,16 @@
 # How It All Connects
 
 !!! tip "TL;DR"
-    A dimension points at a **profile** (config). A profile picks a **world style** (datapack). A world style picks **city styles**, which pull in **buildings, parts, and palettes**. Get any name wrong along that chain and nothing crashes, your content just never loads.
+    A dimension points at a **profile** (config). A profile picks a **world style** (datapack). A world style picks **city styles**, which pull in **buildings, parts, and palettes**. A wrong name anywhere along that chain does not crash anything. The content is never loaded.
 
-Most guides jump straight to writing building JSON. Skip that. None of it does anything until it is wired into a world, and that wiring is what nobody explains.
+Asset files have no effect until the active profile references a world style that reaches them. This page documents that chain. The official documentation describes the asset types individually rather than the dependency between them.
 
 ## The three layers
 
 | Layer | Where it lives | What it does |
 |---|---|---|
 | **Content** | `data/<namespace>/lostcities/` | Your buildings, parts, palettes, city styles, world styles. Loaded as normal datapack JSON. See [Namespaces](namespaces.md#the-exact-folder-layout) for the exact layout. |
-| **Profile** | `config/lostcities/profiles/<name>.json` | Picks *one* world style. Also holds 131 behaviour settings: city frequency, building height, ruin damage, landscape type. |
+| **Profile** | `config/lostcities/profiles/<name>.json` | Picks *one* world style. Also holds the behaviour settings: city frequency, building height, ruin damage, landscape type. 131 keys in 7.4.12, 160 from 7.5.0 onward. |
 | **Dimension wiring** | `config/lostcities/common.toml` | One line mapping a dimension to a profile by name. This is the actual switch. |
 
 ```toml title="config/lostcities/common.toml"
@@ -35,7 +35,7 @@ Everything left of "World Style" is config. Everything right of it is the conten
 
 ## Profiles: read the built-in ones first
 
-The mod writes its 17 built-in profiles to `config/lostcities/profiles/`, then reads back whatever is actually in that folder. They are not just examples, they are live files the mod ships and maintains.
+The mod writes its built-in profiles to `config/lostcities/profiles/`, 17 of them in 7.4.12, then reads back whatever is in that folder. They are not just examples, they are live files the mod ships and maintains.
 
 !!! danger "Do not edit them in place, your changes will vanish"
     That write happens on **every launch**, not just the first, and it overwrites unconditionally. Any edit to `wasteland.json`, `default.json`, or any other shipped profile is silently gone next time the game starts.

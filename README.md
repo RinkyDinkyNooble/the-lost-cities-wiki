@@ -36,7 +36,7 @@ Testing has corrected several pages here and turned up two mod bugs. Those are o
 | 8.x, 9.x, 10.x on NeoForge | In progress. Key and default differences are mapped; behaviour is not yet tested. |
 | Before 5.3.29 | Out of scope. Those versions load content from inside the jar rather than from datapacks. |
 
-The [Versions](https://rinkydinkynooble.github.io/the-lost-cities-wiki/versions/) section states which pages apply to which release. 7.5.1 through 10.0.1 declare the same 160 profile keys and 231 datapack keys, so one set of pages covers all four.
+The [Versions](https://rinkydinkynooble.github.io/the-lost-cities-wiki/versions/) section states which pages apply to which release. 7.5.1, 8.4.1, 9.5.1 and 10.0.1 declare the same 160 profile keys and 231 datapack keys, compared by name, type, default, minimum and maximum, so one set of pages covers all four.
 
 ## Layout
 

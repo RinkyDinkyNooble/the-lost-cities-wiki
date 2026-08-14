@@ -1,7 +1,7 @@
 # Your First Custom City
 
 !!! tip "TL;DR"
-    Six files plus one config line gets a building of your own generating in a real world. This page writes all seven, in the order you would actually write them, and ends with a command that proves it worked.
+    Six files plus one config line gets a building of your own generating in a real world. This page writes all seven in dependency order and ends with a command that confirms the result.
 
 Everything here is in the repo as a complete, working datapack: [the example bundle](../examples/index.md). Copy that if you would rather read finished files than build them up.
 
@@ -11,7 +11,7 @@ A glass-and-concrete tower that takes over most of the buildings in a city, in a
 
 ## The minimum viable set
 
-This is the part nobody states, so: to get one custom building into a world you need **six** content files and **one** config line.
+A minimal custom building requires **six** content files and **one** config line. Each file supplies one link in the asset chain.
 
 | # | File | Why it is needed |
 |---|---|---|
@@ -23,10 +23,10 @@ This is the part nobody states, so: to get one custom building into a world you 
 | 6 | a **Profile** | tells a dimension which world style to use |
 | 7 | `common.toml` | maps a dimension to that profile |
 
-Skip any one and nothing happens, usually with no error at all. That silence is why this page exists.
+Omitting any one of them stops the building generating, in most cases with no error message.
 
 !!! warning "Two things to settle before you start"
-    - **Assets load once, when the world loads.** `/reload` does nothing. See [Seeing your changes](../tooling/commands.md#seeing-your-changes).
+    - **Assets load once, when the world loads.** `/reload` does not pick up an edit. See [Seeing your changes](../tooling/commands.md#seeing-your-changes).
     - **Already-generated chunks never change.** Test in a fresh world, or travel somewhere you have never been.
 
 ## Where the files go
@@ -296,7 +296,7 @@ Profiles are **config, not datapack**. This one goes in `config/lostcities/profi
 Every key is optional except, in practice, `worldStyle`. `cityChance: 0.05` is five times the default, so you do not have to fly far to find a city.
 
 !!! danger "Never edit a built-in profile file"
-    The mod **rewrites all 17 built-in profiles on every single launch**, not just the first. Any edit you make to `wasteland.json` or `default.json` is silently gone next time the game starts.
+    The mod **rewrites every built-in profile on every launch**, not just the first. There are 17 of them in 7.4.12. Any edit you make to `wasteland.json` or `default.json` is silently gone next time the game starts.
 
     Files with names the mod does not ship are left alone. Always use your own name, like `mycity.json` here.
 

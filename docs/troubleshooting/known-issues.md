@@ -128,7 +128,7 @@ The same is true of every number in every asset file: there is no range validati
 
 **Status:** working as designed.
 
-The mod rewrites all 17 built-in profile files **on every launch**, not just the first. Editing `wasteland.json` or `default.json` in place means losing that edit the next time the game starts.
+The mod rewrites every built-in profile file **on every launch**, not just the first. 7.4.12 ships 17 of them. Editing `wasteland.json` or `default.json` in place means losing that edit the next time the game starts.
 
 **Fix:** always use a file name the mod does not ship, like `mycity.json`. Files it does not recognise are read and left alone. `/lostcities saveprofile <name>` is the intended way to get a starting point.
 
@@ -151,7 +151,7 @@ See [Inheritance](../reference/citystyle.md#inheritance).
 
 **Status:** working as designed.
 
-`/reload` does not reload Lost Cities assets, and already-generated chunks never regenerate. There is no regenerate command.
+`/reload` does not reload Lost Cities assets, and already-generated chunks never regenerate. There is no regenerate command. Read from 7.4.12.
 
 See [Seeing your changes](../tooling/commands.md#seeing-your-changes) for the full table of what does and does not pick up an edit.
 

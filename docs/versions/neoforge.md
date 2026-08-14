@@ -10,7 +10,18 @@ version 8.0.
 | 8.2.2 and later | NeoForge |
 
 This page covers what a reader on 1.21 or later needs that the rest of the wiki
-does not say. Everything else on this site applies unchanged.
+does not say.
+
+!!! info "What 'unchanged' covers, and what it does not"
+    The comparison below is of the **configuration and datapack surface**: profile
+    key names, types, defaults, minimums and maximums, and datapack codec keys with
+    their required or optional status. Those are machine-compared and identical.
+
+    Runtime behaviour on the NeoForge line has **not** been run in a world. The
+    behaviour pages here are written against 7.4.12 and confirmed on 7.5.1, both on
+    Forge. They are expected to carry over, because the surface matches and the
+    generator classes are the same, and that expectation is untested. See
+    [Claim Tests](../examples/claim-tests.md#what-has-not-been-checked-in-a-world).
 
 ## The versions
 
@@ -23,10 +34,12 @@ does not say. Everything else on this site applies unchanged.
 
 ## 8.4.1 and later match 7.5.1 exactly
 
-This is the useful part. If you are on 8.4.1, 9.5.1 or 10.0.1, the mod's
+If you are on 8.4.1, 9.5.1 or 10.0.1, the mod's
 configuration surface is identical to 7.5.1 on Minecraft 1.20.1.
 
-Verified by comparing complete key sets:
+Compared by extracting every key from each jar and diffing the complete sets. The
+extraction is in `docs/examples/mod-keys.json` and the comparison is machine-checked
+on every build, so this claim fails the CI gate if it stops being true:
 
 | Surface | Result |
 |---|---|

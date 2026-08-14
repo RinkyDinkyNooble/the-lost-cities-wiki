@@ -85,7 +85,7 @@ Tables below: **Range** is the window the mod was designed and tested against, a
     Treat every range on this page as a rule you have to follow yourself.
 
 !!! tip "There is also an in-game screen for this"
-    The "Cities" button on the world-creation screen exposes about 40 of the more common keys from `lostcity`, `explosions`, and `cityspheres` below (chances, floor/cellar counts, explosion tuning, highway/rail toggles) without touching JSON. Handy for quick experiments, but it is session-only, nothing is written to `config/lostcities/profiles/` until the world is actually created. Anything not shown there, including every `spawn*` key, is JSON-only.
+    The "Cities" button on the world-creation screen exposes about 40 of the more common keys from `lostcity`, `explosions`, and `cityspheres` below (chances, floor/cellar counts, explosion tuning, highway/rail toggles) without touching JSON. It is session-only: nothing is written to `config/lostcities/profiles/` until the world is created. Anything not shown there, including every `spawn*` key, is JSON-only.
 
 ## `lostcity`
 

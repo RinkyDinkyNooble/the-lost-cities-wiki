@@ -1,6 +1,6 @@
 # Lost Cities Wiki
 
-This is an in-depth guide to building custom cities with [Lost Cities](https://www.curseforge.com/minecraft/mc-mods/the-lost-cities), a Forge mod that generates ruined, overgrown cities during world generation.
+This is an in-depth guide to building custom cities with [Lost Cities](https://www.curseforge.com/minecraft/mc-mods/the-lost-cities), a Minecraft world-generation mod that produces ruined, overgrown cities. It has Forge releases up to 7.5.x and NeoForge releases from 8.0 onward.
 
 !!! note "This is not the official wiki"
     The mod's own documentation is at [mcjty.eu/docs/mods/lost-cities](https://mcjty.eu/docs/mods/lost-cities). Read it as well. This site covers what that documentation does not: why a setting appears to do nothing, why a key copied from an example does not work in your own file, and how any of this reaches a world in the first place.
@@ -31,6 +31,25 @@ The NeoForge line is **in progress**. Its keys, defaults and bounds are mapped, 
 | Before 5.3.29 | Out of scope. Content lives inside the jar, not in datapacks. |
 
 The [Versions](versions/index.md) section covers the mod's history from Minecraft 1.11.2 to Minecraft 26.1, which asset system each release uses, and which pages here apply to it.
+
+### How claims are checked
+
+A claim on this site carries one of these levels. Pages name the version they were
+checked against, and the level is stated wherever it is not the page default.
+
+| Level | Meaning |
+|---|---|
+| **Run in a world** | The behaviour was reproduced in game and the result is on [Claim Tests](examples/claim-tests.md). The strongest evidence here. |
+| **Read from the mod** | The behaviour was traced through the compiled code of the named version. This is the default for most pages. |
+| **Schema checked** | The key, its type, default and bounds were extracted from the jar and are machine-compared on every build. Applies to every reference table. |
+| **Not checked** | Documented but neither run nor traced. Listed on [what has not been checked in a world](examples/claim-tests.md#what-has-not-been-checked-in-a-world). |
+
+Two rules follow from this, and both are in [STYLE.md](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/blob/main/STYLE.md):
+
+- A claim checked on one version is not restated as true of all versions.
+- The mod's own code is the authority on what happens. The mod's documentation is
+  the authority on what is intended and supported. Where a config comment and the
+  code disagree, this site documents the code and says so.
 
 !!! warning "On 7.5.0 or later, read the 7.5 page before anything else"
     Version 7.5.0 added a planned road system and an inter-city highway network,

@@ -1,7 +1,7 @@
 # Namespaces
 
 !!! tip "TL;DR"
-    Every Lost Cities asset has a full name: `namespace:path`. Leave the namespace off when *referencing* something, and the mod assumes `lostcities:`. Get this wrong and your content just silently fails to load, no error.
+    Every Lost Cities asset has a full name: `namespace:path`. Leave the namespace off when *referencing* something, and the mod assumes `lostcities:`. A reference that resolves into the wrong namespace loads nothing and reports nothing.
 
 No error, no crash, no log warning. The asset just is not found. Worth understanding this before writing anything.
 
@@ -23,7 +23,7 @@ registers as `apocalypse:wasteland_city`. The folder right after `data/` **is** 
 
 ### The exact folder layout
 
-Lost Cities assets are Forge datapack registries, so the path is always:
+Lost Cities assets are datapack registries, so the path is always:
 
 ```
 data/<your namespace>/lostcities/<asset type>/<name>.json
@@ -88,7 +88,9 @@ Ordinary datapack rules, with one consequence worth spelling out:
 - Nothing warns you when an override happens. The losing file is simply never seen.
 
 !!! warning "`/reload` does not pick up Lost Cities asset changes"
-    These registries are read **once, when the world loads**. The mod registers no reload listener at all, and vanilla does not reload datapack registries on `/reload` either. Editing a part or palette and running `/reload` changes nothing.
+    These registries are read **once, when the world loads**. In 7.4.12 the mod registers no reload listener, and vanilla does not reload datapack registries on `/reload` either. Editing a part or palette and running `/reload` changes nothing.
+
+    Read from the mod in 7.4.12 and 7.5.1. No release since has added a reload listener, and none has been run in a world to confirm it.
 
     In single player, leaving the world and rejoining does clear the mod's asset cache, so the next chunks generated use your edits. On a dedicated server it takes a full server restart. See [Seeing your changes](../tooling/commands.md#seeing-your-changes).
 

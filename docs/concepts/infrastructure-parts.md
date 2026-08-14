@@ -1,7 +1,7 @@
 # Streets, Highways, Rails & Monorails
 
 !!! tip "TL;DR"
-    Streets, highways, rails, and monorails each expect a set of default **part names** to exist. You can point any of those names at your own part instead, and for streets, highways, and railways you can supply a **list** of parts to pick from at random. Monorails accept only one.
+    Streets, highways, rails and monorails each expect a set of default **part names** to exist. Any of those names can point at a custom part instead. Streets, highways and railways also accept a **list** of parts, sampled at random per placement. Monorails accept one name only.
 
 This is a contract, not a suggestion. If a part named `street_full` does not exist and nothing overrides that name, that piece of infrastructure does not generate.
 

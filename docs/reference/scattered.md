@@ -22,7 +22,7 @@
 | `heightoffset` | no | A vertical offset in blocks. Defaults to `0`. |
 
 !!! warning "`rotatable` is dropped before generation ever sees it"
-    This one is deader than the inert city style keys. Those at least reach the city style object and the public API. `rotatable` is parsed into the codec record and then **never copied into the `ScatteredBuilding` the generator uses**. The asset class has no field for it, and no API method exposes it.
+    This key does not reach the asset at all, unlike the inert city style keys, which at least reach the city style object and the public API. `rotatable` is parsed into the codec record and then **never copied into the `ScatteredBuilding` the generator uses**. The asset class has no field for it, and no API method exposes it.
 
     Setting `"rotatable": true` has no effect and no way to have an effect. A scattered structure generates in the orientation you authored it.
 

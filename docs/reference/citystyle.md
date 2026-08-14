@@ -312,7 +312,7 @@ The practical decision is what to inherit from.
 |---|---|
 | Retheme an existing city, with different materials and the same content | Set `inherit: "citystyle_common"` and point `style` at your own [Style](style.md). Two lines, exactly like `citystyle_desert`. |
 | Add a few buildings on top of the defaults | Set `inherit: "citystyle_common"` and list only your additions in `selectors.buildings`. The mod appends them to the built-in ones. |
-| Use only your own buildings | **Do not inherit from `citystyle_common`.** Its selectors would be merged in and you would keep getting the built-in buildings. Declare everything yourself. |
+| Use only your own buildings | **Do not inherit from `citystyle_common`.** Its selectors are merged in, so the built-in buildings continue to generate. Declare everything yourself. |
 | Apply one setting across every city style | Override `citystyle_config` in the `lostcities` namespace. The only key it holds, `width`, has no effect, so this is a pattern to copy rather than a working knob. |
 
 ## Example: a minimal retheme

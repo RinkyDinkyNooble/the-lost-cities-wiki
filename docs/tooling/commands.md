@@ -19,7 +19,7 @@
 
 | What you do | Does it pick up edited assets? |
 |---|---|
-| `/reload` | **No.** These registries are read once at world load. Vanilla does not reload them either. |
+| `/reload` | **No.** These registries are read once at world load, and 7.4.12 registers no reload listener. Vanilla does not reload them either. |
 | Leave the world, rejoin (single player) | **Yes.** Logging out clears the mod's asset cache, so the next world load re-reads every file. |
 | Restart the dedicated server | **Yes.** |
 | Fly back to an already-generated chunk | **No, ever.** That chunk is saved to disk. Nothing regenerates it. |
@@ -27,7 +27,7 @@
 So the loop is: edit files, quit to title, rejoin, **travel somewhere new** (or delete the region files, or start a fresh world). Testing in a throwaway world is usually faster than trying to invalidate an existing one.
 
 !!! tip "Use `createbuilding` to skip the loop for a single building"
-    [`/lostcities createbuilding`](#placing-a-specific-building-on-demand) places a building on the spot without waiting for city generation to roll it. It still reads the assets loaded at world load, so you would rejoin first, but you do not have to go hunting for a chunk that happens to pick your building.
+    [`/lostcities createbuilding`](#placing-a-specific-building-on-demand) places a building on the spot without waiting for city generation to roll it. It still reads the assets loaded at world load, so rejoin first. It removes the need to search for a chunk that happens to pick the building.
 
 ## Getting a real profile template
 
