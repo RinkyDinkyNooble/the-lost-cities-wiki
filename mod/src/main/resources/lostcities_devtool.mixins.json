@@ -9,9 +9,12 @@
   },
   "mixins": [
     "BuildingInfoMixin",
+    "ConditionContextAccessor",
+    "ConditionContextMixin",
     "FileToIdConverterMixin",
     "LostCityFeatureMixin",
-    "LostCitySphereFeatureMixin"
+    "LostCitySphereFeatureMixin",
+    "LostCityTerrainFeatureMixin"
   ],
   "client": [],
   "server": []

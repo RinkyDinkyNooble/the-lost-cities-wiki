@@ -29,6 +29,14 @@ public class Config {
     /** Feature 2.1. Comments and trailing commas in Lost Cities asset files. */
     public final ForgeConfigSpec.BooleanValue acceptCommentsAndTrailingCommas;
 
+    // -- repairs, off by default ----------------------------------------------
+
+    /** Repair 3.1. Makes belowpart test the part below rather than the current one. */
+    public final ForgeConfigSpec.BooleanValue fixBelowPart;
+
+    /** Repair 3.2. Makes the 'full' street shape reachable. */
+    public final ForgeConfigSpec.BooleanValue fixFullStreetShape;
+
     static {
         Pair<Config, ForgeConfigSpec> pair =
                 new ForgeConfigSpec.Builder().configure(Config::new);
@@ -125,6 +133,44 @@ public class Config {
                 "Turn one on only if you want the change, and expect a world generated",
                 "with it to differ from the same seed without it.")
                 .push("repairs");
+
+        fixBelowPart = builder
+                .comment("Make 'belowpart' test the part below, as its name says.",
+                        "",
+                        "The predicate the mod compiles for belowpart reads the CURRENT",
+                        "part, which is byte for byte what inpart compiles to, so the two",
+                        "keys are the same test today. The value belowpart needs is already",
+                        "passed in and stored, in a field with no accessor, so only the read",
+                        "is wrong.",
+                        "",
+                        "A building gated on belowpart currently fails every chunk it stands",
+                        "in, and takes its neighbours with it, so switching this on can only",
+                        "turn a failing building into a working one. A building written to",
+                        "exploit the broken behaviour, by gating on belowpart with the value",
+                        "of the current part, would change.",
+                        "",
+                        "inpart is left alone. It reads the current part, which is what its",
+                        "name says. In a building's parts list that is always <none>,",
+                        "because the loop has not chosen a part yet.")
+                .define("fixBelowPart", false);
+
+        fixFullStreetShape = builder
+                .comment("Make the 'full' street shape reachable.",
+                        "",
+                        "The street type is picked with nextInt(0, values().length - 2).",
+                        "The bound is exclusive and the enum holds NORMAL, FULL and PARK, so",
+                        "the expression is nextInt(0, 1) and only NORMAL is ever chosen. PARK",
+                        "has its own branch above, so the subtraction was meant to exclude",
+                        "PARK and excludes FULL as well by being one too large.",
+                        "",
+                        "Confirmed unreachable in 7.4.12 through 10.0.1: a pack overriding",
+                        "only the full shape produced no marked chunk anywhere.",
+                        "",
+                        "This changes street layouts. A city style that does not define",
+                        "streetblocks.parts.full will start using whatever it inherits for",
+                        "that shape.")
+                .define("fixFullStreetShape", false);
+
         builder.pop();
     }
 }

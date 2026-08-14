@@ -5,6 +5,7 @@ import mcjty.lostcities.worldgen.lost.BuildingInfo;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
+import mcjty.lostcities.worldgen.lost.BuildingInfo.StreetType;
 
 /**
  * Feature 1.3. Names the building and the chunk in the misconfiguration message.
@@ -25,6 +26,41 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
  */
 @Mixin(BuildingInfo.class)
 public abstract class BuildingInfoMixin {
+
+    /**
+     * Repair 3.2. Makes the {@code full} street shape reachable.
+     *
+     * <p>The street type is chosen with
+     * {@code StreetType.values()[random.nextInt(0, values().length - 2)]}. The bound
+     * of {@code nextInt(origin, bound)} is exclusive, and the enum holds NORMAL,
+     * FULL and PARK, so the expression is {@code nextInt(0, 1)} and only NORMAL can
+     * ever come out. PARK is set by its own branch above, so the subtraction was
+     * meant to exclude it, and excludes FULL as well by being one too large.
+     *
+     * <p>Confirmed unreachable in 7.4.12 through 10.0.1: a pack that overrode only
+     * the {@code full} shape produced no marked chunk anywhere.
+     *
+     * <p>This changes what generates. Street layouts gain a shape they have never
+     * had, which is the point, and a city style that leaves {@code streetblocks.parts.full}
+     * undefined will start using whatever it inherits for that shape.
+     *
+     * <p>There is exactly one {@code nextInt(int, int)} call in this class, so no
+     * slice is needed to identify it.
+     */
+    @ModifyArg(
+            method = "<init>(Lmcjty/lostcities/varia/ChunkCoord;"
+                    + "Lmcjty/lostcities/worldgen/IDimensionInfo;)V",
+            remap = false,
+            at = @At(value = "INVOKE", remap = false,
+                    target = "Ljava/util/Random;nextInt(II)I"),
+            index = 1)
+    private int lostcitiesdevtool$reachFullStreet(int bound) {
+        if (!Config.INSTANCE.fixFullStreetShape.get()) {
+            return bound;
+        }
+        // Restore the one the subtraction removed, and keep PARK excluded.
+        return StreetType.values().length - 1;
+    }
 
     @ModifyArg(
             method = "<init>(Lmcjty/lostcities/varia/ChunkCoord;"

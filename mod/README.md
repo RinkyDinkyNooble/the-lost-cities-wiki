@@ -164,6 +164,48 @@ check, and by any parse error, still point at the right line of the file as writ
 !!! note
     A pack that uses comments will not load for anyone without this mod.
 
+## Repairs
+
+Every setting under `repairs` changes what generates and defaults to **off**. A world
+made with one enabled will not come out the same without it.
+
+### `fixBelowPart`
+
+`belowpart` is compiled into a predicate that reads the **current** part, which is
+byte for byte what `inpart` compiles to, so the two keys are the same test. The value
+it needs is already passed in and stored in a field with no accessor, so only the
+read is wrong.
+
+| Repair | A two-level building gated on `belowpart` |
+|---|---|
+| off | gold on both levels, 1504 blocks, no diamond |
+| on | gold on level 0, diamond on level 1, 752 blocks each |
+
+A building gated on `belowpart` currently fails every chunk it stands in and takes
+its neighbours with it, so this can only turn a failing building into a working one.
+`inpart` is left alone: it reads the current part, which is what its name says.
+
+### `fixFullStreetShape`
+
+The street type is picked with `nextInt(0, StreetType.values().length - 2)`. The
+bound is exclusive and the enum holds NORMAL, FULL and PARK, so the expression is
+`nextInt(0, 1)` and only NORMAL is ever chosen. PARK has its own branch, so the
+subtraction was meant to exclude PARK and removes FULL as well by being one too
+large.
+
+The same expression appears twice, in `BuildingInfo` and in
+`LostCityTerrainFeature.generateStreet`. The second re-rolls and overwrites the
+stored value before switching on it, so both are patched.
+
+!!! warning "Partly verified"
+    The roll is repaired: `/lcdev report` on street chunks reports
+    `street type: FULL` with this on, where every chunk read `NORMAL` before.
+
+    Placement of a **custom** `full` part is not verified. In the demonstration pack
+    no custom street part places at all, including ones unrelated to this repair,
+    which points at that pack rather than at the fix. Treat this repair as
+    unfinished until that is resolved.
+
 ## Commands
 
 ### `/lcdev report [character]`
