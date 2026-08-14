@@ -78,6 +78,7 @@ nav:
       - The Content Model: getting-started/content-model.md
   - Reference:
       - Overview: reference/index.md
+      - Key Interactions: reference/interactions.md
       - Profile: reference/profile.md
       - World Style: reference/worldstyle.md
       - City Style: reference/citystyle.md

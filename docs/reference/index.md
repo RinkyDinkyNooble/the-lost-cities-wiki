@@ -20,6 +20,12 @@ The Profile sits outside the datapack system and names a world style. The six da
 
 Break any link in that chain and your content silently never loads. [Namespaces](../getting-started/namespaces.md) covers that failure.
 
+## When a key appears to do nothing
+
+[Key Interactions](interactions.md) collects the cases where one key is gated,
+overridden or outranked by another. A correctly set key that produces no change is
+usually one of those rather than a mistake in the file.
+
 ## Supporting types
 
 These are optional. Reach for them once the chain above works.

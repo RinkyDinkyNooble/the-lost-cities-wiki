@@ -340,6 +340,7 @@ In the order worth checking:
 3. **Did you leave a namespace off?** `"mycity"` means `lostcities:mycity`. Missing content is silent.
 4. **Is the profile actually attached?** `/lostcities debug` prints the profile name it is using.
 5. **Did the profile file survive?** If you named it after a built-in, it was overwritten on launch.
+6. **Is another key overriding this one?** See [Key Interactions](../reference/interactions.md).
 
 An actual error message instead of silence is good news. Look it up in [Error Messages](../troubleshooting/errors.md).
 
