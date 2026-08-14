@@ -162,9 +162,22 @@ def check_building(path: Path, data) -> None:
                         ("mincellars", 0, 20), ("maxcellars", 0, 20)):
         if key in data and not (lo <= data[key] <= hi):
             err(path.name, f"{key}={data[key]} outside the {lo}-{hi} window")
+    dead_keys_seen: set[str] = set()
     for ref in parts:
         if "range" in ref:
             parse_range(path.name, str(ref["range"]))
+        # A building's floor loop passes "<none>" as the current part, and the
+        # belowpart predicate reads the current part rather than the one below,
+        # so neither key can ever match from here.
+        for key in ("inpart", "belowpart"):
+            if key in ref and key not in dead_keys_seen:
+                dead_keys_seen.add(key)
+                err(path.name, f"part reference uses '{key}', which never matches "
+                               "from a building's parts list: the floor loop has no "
+                               "current part yet and passes '<none>'"
+                               + (". 'belowpart' additionally tests the current part "
+                                  "rather than the one below, in every version that "
+                                  "declares it" if key == "belowpart" else ""))
 
     has_fallback = any(not (CONDITION_KEYS & set(p)) for p in parts)
     if has_fallback:

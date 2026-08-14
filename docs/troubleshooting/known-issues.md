@@ -88,6 +88,35 @@ All four look load-bearing because the mod's own content sets them. `citystyle_c
 
     Two meta value types, `string` and `float`, are also accepted and never read, but those are storage slots rather than settings. See [Part](../reference/part.md#any-other-key).
 
+## `belowpart` tests the wrong part, in every version that has it
+
+**Status:** confirmed in game on 7.4.12, and by disassembly in 7.5.1, 8.4.1, 9.5.1 and 10.0.1.
+
+`ConditionContext` receives the part below the current level and stores it in a
+field named `belowPart`. **The class has no accessor for that field and nothing
+ever reads it.** The predicate the mod compiles for `belowpart` calls `getPart()`,
+which is the current part, and is byte for byte the same predicate `inpart`
+compiles to.
+
+`belowpart` is therefore a second name for `inpart`, not a test of what is
+underneath.
+
+| Version | State |
+|---|---|
+| 7.4.12, 7.5.1, 8.4.1, 9.5.1, 10.0.1 | Key exists, behaves as `inpart` |
+| 8.2.2 | Key not declared. Writing it is a load error, not a silent no-op. |
+
+There is a second problem underneath the first. A building's floor loop builds its
+condition context **before** it has chosen a part, so it passes the literal
+`<none>`. Both `inpart` and `belowpart` compare against that. Neither key can match
+anything from a building's `parts` list even once `belowpart` is fixed.
+
+**Fix:** select parts by height with `floor`, `range`, `ground` and `top`. A part
+chain that depends on what generated below it is not expressible in 7.4.12. If
+your building has entries gated on `belowpart`, those levels match nothing and
+every chunk holding the building fails, which also takes out its neighbours. See
+[Condition](../reference/condition.md#belowpart-is-broken-and-inpart-is-useless-in-a-building).
+
 ## Out-of-range profile numbers are accepted silently
 
 **Status:** working as designed, and a real trap.

@@ -29,7 +29,7 @@
 | `damaged` | no | The block this character becomes when the building is ruined. Independent of the four keys above. |
 | `mob` | no | **Not a literal mob ID.** The name of a [Condition](condition.md). The mod places a real `mob_spawner` block, and the condition's resolved value becomes the mob it spawns. |
 | `loot` | no | **Not a loot table ID.** The name of a [Condition](condition.md), exactly like `mob`. The condition's resolved value is the loot table. See [below](#loot-names-a-condition-not-a-loot-table). |
-| `torch` | no | Boolean. If `true`, the mod queues the block during placement and gives it a real attachment in a later pass, once the chunk exists. It checks the four cardinal neighbours, then straight down, for the first solid block. This is why a torch character never needs `facing=` in its `block` string. |
+| `torch` | no | Boolean. **Gated on the profile's `generateLighting`, which is `false` by default, and when it is off the character becomes air.** See [below](#torch-is-off-by-default-and-off-means-air). |
 | `tag` | no | A raw NBT compound. This is the mechanism behind the command-block palette technique. |
 
 !!! note "`frompalette` is an alias, not inheritance"
@@ -57,6 +57,38 @@ The mod resolves aliases after every concrete entry is in place. It sweeps the p
     ```
 
     The message names the part rather than the palette that is actually broken. If you get it for a character you are certain you defined, check whether that character is an alias in a cycle.
+
+## `torch` is off by default, and off means air
+
+`torch: true` does not describe the block. It hands the character to a separate
+pass, and the [Profile](profile.md)'s `generateLighting` decides whether that pass
+runs at all.
+
+| `generateLighting` | What the character becomes |
+|---|---|
+| `false`, **the default** | **`minecraft:air`.** The `block` you wrote is discarded and nothing is placed. |
+| `true` | The position is queued, and after the chunk exists the mod places a real vanilla torch there. |
+
+So a character that looks like a torch, in a palette that looks correct, generates
+**nothing at all** in a profile that has not turned lighting on. This is not a
+mistake in your pack. The mod's own `common` palette defines `T` as a torch the
+same way, which is why the shipped buildings are unlit under a default profile.
+
+```json title="the profile key that makes torch entries exist"
+{ "lostcity": { "generateLighting": true } }
+```
+
+!!! warning "The attachment pass ignores your `block` value"
+    When it does run, the pass places `minecraft:torch` or `minecraft:wall_torch`
+    and nothing else. It looks straight down first, then at the cardinal
+    neighbours, and picks whichever the first solid block supports.
+
+    That means `torch: true` cannot give you a lantern, a soul torch, or a modded
+    light. Those need a plain `block` entry with no `torch` key, and then you keep
+    whatever `facing=` you wrote, with no attachment checking.
+
+    Confirmed in game on 7.4.12: with `generateLighting` at its default, a part
+    placing two torch characters produced no torch anywhere, and no log line.
 
 ## `loot` names a Condition, not a loot table
 

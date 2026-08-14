@@ -422,6 +422,62 @@ follow it. Every one of them failed on
 matches!`. `andtest` was the only conditioned building to survive, because
 `ground` and `top` cover any height.
 
+### Results from the corrected build
+
+Every test that had been obscured reported. Same version, same method.
+
+| Claim | Result |
+|---|---|
+| A third number in `range` is discarded | **Confirmed.** `"0,2,9"` gave gold on levels 0 to 2 and diamond on 3 to 6, so the mod read `0,2`. |
+| Levels run 0 to `maxfloors` inclusive | **Confirmed again.** `maxfloors: 6` produced 7 storeys, `maxfloors: 2` produced 3. |
+| A part palette beats a building palette | **Confirmed.** Gold on level 0, diamond on level 1 from a part palette holding that one character. |
+| A part palette **merges**, it does not replace | **Confirmed.** That part palette defines one character and the part still resolved `#` and `_` from the building's. |
+| A building palette beats the style's | **Confirmed.** Level 2 came out lapis, not the standard style's stone stairs, for a character the shipped style defines concretely. |
+| The 128-slot cutoff | **Confirmed.** White and black speckle with **no red block anywhere**, from a list of 120 white, 20 black, then 100 red. |
+| `loot` names a Condition | **Confirmed.** 12 chests, all rendered, all filled, once the value went through a Condition. |
+| Both loot chances at `0` fill every chest | **Confirmed.** 12 of 12. |
+| A palette fault stays in its own chunk | **Confirmed.** The circular alias failed chunk 8, 14 and nothing else, in two separate worlds. |
+
+Two tests reported something other than what they were testing.
+
+### `belowpart` does not do what its name says
+
+The `belowpart` chain failed every chunk, in open ground and again over ocean.
+Reading the mod explains why, and it is the second bug this wiki has found.
+
+`ConditionContext` is handed the part below the current level and stores it in a
+field called `belowPart`. **That field has no accessor and nothing reads it.** The
+predicate compiled for `belowpart` calls `getPart()`, the current part, which is
+exactly what `inpart` compiles to. The two tests are the same test.
+
+Underneath that sits a second problem: a building's floor loop builds its condition
+context before it has picked a part, so the current part is the literal `<none>`.
+Neither `inpart` nor `belowpart` can match anything from a building's `parts` list,
+and fixing the first bug would not change that.
+
+Present in 7.4.12, 7.5.1, 8.4.1, 9.5.1 and 10.0.1. Written up on
+[Known Issues](../troubleshooting/known-issues.md#belowpart-tests-the-wrong-part-in-every-version-that-has-it).
+
+### `torch: true` deletes the block by default
+
+No torch generated, in any run, with no log line. The cause is a profile key rather
+than the palette:
+
+```
+if (isTorch) {
+    if (profile.GENERATE_LIGHTING) queue it for the attachment pass;
+    else                           blockState = air;
+}
+```
+
+`generateLighting` defaults to `false`, so a `torch` entry becomes **air** and the
+`block` you wrote is discarded. The mod's own `common` palette marks `T` the same
+way, which is why shipped buildings are unlit under a default profile.
+
+When it is on, the pass places a vanilla `torch` or `wall_torch` and still ignores
+your `block` value, so `torch: true` cannot produce a lantern or a modded light.
+Written up on [Palette](../reference/palette.md#torch-is-off-by-default-and-off-means-air).
+
 ### The second build crashed, which no asset mistake had managed
 
 Running pack 6's datapack against pack 5's profile, so the profile named a

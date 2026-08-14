@@ -37,8 +37,8 @@ A Condition entry and a Building part entry accept the same 13 test keys.
 | `chunkx` | int | Matches when the absolute chunk X coordinate equals this number. |
 | `chunkz` | int | Matches when the absolute chunk Z coordinate equals this number. |
 | `range` | string | Matches when the floor index falls between the two numbers, including both ends. |
-| `inpart` | string or list | Matches when the current part name is in this set. |
-| `belowpart` | string or list | Matches when the part directly below is in this set. |
+| `inpart` | string or list | Matches when the current part name is in this set. **Never matches from a Building's `parts` list.** See below. |
+| `belowpart` | string or list | **Does not work.** It tests the current part, not the one below. See below. |
 | `inbuilding` | string or list | Matches when the current building name is in this set. |
 | `inbiome` | string or list | Matches when the current biome is in this set. |
 
@@ -47,6 +47,47 @@ Every key is optional.
 **Setting several keys on one entry means all of them must pass.** The mod chains tests with a logical AND and never with an OR. To express "either A or B", write two separate entries.
 
 An entry with no test keys always matches. That is the standard way to write a fallback. An unconditioned entry guarantees that something always matches, which is what prevents the [missing-part failure](building.md#floor-coverage-the-most-common-failure) on a building.
+
+## `belowpart` is broken, and `inpart` is useless in a Building
+
+!!! bug "`belowpart` tests the current part, not the part below it"
+    `ConditionContext` is given the part below and stores it in a field called
+    `belowPart`. **That field has no accessor and is never read.** The predicate the
+    mod builds for `belowpart` calls `getPart()`, which is the same method the
+    `inpart` predicate calls. The two tests are identical.
+
+    So `belowpart` is not a weaker version of what this page used to describe. It is
+    `inpart` under a second name.
+
+    Present in **7.4.12, 7.5.1, 8.4.1, 9.5.1 and 10.0.1**. Version 8.2.2 does not
+    declare the key at all, which is the only release where writing it is an error
+    rather than a silent no-op.
+
+    Confirmed in game on 7.4.12: a three-part chain, each floor selected by the part
+    beneath it, failed every chunk with
+    `Misconfiguration! Floor were generated for a building where no part condition
+    matches!`.
+
+There is a second, separate problem, and it applies to `inpart` too.
+
+When the mod fills a building's floors, the `ConditionContext` it builds is given
+the literal string `<none>` as the current part. It has to be: it is deciding which
+part to use, so there is no current part yet.
+
+| Where the condition is evaluated | What `inpart` and `belowpart` see |
+|---|---|
+| A [Building](building.md)'s `parts` list | Always `<none>` |
+| A Condition named by a palette's `loot` or `mob` | The real part being placed |
+
+**In a Building's `parts` list, neither key can ever match anything except the
+literal `<none>`.** Any entry carrying one is dead, and if the floors it was meant
+to cover have no other entry, every chunk holding that building fails.
+
+Use `floor`, `range`, `ground` and `top` to select parts by height. They are the
+only level tests that work in a building.
+
+`inpart` is genuinely useful in a Condition reached from a palette, which is where
+the mod's own content uses this family of keys.
 
 ## Writing `range`
 
