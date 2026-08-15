@@ -18,6 +18,7 @@
     "LostCityTerrainFeatureMixin"
   ],
   "client": [
+    "GuiLCConfigAccessor",
     "LostCitySetupMixin"
   ],
   "server": []

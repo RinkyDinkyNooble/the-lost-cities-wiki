@@ -252,6 +252,25 @@ Verified on the same seed and the same chunk, with the toggle as the only change
 | off | 0 blocks placed, and every chunk reports `street type: NORMAL` |
 | on | 256 blocks, one full layer, and chunks report `street type: FULL` |
 
+### `rightClickCyclesProfilesBack`
+
+Right-click on the profile button on the Cities screen steps **backwards**.
+
+Left-click cycles forward and wraps, so reaching the entry just before the current
+one means clicking through the whole list. The button is a plain vanilla `Button`,
+and `AbstractButton.mouseClicked` accepts button 0 only, so a right-click on it
+currently does nothing at all.
+
+The order is the forward cycle's own, read from `LostCitySetup.toggleProfile`:
+
+| | |
+|---|---|
+| Which profiles appear | every entry of `STANDARD_PROFILES` whose `isPublic()` is true, which is the default unless a profile's own JSON sets `"public": false` |
+| The order | `default` pinned first, then `String.compareTo` on the key. Code point order, so a digit sorts before an uppercase letter and an uppercase letter before a lowercase one |
+| The disabled state | sits between the last profile and the first, so going back from disabled reaches the last profile |
+
+Client only, changes no generation, on by default.
+
 ## Commands
 
 ### `/lcdev in <asset> char <c>` and `/lcdev in <asset> block <id>`

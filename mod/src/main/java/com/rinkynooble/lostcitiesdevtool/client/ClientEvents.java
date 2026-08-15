@@ -2,6 +2,10 @@ package com.rinkynooble.lostcitiesdevtool.client;
 
 import com.rinkynooble.lostcitiesdevtool.Config;
 import com.rinkynooble.lostcitiesdevtool.LostCitiesDevTool;
+import com.rinkynooble.lostcitiesdevtool.mixin.GuiLCConfigAccessor;
+import mcjty.lostcities.gui.GuiLCConfig;
+import mcjty.lostcities.gui.LostCitySetup;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
@@ -33,6 +37,51 @@ public class ClientEvents {
 
     /** The offset Lost Cities builds the button with. */
     private static final int RIGHT_MARGIN = 100;
+
+    /** GLFW's right mouse button. */
+    private static final int RIGHT_BUTTON = 1;
+
+    /**
+     * Feature 4.2. Right-click on the profile button cycles backwards.
+     *
+     * <p>Left-click already cycles forward and wraps, so reaching the entry just
+     * before the current one means walking the whole list. With the mod's own
+     * profiles plus a pack's own, that is a lot of clicking to undo one.
+     *
+     * <p>Handled as a screen event rather than a mixin on the button, because
+     * {@code ButtonExt} is a plain {@code Button} and vanilla's
+     * {@code AbstractButton.mouseClicked} accepts button 0 only. A right-click never
+     * reaches it, so there is nothing there to patch.
+     *
+     * <p>The event is cancelled only when the click actually lands on that button, so
+     * every other right-click on the screen behaves as before.
+     */
+    @SubscribeEvent
+    public static void onMouseButtonPressed(ScreenEvent.MouseButtonPressed.Pre event) {
+        if (!Config.INSTANCE.rightClickCyclesProfilesBack.get()) {
+            return;
+        }
+        if (event.getButton() != RIGHT_BUTTON) {
+            return;
+        }
+        if (!(event.getScreen() instanceof GuiLCConfig gui)) {
+            return;
+        }
+        GuiLCConfigAccessor access = (GuiLCConfigAccessor) gui;
+        Button button = access.lostcitiesdevtool$profileButton();
+        if (button == null || !button.active || !button.visible
+                || !button.isMouseOver(event.getMouseX(), event.getMouseY())) {
+            return;
+        }
+
+        LostCitySetup setup = gui.getLocalSetup();
+        setup.setProfile(Profiles.previous(setup.getProfile()));
+        // setProfile refreshes the preview on its own. The labels are the screen's
+        // business, and this is the same call the left click makes after toggling.
+        access.lostcitiesdevtool$updateValues();
+        button.playDownSound(Minecraft.getInstance().getSoundManager());
+        event.setCanceled(true);
+    }
 
     @SubscribeEvent
     public static void onScreenRender(ScreenEvent.Render.Pre event) {

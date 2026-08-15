@@ -75,7 +75,7 @@ Each changes what generates, so each is opt-in and separately switchable.
 | # | Feature | Notes |
 |---|---|---|
 | 4.1 | **Done.** **Re-anchor the Cities button on resize** | It keeps its old position when the window grows instead of staying anchored top right. |
-| 4.2 | **Right-click cycles profiles backwards** | Left-click already cycles forward. |
+| 4.2 | **Done.** **Right-click cycles profiles backwards** | Left-click cycles forward and wraps, so stepping back one profile means clicking through the whole list. The button is a plain vanilla `Button`, whose handler accepts the left button only, so a right-click on it does nothing at all today. Handled as a screen event rather than a mixin on the button, because there is nothing on the button to patch. |
 | 4.4 | **Done.** **Customize no longer crashes** | `LostCitySetup.reset()` nulls the profile list when a world is left, `toggleProfile()` rebuilds it lazily, and `customize()` does not. Pressing Customize after having played a world throws and closes the game. |
 | 4.3 | **Show non-selectable profiles** | Traced in 7.4.12: `toggleProfile` offers every entry of `STANDARD_PROFILES` whose `isPublic()` is true, and that flag defaults to true unless the profile's own JSON sets `"public": false`. No character test exists, so the standing claim about digits, uppercase and hyphens is unsupported and needs retesting. Two real causes were found instead, and both belong here: `readProfiles` names a profile after everything before the **first dot**, so `my.thing.json` registers as `my`; and its `IOException` handler ends in `return` rather than `continue`, so one unreadable file stops every profile after it in directory order from registering, silently. |
 
@@ -116,6 +116,7 @@ Each feature is proved on the existing rig unless noted.
 | 1.6 | A `char` and a `block` lookup answer from a named asset while standing outside any city, and the bare forms list every asset that defines the character. An asset that cannot be built is named rather than dropped. |
 | 2.2 | Three packs generated from one definition, `pure-json`, `pure-json5` and `fighting`, each produce the same three towers: 8 of 8 probes, no failed chunks, and 12 override warnings on the fighting pack covering every asset kind and the profile. |
 | 3.2 | A street pack marking only `full` produces marked chunks, which it currently never does. |
+| 4.2 | By hand, with a client. Right-click the profile button: it should step to the entry before the current one, with the disabled state sitting between the last profile and the first. The rig can only show no regression, which it does: 8 of 8 on the fighting pack and no mixin failures. |
 | 4.x | By hand, with a client. |
 
 ## Version support

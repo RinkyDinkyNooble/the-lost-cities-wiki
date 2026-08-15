@@ -49,6 +49,9 @@ public class Config {
     /** Repair 4.4. Stops the Customize button crashing after leaving a world. */
     public final ForgeConfigSpec.BooleanValue fixCustomizeCrash;
 
+    /** Feature 4.2. Right-click the profile button to cycle backwards. Client only. */
+    public final ForgeConfigSpec.BooleanValue rightClickCyclesProfilesBack;
+
     static {
         Pair<Config, ForgeConfigSpec> pair =
                 new ForgeConfigSpec.Builder().configure(Config::new);
@@ -267,6 +270,23 @@ public class Config {
                         "only when it is null. Client only, changes no generation, on by",
                         "default.")
                 .define("fixCustomizeCrash", true);
+
+        rightClickCyclesProfilesBack = builder
+                .comment("Right-click the profile button to cycle backwards.",
+                        "",
+                        "Left-click cycles forward and wraps around, so stepping back",
+                        "one profile means clicking through the whole list. The button",
+                        "is a plain vanilla Button, whose click handler accepts the left",
+                        "button only, so a right-click on it currently does nothing at",
+                        "all.",
+                        "",
+                        "The order is the one the forward cycle uses: 'default' first,",
+                        "then by code point on the profile name, with the disabled state",
+                        "between the last entry and the first. Going back from disabled",
+                        "reaches the last profile.",
+                        "",
+                        "Client only, changes no generation, on by default.")
+                .define("rightClickCyclesProfilesBack", true);
 
         builder.pop();
     }
