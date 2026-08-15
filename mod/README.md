@@ -412,11 +412,9 @@ needs McJty's jar on the compile classpath, and that jar is not ours to redistri
 It is gitignored, so a runner checking out this repository does not have it. Releases
 are therefore built locally.
 
-[CurseMaven](https://cursemaven.com) is the way out when that starts to hurt. It
-resolves CurseForge files as Gradle dependencies by project and file id, redistributes
-nothing, and would mean nobody cloning this repository has to fetch the jar by hand.
-Worth doing before the multi-version ports, when there are six builds to keep straight
-rather than one.
+[CurseMaven](https://cursemaven.com) resolves CurseForge files as Gradle dependencies
+by project and file id. Declaring the dependency that way redistributes nothing, lets
+CI build the mod, and removes the manual step from a fresh clone.
 
 ## Testing
 

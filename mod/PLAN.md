@@ -149,18 +149,19 @@ per version.
 | `displayURL` | `mods.toml` | **Done.** The wiki site, which is what the mod implements |
 | `logo.png` | `mods.toml` | **Done.** 256 by 256, from `research/tlcm-dt-icon.png` |
 | `credits` | `mods.toml` | **Done.** Credits McJty and disclaims affiliation |
-| Long description | A CurseForge or Modrinth listing | **Done.** `description/modrinth.md` and `description/curseforge.md`, plus a changelog |
-| Distribution decision | Whether this is published at all, or stays a repo artifact | **Settled.** GitHub Releases, CurseForge and Modrinth, all uploaded by hand |
+| Long description | The CurseForge listing | **Done.** `description/curseforge.md`, plus a summary and a changelog |
+| Distribution decision | Whether this is published at all, or stays a repo artifact | **Settled.** GitHub Releases and CurseForge, uploaded by hand. Not Modrinth |
 | Repository layout | Whether the mod keeps living in the wiki repository or gets its own | **Settled.** It stays in the wiki repository, so both URLs above are already right |
 
 Metadata already settled: mod id `lostcities_devtool`, display name
 `The Lost Cities - DevTool`, group `com.rinkynooble.lostcitiesdevtool`, author
 `RinkyNooble`, licence `0BSD`.
 
-`description/` holds the listing copy: `modrinth.md` in plain Markdown, which is all
-Modrinth accepts, `curseforge.md` using HTML for tables and coloured callouts, a
-changelog serving both changelog fields and the GitHub release body, and
-`summary.txt`. Both descriptions say the same things and have to be edited together.
+`description/` holds the listing copy: `curseforge.md`, `summary.txt`, and a changelog
+serving both the CurseForge changelog field and the GitHub release body.
 
-On both sites, set The Lost Cities as a **required dependency** in the dependency
-field rather than only in the description text. That field is what a launcher reads.
+Modrinth is not a target. Its content rules restrict work made with AI assistance,
+including icons, and this project does not qualify.
+
+Set The Lost Cities as a **required dependency** in CurseForge's dependency field
+rather than only in the description text. That field is what a launcher reads.
