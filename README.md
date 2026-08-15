@@ -18,6 +18,19 @@ Read these first. They are the authoritative sources:
 
 Depth on the parts you hit while authoring: what a value does rather than what a key is called, what happens when you get it wrong, and which log line to expect.
 
+## The DevTool
+
+`mod/` holds **The Lost Cities - DevTool**, a companion mod that implements what this
+wiki found. It reports which building caused a generation error, checks datapack files
+as they load and names the file and line, and accepts comments and `.json5` in Lost
+Cities assets. It adds nothing to the world.
+
+Two optional fixes, both off by default, correct bugs traced here: `belowpart` reading
+the wrong part, and the `full` street shape never being selected.
+
+Built for Minecraft 1.20.1 and Lost Cities 7.4.12. See [mod/README.md](mod/README.md)
+for every setting and the evidence behind it.
+
 Claims are checked one of two ways, and pages say which:
 
 | How | What it means |
@@ -47,6 +60,8 @@ The [Versions](https://rinkydinkynooble.github.io/the-lost-cities-wiki/versions/
 | `docs/examples/wiki-test7/` | A claim-test pack, pinned to fixed coordinates |
 | `docs/examples/validate.py` | Checks a datapack against the rules the wiki documents |
 | `docs/examples/mod-keys.json` | The mod's real codec and profile keys, extracted from the jars |
+| `docs/examples/json5-test/` | Three packs that build the same city, for testing the DevTool |
+| `mod/` | The Lost Cities - DevTool, source and listing copy |
 | `STYLE.md` | Writing rules |
 | `CONTRIBUTING.md` | How to report or send a correction |
 
@@ -101,4 +116,8 @@ See [CONTRIBUTING.md](CONTRIBUTING.md), and [STYLE.md](STYLE.md) before writing 
 
 ## Licence
 
-[CC0 1.0](LICENSE). No rights reserved, no attribution required.
+The wiki and its example packs are [CC0 1.0](LICENSE). No rights reserved, no
+attribution required.
+
+`mod/` is [0BSD](mod/LICENSE.txt), which is the same intent for source code. Neither
+asks anything of you.

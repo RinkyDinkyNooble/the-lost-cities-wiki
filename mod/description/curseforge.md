@@ -132,7 +132,6 @@ There are also a few fixes enabled by default that only affect the Lost Cities m
   forward, so if you overshoot the one you wanted you no longer have to cycle all the
   way around the list.
 - The Cities button stays in place when you resize the window.
-- Pressing Customize after playing a world no longer crashes the game.
 
 <h2>Prevent crashes in certain world types</h2>
 
