@@ -193,11 +193,20 @@ See [Seeing your changes](../tooling/commands.md#seeing-your-changes) for the fu
 
 Three of the entries above are fixed in compiled code and no datapack or config reaches them.
 
-| Issue | What it would take |
-|---|---|
-| Per-block rail variation | The palette method that would give it exists and the railway code does not call it, so a Mixin or a patched jar |
-| `streetblocks.parts.full` never generating | The bound is off by one in a compiled method |
-| `belowpart` testing the current part | The accessor it needs does not exist on `ConditionContext` |
+| Issue | What it would take | Available today |
+|---|---|---|
+| `belowpart` testing the current part | The accessor it needs does not exist on `ConditionContext` | Yes, as an opt-in fix in the DevTool |
+| `streetblocks.parts.full` never generating | The bound is off by one in a compiled method | Yes, as an opt-in fix in the DevTool |
+| Per-block rail variation | The palette method that would give it exists and the railway code does not call it | No |
+
+[The Lost Cities - DevTool](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/releases/tag/1.0.1)
+is a companion mod that patches the first two at runtime. Both are **off by default**,
+because both change what generates: a world made with one enabled will not produce the
+same chunks without it. Neither is a fork, and neither changes anything else.
+
+That does not make these fixed in Lost Cities. A pack relying on either behaves
+differently for anyone who has not installed the companion mod and switched the same
+setting on, which is a heavy thing to require of whoever plays your pack.
 
 The broken palette above is different: it is content, not compiled code, so it is
 fixable in JSON by whoever ships it. Nothing references it, so nothing is broken

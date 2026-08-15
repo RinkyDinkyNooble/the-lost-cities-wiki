@@ -129,6 +129,10 @@ every version this wiki covers.
 
     **Read the earliest errors in the file.** The recent ones are the least useful.
 
+    [The Lost Cities - DevTool](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/releases/tag/1.0.1)
+    exists mostly because of this paragraph. It names the building and its chunk at
+    the throw, where both are still known, so the volume stops mattering.
+
 Generation is not the only place the mod throws. Anything thrown while a profile or
 an asset is being **loaded**, before generation starts, is outside that `try` and
 behaves like a normal crash.

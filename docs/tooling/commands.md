@@ -51,6 +51,48 @@ Run standing in the chunk you want to inspect. Dumps everything the generator de
 
 Also console-only. Prints a 41×41-chunk ASCII map centered on you: `B` = city chunk with a building, `+` = city chunk without one (street/plaza), `.` = highway, blank = neither. Good for a quick sanity check that cities and highways are actually generating at the density you expect, without flying around.
 
+## Reading the answer in chat, and asking about one file
+
+`/lostcities debug` is the richest diagnostic the mod ships, and it writes to the
+server console only. [The Lost Cities - DevTool](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/releases/tag/1.0.1),
+a companion mod, answers the same questions in chat and adds the two the mod does not
+expose: which part was chosen on each level, and what a character resolves to after
+the palette merge.
+
+```
+/lcdev report
+```
+
+Profile, world style, city style, building, floor and cellar counts, and **the part
+used on each level**, including the `parts2` overlay where one applies. That per-level
+listing is the direct answer to "why did this condition not fire", which otherwise
+takes a rebuild to find out.
+
+```
+/lcdev char G
+/lcdev char U+0047
+/lcdev block minecraft:gold_block
+```
+
+Forwards and in reverse. `char` reports what the character became in this chunk and
+in every palette, part and building that defines it. `block` reports which characters
+produce that block. The `U+XXXX` form exists because palette characters are routinely
+symbols a chat box will not accept.
+
+```
+/lcdev in mypack:mystyle char G
+```
+
+Asks one named file rather than the chunk underfoot, with tab completion over
+everything that carries a palette. This works outside a city, and in a dimension with
+no Lost Cities profile at all, which is the situation you are in while editing a file
+rather than standing in the result.
+
+!!! note
+    The DevTool is not required by Lost Cities and changes no generation on its own.
+    It is listed here because these are debugging commands and the console-only
+    limitation above is a real obstacle on a dedicated server.
+
 ## Checking generation is not lagging the server
 
 ```
