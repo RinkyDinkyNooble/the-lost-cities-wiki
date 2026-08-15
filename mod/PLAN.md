@@ -157,8 +157,9 @@ Metadata already settled: mod id `lostcities_devtool`, display name
 `The Lost Cities - DevTool`, group `com.rinkynooble.lostcitiesdevtool`, author
 `RinkyNooble`, licence `0BSD`.
 
-`description/` holds the listing copy: `curseforge.md`, `summary.txt`, and a changelog
-serving both the CurseForge changelog field and the GitHub release body.
+`description/` holds the listing copy: `curseforge.md`, `summary.txt`, and one
+changelog per version, serving both the CurseForge changelog field and the GitHub
+release body.
 
 Modrinth is not a target. Its content rules restrict work made with AI assistance,
 including icons, and this project does not qualify.
