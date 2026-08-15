@@ -12,7 +12,7 @@ authors="${mod_authors}"
 # there, and the test packs are downloadable from it.
 displayURL="https://rinkydinkynooble.github.io/the-lost-cities-wiki/"
 logoFile="logo.png"
-credits="The Lost Cities is by McJty. This is an unofficial companion mod, not affiliated with or endorsed by them."
+credits="The Lost Cities is by McJty, and the Lost Cities Discord answered questions no documentation covers. This is an unofficial companion mod, not affiliated with or endorsed by either."
 description='''${mod_description}'''
 
 [[dependencies.${mod_id}]]

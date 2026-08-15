@@ -141,7 +141,7 @@ its own verification pass rather than a version-range bump. `belowpart` is confi
 broken in all six, so 3.1 is expected to apply throughout; the others need checking
 per version.
 
-## Placeholders to fill before any release
+## Release checklist, and what was outstanding
 
 | Item | Needed for | State |
 |---|---|---|
@@ -149,9 +149,9 @@ per version.
 | `displayURL` | `mods.toml` | **Done.** The wiki site, which is what the mod implements |
 | `logo.png` | `mods.toml` | **Done.** 256 by 256, from `research/tlcm-dt-icon.png` |
 | `credits` | `mods.toml` | **Done.** Credits McJty and disclaims affiliation |
-| Long description | A CurseForge or Modrinth listing | Needed only if it is published |
-| Distribution decision | Whether this is published at all, or stays a repo artifact | **Open** |
-| Repository layout | Whether the mod keeps living in the wiki repository or gets its own | **Open**, and it decides the two URLs above |
+| Long description | A CurseForge or Modrinth listing | **Done.** `description/modrinth.md` and `description/curseforge.md`, plus a changelog |
+| Distribution decision | Whether this is published at all, or stays a repo artifact | **Settled.** GitHub Releases, CurseForge and Modrinth, all uploaded by hand |
+| Repository layout | Whether the mod keeps living in the wiki repository or gets its own | **Settled.** It stays in the wiki repository, so both URLs above are already right |
 
 Metadata already settled: mod id `lostcities_devtool`, display name
 `The Lost Cities - DevTool`, group `com.rinkynooble.lostcitiesdevtool`, author
