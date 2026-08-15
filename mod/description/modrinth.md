@@ -1,77 +1,58 @@
 # The Lost Cities - DevTool
 
-A companion mod for [The Lost Cities](https://www.curseforge.com/minecraft/mc-mods/the-lost-cities),
-for people writing datapacks for it.
+**A helper mod for people creating datapacks for [The Lost Cities](https://www.curseforge.com/minecraft/mc-mods/the-lost-cities).**
 
-Lost Cities assembles a city from a chain of assets: a profile picks a world style,
-which picks a city style, which picks buildings, which pick parts, which read
-palettes. When something in that chain is wrong, the message you get names the chunk
-that was being generated rather than the file that is broken, and you get one per
-affected chunk. This mod reports the file instead, checks what it can before the world
-loads, and lets asset files carry comments.
+Find mistakes faster, understand why your cities generate the way they do, and make
+your Lost Cities files easier to work with.
 
-It adds no blocks, no items and no generation of its own. Removing it leaves every
-world it touched loadable by vanilla Lost Cities.
+---
 
-## Requirements
+## What does it do?
 
-| | |
-|---|---|
-| Minecraft | 1.20.1 |
-| Forge | 47+ |
-| The Lost Cities | 7.4.12, a hard dependency |
+Creating custom cities for Lost Cities can involve a lot of files, and when something
+goes wrong, the error messages often don't tell you which file caused the problem.
 
-The version range is deliberately narrow. This mod patches Lost Cities with mixins,
-and a mixin is bound to the shape of the code it patches, so each target version needs
-its own verification pass rather than a range bump.
+**DevTool makes those problems much easier to find.**
 
-## Comments in asset files
+It can:
+
+- Tell you which building caused a generation error, and where it is
+- Check your Lost Cities files for common mistakes before you create a world
+- Let you use comments and trailing commas in your JSON files
+- Show you exactly which building, part, and floor Lost Cities is using
+- Help you look up palette characters and blocks
+- Keep certain Lost Cities world types from crashing when generation encounters an error
+
+It does **not** add blocks, items, mobs, structures, or anything else to your world.
+
+## Use comments in your files
+
+Normally, JSON does not allow comments. DevTool lets you use them:
 
 ```json5
-// the marker tower at the city centre
+// The tower at the centre of the city
 {
   "filler": "#",
   "parts": [
-    { "part": "mypack:origin" },  // one part, no condition, covers every level
+    { "part": "mypack:origin" }, // Used on every level
   ],
 }
 ```
 
-Comments and trailing commas, and files may be named `.json5` so your editor stops
-underlining them. Both work for datapack assets under
-`data/<namespace>/lostcities/` and for profiles in `config/lostcities/profiles/`.
+Trailing commas are supported too.
 
-Where both `foo.json` and `foo.json5` exist the `.json5` wins, and the shadowed file
-is named in the log and once in chat, because two files that look interchangeable in
-an editor and are not is a bad afternoon.
+You can use either `.json` or `.json5` files. If both versions of the same file exist,
+the `.json5` version is used, and you are told which file was ignored.
 
-This is a subset of JSON5, not all of it. Unquoted keys and single quotes are not
-accepted: they change what a valid file looks like without solving a problem an author
-actually has.
+This works in your datapacks and in your Lost Cities profiles.
 
-## Works wherever datapacks come from
+## Find out what went wrong
 
-The hook sits on the resource manager rather than on a folder path, so **any**
-datapack source is covered, not just `saves/<world>/datapacks`. That includes
-`kubejs/data`, confirmed working with KubeJS: put your Lost Cities assets there,
-comments and `.json5` and all, and they load.
+When something is wrong with a building, Lost Cities can produce a large number of
+errors from different chunks. It can be difficult to tell what the original problem
+actually was.
 
-The usual reason a pack in `kubejs/data` does not load is the **namespace**. The
-folder directly under `data/` is the namespace, and every reference has to use it:
-`data/mypack/lostcities/buildings/tower.json5` is `mypack:tower`, and a city style
-naming `tower` without the namespace will not find it.
-
-Without this mod installed, a pack written with `.json5` does not load at all. The
-profile is not read and the game crashes on world creation, which is the same result
-as the asset simply not existing.
-
-## Faults reported against the file, not the chunk
-
-A fault raised while a chunk's information is built spreads to every neighbour that
-queries it, and those queries chain. So one broken building produces a wall of
-failures with coordinates that all point somewhere other than the problem.
-
-The message is enriched where the building is still known:
+DevTool gives you the useful information directly:
 
 ```
 Misconfiguration! Floor were generated for a building where no part condition matches!
@@ -79,16 +60,19 @@ Misconfiguration! Floor were generated for a building where no part condition ma
    Every chunk that queries this one fails the same way]
 ```
 
-On a test pack with three broken buildings, that turned 78 undifferentiated failures
-across a 13 by 10 chunk area into three named faults.
+Instead of searching through dozens of similar errors, you can immediately see **which
+building is broken and where it came from**.
 
-For an unresolved palette character the report gives the code point and Unicode name,
-which a console cannot render, and the four places to look for it.
+It also provides additional information for things such as missing palette characters,
+including the character's code and name when the character cannot be displayed
+normally.
 
-## Checked before the world loads
+## Check your files before creating a world
 
-Every asset file is read when datapacks load, and what will fail is reported once,
-with a file name and a line number:
+DevTool checks your Lost Cities files as they are loaded and reports common mistakes
+with the file name and line number.
+
+For example:
 
 ```
 Lost Cities asset check: 2 errors, 1 warning
@@ -100,91 +84,103 @@ Lost Cities asset check: 2 errors, 1 warning
          The mod reads the first two and discards the rest, silently
 ```
 
-Checked: level coverage, `inpart` and `belowpart` where neither can ever match, a
-`range` that does not parse or carries a third number, `loot` and `mob` holding an ID
-rather than a Condition name, a `char` that is not one code unit, a block id that is
-not a legal resource location, a weighted list that misses or overruns its 128 slots,
-and a `slices` layer that is not `xsize` by `zsize` characters.
+This can catch problems such as invalid blocks, incorrect floor ranges, conditions
+that can never match, invalid weighted lists, and incorrectly sized layers.
 
-Nothing is prevented from loading. The check reports and steps aside.
+**These checks do not prevent your pack from loading.** They simply tell you about
+problems so you can fix them.
 
-## Commands
+## See why a building generated the way it did
+
+The `/lcdev report` command shows you what Lost Cities selected for a particular chunk.
+
+It can show:
+
+- Your profile
+- The world style
+- The city style
+- The building
+- Which part was selected on each level
+
+This is especially useful when you're trying to figure out **why a particular
+condition did or did not work**.
+
+You can also look up individual palette characters or blocks:
 
 ```
-/lcdev report                                  what the generator decided for this chunk
-/lcdev char G                                  a character, here and in every asset
-/lcdev char U+0047                             the same, by code point
-/lcdev block minecraft:gold_block              which characters produce this block
-/lcdev in mypack:mystyle char G                one named asset, from anywhere
-/lcdev in mypack:mystyle block minecraft:gold_block
+/lcdev report
+/lcdev char G
+/lcdev block minecraft:gold_block
+/lcdev in mypack:mystyle char G
 ```
 
-`/lcdev report` names the profile, world style, city style, building, and **the part
-chosen for each level**, which is the direct answer to any question about which
-condition won. None of the mod's own commands report that, and unlike
-`/lostcities debug` this writes to whoever asked rather than to the server console.
+The `in` command lets you inspect a specific file without having to find a generated
+city first.
 
-The `in <asset>` forms tab complete over every palette, part and building that carries
-a palette, and work from anywhere: outside a city, or in a dimension with no Lost
-Cities profile at all. That is the state you are in while actually editing a file.
+Characters can also be entered as `U+0047`, for the ones you cannot easily type into
+chat.
 
-## Optional repairs
+## Works with your existing datapacks
 
-Off by default, one toggle each, in `config/lostcities_devtool-common.toml`. Each
-changes what generates, so a world made with one enabled will not come out the same
-without it.
+You can keep your Lost Cities files where you already have them, including:
 
-| Repair | Measured, same seed, only the toggle changed |
-|---|---|
-| `belowpart` tests the part below, as its name says | off: gold on both levels. on: gold on level 0, diamond on level 1 |
-| `streetblocks.parts.full` becomes reachable | off: 0 blocks placed, every chunk reports `NORMAL`. on: 256 blocks, chunks report `FULL` |
+- Your world's `datapacks` folder
+- Global datapack loaders
+- `kubejs/data`
 
-Both are off-by-one or wrong-field mistakes in compiled code that no datapack can
-reach. The wiki traces each one to the line.
+**Everyone loading a pack that uses DevTool's features needs the mod installed.**
 
-Two client fixes default to **on**, because they change nothing about generation:
-the Cities button keeps its position when the window is resized, and pressing
-Customize after having played a world no longer crashes the game. Right-click on the
-profile button also cycles backwards, which it previously could not do at all.
+Without DevTool, Lost Cities cannot read a `.json5` file at all, and a `.json` file
+containing comments or trailing commas fails to load.
 
-## Sphere worlds survive a broken datapack
+## Optional fixes
 
-`LostCityFeature` wraps generation in a catch, which is what makes a datapack mistake
-survivable: the chunk fails, a line is logged, generation continues.
-`LostCitySphereFeature` has no such catch anywhere in the class, so on
-`landscapeType` `spheres`, `cavernspheres` or `space` the same fault escapes instead.
+DevTool also includes two optional fixes for problems in Lost Cities itself.
 
-Measured on the same pack, profile and seed, with only that toggle changed:
+They are **disabled by default** because they can change world generation.
 
-| Toggle | Faults escaping | Faults logged | Server |
-|---|---|---|---|
-| off | 21 | 0 | connection dropped mid-run |
-| on | 0 | 338 | ran to completion |
+They are:
 
-Nothing about what generates changes. A chunk that would have failed still fails and
-is left in the same state. Only the survivability changes.
+- A `belowpart` condition that actually checks the part below it
+- A `streetblocks.parts.full` option that can actually be selected
 
-## Try it without writing anything
+Each fix can be enabled separately in `config/lostcities_devtool-common.toml`.
 
-Three datapacks and two profiles, generated from one definition so they cannot drift
-apart, are in the wiki repository under
-[`docs/examples/json5-test`](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/tree/main/docs/examples/json5-test).
-All three build the same three towers, and one of them needs no mod at all so you can
-see the control first.
+There are also a few fixes enabled by default that only affect the Lost Cities menus
+and do not change world generation.
 
-## More detail
+## Prevent crashes in certain world types
 
-Everything above is traced and tested on
-[the Lost Cities Wiki](https://rinkydinkynooble.github.io/the-lost-cities-wiki/),
-which is what this mod implements the findings of. The
-[mod's own README](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/blob/main/mod/README.md)
-covers every setting and the evidence behind it.
+Some Lost Cities world types can crash the server when a chunk fails to generate.
+
+DevTool prevents those errors from crashing the server. This is on by default, and can
+be turned off.
+
+The broken chunk still fails to generate, and **the underlying problem is not hidden
+or changed**. Instead, the error is recorded and generation continues.
+
+This is available for `spheres`, `cavernspheres`, and `space`.
+
+## Want to try it first?
+
+Three example datapacks are available
+[in the wiki repository](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/tree/main/docs/examples/json5-test).
+
+They demonstrate the same basic city using different setups, so you can see how the
+files work before creating your own.
+
+## More information
+
+The [Lost Cities Wiki](https://rinkydinkynooble.github.io/the-lost-cities-wiki/)
+contains more detailed information about creating Lost Cities cities, including
+explanations and examples for the features covered by DevTool.
 
 ## Credits and licence
 
-The Lost Cities is by **McJty**, and the Lost Cities Discord answered questions no
-documentation covers. This is an unofficial companion mod, not affiliated with or
-endorsed by either.
+The Lost Cities is created by **McJty**. The Lost Cities Discord also helped answer
+questions that were not covered by the available documentation.
 
-Released under [0BSD](https://opensource.org/license/0bsd). No rights reserved, no
-attribution required. Take any of it.
+DevTool is an unofficial companion mod and is **not affiliated with or endorsed by
+McJty or The Lost Cities.**
+
+Released under [0BSD](https://opensource.org/license/0bsd).

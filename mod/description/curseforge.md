@@ -68,10 +68,9 @@ For example:
     Lost Cities asset check: 2 errors, 1 warning
       ERROR  mypack:lostcities/buildings/tower.json:10  levels [3] match no part
              Levels run -0 to 3 INCLUSIVE, so 'maxfloors': 3 is a 4-storey building
-      ERROR  mypack:lostcities/palettes/test.json:72  'loot' looks like an ID,
-             but 'loot' names a Condition
-      WARN   mypack:lostcities/buildings/tower.json:13  range "0,2,9" has more
-             than two numbers
+      ERROR  mypack:lostcities/palettes/test.json:72  'loot': "minecraft:chests/simple_dungeon"
+             looks like an ID, but 'loot' names a Condition
+      WARN   mypack:lostcities/buildings/tower.json:13  range "0,2,9" has more than two numbers
              The mod reads the first two and discards the rest, silently
 
 This can catch problems such as invalid blocks, incorrect floor ranges, conditions that can never match, invalid weighted lists, and incorrectly sized layers.
