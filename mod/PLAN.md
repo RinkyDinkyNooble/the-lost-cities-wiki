@@ -45,6 +45,7 @@ No behaviour. Everything else depends on it.
 | 1.3 | **Report the failing building, not the querying chunk** | **Done.** A fault raised while building a chunk's `BuildingInfo` spreads to every neighbour that queries it, and those queries chain. The message is now enriched at the throw, where the building and chunk are known exactly, so no search is needed. 78 undifferentiated failures became 3 named faults. | [Error Messages](../docs/troubleshooting/errors.md) |
 | 1.4 | **Load-time validation** | **Done.** Ported the rules from `docs/examples/validate.py`, which already reproduces four real in-game failures statically: uncovered levels, `loot`/`mob` holding an ID rather than a Condition name, `inpart`/`belowpart` in a building's `parts`, and a layer that is not `xsize * zsize` characters. Reported at datapack load with a file name and a line number, which generation cannot supply because by then only the parsed object survives. | `docs/examples/validate.py` |
 | 1.5 | **Chunk report command** | **Done.** `/lcdev report` dumps the resolved asset chain for the chunk the caller stands in: profile, world style, city style, building, the parts chosen per level, and the merged palette's source for a named character. `/lostcities debug` prints to the server console only and stops short of the palette. | [Commands](../docs/tooling/commands.md) |
+| 1.6 | **Lookup by asset name** | **Done.** `/lcdev in <asset> char|block` answers from a named palette, part or building, with tab completion, so the question can be asked while editing rather than only while standing on a generated result. The bare forms now report the chunk and every named asset that defines the character. Every asset is built on its own rather than through `AssetRegistries.loadAll`, which has no guard and stops at the first throw. | [Commands](../docs/tooling/commands.md) |
 
 ### Tier 2: authoring conveniences, on by default, additive only
 
@@ -112,6 +113,8 @@ Each feature is proved on the existing rig unless noted.
 | 1.4 | `wiki-test7` and `wiki-test8` report their known faults at load. The count must match what `validate.py` reports on the same packs. |
 | 3.1 | `belowsem` comes out gold on level 0 and diamond on level 1, instead of gold on both. |
 | 2.2 | `wiki-test9` generates from a building, part and palette that exist only as `.json5`, a `.json5` wins over the `.json` beside it, a plain `.json` resolves a `.json5` part, and a `.json5` profile decides `cityChance`. With `acceptJson5Extension` off, all four markers return to zero. |
+| 1.6 | A `char` and a `block` lookup answer from a named asset while standing outside any city, and the bare forms list every asset that defines the character. An asset that cannot be built is named rather than dropped. |
+| 2.2 | Three packs generated from one definition, `pure-json`, `pure-json5` and `fighting`, each produce the same three towers: 8 of 8 probes, no failed chunks, and 12 override warnings on the fighting pack covering every asset kind and the profile. |
 | 3.2 | A street pack marking only `full` produces marked chunks, which it currently never does. |
 | 4.x | By hand, with a client. |
 

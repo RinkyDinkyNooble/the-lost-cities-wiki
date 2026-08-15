@@ -90,6 +90,7 @@ pack against that jar with nothing else changed.
 
 | Claim | Result |
 |---|---|
+| A `block` value carrying a 1.12 style `@meta` suffix fails the **whole palette**, not just that character | Confirmed. `minecraft:red_sandstone@2` reaches `ResourceLocation`, whose path rejects `@`, so the palette throws while being built and every character in the file stops resolving. Planted in a working pack, all three of its towers vanished. Lost Cities 7.4.12 ships one such file, `lostcities:bricks_desert_redsand`, unnoticed because assets are built on demand and no shipped style selects it. |
 | A profile name containing a digit, an uppercase letter, a hyphen or a dot is read normally but is **not offered on the world creation screen** | **Withdrawn.** Observed once by hand and contradicted by the code. The list is `STANDARD_PROFILES` filtered on `isPublic()`, and nothing tests the characters of a name. |
 | A profile is offered unless its own file sets `"public": false` | Confirmed from `LostCitySetup.toggleProfile` and the `LostCityProfile(String, String)` constructor, which reads `public` and treats a missing key as true. That is how the sphere-outside profiles are hidden. |
 | A profile is named after everything before the **first dot** in its file name | Confirmed from `ProfileSetup.readProfiles`, which uses `getName().split("\\.")[0]`. `my.thing.json` registers as `my`. |

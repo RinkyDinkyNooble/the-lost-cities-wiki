@@ -248,9 +248,56 @@ public final class AssetValidator {
                 }
             }
 
+            checkBlockId(out, file, raw, quoted(c), entry);
+
             if (entry.has("blocks") && entry.get("blocks").isJsonArray()) {
+                for (JsonElement b : entry.getAsJsonArray("blocks")) {
+                    if (b.isJsonObject()) {
+                        checkBlockId(out, file, raw, quoted(c), b.getAsJsonObject());
+                    }
+                }
                 checkWeightedList(out, file, raw, quoted(c), entry.getAsJsonArray("blocks"));
             }
+        }
+    }
+
+    /**
+     * A {@code block} value has to be a legal resource location.
+     *
+     * <p>Everything before the optional {@code [state]} is handed to
+     * {@code ResourceLocation}, whose path accepts only {@code [a-z0-9/._-]}. A 1.12
+     * style {@code block@meta} suffix therefore throws a {@code ResourceLocationException}
+     * rather than being ignored, and the palette that carries it cannot be built at
+     * all: every character in it, not only the one at fault, becomes unavailable.
+     *
+     * <p>Lost Cities 7.4.12 ships one such file itself,
+     * {@code lostcities:bricks_desert_redsand}, holding
+     * {@code "block": "minecraft:red_sandstone@2"}. It survives unnoticed because
+     * assets are built on demand, so nothing sees it until a style selects it.
+     */
+    private static void checkBlockId(List<Finding> out, String file, String raw,
+                                     String c, JsonObject entry) {
+        if (!entry.has("block") || !entry.get("block").isJsonPrimitive()) {
+            return;
+        }
+        String value = entry.get("block").getAsString();
+        int state = value.indexOf('[');
+        String id = state < 0 ? value : value.substring(0, state);
+        for (int i = 0; i < id.length(); i++) {
+            char ch = id.charAt(i);
+            boolean legal = (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9')
+                    || ch == '_' || ch == '.' || ch == '-' || ch == '/' || ch == ':';
+            if (legal) {
+                continue;
+            }
+            out.add(Finding.error(file, lineOf(raw, value),
+                    "char " + c + ": '" + value + "' is not a block id, because of '"
+                            + ch + "'",
+                    "A block id accepts only [a-z0-9/._-] and one colon. A '@meta' "
+                            + "suffix is 1.12 syntax and throws here. The whole palette "
+                            + "fails to build, so every character in this file stops "
+                            + "resolving, not only this one"));
+            return;
         }
     }
 

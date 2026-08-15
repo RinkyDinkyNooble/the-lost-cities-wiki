@@ -120,6 +120,7 @@ Checked, all decidable from a single file:
 | A `range` that does not parse, or carries a third number | A throw, or a floor range that is not the one written |
 | `loot` or `mob` holding an ID rather than a Condition name | `Error getting resource ...`, after placement, leaving invisible chests |
 | A `char` longer than one code unit, or starting above U+FFFF | Silence, or a smeared layer |
+| A `block` value that is not a legal block id, such as a 1.12 `@meta` suffix | The whole palette throws while being built, so every character in the file stops resolving. Lost Cities 7.4.12 ships one |
 | A weighted list that misses or overruns its 128 slots | `Not enough blocks in the random list`, or entries that never appear |
 | A `slices` layer that is not `xsize * zsize` characters | `String index out of range`, or a silent shift |
 
@@ -253,6 +254,29 @@ Verified on the same seed and the same chunk, with the toggle as the only change
 
 ## Commands
 
+### `/lcdev in <asset> char <c>` and `/lcdev in <asset> block <id>`
+
+The same two questions, asked of a **named** palette, part or building instead of
+the chunk underfoot.
+
+```
+/lcdev in j5:demo char G
+character 'G'  U+0047 in j5:demo
+palette: Block{minecraft:gold_block}
+```
+
+`<asset>` tab completes over every palette, part and building that carries one. It
+works from anywhere: outside a city, in a dimension with no Lost Cities profile, or
+before a single chunk of the pack has generated. That is the state an author is
+actually in while editing, and it is the one state the chunk based forms cannot
+answer from.
+
+The asset comes **before** the character in the command, not after, so the greedy
+argument is the last node of every branch and no literal can be swallowed.
+
+A part or building appears here whether it carries a palette inline or points at one
+with `refpalette`, because what is wanted is the palette that part actually sees.
+
 ### `/lcdev report block <block id>`
 
 The reverse lookup: which palette characters produce this block, here.
@@ -293,6 +317,29 @@ level 6: wt7:rt_diamond
 character 'G'  U+0047
 resolves to: Block{minecraft:gold_block}
 ```
+
+Both the bare `char` and the bare `block` form report the chunk **and** every named
+asset that defines the character:
+
+```
+character 'D'  U+0044
+here: Block{minecraft:dirt}
+building j5:gold: Block{minecraft:diamond_block}
+palette j5:demo: Block{minecraft:diamond_block}
+palette lostcities:common: Block{minecraft:dirt}
+part j5:p_diamond: Block{minecraft:diamond_block}
+incomplete: 1 asset could not be built and were not searched
+  palette lostcities:bricks_desert_redsand: RuntimeException: Error getting resource
+```
+
+The chunk is one answer out of many, and where no city generated it is not an answer
+at all. Reporting only the chunk is how `D` reads as dirt while the author's own
+palette says diamond.
+
+**An answer assembled from part of the assets is named as such.** Every asset is
+built on its own rather than through `AssetRegistries.loadAll`, which has no guard
+and stops at the first asset that throws, leaving every asset after it unbuilt. One
+unreadable file therefore costs its own line rather than the whole answer.
 
 Two things there are not available any other way.
 
