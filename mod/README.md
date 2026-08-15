@@ -403,8 +403,20 @@ the command says that too. It is the answer to the question.
 ./gradlew build
 ```
 
-The jar lands in `build/libs/`. `libs/lostcities-1.20-7.4.12.jar` is compile-only
-and is not bundled.
+The jar lands in `build/libs/` as `lostcities_devtool-<minecraft>-<version>.jar`.
+`libs/lostcities-1.20-7.4.12.jar` is compile-only and is not bundled; check with
+`unzip -l`, which should list no `mcjty/` entries.
+
+**This cannot be built by CI.** Every mixin targets a Lost Cities class, so the build
+needs McJty's jar on the compile classpath, and that jar is not ours to redistribute.
+It is gitignored, so a runner checking out this repository does not have it. Releases
+are therefore built locally.
+
+[CurseMaven](https://cursemaven.com) is the way out when that starts to hurt. It
+resolves CurseForge files as Gradle dependencies by project and file id, redistributes
+nothing, and would mean nobody cloning this repository has to fetch the jar by hand.
+Worth doing before the multi-version ports, when there are six builds to keep straight
+rather than one.
 
 ## Testing
 

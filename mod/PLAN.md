@@ -156,3 +156,11 @@ per version.
 Metadata already settled: mod id `lostcities_devtool`, display name
 `The Lost Cities - DevTool`, group `com.rinkynooble.lostcitiesdevtool`, author
 `RinkyNooble`, licence `0BSD`.
+
+`description/` holds the listing copy: `modrinth.md` in plain Markdown, which is all
+Modrinth accepts, `curseforge.md` using HTML for tables and coloured callouts, a
+changelog serving both changelog fields and the GitHub release body, and
+`summary.txt`. Both descriptions say the same things and have to be edited together.
+
+On both sites, set The Lost Cities as a **required dependency** in the dependency
+field rather than only in the description text. That field is what a launcher reads.
