@@ -8,6 +8,11 @@ modId="${mod_id}"
 version="${mod_version}"
 displayName="${mod_name}"
 authors="${mod_authors}"
+# The wiki this mod implements the findings of. Every claim it makes is tested
+# there, and the test packs are downloadable from it.
+displayURL="https://rinkydinkynooble.github.io/the-lost-cities-wiki/"
+logoFile="logo.png"
+credits="The Lost Cities is by McJty. This is an unofficial companion mod, not affiliated with or endorsed by them."
 description='''${mod_description}'''
 
 [[dependencies.${mod_id}]]
