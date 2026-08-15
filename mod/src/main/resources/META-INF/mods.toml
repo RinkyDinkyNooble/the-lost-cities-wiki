@@ -12,6 +12,11 @@ authors="${mod_authors}"
 # there, and the test packs are downloadable from it.
 displayURL="https://rinkydinkynooble.github.io/the-lost-cities-wiki/"
 logoFile="logo.png"
+# The mod registers no blocks, items or entities and sends no packets, so the two
+# sides have nothing to agree about. Without this, Forge's default MATCH_VERSION
+# would stop a client that does not have it from joining a server that does, which
+# would be a hard requirement in exchange for nothing.
+displayTest="IGNORE_ALL_VERSION"
 credits="The Lost Cities is by McJty, and the Lost Cities Discord answered questions no documentation covers. This is an unofficial companion mod, not affiliated with or endorsed by either."
 description='''${mod_description}'''
 
