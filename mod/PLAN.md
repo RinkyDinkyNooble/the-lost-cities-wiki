@@ -143,6 +143,9 @@ per version.
 
 ## Release checklist, and what was outstanding
 
+The procedure itself is [RELEASING.md](RELEASING.md). This section records what had to
+be decided before a first release was possible.
+
 | Item | Needed for | State |
 |---|---|---|
 | `issueTrackerURL` | `mods.toml` | **Done.** The wiki repository's issues |
