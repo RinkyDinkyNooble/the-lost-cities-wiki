@@ -1,0 +1,6 @@
+{
+  "outsidestyle": "outside",
+  "citystyles": [
+    { "factor": 1.0, "citystyle": "j5:demo" }
+  ]
+}

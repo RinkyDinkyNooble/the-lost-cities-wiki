@@ -94,6 +94,30 @@ mod disagree, one of them is wrong.
 
 The bundle above passes with zero errors and zero warnings.
 
+## Ready-made test packs
+
+[`json5-test/`](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/tree/main/docs/examples/json5-test)
+holds three datapacks and two profiles, generated from one definition so they cannot
+drift apart. All three build the **same** three towers, so any difference between
+them is a fault.
+
+| Pack | Every asset is | Needs |
+|---|---|---|
+| `j5-pure-json` | `.json` | nothing but Lost Cities 7.4.12 |
+| `j5-pure-json5` | `.json5` | [The Lost Cities - DevTool](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/tree/main/mod) |
+| `j5-fighting` | both, with the `.json` twin wrong wherever a wrong answer shows in blocks | the DevTool |
+
+`j5-pure-json` is the control. It proves the towers are correct with no extension
+handling in play, which is what makes the other two mean anything.
+
+Each pack pins a predefined city in **both** `minecraft:overworld` and
+`lostcities:lostcity`, so the same pack works whether the profile is chosen on the
+world creation screen or wired up through `dimensionsWithProfiles`. Getting that
+wrong is the most common reason a pinned city appears not to generate at all.
+
+Instructions, coordinates and what each wrong colour means are in the pack's
+[README](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/blob/main/docs/examples/json5-test/README.md).
+
 !!! note "It does not check everything"
     Nothing here can verify that a block ID exists, or that files are in the right
     folder. Those need the game. It catches the mechanical mistakes, not the wiring

@@ -6,6 +6,12 @@ repo_name: the-lost-cities-wiki
 edit_uri: edit/main/docs/
 copyright: Released under CC0 1.0. Lost Cities is by McJty; this is an unofficial guide.
 
+# The JSON5 test packs are downloadable files rather than wiki pages, so their
+# README is deliberately absent from the nav. Naming it here keeps the nav check
+# meaningful for everything else.
+not_in_nav: |
+  examples/json5-test/README.md
+
 # With --strict these become build failures. Anchors default to "info",
 # which let a renamed heading silently break every link pointing at it.
 validation:

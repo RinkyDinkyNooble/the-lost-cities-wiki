@@ -147,6 +147,40 @@ There is no way to remove or narrow an inherited list.
 
 See [Inheritance](../reference/citystyle.md#inheritance).
 
+## A shipped palette carries a 1.12 block id and cannot be built
+
+`lostcities:bricks_desert_redsand` holds a `block` value from before the flattening:
+
+```json
+{ "char": "X", "block": "minecraft:red_sandstone@2", "damaged": "minecraft:iron_bars" }
+```
+
+A `block` value is split at the `[` that opens a blockstate and everything before it
+goes to `ResourceLocation`, whose path accepts only `[a-z0-9/._-]`. `@` is not in
+that set, so the value throws rather than being ignored.
+
+**The throw happens while the palette is being built, not while the character is
+being read.** So the file does not lose one character, it loses all of them:
+
+| Char | Written as | Result |
+|---|---|---|
+| `X` | `minecraft:red_sandstone@2` | the entry at fault |
+| `$` | `minecraft:red_sandstone_slab[type=double]` | valid, and unreachable anyway |
+| `#` | a weighted list holding the same bad id | the entry at fault |
+
+Nothing in 7.4.12 references this palette, so no shipped city style hits it. It only
+matters if you point at it yourself, with `refpalette`, `frompalette` or a style, and
+then every chunk that uses it fails.
+
+**Workaround.** Copy the entries you want into your own palette and write the
+modern id. `@2` on `red_sandstone` was the smooth variant, which is now
+`minecraft:smooth_red_sandstone`, but confirm the block you actually want rather
+than trusting the old number.
+
+!!! note
+    Read from 7.4.12. Reported by the DevTool's load-time asset check, which names
+    the file, the line and the character.
+
 ## Changes do not show up after editing files
 
 **Status:** working as designed.
@@ -164,6 +198,10 @@ Three of the entries above are fixed in compiled code and no datapack or config 
 | Per-block rail variation | The palette method that would give it exists and the railway code does not call it, so a Mixin or a patched jar |
 | `streetblocks.parts.full` never generating | The bound is off by one in a compiled method |
 | `belowpart` testing the current part | The accessor it needs does not exist on `ConditionContext` |
+
+The broken palette above is different: it is content, not compiled code, so it is
+fixable in JSON by whoever ships it. Nothing references it, so nothing is broken
+until someone points at it.
 
 Every other entry has a workaround that needs nothing but JSON.
 

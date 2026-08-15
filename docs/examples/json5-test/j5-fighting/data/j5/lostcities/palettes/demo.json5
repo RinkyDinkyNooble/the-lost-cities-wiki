@@ -1,0 +1,29 @@
+// The winner. Its .json twin is wrong.
+{
+  "palette": [
+    {
+      "char": "_",  /* one marker per claim */
+      "block": "minecraft:air",
+    },
+    {
+      "char": "#",  /* one marker per claim */
+      "block": "minecraft:white_concrete",
+    },
+    {
+      "char": "G",  /* one marker per claim */
+      "block": "minecraft:gold_block",
+    },
+    {
+      "char": "D",  /* one marker per claim */
+      "block": "minecraft:diamond_block",
+    },
+    {
+      "char": "L",  /* one marker per claim */
+      "block": "minecraft:lapis_block",
+    },
+    {
+      "char": "W",  /* one marker per claim */
+      "block": "minecraft:redstone_block",
+    },
+  ],
+}

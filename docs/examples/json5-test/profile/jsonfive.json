@@ -1,0 +1,19 @@
+{
+  "lostcity": {
+    "worldStyle": "j5:demo",
+    "description": "written as .json",
+    "ruinChance": 0.0,
+    "generateLoot": false,
+    "buildingMinFloors": 3,
+    "buildingMaxFloors": 3,
+    "buildingMinCellars": 0,
+    "buildingMaxCellars": 0
+  },
+  "cities": {
+    "cityChance": 0.0
+  },
+  "explosions": {
+    "explosionChance": 0.0,
+    "miniExplosionChance": 0.0
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "dimension": "minecraft:overworld",
+  "chunkx": 8,
+  "chunkz": 8,
+  "radius": 8,
+  "citystyle": "j5:demo",
+  "buildings": [
+    { "building": "j5:gold",   "chunkx": 0, "chunkz": 2 },
+    { "building": "j5:shadow", "chunkx": 2, "chunkz": 2 },
+    { "building": "j5:lapis",  "chunkx": 4, "chunkz": 2 }
+  ]
+}

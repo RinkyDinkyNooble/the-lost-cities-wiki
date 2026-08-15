@@ -1,0 +1,15 @@
+// buildings/lapis, as .json5
+{
+  "filler": "#",
+  "refpalette": "j5:demo",
+  "minfloors": 3,
+  "maxfloors": 3,
+  "mincellars": 0,
+  "maxcellars": 0,
+  "overrideFloors": true,
+  "parts": [
+    {
+      "part": "j5:p_lapis",
+    },
+  ],
+}
