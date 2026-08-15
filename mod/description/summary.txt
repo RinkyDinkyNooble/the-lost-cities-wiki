@@ -1,0 +1,1 @@
+Write Lost Cities datapacks with comments and .json5. Faults name the file instead of the chunk, mistakes are caught at load with a line number, and traced bugs have optional fixes. KubeJS compatible.

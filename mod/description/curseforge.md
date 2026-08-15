@@ -58,8 +58,22 @@ This is a <b>subset</b> of JSON5, not all of it. Unquoted keys and single quotes
 not accepted: they change what a valid file looks like without solving a problem an
 author actually has.
 
-<p><span style="color:#c0392b"><b>A pack written this way will not load for anyone
-without this mod.</b></span></p>
+<h2>Works wherever datapacks come from</h2>
+
+<p>The hook sits on the resource manager rather than on a folder path, so <b>any</b>
+datapack source is covered, not just <code>saves/&lt;world&gt;/datapacks</code>. That
+includes <code>kubejs/data</code>, confirmed working with KubeJS: put your Lost Cities
+assets there, comments and <code>.json5</code> and all, and they load.</p>
+
+<p>The usual reason a pack in <code>kubejs/data</code> does not load is the
+<b>namespace</b>. The folder directly under <code>data/</code> is the namespace, and
+every reference has to use it:
+<code>data/mypack/lostcities/buildings/tower.json5</code> is <code>mypack:tower</code>,
+and a city style naming <code>tower</code> without the namespace will not find it.</p>
+
+<p><span style="color:#c0392b">Without this mod installed, a pack written with
+<code>.json5</code> does not load at all. The profile is not read and the game crashes
+on world creation, which is the same result as the asset simply not existing.</span></p>
 
 <h2>Faults reported against the file, not the chunk</h2>
 
