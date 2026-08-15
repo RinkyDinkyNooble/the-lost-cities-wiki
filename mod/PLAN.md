@@ -51,6 +51,7 @@ No behaviour. Everything else depends on it.
 | # | Feature | Notes |
 |---|---|---|
 | 2.1 | **JSON5 for Lost Cities assets** | **Done.** Comments and trailing commas in `data/<ns>/lostcities/**`. **Scoped by path**, not global: no other mod's or Minecraft's own JSON is touched. |
+| 2.2 | **The `.json5` extension** | **Done.** Nothing in Minecraft or Lost Cities lists a `.json5` file, so one is presented to both loaders under its `.json` name. Covers datapack assets and `config/lostcities/profiles`. Where both names exist the `.json5` wins, and the shadowed file is reported in the log and once in chat to any operator joining. |
 
 Asset export was considered and dropped. Writing a merged city style or a resolved
 palette to disk is easy, but nothing consumes the result: the mod reads assets, not
@@ -75,7 +76,7 @@ Each changes what generates, so each is opt-in and separately switchable.
 | 4.1 | **Done.** **Re-anchor the Cities button on resize** | It keeps its old position when the window grows instead of staying anchored top right. |
 | 4.2 | **Right-click cycles profiles backwards** | Left-click already cycles forward. |
 | 4.4 | **Done.** **Customize no longer crashes** | `LostCitySetup.reset()` nulls the profile list when a world is left, `toggleProfile()` rebuilds it lazily, and `customize()` does not. Pressing Customize after having played a world throws and closes the game. |
-| 4.3 | **Show non-selectable profiles** | A profile whose name contains a digit, uppercase letter, hyphen or dot loads and wires up correctly but is never offered on the world creation screen. Either list it or say why it is hidden. |
+| 4.3 | **Show non-selectable profiles** | Traced in 7.4.12: `toggleProfile` offers every entry of `STANDARD_PROFILES` whose `isPublic()` is true, and that flag defaults to true unless the profile's own JSON sets `"public": false`. No character test exists, so the standing claim about digits, uppercase and hyphens is unsupported and needs retesting. Two real causes were found instead, and both belong here: `readProfiles` names a profile after everything before the **first dot**, so `my.thing.json` registers as `my`; and its `IOException` handler ends in `return` rather than `continue`, so one unreadable file stops every profile after it in directory order from registering, silently. |
 
 ## Build order, and why
 
@@ -110,6 +111,7 @@ Each feature is proved on the existing rig unless noted.
 | 1.3 | The `belowsem` building in `wiki-test7` produces a message naming the building, not only the 35 chunks that queried it. |
 | 1.4 | `wiki-test7` and `wiki-test8` report their known faults at load. The count must match what `validate.py` reports on the same packs. |
 | 3.1 | `belowsem` comes out gold on level 0 and diamond on level 1, instead of gold on both. |
+| 2.2 | `wiki-test9` generates from a building, part and palette that exist only as `.json5`, a `.json5` wins over the `.json` beside it, a plain `.json` resolves a `.json5` part, and a `.json5` profile decides `cityChance`. With `acceptJson5Extension` off, all four markers return to zero. |
 | 3.2 | A street pack marking only `full` produces marked chunks, which it currently never does. |
 | 4.x | By hand, with a client. |
 

@@ -1,0 +1,19 @@
+{
+  "lostcity": {
+    "worldStyle": "wt9:test",
+    "description": "The losing twin. If this is read, cities cover the map.",
+    "ruinChance": 0.0,
+    "generateLoot": false,
+    "buildingMinFloors": 1,
+    "buildingMaxFloors": 1,
+    "buildingMinCellars": 0,
+    "buildingMaxCellars": 0
+  },
+  "cities": {
+    "cityChance": 1.0
+  },
+  "explosions": {
+    "explosionChance": 0.0,
+    "miniExplosionChance": 0.0
+  }
+}

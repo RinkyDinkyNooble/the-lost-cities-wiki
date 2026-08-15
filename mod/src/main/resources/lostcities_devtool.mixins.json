@@ -13,6 +13,7 @@
     "ConditionContextMixin",
     "FileToIdConverterMixin",
     "LostCityFeatureMixin",
+    "ProfileSetupMixin",
     "LostCitySphereFeatureMixin",
     "LostCityTerrainFeatureMixin"
   ],

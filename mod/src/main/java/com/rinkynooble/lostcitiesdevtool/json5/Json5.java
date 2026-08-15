@@ -1,5 +1,6 @@
 package com.rinkynooble.lostcitiesdevtool.json5;
 
+import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 
@@ -31,12 +32,68 @@ public final class Json5 {
     /** The datapack folder every Lost Cities asset lives under. */
     private static final String PREFIX = "lostcities/";
 
+    /** The namespace and folder a Lost Cities datapack registry is rooted at. */
+    private static final String ROOT = "lostcities";
+
+    public static final String EXT_JSON = ".json";
+    public static final String EXT_JSON5 = ".json5";
+
+    /**
+     * A location no pack will hold, used to read a converter's folder and extension
+     * back out of it. See {@link #folderOf}.
+     */
+    private static final String PROBE = "lcdevprobe";
+
     private Json5() {
     }
 
     public static boolean appliesTo(ResourceLocation location) {
         return location.getPath().startsWith(PREFIX)
-                && location.getPath().endsWith(".json");
+                && location.getPath().endsWith(EXT_JSON);
+    }
+
+    /** True for a resource folder that a Lost Cities datapack registry reads from. */
+    public static boolean appliesToFolder(String folder) {
+        return ROOT.equals(folder) || folder.startsWith(PREFIX);
+    }
+
+    /**
+     * The {@code .json} location a {@code .json5} file stands in for.
+     *
+     * <p>Presenting the file under this name is what makes the extension work without
+     * touching {@link FileToIdConverter#fileToId}, which strips a fixed number of
+     * characters and would otherwise leave a trailing {@code 5} in the id. A dot is a
+     * legal character in a resource path, so that would not throw: the asset would
+     * simply register under a name nothing references.
+     */
+    public static ResourceLocation asJson(ResourceLocation json5) {
+        String path = json5.getPath();
+        return new ResourceLocation(json5.getNamespace(),
+                path.substring(0, path.length() - EXT_JSON5.length()) + EXT_JSON);
+    }
+
+    /**
+     * The folder a converter reads, or {@code null} if it does not read {@code .json}.
+     *
+     * <p>The folder is a private field. Rather than shadow it, which binds this mixin
+     * to a mapping for a vanilla class, the converter is asked to build the file name
+     * for a location that cannot exist and the answer is read back. The result is
+     * {@code folder + "/" + PROBE + extension}, so both parts fall out of one public
+     * call.
+     */
+    public static String folderOf(FileToIdConverter converter) {
+        String path = converter.idToFile(new ResourceLocation(ROOT, PROBE)).getPath();
+        int at = path.lastIndexOf(PROBE);
+        if (at <= 0 || !EXT_JSON.equals(path.substring(at + PROBE.length()))) {
+            return null;
+        }
+        return path.substring(0, at - 1);
+    }
+
+    /** The name a profile or asset file registers under: everything before the first dot. */
+    public static String baseName(String fileName) {
+        int dot = fileName.indexOf('.');
+        return dot < 0 ? fileName : fileName.substring(0, dot);
     }
 
     /** A resource that yields the same file with comments and trailing commas blanked. */

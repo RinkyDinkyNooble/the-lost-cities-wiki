@@ -38,11 +38,25 @@ public class ValidationListener extends SimplePreparableReloadListener<List<Find
             return findings;
         }
 
+        boolean json5 = Config.on(Config.INSTANCE.acceptJson5Extension, true);
         for (String kind : KINDS) {
-            Map<ResourceLocation, Resource> resources =
-                    manager.listResources("lostcities/" + kind,
-                            loc -> loc.getPath().endsWith(".json"));
-            for (Map.Entry<ResourceLocation, Resource> entry : resources.entrySet()) {
+            String folder = "lostcities/" + kind;
+            // Keyed by the name on disk rather than the name the loader sees, so a
+            // finding names the file the author has to open.
+            Map<ResourceLocation, Resource> chosen = new LinkedHashMap<>(
+                    manager.listResources(folder,
+                            loc -> loc.getPath().endsWith(Json5.EXT_JSON)));
+            if (json5) {
+                manager.listResources(folder,
+                        loc -> loc.getPath().endsWith(Json5.EXT_JSON5))
+                        .forEach((loc, resource) -> {
+                            // Same precedence the loader applies, so a shadowed .json
+                            // is not reported for faults nothing will ever hit.
+                            chosen.remove(Json5.asJson(loc));
+                            chosen.put(loc, resource);
+                        });
+            }
+            for (Map.Entry<ResourceLocation, Resource> entry : chosen.entrySet()) {
                 readOne(findings, kind, entry.getKey(), entry.getValue());
             }
         }
@@ -65,8 +79,9 @@ public class ValidationListener extends SimplePreparableReloadListener<List<Find
             // Parse the relaxed form, since that is what the loader will see. Blanking
             // preserves offsets, so a line number found here still matches the file on
             // disk, comments and all.
-            String forParsing = Config.INSTANCE.acceptCommentsAndTrailingCommas.get()
-                    ? Json5.sanitise(raw) : raw;
+            boolean relax = id.getPath().endsWith(Json5.EXT_JSON5)
+                    || Config.on(Config.INSTANCE.acceptCommentsAndTrailingCommas, true);
+            String forParsing = relax ? Json5.sanitise(raw) : raw;
             json = JsonParser.parseString(forParsing).getAsJsonObject();
         } catch (Exception e) {
             // The registry loader reports this too, but without saying which rule of

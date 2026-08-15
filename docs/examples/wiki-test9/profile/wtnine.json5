@@ -1,0 +1,22 @@
+// The profile that should win. Its .json twin sets cityChance to 1.0, so a
+// city outside the predefined radius means the wrong file was read.
+{
+  "lostcity": {
+    "worldStyle": "wt9:test",
+    "description": "Wiki JSON5 claim tests",
+    "ruinChance": 0.0,        // keep every marker block countable
+    "generateLoot": false,
+    "buildingMinFloors": 1,
+    "buildingMaxFloors": 1,
+    "buildingMinCellars": 0,
+    "buildingMaxCellars": 0,
+  },
+  "cities": {
+    /* Only the pinned chunks are city chunks. */
+    "cityChance": 0.0,
+  },
+  "explosions": {
+    "explosionChance": 0.0,
+    "miniExplosionChance": 0.0,
+  },
+}

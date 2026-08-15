@@ -1,0 +1,15 @@
+{
+  "inherit": "citystyle_common",
+  "style": "standard",
+  "buildingsettings": {
+    "buildingchance": 1.0
+  },
+  "selectors": {
+    "buildings": [
+      {
+        "factor": 1.0,
+        "value": "wt9:onlyfive"
+      }
+    ]
+  }
+}

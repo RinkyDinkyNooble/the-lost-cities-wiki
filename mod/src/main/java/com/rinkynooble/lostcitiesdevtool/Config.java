@@ -29,6 +29,12 @@ public class Config {
     /** Feature 2.1. Comments and trailing commas in Lost Cities asset files. */
     public final ForgeConfigSpec.BooleanValue acceptCommentsAndTrailingCommas;
 
+    /** Feature 2.2. A Lost Cities asset or profile may be named .json5. */
+    public final ForgeConfigSpec.BooleanValue acceptJson5Extension;
+
+    /** Feature 2.2. Report a .json that a .json5 of the same name is shadowing. */
+    public final ForgeConfigSpec.BooleanValue warnOnJson5Override;
+
     // -- repairs, off by default ----------------------------------------------
 
     /** Repair 3.1. Makes belowpart test the part below rather than the current one. */
@@ -48,6 +54,18 @@ public class Config {
                 new ForgeConfigSpec.Builder().configure(Config::new);
         INSTANCE = pair.getLeft();
         SPEC = pair.getRight();
+    }
+
+    /**
+     * A toggle's value, or {@code fallback} if the file has not been read yet.
+     *
+     * <p>Lost Cities reads {@code config/lostcities/profiles} from its own
+     * constructor, which runs before any mod's config is loaded, and asking a
+     * {@code ConfigValue} for its value before then throws. Every caller passes the
+     * toggle's own default, so the untimed pass behaves as a fresh install does.
+     */
+    public static boolean on(ForgeConfigSpec.BooleanValue value, boolean fallback) {
+        return SPEC.isLoaded() ? value.get() : fallback;
     }
 
     private Config(ForgeConfigSpec.Builder builder) {
@@ -131,6 +149,49 @@ public class Config {
                         "have this mod. Keep that in mind before shipping a pack that uses",
                         "them.")
                 .define("acceptCommentsAndTrailingCommas", true);
+
+        acceptJson5Extension = builder
+                .comment("Let a Lost Cities asset or profile be named .json5.",
+                        "",
+                        "Nothing in Minecraft or in Lost Cities reads a .json5 file.",
+                        "Datapack assets are listed with a filter on '.json' and their id",
+                        "is then derived by stripping exactly five characters, so a .json5",
+                        "is either invisible or registered under a mangled name. Profiles",
+                        "are filtered on '.json' too, by File.listFiles.",
+                        "",
+                        "With this on, a .json5 is presented to both loaders under its",
+                        ".json name, and is always read with comments and trailing commas",
+                        "allowed whatever the setting above says. The point of the",
+                        "extension is that an editor recognises it: VS Code and IntelliJ",
+                        "both treat .json5 as commentable, so a hand-written asset stops",
+                        "being underlined in red.",
+                        "",
+                        "Where both names exist the .json5 wins. Lost Cities rewrites every",
+                        "profile it ships as .json on each launch, so the opposite rule",
+                        "would make overriding a shipped profile impossible.",
+                        "",
+                        "Scoped the same way as the setting above: data/<namespace>/",
+                        "lostcities/ and config/lostcities/profiles, nothing else.",
+                        "",
+                        "The profiles folder is read before this file is, so a change here",
+                        "reaches profiles at the next launch. Datapack assets pick it up on",
+                        "the next world load or /reload.")
+                .define("acceptJson5Extension", true);
+
+        warnOnJson5Override = builder
+                .comment("Report a .json that a .json5 of the same name is shadowing.",
+                        "",
+                        "Both files register the same asset under the same name, and only",
+                        "the .json5 is read. In an editor they sit next to each other",
+                        "looking interchangeable, so an edit to the wrong one changes",
+                        "nothing and gives no sign of why.",
+                        "",
+                        "Reported in the log at load, and once in chat to any operator",
+                        "joining, because a log line scrolls past and this one is worth",
+                        "seeing. An override is not an error and nothing is prevented.",
+                        "",
+                        "Set to false if you keep both on purpose.")
+                .define("warnOnJson5Override", true);
 
         builder.pop();
 

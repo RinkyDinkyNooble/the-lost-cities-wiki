@@ -1,0 +1,12 @@
+{
+  "filler": "#",
+  "refpalette": "wt9:test",
+  "minfloors": 1,
+  "maxfloors": 1,
+  "mincellars": 0,
+  "maxcellars": 0,
+  "overrideFloors": true,
+  "parts": [
+    { "part": "wt9:rj_lapis" }
+  ]
+}

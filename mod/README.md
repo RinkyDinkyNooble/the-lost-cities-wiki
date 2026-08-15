@@ -164,6 +164,53 @@ check, and by any parse error, still point at the right line of the file as writ
 !!! note
     A pack that uses comments will not load for anyone without this mod.
 
+### `acceptJson5Extension`
+
+A Lost Cities asset or profile may be named `.json5`, which is what makes an editor
+stop underlining it.
+
+Nothing in Minecraft or in Lost Cities reads such a file. Datapack assets are listed
+with a filter on `.json` and their id is then derived by stripping exactly five
+characters, so `buildings/tower.json5` is either invisible or registered as
+`buildings/tower.j`, which is a legal resource path and therefore does not even throw.
+Profiles are filtered on `.json` too, by `File.listFiles`.
+
+So the file is presented to both loaders under its `.json` name, and read with
+comments and trailing commas allowed whatever `acceptCommentsAndTrailingCommas` says.
+Nothing else needs patching, because the id is then derived from a name that is
+already correct.
+
+| Covered | Not covered |
+|---|---|
+| `data/<namespace>/lostcities/**` | `pack.mcmeta`, which vanilla reads before any of this |
+| `config/lostcities/profiles/*` | Every other mod's files, and Minecraft's own |
+
+**Where both names exist the `.json5` wins.** Lost Cities rewrites every profile it
+ships as `.json` on each launch, so the opposite rule would make overriding one
+impossible.
+
+### `warnOnJson5Override`
+
+A shadowed file is reported at load and once in chat to any operator joining:
+
+```
+Lost Cities JSON5: 1 file is shadowing a .json of the same name
+  wt9:lostcities/buildings/shadowed.json5  wins over  wt9:lostcities/buildings/shadowed.json
+  The .json is not read. Delete it, or delete the .json5, so an edit lands where you expect.
+```
+
+The two files sit next to each other in an editor looking interchangeable, and only
+one is read, so an edit to the wrong one changes nothing and gives no sign of why. It
+is not an error and nothing is prevented. Set this to `false` if you keep both on
+purpose.
+
+Measured on `wiki-test9`, same seed, same pack, with only the toggle changed:
+
+| `acceptJson5Extension` | `.json5`-only building | Shadowed pair | `.json` part reference into a `.json5` |
+|---|---|---|---|
+| on | 512 blocks | diamond, 512 blocks, no emerald | 512 blocks |
+| off | 0 | 0 of either | 0, and 533 chunks log `Error getting resource` |
+
 ## Repairs
 
 Every setting under `repairs` changes what generates and defaults to **off**. A world

@@ -1,0 +1,15 @@
+{
+  // This palette exists only as .json5. Nothing in the pack ships a test.json
+  // beside it, so if the marker blocks below appear at all, a .json5 asset was
+  // read under a name only the extension hook can produce.
+  "palette": [
+    { "char": "_", "block": "minecraft:air" },
+    { "char": "#", "block": "minecraft:white_concrete" },
+
+    /* One marker block per claim, so a count in one chunk answers one question. */
+    { "char": "G", "block": "minecraft:gold_block" },     // a .json5-only building
+    { "char": "D", "block": "minecraft:diamond_block" },  // the .json5 of a shadowed pair
+    { "char": "E", "block": "minecraft:emerald_block" },  // the .json that lost
+    { "char": "L", "block": "minecraft:lapis_block" },    // a .json reaching a .json5 part
+  ],
+}

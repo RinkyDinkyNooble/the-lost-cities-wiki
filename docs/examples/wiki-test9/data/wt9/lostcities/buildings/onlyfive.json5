@@ -1,0 +1,14 @@
+// Exists only as .json5. There is no onlyfive.json anywhere in this pack.
+{
+  "filler": "#",
+  "refpalette": "wt9:test",
+  "minfloors": 1,
+  "maxfloors": 1,
+  "mincellars": 0,
+  "maxcellars": 0,
+  "overrideFloors": true,
+  "parts": [
+    /* One part, no condition, so it covers every level. */
+    { "part": "wt9:of_gold" },
+  ],
+}

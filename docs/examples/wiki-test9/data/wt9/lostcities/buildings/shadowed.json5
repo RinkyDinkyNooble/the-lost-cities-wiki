@@ -1,0 +1,14 @@
+// The same asset name as shadowed.json, which places emerald instead. Diamond
+// in this chunk means the .json5 won and the .json was never read.
+{
+  "filler": "#",
+  "refpalette": "wt9:test",
+  "minfloors": 1,
+  "maxfloors": 1,
+  "mincellars": 0,
+  "maxcellars": 0,
+  "overrideFloors": true,
+  "parts": [
+    { "part": "wt9:sh_diamond" },
+  ],
+}

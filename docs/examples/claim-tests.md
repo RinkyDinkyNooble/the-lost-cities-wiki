@@ -90,7 +90,11 @@ pack against that jar with nothing else changed.
 
 | Claim | Result |
 |---|---|
-| A profile name containing a digit, an uppercase letter, a hyphen or a dot is read normally but is **not offered on the world creation screen** | Confirmed. Wiring it through `dimensionsWithProfiles` works; picking it by hand is impossible. Nothing is logged. |
+| A profile name containing a digit, an uppercase letter, a hyphen or a dot is read normally but is **not offered on the world creation screen** | **Withdrawn.** Observed once by hand and contradicted by the code. The list is `STANDARD_PROFILES` filtered on `isPublic()`, and nothing tests the characters of a name. |
+| A profile is offered unless its own file sets `"public": false` | Confirmed from `LostCitySetup.toggleProfile` and the `LostCityProfile(String, String)` constructor, which reads `public` and treats a missing key as true. That is how the sphere-outside profiles are hidden. |
+| A profile is named after everything before the **first dot** in its file name | Confirmed from `ProfileSetup.readProfiles`, which uses `getName().split("\\.")[0]`. `my.thing.json` registers as `my`. |
+| One unreadable profile file drops every profile after it | Confirmed from the same method: the `IOException` handler ends in `return`, not `continue`, so the scan stops. Which profiles vanish depends on directory order. |
+| The profile list is ordered `default` first, then by `String.compareTo` | Confirmed from the comparator `toggleProfile` sorts with. That is code point order, so a digit sorts before an uppercase letter and an uppercase letter before a lowercase one. It is not case-insensitive alphabetical, and it sorts the key rather than the label shown. |
 | A profile key in the wrong section is never read | Confirmed indirectly: a wrong config **section** caused Forge to reset the file to its defaults with no error. |
 
 ### Failure behaviour
