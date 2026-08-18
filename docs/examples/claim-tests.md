@@ -282,6 +282,62 @@ load order.
 `FMLCommonSetupEvent`, and `LostCityFeature`. Nothing on the `/reload` path
 touches either.
 
+### How it all connects
+
+Source page: [How It All Connects](../getting-started/how-it-connects.md).
+
+#### HIC-1 A 7.4.12 profile has 131 keys, 7.5.0 onward has 160 { #hic-1 }
+
+**Code review.** Counted off `LostCityProfile`'s fields in each jar and recorded in
+`docs/examples/mod-keys.json`, which `validate.py` checks the reference pages
+against on every build. See [Key availability](../versions/key-availability.md).
+
+#### HIC-2 Seventeen profile files, three of them private { #hic-2 }
+
+**Game test.** After a harness run, `config/lostcities/profiles/` holds 18 files:
+the 17 the mod ships plus whichever one the pack installed. `grep -l '"public":
+false'` returns exactly `bio_wasteland.json`, `biosphere_caves.json` and
+`void_outside.json`.
+
+```
+ancient atlantis bio_wasteland biosphere biosphere_caves cavern default
+floating largecities nodamage onlycities rarecities safe space tallbuildings
+void_outside wasteland
+```
+
+**Code review.** `ProfileSetup.initStandardProfiles` builds all of them plus
+`customized`, which the write loop skips, so it is an eighteenth profile that
+never has a file. See [CFG-7](#cfg-7).
+
+#### HIC-3 The dimension, and the bed gateway that reaches it { #hic-3 }
+
+**Code review.** The mod registers `lostcities:lostcity` with its own chunk
+generator. The gateway is keyed off `Config.SPECIAL_BED_BLOCK`, defined on the
+server spec with the default `minecraft:diamond_block`, so it is a per-world
+setting rather than a profile key. See [CFG-6](#cfg-6).
+
+#### HIC-4 Two biome modifiers, both on `#minecraft:is_overworld` { #hic-4 }
+
+**Code review.** The jar ships exactly two files under
+`data/lostcities/forge/biome_modifier/`:
+
+```json title="lostcities.json"
+{ "type": "forge:add_features", "biomes": "#minecraft:is_overworld",
+  "features": "lostcities:lostcities", "step": "raw_generation" }
+```
+
+```json title="lostcity_spheres.json"
+{ "type": "forge:add_features", "biomes": "#minecraft:is_overworld",
+  "features": "lostcities:spheres", "step": "top_layer_modification" }
+```
+
+#### HIC-5 Non-default landscape types need Lost Worlds { #hic-5 }
+
+**Unverified.** The landscape types are read and acted on by Lost Cities, and the
+profiles that use them carry comments recommending a matching Lost Worlds world
+type, but no run has been made with and without Lost Worlds to show what a
+`floating` or `cavern` profile does on its own. Lost Worlds is not on the rig.
+
 ### Configuration
 
 Source page: [Configuration Reference](../reference/config.md). Evidence is the
