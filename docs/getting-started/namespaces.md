@@ -5,29 +5,23 @@ claims: verified
 # Namespaces
 
 !!! tip "TL;DR"
-    Every Lost Cities asset has a full name, `namespace:path`. Leave the namespace off when *referencing* something and the mod reads it as `lostcities:`. A reference that lands in a namespace where nothing is registered does not fall back and does not pass quietly: it throws, and where the throw lands decides whether you lose one chunk or the whole server.
+    Every Lost Cities asset has a full name, `namespace:path`. Leave the namespace off when *referencing* something and the mod reads it as `lostcities:`. A reference that lands in a namespace where nothing is registered does not fall back and does not pass quietly: it throws, and where the throw lands decides whether you lose one chunk or the whole server. [game test](../examples/claim-tests.md#ns-4){.v .v-g} [code review](../examples/claim-tests.md#ns-4){.v .v-c}
 
-Every claim on this page carries a chip saying how it was checked. Follow the chip for the evidence.
+Every claim on this page carries a chip saying how it was checked. Follow the chip for the evidence. <!-- noclaim -->
 
 ## What a name is
 
-A resource location, `namespace:path`. Examples:
+An asset name is a resource location, `namespace:path`. [code review](../examples/claim-tests.md#ns-1){.v .v-c}
 
 - `minecraft:stone`
 - `lostcities:standard` (the built-in world style)
-- `apocalypse:wasteland_city` (a custom world style in your own namespace)
+- `apocalypse:wasteland_city` (a custom world style in your own namespace) [code review](../examples/claim-tests.md#ns-1){.v .v-c}
 
-File location decides the name. A file at:
-
-```
-data/apocalypse/lostcities/worldstyles/wasteland_city.json
-```
-
-registers as `apocalypse:wasteland_city`. The folder right after `data/` **is** the namespace. [game test](../examples/claim-tests.md#ns-1){.v .v-g} [code review](../examples/claim-tests.md#ns-1){.v .v-c}
+File location decides the name. The folder right after `data/` **is** the namespace, so a file at `data/apocalypse/lostcities/worldstyles/wasteland_city.json` registers as `apocalypse:wasteland_city`. [game test](../examples/claim-tests.md#ns-1){.v .v-g} [code review](../examples/claim-tests.md#ns-1){.v .v-c}
 
 ### The exact folder layout
 
-Lost Cities assets are datapack registries, so the path is always:
+Lost Cities assets are datapack registries, so the path is always the same four segments. [code review](../examples/claim-tests.md#ns-2){.v .v-c}
 
 ```
 data/<your namespace>/lostcities/<asset type>/<name>.json
@@ -57,11 +51,11 @@ Anywhere the mod expects a *name* (a profile's `worldStyle` key, a world style's
 }
 ```
 
-**Rule of thumb:** if your file lives under `data/lostcities/...`, you can reference it bare. If it lives under `data/<your namespace>/...`, you must include that namespace everywhere you reference it.
+**Rule of thumb:** a file under `data/lostcities/...` can be referenced bare. A file under `data/<your namespace>/...` needs that namespace everywhere it is referenced. [code review](../examples/claim-tests.md#ns-3){.v .v-c}
 
 ## What a reference into the wrong namespace actually does
 
-It throws. Every lookup, including the ones whose method name suggests otherwise, ends in the same place: the registry is asked for the name, returns nothing, and the asset constructor is handed that nothing and fails. The failure comes back as:
+It throws. Every lookup, including the ones whose method name suggests otherwise, ends in the same place: the registry is asked for the name, returns nothing, and the asset constructor is handed that nothing and fails. [code review](../examples/claim-tests.md#ns-4){.v .v-c} [game test](../examples/claim-tests.md#ns-4){.v .v-g}
 
 ```
 java.lang.RuntimeException: Error getting resource lostcities:wasteland_city!
@@ -70,9 +64,7 @@ Caused by: java.lang.NullPointerException: Cannot invoke
     because "object" is null
 ```
 
-[code review](../examples/claim-tests.md#ns-4){.v .v-c} [game test](../examples/claim-tests.md#ns-4){.v .v-g}
-
-What you see depends only on **when** the reference is first needed:
+What you see depends only on **when** the reference is first needed. [game test](../examples/claim-tests.md#ns-4){.v .v-g}
 
 | Reference | First read | Result |
 |---|---|---|
@@ -83,11 +75,11 @@ What you see depends only on **when** the reference is first needed:
 That last row is the one that costs an evening. A bare `refpalette` on a building whose parts each declare their own `refpalette` generated a complete, correct tower, and surfaced only as two unrelated-looking chunk failures elsewhere in the city. Give the same building a part with no palette of its own and it disappears. [game test](../examples/claim-tests.md#ns-7){.v .v-g}
 
 !!! warning "The message names the resolved name, not what you typed"
-    `Error getting resource lostcities:wasteland_city!` is what a missing namespace looks like. If you did not expect to see `lostcities:` in front of your own asset's name, the reference that produced it was written bare. [game test](../examples/claim-tests.md#ns-4){.v .v-g}
+    `Error getting resource lostcities:wasteland_city!` is what a missing namespace looks like. A `lostcities:` prefix in front of an asset that is not the mod's own means the reference that produced it was written bare. [game test](../examples/claim-tests.md#ns-4){.v .v-g}
 
 ## A worked example
 
-A profile is a config file, not a datapack file, so it has no namespace of its own. It is named by its file name and it lives outside `data/` entirely. The `worldStyle` value inside it is the point where config crosses into datapack space, and that value **is** a namespaced reference.
+A profile is a config file, not a datapack file, so it has no namespace of its own. It is named by its file name and it lives outside `data/` entirely. The `worldStyle` value inside it is the point where config crosses into datapack space, and that value **is** a namespaced reference. [code review](../examples/claim-tests.md#ns-8){.v .v-c}
 
 ```title="Two separate places, one reference between them"
 config/lostcities/profiles/apocalypse.json
@@ -127,35 +119,29 @@ The profile's own file name never takes a namespace. `apocalypse.json` makes a p
 
 === "Use your own namespace"
 
-    Put your file under your own namespace:
+    A file under your own namespace collides with nothing, and **every reference to it, everywhere, needs the full name.** [game test](../examples/claim-tests.md#ns-1){.v .v-g}
 
     ```
     data/apocalypse/lostcities/worldstyles/wasteland_city.json
     ```
 
-    Nothing collides. But **every reference to it, everywhere, needs the full `apocalypse:wasteland_city` name.**
-
 === "Override the defaults"
 
-    Put your file at the **exact same path** as a built-in one:
+    A file at the **exact same path** as a built-in one replaces the mod's shipped version of it entirely, so anything expecting the original `lostcities:standard` behaviour gets yours instead. [unverified](../examples/claim-tests.md#ns-9){.v .v-u}
 
     ```
     data/lostcities/lostcities/worldstyles/standard.json
     ```
 
-    Your version replaces the mod's shipped one entirely. Simple, but global: anything else that expects the original `lostcities:standard` behaviour gets your version instead.
-
-Most modpacks should default to their own namespace. Override only when you deliberately want to replace a specific built-in.
+Most modpacks are better off with their own namespace, and overriding is worth it only to replace a specific built-in deliberately. <!-- noclaim -->
 
 ### How an override resolves
 
-Ordinary datapack rules, with one consequence worth spelling out:
+Ordinary datapack rules, with one consequence worth spelling out. [unverified](../examples/claim-tests.md#ns-9){.v .v-u}
 
 - The pack **latest in load order wins**, and it wins **whole file**. There is no key-by-key merging between two files with the same name, unlike block tags (which do merge) or a city style's own [`inherit`](../reference/citystyle.md#inheritance) (which merges within one file's chain).
 - So overriding `citystyle_config` to change one setting means restating everything else that file contained, not just the key you care about.
-- Nothing warns you when an override happens. The losing file is simply never seen.
-
-[unverified](../examples/claim-tests.md#ns-9){.v .v-u}
+- Nothing warns you when an override happens. The losing file is simply never seen. [unverified](../examples/claim-tests.md#ns-9){.v .v-u}
 
 !!! warning "`/reload` does not pick up Lost Cities asset changes"
     These registries are read **once, when the world loads**. In 7.4.12 the mod registers no reload listener, and vanilla does not reload datapack registries on `/reload` either. Editing a part or palette and running `/reload` changes nothing. [code review](../examples/claim-tests.md#ns-10){.v .v-c}
@@ -166,4 +152,4 @@ Ordinary datapack rules, with one consequence worth spelling out:
 
 - [Your First Custom City](first-city.md) for these paths in a working datapack
 - [KubeJS Integration](../advanced/kubejs.md) for the same rules under `kubejs/data/`
-- [Glossary](../glossary.md) for `namespace`, `resource location`, and `registry` if any of those were new.
+- [Glossary](../glossary.md) for `namespace`, `resource location`, and `registry` if any of those were new. <!-- noclaim -->

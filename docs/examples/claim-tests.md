@@ -130,6 +130,26 @@ evidence, not about the claim.
 | **code review** | Read out of the compiled 7.4.12 jar, with the class and method named |
 | **unverified** | Neither. The mod's own documentation and the official wiki do not count as either |
 
+A claim may be both game tested and code reviewed. A claim may not be unverified
+and anything else at once, and it may not be cited as unverified on one page and
+verified on another.
+
+Text that asserts nothing about the mod (navigation, a scope note, a
+recommendation) is marked `<!-- noclaim -->` in the source. That records a
+decision rather than granting an exemption: the rule is that no block is left
+undecided, not that every block is a claim.
+
+`docs/examples/check_claims.py` enforces all of it. It reads every page whose
+front matter says `claims: verified`, and fails when a block on one carries
+neither a chip nor a `noclaim`, when a chip points at a register entry that does
+not exist, when a chip's label and colour disagree, or when a claim's status
+contradicts itself across pages.
+
+```bash
+python docs/examples/check_claims.py
+```
+
+
 ### Namespaces
 
 Source page: [Namespaces](../getting-started/namespaces.md). Pack:

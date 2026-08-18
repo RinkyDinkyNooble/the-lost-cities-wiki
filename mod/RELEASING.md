@@ -76,9 +76,10 @@ config-group-first.
 cd ../..
 .venv/Scripts/python.exe -m mkdocs build --strict
 .venv/Scripts/python.exe docs/examples/validate.py
+.venv/Scripts/python.exe docs/examples/check_claims.py
 ```
 
-- [ ] Both clean
+- [ ] All three clean
 
 ## 7. Commit and tag
 
