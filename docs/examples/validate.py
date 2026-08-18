@@ -304,6 +304,11 @@ PAGE_ASSET = {
     "palette.md": "PaletteRE",
 }
 
+# Reference pages whose tables are not datapack keys, so mod-keys.json has nothing
+# to say about them. config.md documents Forge TOML settings, which are declared in
+# a ForgeConfigSpec rather than a codec.
+NON_CODEC_PAGES = {"config.md"}
+
 
 def check_against_mod_keys() -> None:
     """Check the reference tables against the keys the mod's codecs actually declare.
@@ -331,6 +336,8 @@ def check_against_mod_keys() -> None:
     if not ref.is_dir():
         return
     for page in sorted(ref.glob("*.md")):
+        if page.name in NON_CODEC_PAGES:
+            continue
         asset = base["codec"].get(PAGE_ASSET.get(page.name, ""), {})
         cols = None
         for line in page.read_text(encoding="utf-8").split("\n"):
