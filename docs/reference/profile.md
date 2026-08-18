@@ -48,17 +48,20 @@ restricted to lowercase, and it does not need a namespace. What matters is that 
 name in `dimensionsWithProfiles` matches the file name exactly, including case.
 
 !!! warning "Loading a profile and being offered it are two different things"
-    The rules above govern whether the mod **reads** the file. The world creation
-    screen applies its own filter on top, and it is stricter.
+    The rules above govern whether the mod **reads** the file. Whether it is
+    *offered* on the world creation screen is a separate test, and it is not about
+    the characters in the name.
 
-    Observed on 7.4.12: a profile whose name contains a digit, an uppercase letter,
-    a hyphen or a dot is read normally and wired up normally through
-    `dimensionsWithProfiles`, and **does not appear as a choice on the world
-    creation screen**. Nothing is logged.
+    The screen lists `STANDARD_PROFILES` filtered on `isPublic()`. A profile is
+    offered unless its own file sets `"public": false`, which is how the
+    outside-sphere profiles are hidden. Nothing anywhere inspects the characters of
+    a name. An earlier version of this page said a digit, an uppercase letter, a
+    hyphen or a dot kept a profile off the screen; that was observed once by hand,
+    is contradicted by the code, and is withdrawn.
 
-    A profile reached only through `dimensionsWithProfiles` is unaffected, because
-    that path never consults the screen. A profile intended to be picked by hand
-    needs a name of lowercase letters only.
+    The list is ordered `default` first, then by `String.compareTo`, which is code
+    point order: digits before uppercase, uppercase before lowercase. It sorts the
+    key rather than the label shown.
 
 ## File shape
 
@@ -325,6 +328,12 @@ Only affects players who also have Lost Cities installed. `-1` leaves the defaul
 | `fogGreen` | `-1` | -1 – 1 | The green channel of the fog colour, `0` to `1`. `-1` leaves it alone. |
 | `fogBlue` | `-1` | -1 – 1 | The blue channel of the fog colour, `0` to `1`. `-1` leaves it alone. |
 | `fogDensity` | `-1` | -1 – 1 | How thick the fog is, `0` to `1`, where higher is thicker. `-1` leaves it alone. |
+
+!!! info "Where the file lives, and what rewrites it"
+    `config/lostcities/profiles/` is rewritten on every launch: the mod writes each
+    profile it ships back to disk before reading the folder. Deleting or editing a
+    shipped profile does not last, `__readonly__` is inert, and profiles of your own
+    are untouched. See [Configuration](config.md#the-profiles-folder).
 
 ## See also
 

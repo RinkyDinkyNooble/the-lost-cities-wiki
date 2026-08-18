@@ -85,6 +85,7 @@ nav:
   - Reference:
       - Overview: reference/index.md
       - Key Interactions: reference/interactions.md
+      - Configuration: reference/config.md
       - Profile: reference/profile.md
       - World Style: reference/worldstyle.md
       - City Style: reference/citystyle.md

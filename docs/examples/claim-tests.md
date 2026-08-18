@@ -282,6 +282,87 @@ load order.
 `FMLCommonSetupEvent`, and `LostCityFeature`. Nothing on the `/reload` path
 touches either.
 
+### Configuration
+
+Source page: [Configuration Reference](../reference/config.md). Evidence is the
+rig's own config files, which a real server wrote, plus `mcjty.lostcities.setup.Config`.
+
+#### CFG-1 Settings are split across three files, one of them per world { #cfg-1 }
+
+**Code review.** `Config`'s static initializer builds three
+`ForgeConfigSpec.Builder`s and registers keys against them: three on
+`COMMON_BUILDER`, eleven on `SERVER_BUILDER`, none on `CLIENT_BUILDER`. Forge
+writes a common spec to `config/<modid>/common.toml` and a server spec into the
+save.
+
+**Game test.** After any harness run, `research/server-1.20.1-7.4.12/` holds
+`config/lostcities/common.toml` with exactly `dimensionsWithProfiles`,
+`optimizedHeightmap` and `heightSampleSize`, and
+`world/serverconfig/lostcities-server.toml` with the other eleven. Deleting the
+world deletes the second file and not the first.
+
+#### CFG-2 Both files use `[profiles]`, and a wrong section resets the file { #cfg-2 }
+
+**Code review.** All three builders call `push("profiles")`. The string
+`"General settings"` is passed to `comment(...)` immediately before, so it becomes
+a comment line rather than a section.
+
+**Game test.** Cost a full test round before the harness was fixed. The harness
+now writes the section explicitly, and `harness.py` carries the note: a wrong
+section makes Forge rewrite the file to defaults with no error, which points
+`lostcities:lostcity` at `biosphere`, and the run looks like a generation bug
+rather than a config typo.
+
+#### CFG-3 `common.toml` holds three keys, and one contradicts its own comment { #cfg-3 }
+
+**Code review.** `heightSampleSize` is
+`defineInRange("heightSampleSize", 3, 1, 100)` under the comment
+`Default is 1 which means every chunk is sampled`.
+
+**Game test.** The file the server writes says `heightSampleSize = 3` under that
+comment.
+
+#### CFG-4 A bad `dimensionsWithProfiles` entry is logged, not thrown { #cfg-4 }
+
+**Code review.** `Config.getProfileForDimension` splits each entry on `=`. A
+missing `=` logs `Bad format for config value: '{}'!`; a name absent from
+`STANDARD_PROFILES` logs `Cannot find profile: {} for dimension {}!`. Both are
+logger calls and neither throws, so the dimension is simply left without a profile.
+
+#### CFG-5 The world creation screen wires the overworld, not `lostcities:lostcity` { #cfg-5 }
+
+**Game test.** Choosing a profile with the **Cities** button makes the overworld
+the Lost Cities world, while `dimensionsWithProfiles` wires the
+`lostcities:lostcity` dimension. A predefined city pinned to the wrong one appears
+not to generate. The shipped `json5-test` packs pin to both for this reason.
+
+#### CFG-6 Eleven keys are per world { #cfg-6 }
+
+**Code review.** All eleven are defined on `SERVER_BUILDER`.
+
+**Game test.** They appear only in `world/serverconfig/lostcities-server.toml`.
+The harness wipes the world between runs, and the file comes back at defaults each
+time, which is how the defaults quoted on the page were read.
+
+#### CFG-7 Standard profiles are rewritten to disk on every launch { #cfg-7 }
+
+**Code review.** `ProfileSetup.setupProfiles` runs in this order: build the
+standard profiles in code, `mkdirs` the folder, write every standard profile
+**except the one named `customized`** through `toJson(true)`, and only then call
+`readProfiles` on the folder. So a deleted default returns, an edited default is
+overwritten before it is read, and a profile the mod does not define is untouched
+because the write loop iterates `STANDARD_PROFILES` rather than the directory.
+
+#### CFG-8 `__readonly__` is written and never read { #cfg-8 }
+
+**Code review.** The only occurrence of the string in the jar is in
+`Configuration.toJson(boolean)`, which adds it as a property when the flag is set.
+No class reads it. `readProfiles` passes the whole file to the `LostCityProfile`
+constructor, which takes the keys it knows and ignores the rest.
+
+**Game test.** Every profile in every test pack omits the key, and all of them
+load and are selectable.
+
 ### KubeJS integration
 
 Source page: [KubeJS Integration](../advanced/kubejs.md). No pack yet. The mod jars
