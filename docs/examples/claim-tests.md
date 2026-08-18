@@ -379,12 +379,23 @@ registry loader, which reads every enabled pack source.
 
 #### KJS-2 Files under `kubejs/data/` are seen by that loader { #kjs-2 }
 
-**Unverified.** Consistent with KJS-1, because the vanilla loader reads from the
-`ResourceManager` and every pack source is one of its inputs, and reported to work
-in practice. Neither the rig nor the code has been used to confirm that KubeJS
-registers its `data` folder as such a source in
-`kubejs-forge-2001.6.5-build.26`. Confirming it needs KubeJS on the rig and a
-`wiki-test10` variant relocated under `kubejs/data/nstest/`.
+**Game test.** `wiki-test10`'s twelve asset files were moved from the datapack to
+`kubejs/data/nstest/lostcities/`, with KubeJS 2001.6.5, Rhino 2001.2.3 and
+Architectury 9.2.14 installed. The datapack that remained held one irrelevant file
+and no Lost Cities content at all:
+
+```
+world/datapacks/kubejs-test/data/kjsplaceholder/nothing.json
+world/datapacks/kubejs-test/pack.mcmeta
+```
+
+All four probes came back identical to the datapack run: 512 gold, 512 diamond,
+0 lapis, 0 emerald, with the same 41 and 2 failed chunks. Every assertion in this
+register's Namespaces section holds unchanged when the files are loaded through
+KubeJS.
+
+**Code review.** Consistent with KJS-1: the vanilla registry loader reads through
+the `ResourceManager`, and every pack source is one of its inputs.
 
 #### KJS-3 The namespace is the folder, with no default { #kjs-3 }
 
@@ -415,7 +426,6 @@ tell. A claim being here means untested, not suspect.
 | `isbuilding`, `issphere`, `chunkx`, `chunkz` | Four condition keys with no coverage. |
 | Predefined spheres | The city half is covered, the sphere half is not. |
 | The in-game editor | Six commands documented from the code. They need a client, not a headless server. |
-| KubeJS loading | The path is documented, the load has not been observed. See [KJS-2](#kjs-2). |
 
 ## Corrections this produced
 
@@ -446,6 +456,7 @@ Two, both on [Known Issues](../troubleshooting/known-issues.md) with the evidenc
 | `docs/examples/wiki-test7/` | The pinned grid: 21 assets, 28 probes | Eye or harness |
 | `docs/examples/wiki-test8/` | Ruins, damage, row length, `parts2` | Harness |
 | `docs/examples/wiki-test10/` | Namespace resolution, and what an unresolved reference does | Harness |
+| `research/kubejs-test/` | The same assets loaded through `kubejs/data/` instead. Private, it needs mod jars that are not ours to ship | Harness |
 
 `wiki-test7` supersedes `wiki-test5` and `wiki-test6`, which are earlier builds of
 the same grid kept only because their failures are documented above.

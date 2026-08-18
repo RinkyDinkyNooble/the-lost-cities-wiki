@@ -1,5 +1,4 @@
 ---
-status: in-progress
 claims: verified
 ---
 
@@ -9,19 +8,19 @@ claims: verified
     This page covers loading Lost Cities assets through KubeJS instead of a datapack folder. Scripted generation and calling commands from generated content are not covered. <!-- noclaim -->
 
 !!! tip "TL;DR"
-    Lost Cities content is loaded through Minecraft's normal datapack registry system, and KubeJS merges anything under `kubejs/data/` into that same system. Drop your Lost Cities JSON there, no scripting, no separate datapack folder to manage. [code review](../examples/claim-tests.md#kjs-1){.v .v-c} [unverified](../examples/claim-tests.md#kjs-2){.v .v-u}
+    Lost Cities content is loaded through Minecraft's normal datapack registry system, and KubeJS merges anything under `kubejs/data/` into that same system. Drop your Lost Cities JSON there, no scripting, no separate datapack folder to manage. [code review](../examples/claim-tests.md#kjs-1){.v .v-c} [game test](../examples/claim-tests.md#kjs-2){.v .v-g}
 
 ## Why this works
 
 Every Lost Cities asset type (world styles, city styles, buildings, and the rest) is registered as a real Minecraft dynamic registry entry, loaded the same way as vanilla recipes or loot tables, not through a Lost-Cities-specific file loader. Anything that can inject datapack JSON can add Lost Cities content. [code review](../examples/claim-tests.md#kjs-1){.v .v-c}
 
-KubeJS's `data` folder is one such source, and it needs no separate datapack zip or folder structure inside a modpack. A file there is plain JSON, picked up automatically, with no JS involved. [unverified](../examples/claim-tests.md#kjs-2){.v .v-u}
+KubeJS's `data` folder is one such source, and it needs no separate datapack zip or folder structure inside a modpack. A file there is plain JSON, picked up automatically, with no JS involved. Assets moved out of a datapack and into `kubejs/data/` generated identically, down to the same failures in the same chunks. [game test](../examples/claim-tests.md#kjs-2){.v .v-g}
 
 ```
 kubejs/data/<namespace>/lostcities/worldstyles/mystyle.json
 ```
 
-Same file, same content, same rules as writing it directly into a datapack. [unverified](../examples/claim-tests.md#kjs-2){.v .v-u}
+Same file, same content, same rules as writing it directly into a datapack. [game test](../examples/claim-tests.md#kjs-2){.v .v-g}
 
 ## The namespace is the folder you choose
 
