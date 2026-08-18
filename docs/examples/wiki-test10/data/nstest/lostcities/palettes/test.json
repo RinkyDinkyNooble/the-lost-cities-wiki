@@ -1,0 +1,28 @@
+{
+  "palette": [
+    {
+      "char": "_",
+      "block": "minecraft:air"
+    },
+    {
+      "char": "#",
+      "block": "minecraft:white_concrete"
+    },
+    {
+      "char": "G",
+      "block": "minecraft:gold_block"
+    },
+    {
+      "char": "D",
+      "block": "minecraft:diamond_block"
+    },
+    {
+      "char": "L",
+      "block": "minecraft:lapis_block"
+    },
+    {
+      "char": "E",
+      "block": "minecraft:emerald_block"
+    }
+  ]
+}

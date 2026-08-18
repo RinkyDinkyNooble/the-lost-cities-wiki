@@ -118,6 +118,21 @@ wrong is the most common reason a pinned city appears not to generate at all.
 Instructions, coordinates and what each wrong colour means are in the pack's
 [README](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/blob/main/docs/examples/json5-test/README.md).
 
+### `wiki-test10`: what a bad namespace does
+
+[`wiki-test10/`](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/tree/main/docs/examples/wiki-test10)
+is four towers that differ only in how their references are spelled. One spells
+every namespace in full and generates. The other three each drop `nstest:` from a
+different reference, and each fails differently: one silently, one across a
+40-chunk area, one by taking the server down.
+
+| Profile | What it changes | Outcome |
+|---|---|---|
+| `wtten` | nothing | Three of four towers behave as the register records |
+| `wttenbare` | the profile's `worldStyle` loses its namespace | The server crashes on the first chunk |
+
+Read the results in [the claim register](claim-tests.md#namespaces).
+
 !!! note "It does not check everything"
     Nothing here can verify that a block ID exists, or that files are in the right
     folder. Those need the game. It catches the mechanical mistakes, not the wiring

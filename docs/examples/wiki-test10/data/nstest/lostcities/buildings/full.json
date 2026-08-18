@@ -1,0 +1,14 @@
+{
+  "filler": "#",
+  "refpalette": "nstest:test",
+  "minfloors": 1,
+  "maxfloors": 1,
+  "mincellars": 0,
+  "maxcellars": 0,
+  "overrideFloors": true,
+  "parts": [
+    {
+      "part": "nstest:ns_gold"
+    }
+  ]
+}

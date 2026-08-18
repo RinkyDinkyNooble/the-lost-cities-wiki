@@ -1,0 +1,29 @@
+{
+  "dimension": "lostcities:lostcity",
+  "chunkx": 8,
+  "chunkz": 8,
+  "radius": 8,
+  "citystyle": "nstest:test",
+  "buildings": [
+    {
+      "building": "nstest:full",
+      "chunkx": 0,
+      "chunkz": 0
+    },
+    {
+      "building": "nstest:barepalette",
+      "chunkx": 2,
+      "chunkz": 0
+    },
+    {
+      "building": "nstest:barepart",
+      "chunkx": 4,
+      "chunkz": 0
+    },
+    {
+      "building": "nstest:barepalette_only",
+      "chunkx": 6,
+      "chunkz": 0
+    }
+  ]
+}

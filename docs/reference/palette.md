@@ -25,7 +25,7 @@
 | `block` | one of these four | A fixed block state string. |
 | `variant` | | The name of a [Variant](variant.md), which is a shared weighted block list. |
 | `blocks` | | An inline weighted list. Same shape as a Variant, but not reusable elsewhere. |
-| `frompalette` | | An alias to another character's resolved value. The same bare-name trap applies here, see [Namespaces](../getting-started/namespaces.md#the-default-namespace-trap). |
+| `frompalette` | | An alias to another character's resolved value. The same bare-name trap applies here, see [Namespaces](../getting-started/namespaces.md#a-bare-name-means-lostcities). |
 | `damaged` | no | The block this character becomes where damage is laid over it, by the ruin pass or by an explosion. It affects a thin band, not the whole ruined section. See [below](#what-damaged-replaces). |
 | `mob` | no | **Not a literal mob ID.** The name of a [Condition](condition.md). The mod places a real `mob_spawner` block, and the condition's resolved value becomes the mob it spawns. |
 | `loot` | no | **Not a loot table ID.** The name of a [Condition](condition.md), exactly like `mob`. The condition's resolved value is the loot table. See [below](#loot-names-a-condition-not-a-loot-table). |

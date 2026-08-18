@@ -191,7 +191,7 @@ wrong **kind** of name.
 |---|---|
 | The profile's `worldStyle` names a World Style no loaded datapack defines | **This one crashes the game**, because it is resolved before the catch. See [above](#thrown-during-chunk-generation). Check that the profile and the datapack in the world are the same generation of your pack. |
 | A palette `loot` or `mob` key holds a loot table or entity ID | Both name a [Condition](../reference/condition.md). Wrap the value in a one-entry Condition and name that instead. This is by far the most common form. |
-| A bare name that resolved into the `minecraft` namespace | See [Namespaces](../getting-started/namespaces.md#the-default-namespace-trap). |
+| A bare name that resolved into the `minecraft` namespace | See [Namespaces](../getting-started/namespaces.md#a-bare-name-means-lostcities). |
 | A genuine typo in an asset name | Compare against the file name, which is the asset name. |
 
 !!! warning "For `loot`, the symptom does not look like an exception"

@@ -117,6 +117,184 @@ pack against that jar with nothing else changed.
 | A datapack means the same thing on 7.4.12 and 7.5.1 | Confirmed. The pack written for 7.4.12 gives 28 of 28 on 7.5.1 unchanged. |
 | 7.5 changed placement, not asset handling | Confirmed. The only counts that moved were wall totals, each by a multiple of 16, which is one doorway. |
 
+## The claim register
+
+Pages carrying verification chips have a numbered entry here for every claim they
+make. An entry names how the claim was checked and how to check it again. A claim
+marked **unverified** has had neither treatment. That is a statement about the
+evidence, not about the claim.
+
+| Status | Means |
+|---|---|
+| **game test** | Run on a headless Forge server against a named pack, with the blocks read back out of the world |
+| **code review** | Read out of the compiled 7.4.12 jar, with the class and method named |
+| **unverified** | Neither. The mod's own documentation and the official wiki do not count as either |
+
+### Namespaces
+
+Source page: [Namespaces](../getting-started/namespaces.md). Pack:
+`docs/examples/wiki-test10/`, namespace `nstest`, profiles `wtten` and
+`wttenbare`.
+
+```bash
+python harness.py --pack ../../docs/examples/wiki-test10 --profile wtten --probes probes/wt10.json
+```
+
+#### NS-1 The folder directly under `data/` is the namespace { #ns-1 }
+
+**Game test.** Every asset in `wiki-test10` sits under `data/nstest/` and every
+reference to it is written `nstest:`. The control tower generates: 512 gold blocks
+in chunk 8,8. Nothing in the pack is under `data/lostcities/`.
+
+**Code review.** `RegistryAssetRegistry.get` looks the name up in the Minecraft
+dynamic registry for its key, which is populated by the vanilla datapack loader
+from the file path. Lost Cities does no path parsing of its own.
+
+#### NS-2 The middle `lostcities` folder is the registry, not the pack { #ns-2 }
+
+**Game test.** Same pack. Assets resolve from `data/nstest/lostcities/...` while
+being named `nstest:...`, so the second path segment cannot be contributing to the
+name.
+
+**Code review.** `CustomRegistries` declares each registry key as
+`lostcities:worldstyles`, `lostcities:palettes` and so on. The registry's own
+namespace supplies that segment.
+
+#### NS-3 A name with no colon is read as `lostcities:` { #ns-3 }
+
+**Code review.** `DataTools.fromName(String)`:
+
+```java
+if (name.contains(":")) return new ResourceLocation(name);
+return new ResourceLocation("lostcities", name);
+```
+
+The inverse, `DataTools.toName(ResourceLocation)`, prints a `lostcities:` name
+back out bare, which is why the mod's own files reference each other with no
+namespace.
+
+**Game test.** Three buildings in `wiki-test10` differ from the control only in
+dropping `nstest:` from one reference each. All three failures name
+`lostcities:<thing>` in the log, never `nstest:<thing>`.
+
+#### NS-4 An unresolved reference throws { #ns-4 }
+
+**Code review.** `RegistryAssetRegistry` has three lookups and all three funnel
+into `get(CommonLevelAccessor, ResourceLocation)`. That method asks the registry,
+gets `null`, and passes the `null` to the asset constructor, which fails. The
+`catch (Exception)` around it rethrows as
+`RuntimeException("Error getting resource " + name + "!")`. The name-based
+`get(level, String)` returns `null` only when the **string** is null, never when
+the lookup misses, so it is not the quiet variant its name suggests.
+
+**Game test.** Every failing case in `wiki-test10` produces that message.
+Evidence: `research/claim-evidence/crash-2026-08-18_18.17.07-server.txt`, and the
+harness `failed chunks` summary.
+
+#### NS-5 A profile's unresolved `worldStyle` crashes the server { #ns-5 }
+
+**Game test.** Profile `wttenbare` is `wtten` with one character changed:
+`"worldStyle": "test"` in place of `"nstest:test"`. The server died on the first
+forced chunk and the harness lost its RCON connection.
+
+```
+Description: Feature placement
+java.lang.RuntimeException: Error getting resource lostcities:test!
+  at RegistryAssetRegistry.get(RegistryAssetRegistry.java:82)
+  at DefaultDimensionInfo.<init>(DefaultDimensionInfo.java:44)
+Caused by: java.lang.NullPointerException: Cannot invoke
+  "WorldStyleRE.getRegistryName()" because "object" is null
+```
+
+**Code review.** `DefaultDimensionInfo`'s constructor resolves the world style
+before any chunk is built, and stores it in a `final` field with no null check.
+There is no per-chunk `try`/`catch` that far up.
+
+#### NS-6 An unresolved part name in `parts` fails the chunks around the building { #ns-6 }
+
+**Game test.** Building `nstest:barepart` names its part `ns_lapis` rather than
+`nstest:ns_lapis`. Result: 0 lapis blocks where the building was pinned, and 41
+chunks logged as
+`Error generating chunk <x>,<z>: Error getting resource lostcities:ns_lapis!`,
+spread over a 4 by 7 chunk area rather than the one chunk that holds the building.
+
+#### NS-7 An unresolved `refpalette` fails only where that palette is needed { #ns-7 }
+
+**Game test.** Two buildings, one difference between them.
+
+| Building | Its part | Result |
+|---|---|---|
+| `nstest:barepalette` | declares its own `refpalette` | 512 diamond blocks. **The tower generates normally.** Two unrelated chunks fail |
+| `nstest:barepalette_only` | declares no palette | 0 emerald blocks. The building is absent |
+
+Both buildings carry the same broken `"refpalette": "test"`. A part's own palette
+merges over the building's, so when the part supplies every character used, the
+building's palette is never resolved and the bad reference is never reached.
+
+**Code review.** `Building.getPalette` and `BuildingPart.getPalette` both call
+`getOrThrow`, but only on first use, and `CompiledPalette` is assembled per
+character.
+
+`validate.py` reports both buildings before the game is involved:
+`` `filler` is '#', defined in ['nstest:test'], but this building references none
+of those ``. The static check catches the case the world hides.
+
+#### NS-8 A profile is named by its file name and takes no namespace { #ns-8 }
+
+**Code review.** `ProfileSetup.readProfiles` builds each profile as
+`new LostCityProfile(file.getName().split("\.")[0], contents)`. There is no
+namespace anywhere in that path, and `common.toml` matches profiles by that bare
+key.
+
+#### NS-9 Override resolution: last pack wins, whole file, no merging { #ns-9 }
+
+**Unverified.** No pack has been run with two datapacks defining the same Lost
+Cities asset. The behaviour stated on the page is inherited from vanilla dynamic
+registry loading and has not been confirmed for these registries specifically, in
+either the code or a world. Checking it needs a two-pack run with a controlled
+load order.
+
+#### NS-10 Assets are read once per world load { #ns-10 }
+
+**Code review.** Lost Cities registers no `ReloadListener` in 7.4.12.
+`RegistryAssetRegistry` caches each built asset in its own `assets` map, and
+`AssetRegistries.reset()` has exactly two callers: `ModSetup.init`, once at
+`FMLCommonSetupEvent`, and `LostCityFeature`. Nothing on the `/reload` path
+touches either.
+
+### KubeJS integration
+
+Source page: [KubeJS Integration](../advanced/kubejs.md). No pack yet. The mod jars
+needed to run one are held privately; installing KubeJS, Rhino and Architectury on
+the test rig is the outstanding step.
+
+#### KJS-1 Lost Cities assets are ordinary dynamic registry entries { #kjs-1 }
+
+**Code review.** `CustomRegistries` declares each asset type as a
+`ResourceKey<Registry<...>>` and registers it through Forge's
+`DataPackRegistryEvent.NewRegistry`, with a codec per type. Nothing in the mod
+opens a file or walks a directory. Loading is done by the vanilla datapack
+registry loader, which reads every enabled pack source.
+
+#### KJS-2 Files under `kubejs/data/` are seen by that loader { #kjs-2 }
+
+**Unverified.** Consistent with KJS-1, because the vanilla loader reads from the
+`ResourceManager` and every pack source is one of its inputs, and reported to work
+in practice. Neither the rig nor the code has been used to confirm that KubeJS
+registers its `data` folder as such a source in
+`kubejs-forge-2001.6.5-build.26`. Confirming it needs KubeJS on the rig and a
+`wiki-test10` variant relocated under `kubejs/data/nstest/`.
+
+#### KJS-3 The namespace is the folder, with no default { #kjs-3 }
+
+**Code review.** Lost Cities never sees the file path. It receives a
+`ResourceLocation` already built by the loader from `data/<namespace>/<registry
+namespace>/<registry path>/<name>.json`, so the namespace can only be the folder.
+The mod's own resolution of a bare reference is
+`new ResourceLocation("lostcities", name)` in `DataTools.fromName`, which is a
+default applied to **references**, not to file locations. Nothing gives a file a
+namespace it did not get from its folder.
+
 ## What has not been checked in a world
 
 Everything below is documented from the compiled code and has never been generated.
@@ -136,7 +314,7 @@ tell. A claim being here means untested, not suspect.
 | `isbuilding`, `issphere`, `chunkx`, `chunkz` | Four condition keys with no coverage. |
 | Predefined spheres | The city half is covered, the sphere half is not. |
 | The in-game editor | Six commands documented from the code. They need a client, not a headless server. |
-| KubeJS loading | The path is documented, the load has not been observed. |
+| KubeJS loading | The path is documented, the load has not been observed. See [KJS-2](#kjs-2). |
 
 ## Corrections this produced
 
@@ -166,6 +344,7 @@ Two, both on [Known Issues](../troubleshooting/known-issues.md) with the evidenc
 | `docs/examples/wiki-fail/` | Failure claims. Two of its three profiles are meant to fail | Log |
 | `docs/examples/wiki-test7/` | The pinned grid: 21 assets, 28 probes | Eye or harness |
 | `docs/examples/wiki-test8/` | Ruins, damage, row length, `parts2` | Harness |
+| `docs/examples/wiki-test10/` | Namespace resolution, and what an unresolved reference does | Harness |
 
 `wiki-test7` supersedes `wiki-test5` and `wiki-test6`, which are earlier builds of
 the same grid kept only because their failures are documented above.
