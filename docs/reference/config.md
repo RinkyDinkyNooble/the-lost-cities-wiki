@@ -95,6 +95,14 @@ This file is written into the **save**, at `<world>/serverconfig/lostcities-serv
 
 To change a default, copy it to a new name and edit the copy. That is what the `__readonly__` note in each shipped file is telling you, and it is accurate: those files really are read-only in effect. <!-- noclaim -->
 
+!!! danger "One unreadable file drops every profile after it"
+    `readProfiles` walks the folder and reads each `.json` in turn. Its `IOException` handler ends in `return` rather than `continue`, so the first file it cannot read stops the scan, and every profile the scan had not reached yet is never registered. [code review](../examples/claim-tests.md#prf-5){.v .v-c}
+
+    Which profiles vanish depends on directory order, so the symptom is a profile that exists on disk, is spelled correctly, and is not offered or found. Nothing names the file that stopped the scan. [code review](../examples/claim-tests.md#prf-5){.v .v-c}
+
+!!! warning "A key in the wrong section is never read"
+    Both `.toml` files and the profile JSON are read by section. A key placed under the wrong heading is not reported, it is simply not found, and the setting keeps its default. See the `[profiles]` note above. [code review](../examples/claim-tests.md#prf-7){.v .v-c}
+
 ### `__readonly__`
 
 Every profile the mod writes carries this key: [code review](../examples/claim-tests.md#cfg-8){.v .v-c}

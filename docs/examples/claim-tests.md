@@ -230,6 +230,8 @@ Caused by: java.lang.NullPointerException: Cannot invoke
 before any chunk is built, and stores it in a `final` field with no null check.
 There is no per-chunk `try`/`catch` that far up.
 
+The same behaviour is recorded as [FAIL-2](#fail-2), from an earlier run.
+
 #### NS-6 An unresolved part name in `parts` fails the chunks around the building { #ns-6 }
 
 **Game test.** Building `nstest:barepart` names its part `ns_lapis` rather than
