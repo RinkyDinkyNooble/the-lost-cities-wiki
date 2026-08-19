@@ -668,23 +668,63 @@ is the opposite direction from [KEY-2](#key-2) and the two are often confused: a
 Some claims are made the same way on many pages. Rather than repeat the evidence,
 those pages cite one of these.
 
-#### NEO-1 The NeoForge line cannot be run on this rig { #neo-1 }
+#### NEO-1 The NeoForge line behaves like the Forge line { #neo-1 }
 
-**Unverified, and deliberately.** The rig is Forge 47.4.10 on Minecraft 1.20.1.
-Every version from 8.2.2 onward needs NeoForge and Minecraft 1.21 or later, which
-is a different loader and a different Minecraft, so nothing on that line can be
-generated here without a second rig.
+**Game test.** A second rig: NeoForge 21.11.45 on Minecraft 1.21.11, Java 21, Lost
+Cities **9.5.1**. All four namespace and feature packs were run against it
+unchanged, no edit to any file.
 
-What **is** checked for those versions is the configuration and datapack surface:
-key names, types, defaults, bounds, and required-or-optional status, all extracted
-from each jar and compared on every build. See [KEY-1](#key-1) and [REF-1](#ref-1).
+```bash
+python harness.py --pack ../../docs/examples/wiki-test10 --profile wtten --probes probes/wt10.json
+```
 
-What is not checked is whether the generator behaves the same way once those keys
-are read. It should, because the surface matches and the generator classes carry
-the same names, and no run has confirmed it.
+| Pack | 7.4.12, Forge | 9.5.1, NeoForge |
+|---|---|---|
+| `wiki-test10`, 4 probes | 3 of 4 | 3 of 4, and see [VER-3](#ver-3) |
+| `wiki-test11`, 7 probes | 7 of 7 | 7 of 7 |
+| `wiki-test12`, 3 probes | 3 of 3 | 3 of 3 |
+| `wiki-test13`, 13 probes | 13 of 13 | 13 of 13 |
 
-This is the one gap on the site that a pack cannot close. Closing it needs a
-NeoForge server on Minecraft 1.21 or later.
+Counts matched exactly nearly everywhere, including the sphere, which returned
+1093 gray stained glass in the same chunk and none of the other three glass types
+anywhere, the same draw from the same weighted list.
+
+One result moved, and it is **not** a loader difference. Running the same pack on
+7.5.1, which is Forge on Minecraft 1.20.1, gives the 9.5.1 answer rather than the
+7.4.12 one. The change belongs to 7.5, and 9.5.1 on NeoForge simply carries it. See
+[VER-3](#ver-3).
+
+So the claim this entry was opened for holds: at the same feature level the two
+loaders agree. What is covered is 9.5.1 on Minecraft 1.21.11, across four packs and
+27 probes. Versions 8.2.2, 8.4.1 and 10.0.1 are still inferred from the key sets
+rather than run.
+
+The rig is `research/server-neoforge-1.21.11-9.5.1/`, private, since it needs jars
+that are not ours to ship.
+
+#### VER-3 7.5 resolves a building's `refpalette` even when no part needs it { #ver-3 }
+
+**Game test.** The clearest behavioural difference found between 7.4.12 and later
+releases, and it is a fix rather than a regression.
+
+`wiki-test10` holds a building whose `refpalette` is written bare, so it resolves to
+a namespace where nothing is registered, while each of its parts carries a working
+`refpalette` of its own.
+
+| Version | Loader | The building | Chunks failing on that palette |
+|---|---|---|---|
+| 7.4.12 | Forge, 1.20.1 | **generates**, 512 blocks | 2, neither of them the building's |
+| 7.5.1 | Forge, 1.20.1 | **absent**, 0 blocks | 8, including the building's own chunk |
+| 9.5.1 | NeoForge, 1.21.11 | **absent**, 0 blocks | 8, the same set |
+
+On 7.4.12 the building's own palette is never needed, because every part supplies
+the characters it uses, so the broken reference is never dereferenced and the tower
+comes out looking correct. From 7.5 the palette is resolved regardless and the
+building fails instead.
+
+The later behaviour is easier to live with. A mistake that produced a correct
+looking building on 7.4.12 produces a missing one plus a named error afterwards.
+Anything relying on the older leniency stops working on 7.5 and later.
 
 #### REF-1 The key tables match the codecs, and a build says so { #ref-1 }
 
@@ -943,6 +983,7 @@ Two, both on [Known Issues](../troubleshooting/known-issues.md) with the evidenc
 | `docs/examples/wiki-test11/` | Building fronts, stuff objects, and what a predefined city does not make a city chunk | Harness |
 | `docs/examples/wiki-test12/` | Scattered structures, with the placement randomness tuned out | Harness |
 | `docs/examples/wiki-test13/` | A predefined sphere, and what its glass character resolves to | Harness |
+| `research/server-neoforge-1.21.11-9.5.1/` | The second rig, NeoForge 21.11.45 on Minecraft 1.21.11. Private | Harness |
 
 `wiki-test7` supersedes `wiki-test5` and `wiki-test6`, which are earlier builds of
 the same grid kept only because their failures are documented above.

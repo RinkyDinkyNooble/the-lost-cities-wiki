@@ -21,10 +21,10 @@ does not say. <!-- noclaim -->
     key names, types, defaults, minimums and maximums, and datapack codec keys with
     their required or optional status. Those are machine-compared and identical. [code review](../examples/claim-tests.md#key-1){.v .v-c}
 
-    Runtime behaviour on the NeoForge line has **not** been run in a world. The
-    behaviour pages here are written against 7.4.12 and confirmed on 7.5.1, both on
-    Forge. They should carry over, because the surface matches and the generator
-    classes are the same, and nothing has tested that. [unverified](../examples/claim-tests.md#neo-1){.v .v-u}
+    Runtime behaviour on the NeoForge line **has** now been run, on 9.5.1 with
+    NeoForge 21.11.45 and Minecraft 1.21.11. Four packs and 27 probes came back
+    matching the Forge line at the same feature level, counts included. Versions
+    8.2.2, 8.4.1 and 10.0.1 are still inferred from their key sets rather than run. [game test](../examples/claim-tests.md#neo-1){.v .v-g}
 
 ## The versions
 
@@ -52,7 +52,7 @@ so this claim fails the CI gate if it stops being true. [code review](../example
 
 Read this wiki, then [What changed in 7.5](7-5.md), and the picture is complete.
 The hierarchical road system and its 29 profile keys are declared the same way
-here. [code review](../examples/claim-tests.md#key-1){.v .v-c} [unverified](../examples/claim-tests.md#neo-1){.v .v-u}
+here. [code review](../examples/claim-tests.md#key-1){.v .v-c} [game test](../examples/claim-tests.md#neo-1){.v .v-g}
 
 ### The one internal rename
 
