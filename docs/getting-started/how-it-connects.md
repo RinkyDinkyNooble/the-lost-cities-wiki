@@ -39,7 +39,7 @@ Everything left of "World Style" is config. Everything right of it is the conten
 
 ## Profiles: read the built-in ones first
 
-The mod writes its built-in profiles to `config/lostcities/profiles/`, 17 files in 7.4.12, then reads back whatever is in that folder. They are not just examples, they are live files the mod ships and maintains. [game test](../examples/claim-tests.md#hic-2){.v .v-g} [code review](../examples/claim-tests.md#hic-2){.v .v-c}
+The mod writes its built-in profiles to `config/lostcities/profiles/`, 17 files in 7.4.12, then reads back whatever is in that folder. They are live files the mod ships and maintains, not examples left for you to edit. [game test](../examples/claim-tests.md#hic-2){.v .v-g} [code review](../examples/claim-tests.md#hic-2){.v .v-c}
 
 !!! danger "Do not edit them in place, your changes will vanish"
     That write happens on **every launch**, not just the first, and it overwrites unconditionally. Any edit to `wasteland.json`, `default.json`, or any other shipped profile is silently gone next time the game starts. [code review](../examples/claim-tests.md#cfg-7){.v .v-c}

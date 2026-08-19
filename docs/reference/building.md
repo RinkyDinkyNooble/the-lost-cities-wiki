@@ -183,7 +183,7 @@ There are two ways to fix it. <!-- noclaim -->
     ```
     `overrideFloors: true` matters here. Without it, a city style with a higher minimum can still push this building past floor 2. [game test](../examples/claim-tests.md#bld-2){.v .v-g}
 
-=== "Add a catch-all (robust)"
+=== "Add a catch-all"
 
     ```json
     {

@@ -108,13 +108,13 @@ Tables below: **Range** is the window the mod was designed and tested against, a
 | `landscapeType` | `"default"` | | Which terrain generator the profile uses, and therefore what the world outside the cities looks like. See [Landscape types](#landscape-types) for what each of the six values does. |
 | `liquidBlock` | `minecraft:water` | | Block used as the profile's liquid. Bad ID silently falls back to water. |
 | `baseBlock` | `minecraft:stone` | | Block used as the worldgen base. Bad ID silently falls back to stone. |
-| `groundLevel` | `71` | 2 – 256 | The Y coordinate of city level 0. Every city level above it sits 6 blocks higher, so this is the anchor the whole vertical layout is measured from. |
-| `seaLevel` | `-1` | -1 – 256 | Sea level Y. `-1` uses the world default. |
-| `bedrockLayer` | `1` | 0 – 10 | Bedrock layer height. `0` = vanilla default bedrock. |
-| `terrainFixLowerMinOffset` | `-4` | -40 – 40 | Lower-mesh offset (blocks) for raising adjacent terrain. |
-| `terrainFixLowerMaxOffset` | `-3` | -40 – 40 | Upper end of that same offset range. |
-| `terrainFixUpperMinOffset` | `-1` | -40 – 40 | Upper-mesh offset for lowering adjacent terrain. |
-| `terrainFixUpperMaxOffset` | `1` | -40 – 40 | Upper end of that same offset range. |
+| `groundLevel` | `71` | 2 to 256 | The Y coordinate of city level 0. Every city level above it sits 6 blocks higher, so this is the anchor the whole vertical layout is measured from. |
+| `seaLevel` | `-1` | -1 to 256 | Sea level Y. `-1` uses the world default. |
+| `bedrockLayer` | `1` | 0 to 10 | Bedrock layer height. `0` = vanilla default bedrock. |
+| `terrainFixLowerMinOffset` | `-4` | -40 to 40 | Lower-mesh offset (blocks) for raising adjacent terrain. |
+| `terrainFixLowerMaxOffset` | `-3` | -40 to 40 | Upper end of that same offset range. |
+| `terrainFixUpperMinOffset` | `-1` | -40 to 40 | Upper-mesh offset for lowering adjacent terrain. |
+| `terrainFixUpperMaxOffset` | `1` | -40 to 40 | Upper end of that same offset range. |
 | `avoidWater` | `false` | | If `true`, any block a **part** places that is the profile's liquid becomes air instead. Narrower than it sounds, see the note below. |
 | `editMode` | `false` | | If `true`, the world records which part it placed where, enabling the [editor commands](../tooling/editing.md). Must be set before the world is created. |
 | `generateNether` | `false` | | If `true`, the Nether is generated with the cavern-style generator instead of vanilla. |
@@ -172,9 +172,9 @@ Tables below: **Range** is the window the mod was designed and tested against, a
 | `forceSpawnInBuilding` | `false` | | If `true`, the spawn search only accepts positions inside a building. |
 | `forceSpawnBuildings` | `[]` | | Restrict to these building names. Empty = any. |
 | `forceSpawnParts` | `[]` | | Restrict to these part names. Empty = any. |
-| `spawnCheckRadius` | `200` | 1 – 100000 | Starting search radius (blocks). |
-| `spawnRadiusIncrease` | `100` | 1 – 100000 | Radius growth per failed search pass. |
-| `spawnCheckAttempts` | `20000` | 1 – 1000000 | Max chunks checked before spawn search fails. |
+| `spawnCheckRadius` | `200` | 1 to 100000 | Starting search radius (blocks). |
+| `spawnRadiusIncrease` | `100` | 1 to 100000 | Radius growth per failed search pass. |
+| `spawnCheckAttempts` | `20000` | 1 to 1000000 | Max chunks checked before spawn search fails. |
 
 !!! warning "A bad combination of these keys is a hard error, not a fallback"
     Setting any of `spawnBiome`/`spawnCity`/`spawnSphere`/`spawnNotInBuilding`/`forceSpawnInBuilding`/`forceSpawnBuildings`/`forceSpawnParts` replaces vanilla's spawn search entirely, it does not layer on top of it. If the combination you set cannot actually be satisfied anywhere within `spawnCheckAttempts` chunks (a `spawnCity`/`spawnSphere` name that does not match any [Predefined City/Sphere](predefined.md), or filters that contradict each other), world creation throws and fails outright instead of silently picking an imperfect spot. If a world with custom spawn settings will not generate, check these keys first.
@@ -186,26 +186,26 @@ Tables below: **Range** is the window the mod was designed and tested against, a
 
 | Key | Default | Range | Meaning | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 |---|---|---|---|
-| `buildingChance` | `0.3` | 0 – 1 | Chance a city chunk is a building instead of a street. |
-| `buildingMinFloors` | `0` | 0 – 60 | The fewest floors above ground a building may be given. `0` means the ground floor only. |
-| `buildingMaxFloors` | `8` | 0 – 60 | The most floors above ground. This is the top floor index, so `8` allows nine storeys counting the ground floor. |
-| `buildingMinFloorsChance` | `4` | 1 – 60 | See formula below. |
-| `buildingMaxFloorsChance` | `6` | 1 – 60 | See formula below. |
-| `buildingMinCellars` | `0` | 0 – 20 | The fewest cellar levels. `0` means no cellar. |
-| `buildingMaxCellars` | `3` | 0 – 20 | The most cellar levels. The chunk's city level is added to this, so buildings on higher terrain may go deeper. |
-| `buildingDoorwayChance` | `0.6` | 0 – 1 | Chance of a doorway per eligible side/level. |
-| `buildingFrontChance` | `0.2` | 0 – 1 | Chance that a building is given a front part. The front is then drawn by each adjacent street chunk, not by the building itself. See [City Style](citystyle.md#what-a-building-front-is). |
-| `parkChance` | `0.2` | 0 – 1 | Chance a non-building section is a park. |
+| `buildingChance` | `0.3` | 0 to 1 | Chance a city chunk is a building instead of a street. |
+| `buildingMinFloors` | `0` | 0 to 60 | The fewest floors above ground a building may be given. `0` means the ground floor only. |
+| `buildingMaxFloors` | `8` | 0 to 60 | The most floors above ground. This is the top floor index, so `8` allows nine storeys counting the ground floor. |
+| `buildingMinFloorsChance` | `4` | 1 to 60 | See formula below. |
+| `buildingMaxFloorsChance` | `6` | 1 to 60 | See formula below. |
+| `buildingMinCellars` | `0` | 0 to 20 | The fewest cellar levels. `0` means no cellar. |
+| `buildingMaxCellars` | `3` | 0 to 20 | The most cellar levels. The chunk's city level is added to this, so buildings on higher terrain may go deeper. |
+| `buildingDoorwayChance` | `0.6` | 0 to 1 | Chance of a doorway per eligible side/level. |
+| `buildingFrontChance` | `0.2` | 0 to 1 | Chance that a building is given a front part. The front is then drawn by each adjacent street chunk, not by the building itself. See [City Style](citystyle.md#what-a-building-front-is). |
+| `parkChance` | `0.2` | 0 to 1 | Chance a non-building section is a park. |
 | `parkElevation` | `true` | | If `true`, parks get an extra layer of elevation. `false` leaves them flush with the street. |
 | `parkBorder` | `true` | | If `true`, a park's border uses the street block as its base. |
-| `parkStreetThreshold` | `3` | 0 – 8 | Surrounding-street count needed for a park. |
-| `fountainChance` | `0.05` | 0 – 1 | Chance a street section has a fountain. |
-| `corridorChance` | `0.7` | 0 – 1 | Chance a chunk can be a corridor (also needs adjacent corridors). |
-| `bridgeChance` | `0.7` | 0 – 1 | The chance a chunk is eligible to carry a bridge. Terrain still has to suit one, so the visible rate is lower than this number. |
+| `parkStreetThreshold` | `3` | 0 to 8 | Surrounding-street count needed for a park. |
+| `fountainChance` | `0.05` | 0 to 1 | Chance a street section has a fountain. |
+| `corridorChance` | `0.7` | 0 to 1 | Chance a chunk can be a corridor (also needs adjacent corridors). |
+| `bridgeChance` | `0.7` | 0 to 1 | The chance a chunk is eligible to carry a bridge. Terrain still has to suit one, so the visible rate is lower than this number. |
 | `bridgeSupports` | `true` | | If `true`, bridges get support pillars where needed. Set `false` for bridges that span void. |
 | `multiUseCorner` | `false` | | If `true`, a multi-building takes its level from its top-left corner only. `false` averages the surrounding level. |
 | `useAvgHeightmap` | `false` | | If `true`, city level is averaged from surrounding heightmaps. More accurate, and slower, since it has to fetch neighbouring chunks. |
-| `scatteredChanceMultiplier` | `1.0` | 0 – 100 | Multiplier on scattered-building chance. `0` disables them. |
+| `scatteredChanceMultiplier` | `1.0` | 0 to 100 | Multiplier on scattered-building chance. `0` disables them. |
 
 !!! example "The floor-count formula"
     ```
@@ -220,29 +220,29 @@ Tables below: **Range** is the window the mod was designed and tested against, a
 
 | Key | Default | Range | Meaning | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 |---|---|---|---|
-| `vineChance` | `0.009` | 0 – 1 | Chance an exterior block gets a vine. |
-| `randomLeafBlockChance` | `0.1` | 0 – 1 | Chance of leaf blocks at building/street borders. |
-| `randomLeafBlockThickness` | `2` | 1 – 8 | How thick that leaf border looks. |
+| `vineChance` | `0.009` | 0 to 1 | Chance an exterior block gets a vine. |
+| `randomLeafBlockChance` | `0.1` | 0 to 1 | Chance of leaf blocks at building/street borders. |
+| `randomLeafBlockThickness` | `2` | 1 to 8 | How thick that leaf border looks. |
 | `avoidFoliage` | `false` | | If `true`, parks generate with no trees or flowers. **Also stops hard-air filling with water**, see the note below. |
 | `rubbleLayer` | `true` | | If `true`, the alternative dirt/stone/sand plus leaves layer generates, making cities look more overgrown. |
-| `rubbleDirtScale` | `3.0` | 0 – 100 | Noise scale for the dirt rubble layer. Smaller = broader coverage. `0` disables it. |
-| `rubbleLeaveScale` | `6.0` | 0 – 100 | Same, for the leaf rubble layer. |
-| `ruinChance` | `0.05` | 0 – 1 | The chance a building is ruined, meaning its upper levels are partly destroyed. See [Damage, Ruins and Explosions](../under-the-hood/damage-and-ruins.md). |
-| `ruinMinlevelPercent` | `0.8` | 0 – 1 | Fraction of building height where ruin destruction can start, low end. |
-| `ruinMaxlevelPercent` | `1.0` | 0 – 1 | Same, high end. |
+| `rubbleDirtScale` | `3.0` | 0 to 100 | Noise scale for the dirt rubble layer. Smaller = broader coverage. `0` disables it. |
+| `rubbleLeaveScale` | `6.0` | 0 to 100 | Same, for the leaf rubble layer. |
+| `ruinChance` | `0.05` | 0 to 1 | The chance a building is ruined, meaning its upper levels are partly destroyed. See [Damage, Ruins and Explosions](../under-the-hood/damage-and-ruins.md). |
+| `ruinMinlevelPercent` | `0.8` | 0 to 1 | Fraction of building height where ruin destruction can start, low end. |
+| `ruinMaxlevelPercent` | `1.0` | 0 to 1 | Same, high end. |
 
 ### Highways & railways
 
 | Key | Default | Range | Meaning | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 |---|---|---|---|
 | `highwayRequiresTwoCities` | `true` | | If `true`, a highway needs a valid city at **both** ends. `false` lets one city be enough. |
-| `highwayLevelFromCities` | `0` | 0 – 3 | `0` top-left city's height, `1` min of both, `2` max of both, `3` average. |
+| `highwayLevelFromCities` | `0` | 0 to 3 | `0` top-left city's height, `1` min of both, `2` max of both, `3` average. |
 | `highwayDistanceMask` | `7` | ≥ 0 | Spacing bitmask, must be a power of two minus one (`0`, `1`, `3`, `7`, `15`...). `0` disables highways. |
-| `highwayMainPerlinScale` | `50.0` | 1 – 1000 | Noise scale, main axis. |
-| `highwaySecondaryPerlinScale` | `10.0` | 1 – 1000 | Noise scale, cross axis. |
-| `highwayPerlinFactor` | `2.0` | -100 – 100 | Noise threshold. `0` ≈ 50% chance. Higher suppresses highways. |
+| `highwayMainPerlinScale` | `50.0` | 1 to 1000 | Noise scale, main axis. |
+| `highwaySecondaryPerlinScale` | `10.0` | 1 to 1000 | Noise scale, cross axis. |
+| `highwayPerlinFactor` | `2.0` | -100 to 100 | Noise threshold. `0` ≈ 50% chance. Higher suppresses highways. |
 | `highwaySupports` | `true` | | If `true`, highways get support pillars where needed. Set `false` for highways that span void. |
-| `railwayDungeonChance` | `0.01` | 0 – 1 | Chance a chunk next to a railway gets a dungeon. |
+| `railwayDungeonChance` | `0.01` | 0 to 1 | Chance a chunk next to a railway gets a dungeon. |
 | `railwaysCanEnd` | `false` | | If `true`, a spot that would have been a station but has no city above gets a dead-end rail part instead. Useful when cities are rare. |
 | `railwaysEnabled` | `true` | | If `false`, no rail lines generate. Stations still do, they are gated separately. |
 | `railwayStationsEnabled` | `true` | | If `false`, no railway stations generate. |
@@ -255,31 +255,31 @@ Tables below: **Range** is the window the mod was designed and tested against, a
 | `generateSpawners` | `true` | | If `false`, no spawners are placed even where a palette asks for them. |
 | `generateLoot` | `true` | | If `false`, chests generate empty even where a palette sets a `loot` table. |
 | `generateLighting` | `false` | | If `true`, torch palette entries are actually placed. **If `false`, every `torch` entry becomes air**, so buildings are unlit. |
-| `chestWithoutLootChance` | `0.2` | 0 – 1 | Chance an eligible chest is empty. |
-| `buildingWithoutLootChance` | `0.2` | 0 – 1 | Chance a building has neither loot nor spawners. |
+| `chestWithoutLootChance` | `0.2` | 0 to 1 | Chance an eligible chest is empty. |
+| `buildingWithoutLootChance` | `0.2` | 0 to 1 | Chance a building has neither loot nor spawners. |
 
 ## `cities`
 
 | Key | Default | Range | Meaning | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 |---|---|---|---|
-| `cityChance` | `0.01` | -1 – 1 | Chance a chunk is a city center. Exactly `-1` switches to Perlin-noise mode. |
-| `cityMinRadius` | `50` | 1 – 2000 | The smallest radius, in blocks, a city circle can roll. |
-| `cityMaxRadius` | `128` | 1 – 2000 | The largest radius, in blocks. Each city rolls a radius between the two. |
+| `cityChance` | `0.01` | -1 to 1 | Chance a chunk is a city center. Exactly `-1` switches to Perlin-noise mode. |
+| `cityMinRadius` | `50` | 1 to 2000 | The smallest radius, in blocks, a city circle can roll. |
+| `cityMaxRadius` | `128` | 1 to 2000 | The largest radius, in blocks. Each city rolls a radius between the two. |
 | `cityPerlinScale` | `3.0` | huge range, effectively unbounded | Noise scale for Perlin city placement. Larger values stretch the noise, so cities become broader and further apart. Ignored unless `cityChance` is exactly `-1`. |
 | `cityPerlinInnerScale` | `0.1` | huge range, effectively unbounded | A second, finer noise scale layered on the first. Larger values smooth the city edges. Ignored unless `cityChance` is `-1`. |
 | `cityPerlinOffset` | `0.1` | huge range, effectively unbounded | Shifts the noise threshold. Raising it makes cities rarer, lowering it makes them more common. Ignored unless `cityChance` is `-1`. |
-| `cityThreshold` | `0.2` | 0 – 1 | City-factor cutoff for overlapping city circles to count as a city. |
-| `citySpawnDistance1` | `0` | 0 – 10000000 | Distance (blocks) from spawn for city-factor scaling, first point. |
-| `citySpawnDistance2` | `0` | 0 – 10000000 | Second point. `0` disables spawn-distance scaling entirely. |
-| `citySpawnMultiplier1` | `1.0` | 0 – 1 | City factor at the first distance. |
-| `citySpawnMultiplier2` | `1.0` | 0 – 1 | City factor at the second distance. |
-| `cityStyleThreshold` | `-1.0` | disabled at -1, else 0 – 1 | Below this city factor, use `cityStyleAlternative` instead. |
+| `cityThreshold` | `0.2` | 0 to 1 | City-factor cutoff for overlapping city circles to count as a city. |
+| `citySpawnDistance1` | `0` | 0 to 10000000 | Distance (blocks) from spawn for city-factor scaling, first point. |
+| `citySpawnDistance2` | `0` | 0 to 10000000 | Second point. `0` disables spawn-distance scaling entirely. |
+| `citySpawnMultiplier1` | `1.0` | 0 to 1 | City factor at the first distance. |
+| `citySpawnMultiplier2` | `1.0` | 0 to 1 | City factor at the second distance. |
+| `cityStyleThreshold` | `-1.0` | disabled at -1, else 0 to 1 | Below this city factor, use `cityStyleAlternative` instead. |
 | `cityStyleAlternative` | `""` | | The city style to use instead of the normal one wherever the city factor falls below `cityStyleThreshold`. Empty means no substitution. This is how a dense centre fades into sparse outskirts. |
 | `cityAvoidVoid` | `true` | | `floating` landscape only. If `true`, a chunk detected as void gets no city, which stops cities hanging off island edges. |
-| `cityLevel0Height` … `cityLevel7Height` | `75, 83, 91, 99, 107, 115, 123, 131` | 1 – 384 each | Terrain-height cutoffs assigning a city to level 0–7. |
-| `cityMinHeight` | `50` | -1024 – 2048 | No cities below this Y. |
-| `cityMaxHeight` | `150` | -1024 – 2048 | No cities above this Y. |
-| `oceanCorrectionBorder` | `4` | -255 – 255 | Terrain correction offset for ocean chunks next to a city. |
+| `cityLevel0Height` … `cityLevel7Height` | `75, 83, 91, 99, 107, 115, 123, 131` | 1 to 384 each | Terrain-height cutoffs assigning a city to level 0 to 7. |
+| `cityMinHeight` | `50` | -1024 to 2048 | No cities below this Y. |
+| `cityMaxHeight` | `150` | -1024 to 2048 | No cities above this Y. |
+| `oceanCorrectionBorder` | `4` | -255 to 255 | Terrain correction offset for ocean chunks next to a city. |
 
 ## `explosions`
 
@@ -287,18 +287,18 @@ Normal and mini explosions are independent settings. [code review](../examples/c
 
 | Key | Default | Range | Meaning | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 |---|---|---|---|
-| `explosionChance` | `0.002` | 0 – 1 | Per-chunk chance of a normal explosion. **Setting this to `0` does not turn explosions off.** `miniExplosionChance` is a separate roll, and its default is 15 times larger. |
-| `explosionMinRadius` | `15` | 1 – 1000 | The smallest blast radius, in blocks, that a normal explosion can roll. |
-| `explosionMaxRadius` | `35` | 1 – 3000 | The largest blast radius, in blocks. The mod rolls a radius between this and the minimum for each explosion. |
-| `explosionMinHeight` | `75` | 1 – 256 | The lowest Y the **centre** of a normal explosion can be placed at. The blast still reaches below it. |
-| `explosionMaxHeight` | `90` | 1 – 256 | The highest Y the centre can be placed at. |
-| `miniExplosionChance` | `0.03` | 0 – 1 | Per-chunk chance of a mini explosion. This is the one that actually fires: at 15 times `explosionChance`, most damage in a default world comes from here. A test profile that wants undamaged buildings has to zero **both**. |
-| `miniExplosionMinRadius` | `5` | 1 – 1000 | The smallest blast radius, in blocks, for a mini explosion. |
-| `miniExplosionMaxRadius` | `12` | 1 – 3000 | The largest blast radius for a mini explosion. |
-| `miniExplosionMinHeight` | `60` | 1 – 256 | The lowest Y a mini explosion centre can be placed at. |
-| `miniExplosionMaxHeight` | `100` | 1 – 256 | The highest Y a mini explosion centre can be placed at. |
+| `explosionChance` | `0.002` | 0 to 1 | Per-chunk chance of a normal explosion. **Setting this to `0` does not turn explosions off.** `miniExplosionChance` is a separate roll, and its default is 15 times larger. |
+| `explosionMinRadius` | `15` | 1 to 1000 | The smallest blast radius, in blocks, that a normal explosion can roll. |
+| `explosionMaxRadius` | `35` | 1 to 3000 | The largest blast radius, in blocks. The mod rolls a radius between this and the minimum for each explosion. |
+| `explosionMinHeight` | `75` | 1 to 256 | The lowest Y the **centre** of a normal explosion can be placed at. The blast still reaches below it. |
+| `explosionMaxHeight` | `90` | 1 to 256 | The highest Y the centre can be placed at. |
+| `miniExplosionChance` | `0.03` | 0 to 1 | Per-chunk chance of a mini explosion. This is the one that actually fires: at 15 times `explosionChance`, most damage in a default world comes from here. A test profile that wants undamaged buildings has to zero **both**. |
+| `miniExplosionMinRadius` | `5` | 1 to 1000 | The smallest blast radius, in blocks, for a mini explosion. |
+| `miniExplosionMaxRadius` | `12` | 1 to 3000 | The largest blast radius for a mini explosion. |
+| `miniExplosionMinHeight` | `60` | 1 to 256 | The lowest Y a mini explosion centre can be placed at. |
+| `miniExplosionMaxHeight` | `100` | 1 to 256 | The highest Y a mini explosion centre can be placed at. |
 | `explosionsInCitiesOnly` | `true` | | If `true`, an explosion's centre can only be in a city chunk. The blast radius reaches outside it either way. |
-| `debrisToNearbyChunkFactor` | `200` | 1 – 10000 | Debris spillover from nearby damaged chunks. Higher = less spillover. |
+| `debrisToNearbyChunkFactor` | `200` | 1 to 10000 | Debris spillover from nearby damaged chunks. Higher = less spillover. |
 
 ## `cityspheres`
 
@@ -306,19 +306,19 @@ Mostly relevant to `space`, `spheres`, and `cavernspheres` landscape types. [cod
 
 | Key | Default | Range | Meaning | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 |---|---|---|---|
-| `citySphereFactor` | `1.2` | 0.1 – 10 | `space` only: outer sphere radius = city radius × this. |
-| `citySphereChance` | `0.7` | 0 – 1 | The chance a given city is enclosed in a sphere. Only consulted on the sphere landscape types. |
-| `citySphereClearAbove` | `0` | 0 – 1024 | Blocks cleared above the sphere. `0` disables. |
-| `citySphereClearBelow` | `0` | 0 – 1024 | Blocks cleared below the sphere. `0` disables. |
+| `citySphereFactor` | `1.2` | 0.1 to 10 | `space` only: outer sphere radius = city radius × this. |
+| `citySphereChance` | `0.7` | 0 to 1 | The chance a given city is enclosed in a sphere. Only consulted on the sphere landscape types. |
+| `citySphereClearAbove` | `0` | 0 to 1024 | Blocks cleared above the sphere. `0` disables. |
+| `citySphereClearBelow` | `0` | 0 to 1024 | Blocks cleared below the sphere. `0` disables. |
 | `citySphereClearAboveUntilAir` | `false` | | If `true`, clearing continues above whatever `citySphereClearAbove` removed, until it reaches air. |
 | `citySphereClearBelowUntilAir` | `false` | | If `true`, the same downward, continuing past `citySphereClearBelow` until it reaches air. |
-| `sphereSurfaceVariation` | `1.0` | 0 – 1 | Terrain variation inside spheres. Smaller = more varied. |
-| `outsideSurfaceVariation` | `1.0` | 0 – 1 | The same terrain variation, applied outside the spheres instead of inside. Smaller values give more varied ground. |
-| `monorailChance` | `0.8` | 0 – 1 | Chance a sphere requests a monorail connection each direction (needs a matching neighbour). |
-| `monorailOffset` | `-2` | -100 – 100 | Monorail height offset relative to the sphere. |
+| `sphereSurfaceVariation` | `1.0` | 0 to 1 | Terrain variation inside spheres. Smaller = more varied. |
+| `outsideSurfaceVariation` | `1.0` | 0 to 1 | The same terrain variation, applied outside the spheres instead of inside. Smaller values give more varied ground. |
+| `monorailChance` | `0.8` | 0 to 1 | Chance a sphere requests a monorail connection each direction (needs a matching neighbour). |
+| `monorailOffset` | `-2` | -100 to 100 | Monorail height offset relative to the sphere. |
 | `onlyPredefined` | `false` | | If `true`, only [predefined](predefined.md) spheres generate and none are placed randomly. |
 | `outsideProfile` | `""` | | Profile used for terrain outside the spheres. **Effectively required on a sphere landscape**: leave it empty and the first chunk that asks about the outside world throws `getOutsideProfile() is null`, uncaught. See [connects page](../getting-started/how-it-connects.md). |
-| `outsideGroundLevel` | `-1` | -1 – 256 | **Deprecated**, use `groundLevel` on `outsideProfile` instead. |
+| `outsideGroundLevel` | `-1` | -1 to 256 | **Deprecated**, use `groundLevel` on `outsideProfile` instead. |
 | `grid32` | `false` | | If `true`, city spheres align to a 32×32 chunk grid. `false` uses 16×16. |
 
 ## `client`
@@ -327,11 +327,11 @@ Only affects players who also have Lost Cities installed. `-1` leaves the defaul
 
 | Key | Default | Range | Meaning | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 |---|---|---|---|
-| `horizon` | `-1` | -1 – 256 | Overrides the client-side horizon height, which is where the sky meets the fog. `-1` leaves Minecraft's own value alone. |
-| `fogRed` | `-1` | -1 – 1 | Red fog component, `0`–`1` when set explicitly. |
-| `fogGreen` | `-1` | -1 – 1 | The green channel of the fog colour, `0` to `1`. `-1` leaves it alone. |
-| `fogBlue` | `-1` | -1 – 1 | The blue channel of the fog colour, `0` to `1`. `-1` leaves it alone. |
-| `fogDensity` | `-1` | -1 – 1 | How thick the fog is, `0` to `1`, where higher is thicker. `-1` leaves it alone. |
+| `horizon` | `-1` | -1 to 256 | Overrides the client-side horizon height, which is where the sky meets the fog. `-1` leaves Minecraft's own value alone. |
+| `fogRed` | `-1` | -1 to 1 | Red fog component, `0`to`1` when set explicitly. |
+| `fogGreen` | `-1` | -1 to 1 | The green channel of the fog colour, `0` to `1`. `-1` leaves it alone. |
+| `fogBlue` | `-1` | -1 to 1 | The blue channel of the fog colour, `0` to `1`. `-1` leaves it alone. |
+| `fogDensity` | `-1` | -1 to 1 | How thick the fog is, `0` to `1`, where higher is thicker. `-1` leaves it alone. |
 
 !!! info "Where the file lives, and what rewrites it"
     `config/lostcities/profiles/` is rewritten on every launch: the mod writes each

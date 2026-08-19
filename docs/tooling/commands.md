@@ -119,7 +119,7 @@ Spirals outward from you, up to 30 chunks, and reports the first 6 matches to ch
 /lostcities createbuilding <name> <floors> <cellars> <pos>
 ```
 
-Force-places a registered [Building](../reference/building.md) at an exact position, bypassing normal city-generation selection entirely, useful for previewing a building you are actively authoring without waiting for city generation to roll it naturally. Floors accepts 1–20, cellars 0–10, independent of whatever min/max the building or city style define. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
+Force-places a registered [Building](../reference/building.md) at an exact position, bypassing normal city-generation selection entirely, useful for previewing a building you are actively authoring without waiting for city generation to roll it naturally. Floors accepts 1 to 20, cellars 0 to 10, independent of whatever min/max the building or city style define. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
 !!! warning "Crashes loudly on a bad palette reference"
     If any part the building references points at a palette character that does not resolve, this command throws a server-side error visible to whoever ran it, rather than a clean chat message. If you see a crash instead of a placed building, check your palette references first.
