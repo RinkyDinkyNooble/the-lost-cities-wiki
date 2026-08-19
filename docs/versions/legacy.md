@@ -4,11 +4,14 @@ claims: verified
 
 # The file-asset era
 
-Mod versions 1.0.1 through 5.0.4 do not read datapacks. Nothing this wiki documents
-about buildings, parts, palettes, city styles or world styles applies to them. [code review](../examples/claim-tests.md#key-1){.v .v-c}
+Mod versions 1.0.1 through 5.0.4 do not read datapacks. Nothing in this wiki's
+reference section applies to them, because those pages describe datapack codecs that
+do not exist there. [code review](../examples/claim-tests.md#key-1){.v .v-c}
 
-This page is here to tell you quickly whether you are in that era, and what the
-system was instead. It is not a guide to that system. <!-- noclaim -->
+**That era has its own section now.** [The File-Asset Era](../file-era/index.md)
+covers the ten asset types, the shape of a file, and how to add your own content,
+read out of the 1.12.2 jar. This page stays as the quick answer to which era you are
+in. [code review](../examples/claim-tests.md#f12-2){.v .v-c}
 
 ## Which versions
 
@@ -72,12 +75,11 @@ them, and its syntax, does not. [code review](../examples/claim-tests.md#key-1){
 
 ## If you are on one of these versions
 
-Two options. <!-- noclaim -->
+Two options, and neither one is bad. <!-- noclaim -->
 
 | Option | What it costs |
-|---|---| [code review](../examples/claim-tests.md#key-1){.v .v-c}
-| Move to a datapack version | You rewrite your content once, into one file per asset. Everything on this wiki then applies. |
-| Stay | Use the mod's own documentation for your version. This wiki cannot help you, and applying it will waste your time. |
+|---|---| [code review](../examples/claim-tests.md#f12-2){.v .v-c}
+| Stay | Nothing. [The File-Asset Era](../file-era/index.md) documents the system you have |
+| Move to a datapack version | Rewriting your content once, into one file per asset, and every block name with it |
 
-Minecraft 1.12.2 remains widely used, so staying is a real choice. It is outside
-what this wiki covers. <!-- noclaim -->
+Minecraft 1.12.2 remains widely used, which is why that section exists. [code review](../examples/claim-tests.md#f12-1){.v .v-c}

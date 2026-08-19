@@ -77,6 +77,10 @@ nav:
       - Key Availability: versions/key-availability.md
       - The NeoForge Line: versions/neoforge.md
       - The File-Asset Era: versions/legacy.md
+  - The File-Asset Era:
+      - Overview: file-era/index.md
+      - File-Era Assets: file-era/assets.md
+      - Adding Your Own Content: file-era/adding-content.md
   - Getting Started:
       - How It All Connects: getting-started/how-it-connects.md
       - Your First Custom City: getting-started/first-city.md

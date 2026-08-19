@@ -621,6 +621,111 @@ wall blocks against 2224 on the protected copy. See [PRE-3](#pre-3).
 key for ruin chance, so one district cannot be ruined while another stays pristine
 through city styles alone. A predefined city is the only per-place control.
 
+### The file-asset era
+
+Source pages: [The File-Asset Era](../file-era/index.md),
+[File-Era Assets](../file-era/assets.md),
+[Adding Your Own Content](../file-era/adding-content.md).
+
+Read from `lostcities-1.12-2.0.22.jar`, the newest build for Minecraft 1.12.2.
+Nothing here has been run: Forge 1.12.2 boots through LaunchWrapper, which needs a
+system class loader that is a `URLClassLoader`, and that stopped being true in
+Java 9. The rig is installed and waiting on a Java 8 runtime.
+
+#### F12-1 The boundary is the mod version, not the Minecraft version { #f12-1 }
+
+**Code review.** 5.0.4 reads file assets and 5.3.29 reads datapacks, and both are
+labelled 1.18. The tell is inside the jar: a file-era build carries
+`assets/lostcities/citydata/*.json` and a class named `AbstractAssetRegistry`, and a
+datapack build carries `data/lostcities/lostcities/<type>/` and
+`RegistryAssetRegistry`.
+
+#### F12-2 Ten asset types, many to a file, each naming itself { #f12-2 }
+
+**Code review.** A file-era asset file is a JSON **array of objects**, and each
+object carries its own `type` and `name`. Nothing is derived from the file path, so
+one file holds many assets of mixed types.
+
+`AssetRegistries.load` dispatches on `type` and accepts ten values: `building`,
+`city`, `citystyle`, `condition`, `multibuilding`, `palette`, `part`, `sphere`,
+`style`, `worldstyle`.
+
+The mod's own ten files use eight of them. `city` and `sphere`, the predefined
+placements, are supported and unused, the same as in 7.4.12. Counted across the
+shipped files: 173 parts, 36 palettes, 25 buildings, 10 multi-buildings, 6 city
+styles, 6 styles, 3 conditions, 2 world styles.
+
+Five datapack-era types have no file-era equivalent at all: `variant`, `scattered`,
+`stuff`, and the separate `predefinedcities` and `predefinedspheres` registries.
+
+#### F12-3 Assets load from a config list, in order { #f12-3 }
+
+**Code review.** `LostCityConfiguration.ASSETS` is a config option, not a fixed
+list. Its description in `general.cfg` reads:
+
+> List of asset libraries loaded in the specified order. If the path starts with
+> '/' it is going to be loaded directly from the classpath. If the path starts with
+> '$' it is loaded from the config directory
+
+`ModSetup` walks it and branches on the first character:
+
+| Prefix | Resolved as | Example |
+|---|---|---|
+| `/` | `Class.getResourceAsStream(path)`, so inside a jar | `/assets/lostcities/citydata/library.json` |
+| `$` | `<config dir>/` plus the rest | `$lostcities/userassets.json` becomes `config/lostcities/userassets.json` |
+| anything else | `RuntimeException: Invalid path for lostcity resource in 'assets' config!` | |
+
+The shipped default is the mod's ten files in a fixed order, with
+`$lostcities/userassets.json` **last**.
+
+#### F12-4 A later file replaces an earlier asset of the same name { #f12-4 }
+
+**Code review.** `AbstractAssetRegistry` stores each asset with `Map.put` keyed by
+name, so a second asset of the same name and type overwrites the first. Combined
+with the load order in [F12-3](#f12-3), and with `userassets.json` sitting last,
+anything you define there replaces the mod's version of that name.
+
+That is the file era's whole override mechanism. There is no namespace and no pack
+ordering, only position in one config list.
+
+#### F12-5 Config is Forge `.cfg`, and one file per profile { #f12-5 }
+
+**Code review.** `ConfigSetup` builds `config/lostcities/general.cfg` for the main
+settings, then one `config/lostcities/profile_<name>.cfg` for each profile. Both are
+Forge's old `.cfg` format rather than TOML, and a profile is a whole file rather
+than a JSON object.
+
+Three options in `general.cfg` decide what exists:
+
+| Option | Description as the mod writes it |
+|---|---|
+| `assets` | The load list from [F12-3](#f12-3) |
+| `profiles` | `List of all supported profiles (used for world creation). Warning! Make sure there is always a 'default' profile!` |
+| `privateProfiles` | `List of privatep profiles that cannot be selected by the player but are only used as a child profile of another one` |
+
+The typo in that last description is the mod's own.
+
+`LostCityProfile` in 2.0.22 registers 116 profile keys, against 131 in 7.4.12.
+
+#### F12-6 The dimension wiring uses a colon, not an equals { #f12-6 }
+
+**Code review.** The option is `additionalDimensions` in the `general` category, and
+its description gives the format as `'<id>:<profile>'`.
+
+The datapack era's `dimensionsWithProfiles` uses `<dimension id>=<profile name>`
+instead. Carrying the `=` habit backwards produces an entry that does not parse.
+
+#### F12-7 Block names carry a `@meta` suffix { #f12-7 }
+
+**Code review.** File-era palettes are written against Minecraft before the 1.13
+flattening, so a block is `minecraft:rail@1`, `minecraft:golden_rail@8` and so on.
+The shipped `rails` palette is full of them.
+
+This is the direct ancestor of a bug still shipping in 7.4.12, where the palette
+`lostcities:bricks_desert_redsand` carries `minecraft:red_sandstone@2` and cannot be
+built at all. See [PRF-1](#prf-1). A file-era palette copied forward without
+rewriting every block name breaks the same way.
+
 ### Version and key availability
 
 Source pages: [Key availability](../versions/key-availability.md),
