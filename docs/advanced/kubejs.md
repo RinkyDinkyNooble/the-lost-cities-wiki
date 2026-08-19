@@ -38,7 +38,7 @@ There is no default and no implied namespace. The folder you create under `kubej
 | `kubejs/data/mypack/lostcities/...` | `mypack:<name>` | `mypack:<name>` |
 | `kubejs/data/lostcities/lostcities/...` | `lostcities:<name>` | `<name>`, bare, and this **overrides the mod's own file of that name** |
 
-The second row is a choice, not a default: writing `lostcities` as your folder puts your file at the same address as one the mod ships, and yours replaces it. [unverified](../examples/claim-tests.md#ns-9){.v .v-u}
+The second row is a choice, not a default: writing `lostcities` as your folder puts your file at the same address as one the mod ships, and yours replaces it. [game test](../examples/claim-tests.md#ns-9){.v .v-g}
 
 Everything on [Namespaces](../getting-started/namespaces.md) applies here unchanged, including what happens when a reference misses: it throws, and a profile's `worldStyle` that misses takes the server down. [game test](../examples/claim-tests.md#ns-4){.v .v-g} [code review](../examples/claim-tests.md#ns-4){.v .v-c}
 

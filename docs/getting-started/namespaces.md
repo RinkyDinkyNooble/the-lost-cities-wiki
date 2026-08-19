@@ -127,7 +127,7 @@ The profile's own file name never takes a namespace. `apocalypse.json` makes a p
 
 === "Override the defaults"
 
-    A file at the **exact same path** as a built-in one replaces the mod's shipped version of it entirely, so anything expecting the original `lostcities:standard` behaviour gets yours instead. [unverified](../examples/claim-tests.md#ns-9){.v .v-u}
+    A file at the **exact same path** as a built-in one replaces the mod's shipped version of it entirely, so anything expecting the original `lostcities:standard` behaviour gets yours instead. [game test](../examples/claim-tests.md#ns-9){.v .v-g}
 
     ```
     data/lostcities/lostcities/worldstyles/standard.json
@@ -137,11 +137,21 @@ Most modpacks are better off with their own namespace, and overriding is worth i
 
 ### How an override resolves
 
-Ordinary datapack rules, with one consequence worth spelling out. [unverified](../examples/claim-tests.md#ns-9){.v .v-u}
+The pack **latest in load order wins**, and it wins the **whole file**. Two packs were given the same palette, one of them defining an extra character the other did not, and the extra character did not survive into the result. Swapping which pack held which file flipped the outcome exactly, so it is position that decides rather than content. [game test](../examples/claim-tests.md#ns-9){.v .v-g}
 
-- The pack **latest in load order wins**, and it wins **whole file**. There is no key-by-key merging between two files with the same name, unlike block tags (which do merge) or a city style's own [`inherit`](../reference/citystyle.md#inheritance) (which merges within one file's chain).
-- So overriding `citystyle_config` to change one setting means restating everything else that file contained, not just the key you care about.
-- Nothing warns you when an override happens. The losing file is simply never seen. [unverified](../examples/claim-tests.md#ns-9){.v .v-u}
+That is different from how two other things in this system behave, and the difference catches people: [game test](../examples/claim-tests.md#ns-9){.v .v-g}
+
+| | Merges | Replaces | [game test](../examples/claim-tests.md#ns-9){.v .v-g}
+|---|---|---|
+| Two datapacks, same asset name | | **yes, whole file** [game test](../examples/claim-tests.md#ns-9){.v .v-g} |
+| Block tags | yes | |
+| A city style's [`inherit`](../reference/citystyle.md#inheritance) chain | yes, within one file's chain | |
+| A part palette over a building palette | yes, per character | [game test](../examples/claim-tests.md#pal-2){.v .v-g} |
+
+So overriding `citystyle_config` to change one setting means restating everything else that file held, not only the key you came for. [game test](../examples/claim-tests.md#ns-9){.v .v-g}
+
+!!! warning "Nothing tells you an override happened"
+    The losing file is never seen and no message names it. In the test above, the only sign was one failed chunk reporting `Could not find entry 'M' in the palette for part '<part>'!`, which is the same message an ordinary undefined character produces. It names the character, not the collision that removed it. [game test](../examples/claim-tests.md#ns-9){.v .v-g}
 
 !!! warning "`/reload` does not pick up Lost Cities asset changes"
     These registries are read **once, when the world loads**. In 7.4.12 the mod registers no reload listener, and vanilla does not reload datapack registries on `/reload` either. Editing a part or palette and running `/reload` changes nothing. [code review](../examples/claim-tests.md#ns-10){.v .v-c}

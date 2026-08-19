@@ -270,11 +270,42 @@ key.
 
 #### NS-9 Override resolution: last pack wins, whole file, no merging { #ns-9 }
 
-**Unverified.** No pack has been run with two datapacks defining the same Lost
-Cities asset. The behaviour stated on the page is inherited from vanilla dynamic
-registry loading and has not been confirmed for these registries specifically, in
-either the code or a world. Checking it needs a two-pack run with a controlled
-load order.
+**Game test.** Three packs, `research/override-test/`. A base pack holds everything
+except one palette, and two further packs each define
+`data/nsov/lostcities/palettes/shared.json` under the same name. They differ in what
+the wall character `W` resolves to, and only one of them also defines a marker
+character `M`. A second building drawn entirely in `M` answers the merge question in
+blocks rather than by inference.
+
+Minecraft enables a newly discovered pack automatically and orders them by folder
+name, so the folder names set the load order. Running it twice with the two files
+swapped separates position from content.
+
+```bash
+python harness.py --pack ../../research/override-test/base --profile nsov \
+    --also-pack ../../research/override-test/run1-ov-aaa \
+    --also-pack ../../research/override-test/run1-ov-zzz \
+    --probes probes/ns9.json
+```
+
+| Run | Earlier folder | Later folder | Wall | Marker |
+|---|---|---|---|---|
+| 1 | gold, defines `M` | diamond | 512 diamond, 0 gold | 0 iron |
+| 2 | diamond | gold, defines `M` | 512 gold, 0 diamond | 512 iron |
+
+Three things follow, and the second is the one people get wrong.
+
+The **later** folder wins, and it is position rather than content that decides:
+swapping the two files flipped the result exactly.
+
+The win is **whole file**. In run 1 the character `M`, defined only in the losing
+file, did not survive into the merged palette at all. It failed its chunk with
+`Could not find entry 'M' in the palette for part 'nsov:ov_marker'!`, which is the
+same message an undefined character produces. Run 2, where the winning file defines
+`M`, had **zero failed chunks**.
+
+Nothing warns that an override happened. Run 1's only output was that one chunk
+failure, and it names the character rather than the collision that caused it.
 
 #### NS-10 Assets are read once per world load { #ns-10 }
 
@@ -686,6 +717,7 @@ Two, both on [Known Issues](../troubleshooting/known-issues.md) with the evidenc
 | `docs/examples/wiki-test8/` | Ruins, damage, row length, `parts2` | Harness |
 | `docs/examples/wiki-test10/` | Namespace resolution, and what an unresolved reference does | Harness |
 | `research/kubejs-test/` | The same assets loaded through `kubejs/data/` instead. Private, it needs mod jars that are not ours to ship | Harness |
+| `research/override-test/` | Two packs claiming one asset, run twice with the files swapped. Private | Harness |
 
 `wiki-test7` supersedes `wiki-test5` and `wiki-test6`, which are earlier builds of
 the same grid kept only because their failures are documented above.
