@@ -1023,11 +1023,26 @@ folder, which [VER-4](#ver-4) covers. Profiles and probes are the same files the
 | Pack | 7.4.12 | 8.2.2 | What moved |
 |---|---|---|---|
 | `wiki-test10` namespaces | 4 of 4 | 3 of 4 | `full` and `barepalette` each 768 rather than 512. Failed chunks identical: 41 on `ns_lapis`, 2 on `test` |
-| `wiki-test11` fronts and stuff | 7 of 7 | 6 of 7 | The west front is absent. The other three fronts, the building at 1548 blocks and the stuff object at 5 iron are identical |
+| `wiki-test11` fronts and stuff | 7 of 7 | 6 of 7 | The west front is absent, and the building is 1548 rather than 1036. The stuff object is identical at 5 iron |
 | `wiki-test12` scattered | 3 of 3 | 0 of 3 | Nothing placed. See [VER-10](#ver-10) |
-| `wiki-test13` predefined sphere | 13 of 13 | 13 of 13 | Nothing. 1093 gray stained glass in the same chunk, none of the other three glass types anywhere |
+| `wiki-test13` predefined sphere | 13 of 13 | 13 of 13 | Every glass count identical, 1093 gray stained in the same chunk. The control building is 1536 rather than 1024 |
 
-Two of the three differences are one missing key each, and both are silent:
+Every building in these packs that carries `overrideFloors` comes out larger on
+8.2.2, and only those. Three independent instances, one per pack:
+
+| Pack | Building | 7.4.12 | 8.2.2 |
+|---|---|---|---|
+| `wiki-test10` | `full` | 512 | 768 |
+| `wiki-test11` | `tf_main` | 1036 | 1548 |
+| `wiki-test13` | `sp_tower` | 1024 | 1536 |
+
+Each is one floor's worth of blocks taller, and each floor count was pinned by the
+key 8.2.2 does not declare. Nothing else in any of the three packs moved.
+
+The 7.4.12 figures were re-run rather than quoted, because an earlier note in this
+register had the `wiki-test11` number wrong.
+
+The differences are one missing key each, and both are silent:
 
 | Difference | Key 8.2.2 does not declare | Effect |
 |---|---|---|
@@ -1070,6 +1085,83 @@ Every key `wiki-test12` uses is declared on both versions, so this is not a key
 availability problem. The claim recorded here is narrow and is what was measured:
 these settings place nothing on the older path. What would place something there has
 not been established.
+
+#### VER-11 8.4.1 is where the 7.5 changes reached the 1.21 line { #ver-11 }
+
+**Game test.** A rig was built for 8.4.1 by copying the 8.2.2 install and swapping
+the jar, since both declare NeoForge `[21.0,)` on Minecraft 1.21. All four packs run
+there unchanged, with no folder rename, because 8.4.1 spells the registry
+`predefinedcities` again.
+
+| Pack | 8.2.2 | 8.4.1 | 7.4.12 |
+|---|---|---|---|
+| `wiki-test10` namespaces | 3 of 4 | **3 of 4**, and for the opposite reason | 4 of 4 |
+| `wiki-test11` fronts and stuff | 6 of 7 | **7 of 7** | 7 of 7 |
+| `wiki-test12` scattered | 0 of 3 | **3 of 3**, 512 blocks in each of three chunks | 3 of 3 |
+| `wiki-test13` predefined sphere | 13 of 13 | **13 of 13** | 13 of 13 |
+
+Both 8.2.2 and 8.4.1 score 3 of 4 on the namespace pack and the reason is reversed.
+8.2.2 generates the building whose `refpalette` does not resolve and gets the count
+wrong. 8.4.1 refuses it, which is the [VER-3](#ver-3) behaviour:
+
+| | 8.2.2 | 8.4.1 |
+|---|---|---|
+| `full` | 768 | **512** |
+| `barepalette` | 768 | **0** |
+| Chunks failing on `lostcities:test` | 2 | **8** |
+
+512 and 8 are 7.5.1's numbers exactly. `overrideFloors` is honoured again, so
+`wiki-test11`'s building returns to 1036 and `wiki-test13`'s to 1024. Scattered
+buildings place again, and `frontchance` is back, so all four fronts draw.
+
+This closes the last version that was inferred from its key set rather than run.
+Every claim about the split between 8.2.2 and 8.4.1 is now measured.
+
+One count is a genuine 1.21-line difference rather than a version-feature one: the
+front is larger on both NeoForge builds, 186 to 189 blocks against 7.4.12's 124 to
+126, with the same building and the same pack. The claim being tested, that each
+adjacent street chunk draws a front and the building's own chunk never does, holds
+on all three.
+
+#### VER-12 Upgrading 8.2.2 to 8.4.1 in place crashes the server on world creation { #ver-12 }
+
+**Game test.** The 8.4.1 rig was built from the 8.2.2 install, which carried the
+8.2.2 `config/lostcities-server.toml` forward. Every boot died before the world
+existed:
+
+```
+java.lang.NullPointerException: Cannot read field "GENERATE_NETHER"
+  because the return value of "java.util.Map.get(Object)" is null
+    at mcjty.lostcities.setup.Config.getProfileForDimension(Config.java:134)
+    at mcjty.lostcities.worldgen.LostCityFeature.getOrCreateDimensionInfo
+    at mcjty.lostcities.setup.ForgeEventHandlers.onCreateSpawnPoint
+    at net.minecraft.server.MinecraftServer.setInitialSpawn
+```
+
+The offending line is one config value:
+
+```toml
+selectedProfile = "<CHECK>"
+```
+
+Setting it to `""` fixes it and the server boots. Deleting the file entirely also
+works: 8.4.1 writes `selectedProfile = ""` into a fresh one.
+
+**Code review.** `<CHECK>` is a sentinel meaning "ask the client which profile it
+picked". `Config` carries it in every version up to and including 8.2.2 and does not
+carry it in 8.4.1, 9.5.1 or 10.0.1.
+
+| Versions | `<CHECK>` in `Config` | Fresh `selectedProfile` |
+|---|---|---|
+| 2.0.28 through 8.2.2 | yes | `<CHECK>` on 8.2.2, measured |
+| 8.4.1, 9.5.1, 10.0.1 | no | `""` on 8.4.1, measured |
+
+8.4.1 removed the handling and not the value already sitting in installed configs, so
+it reads `<CHECK>` as a literal profile name, `standardProfiles.get` returns null, and
+the field read throws. A fresh install never sees it. An upgrade always does.
+
+The fix is one line, and it is worth doing before the first boot rather than after
+reading a crash report.
 
 ### Whole-page entries
 

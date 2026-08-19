@@ -21,11 +21,11 @@ does not say. <!-- noclaim -->
     key names, types, defaults, minimums and maximums, and datapack codec keys with
     their required or optional status. Those are machine-compared and identical. [code review](../examples/claim-tests.md#key-1){.v .v-c}
 
-    Runtime behaviour on the NeoForge line **has** now been run three times: 8.2.2
-    on Minecraft 1.21, 9.5.1 on Minecraft 1.21.11, and 10.0.1 on Minecraft 26.1.2.
-    9.5.1 and 10.0.1 took four packs and 27 probes each, both matching the Forge
-    line at the same feature level with the counts identical. 8.2.2 matches 7.4.12
-    rather than 7.5.1. Only 8.4.1 is still inferred from its key set. [game test](../examples/claim-tests.md#neo-1){.v .v-g} [game test](../examples/claim-tests.md#ver-7){.v .v-g}
+    Runtime behaviour on the NeoForge line **has** now been run on all four
+    versions: 8.2.2 and 8.4.1 on Minecraft 1.21, 9.5.1 on Minecraft 1.21.11, and
+    10.0.1 on Minecraft 26.1.2. Nothing on this page is inferred from a key set any
+    more. 8.4.1, 9.5.1 and 10.0.1 match the Forge line at the same feature level
+    with the counts identical. 8.2.2 matches 7.4.12 rather than 7.5.1. [game test](../examples/claim-tests.md#neo-1){.v .v-g} [game test](../examples/claim-tests.md#ver-7){.v .v-g} [game test](../examples/claim-tests.md#ver-11){.v .v-g}
 
 ## The versions
 
@@ -95,9 +95,9 @@ above. Three of the four differences from 7.4.12 are one missing key each. [game
 | Pack [game test](../examples/claim-tests.md#ver-9){.v .v-g} | 7.4.12 | 8.2.2 | What moved |
 |---|---|---|---|
 | Namespaces | 4 of 4 | 3 of 4 | Both buildings 768 rather than 512. Failed chunks identical, 41 and 2 |
-| Fronts and stuff | 7 of 7 | 6 of 7 | One of four fronts absent. The building, the stuff object and the other three fronts are identical |
+| Fronts and stuff | 7 of 7 | 6 of 7 | One of four fronts absent, and the building is 1548 rather than 1036. The stuff object is identical |
 | Scattered | 3 of 3 | 0 of 3 | Nothing placed anywhere in 49 chunks |
-| Predefined sphere | 13 of 13 | 13 of 13 | Nothing. 1093 gray stained glass in the same chunk |
+| Predefined sphere | 13 of 13 | 13 of 13 | Every glass count identical, 1093 gray stained in the same chunk. The control building is 1536 rather than 1024 |
 
 The two count changes each trace to one key 8.2.2 does not declare, `overrideFloors`
 and `frontchance`. Both are ignored rather than rejected, so the pack loads and
@@ -109,6 +109,51 @@ Scattered buildings are a different matter: every key the pack uses is declared 
 [Scattered Building](../reference/scattered.md). [game test](../examples/claim-tests.md#ver-10){.v .v-g} [code review](../examples/claim-tests.md#ver-10){.v .v-c}
 
 Predefined spheres are unaffected, and match 7.4.12, 9.5.1 and 10.0.1 exactly. [game test](../examples/claim-tests.md#ver-9){.v .v-g}
+
+Every building in these packs that pins its floor count with `overrideFloors` comes
+out one floor taller on 8.2.2, and nothing that does not carry the key moves at all. [game test](../examples/claim-tests.md#ver-9){.v .v-g}
+
+| Pack | Building | 7.4.12 | 8.2.2 [game test](../examples/claim-tests.md#ver-9){.v .v-g} [game test](../examples/claim-tests.md#key-4){.v .v-g} |
+|---|---|---|---|
+| Namespaces | `full` | 512 | 768 |
+| Fronts and stuff | `tf_main` | 1036 | 1548 |
+| Predefined sphere | `sp_tower` | 1024 | 1536 |
+
+## 8.4.1 is where the 7.5 changes arrive
+
+All four packs run on 8.4.1 unchanged, with no folder rename, and it behaves as
+7.5.1 does rather than as 8.2.2 does. [game test](../examples/claim-tests.md#ver-11){.v .v-g}
+
+| Pack [game test](../examples/claim-tests.md#ver-11){.v .v-g} | 8.2.2 | 8.4.1 | 7.4.12 |
+|---|---|---|---|
+| Namespaces | 3 of 4 | 3 of 4, for the opposite reason | 4 of 4 |
+| Fronts and stuff | 6 of 7 | **7 of 7** | 7 of 7 |
+| Scattered | 0 of 3 | **3 of 3** | 3 of 3 |
+| Predefined sphere | 13 of 13 | 13 of 13 | 13 of 13 |
+
+Both score 3 of 4 on the namespace pack and the reason is reversed. 8.2.2 builds the
+building whose `refpalette` does not resolve and gets its size wrong. 8.4.1 refuses
+it, which is what [7.5](7-5.md) changed: `full` returns to 512, `barepalette` to 0,
+and the chunks failing on that palette go from 2 to 8. Those are 7.5.1's numbers. [game test](../examples/claim-tests.md#ver-11){.v .v-g}
+
+`overrideFloors`, `frontchance` and scattered placement are all back, so the three
+things 8.2.2 got wrong are right again. [game test](../examples/claim-tests.md#ver-11){.v .v-g}
+
+!!! danger "Upgrading 8.2.2 to 8.4.1 in place crashes the server before the world exists"
+    8.2.2 writes `selectedProfile = "<CHECK>"` into `config/lostcities-server.toml`.
+    That value is a sentinel meaning "ask the client", and 8.4.1 no longer recognises
+    it, so it reads it as a profile name, finds nothing, and throws
+    `NullPointerException: Cannot read field "GENERATE_NETHER"` while setting the
+    world spawn. Every boot dies there. [game test](../examples/claim-tests.md#ver-12){.v .v-g} [code review](../examples/claim-tests.md#ver-12){.v .v-c}
+
+    Set it to `""`, or delete the file and let 8.4.1 write its own, which uses `""`.
+    A fresh install never hits this. An in-place upgrade always does. [game test](../examples/claim-tests.md#ver-12){.v .v-g}
+
+One count differs between the Forge and NeoForge lines rather than between feature
+levels: the building front is 186 to 189 blocks on both 8.2.2 and 8.4.1 against
+7.4.12's 124 to 126, from the same pack and the same building. The behaviour being
+documented, one front per adjacent street chunk and none in the building's own, holds
+on all of them. [game test](../examples/claim-tests.md#ver-11){.v .v-g}
 
 !!! warning "A datapack written against this wiki loads on 8.2.2 and does less"
     23 of the keys this wiki documents do not exist there. They are **ignored**

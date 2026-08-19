@@ -18,7 +18,7 @@ of this wiki apply. Every number comes from the jar itself; the method is in
 |---|---|
 | 7.4.12, Minecraft 1.20.1 | This wiki, as written. It is the documented version. |
 | 7.5.0 or later on Minecraft 1.20.1 | This wiki, plus [What changed in 7.5](7-5.md). Read that page first. |
-| 8.4.1 or later on Minecraft 1.21 or later | This wiki, plus [What changed in 7.5](7-5.md), plus [The NeoForge line](neoforge.md). |
+| 8.4.1 or later on Minecraft 1.21 or later | This wiki, plus [What changed in 7.5](7-5.md), plus [The NeoForge line](neoforge.md). Coming from 8.2.2, clear `selectedProfile` first or the server will not boot. |
 | 8.2.2 on Minecraft 1.21 | This wiki. Ignore the 7.5 page. It is 7.4-era code on a 1.21 loader, so read [Traps specific to one version](#traps-specific-to-one-version) too. |
 | 5.3.29 through 6.2.3 | Most of this wiki. Some keys do not exist yet, and on four of these versions predefined cities never generate. See [Traps specific to one version](#traps-specific-to-one-version). |
 | Anything before 5.3.29 | Almost none of it. See [The file-asset era](legacy.md). |
@@ -129,6 +129,20 @@ placement` and ends the server. [game test](../examples/claim-tests.md#ver-6){.v
 A part name written without a namespace is enough to do it. On 7.4.12 the same pack
 logs one line and leaves 41 chunks of open ground. [game test](../examples/claim-tests.md#ver-6){.v .v-g}
 
+### Upgrading 8.2.2 to 8.4.1 stops the server booting
+
+8.2.2 writes `selectedProfile = "<CHECK>"` into `config/lostcities-server.toml`, and
+8.4.1 no longer understands that value. It reads it as a profile name, finds no such
+profile, and throws while setting the world spawn. The world is never created. [game test](../examples/claim-tests.md#ver-12){.v .v-g} [code review](../examples/claim-tests.md#ver-12){.v .v-c}
+
+```
+NullPointerException: Cannot read field "GENERATE_NETHER"
+  at mcjty.lostcities.setup.Config.getProfileForDimension
+```
+
+Set `selectedProfile = ""`, or delete `config/lostcities-server.toml` and let 8.4.1
+write a fresh one. A new install writes `""` and never sees this. [game test](../examples/claim-tests.md#ver-12){.v .v-g}
+
 ### 8.2.2 behaves like 7.4.12, not like 7.5.1
 
 8.2.2 carries a higher number than 7.5.2 and is 7.4-era code ported to Minecraft
@@ -136,15 +150,16 @@ logs one line and leaves 41 chunks of open ground. [game test](../examples/claim
 
 | Signal [game test](../examples/claim-tests.md#ver-7){.v .v-g} [code review](../examples/claim-tests.md#ver-7){.v .v-c} | 7.4.12 | 7.5.1 | 8.2.2 | 8.4.1 |
 |---|---|---|---|---|
-| A building whose `refpalette` does not resolve, with every part carrying its own | Generates | Absent | Generates | not run |
-| Failed chunks from that pack | 2 | 8 | 2 | not run |
+| A building whose `refpalette` does not resolve, with every part carrying its own | Generates | Absent | Generates | Absent |
+| Failed chunks from that pack | 2 | 8 | 2 | 8 |
 | `overrideFloors` on a building | yes | yes | **no** | yes |
 | Predefined asset preloader | yes | yes | **no** | yes |
 | Predefined city folder | `predefinedcities` | `predefinedcities` | **`predefinedcites`** | `predefinedcities` |
 | Catch around chunk generation | 1 | 6 | 1 | 6 |
 
 The 7.5 changes reached the 1.21 line at **8.4.1**, not at 8.2.2. Read
-[What changed in 7.5](7-5.md) for 8.4.1 and later, and not for 8.2.2. [code review](../examples/claim-tests.md#ver-7){.v .v-c}
+[What changed in 7.5](7-5.md) for 8.4.1 and later, and not for 8.2.2. Every column
+here was run rather than inferred. [code review](../examples/claim-tests.md#ver-7){.v .v-c} [game test](../examples/claim-tests.md#ver-11){.v .v-g}
 
 ## Loader
 
