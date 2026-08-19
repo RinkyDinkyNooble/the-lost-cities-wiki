@@ -149,16 +149,36 @@ contradicts itself across pages.
 python docs/examples/check_claims.py
 ```
 
+## How a game test on this page is run
+
+Every game test here follows one procedure. It needs a headless server running the
+named Lost Cities version and nothing else.
+
+| Step | What |
+|---|---|
+| 1 | Copy the pack's `data/` and `pack.mcmeta` into `<world>/datapacks/<name>/` |
+| 2 | Copy the pack's profile files into `config/lostcities/profiles/` |
+| 3 | Point a dimension at the profile: `dimensionsWithProfiles = ["lostcities:lostcity=<profile>"]`, under `[profiles]` in `config/lostcities/common.toml` |
+| 4 | Generate the grid with `/execute in lostcities:lostcity run forceload add <x0> <z0> <x1> <z1>`, in **block** coordinates |
+| 5 | Count with `/execute in lostcities:lostcity run clone <from> <to> <scratch> filtered <block>`, which reports how many blocks it copied |
+
+The scratch destination has to be loaded as well, and `/clone` caps at 32768 blocks,
+which is one chunk footprint 128 levels tall. The traps that each cost a test round
+are collected at the end of this page.
+
+The recorded runs were driven over RCON by a script rather than typed by hand. No
+result here depends on that script: each one is the five steps above against the
+pack and profile its section names.
+
+Minecraft 1.12 has none of `/forceload`, `/execute in <dimension>` or `/data`, so the
+file-asset tests use a different route. See [F12-10](#f12-10).
+
 
 ### Namespaces
 
 Source page: [Namespaces](../getting-started/namespaces.md). Pack:
 `docs/examples/wiki-test10/`, namespace `nstest`, profiles `wtten` and
 `wttenbare`.
-
-```bash
-python harness.py --pack ../../docs/examples/wiki-test10 --profile wtten --probes probes/wt10.json
-```
 
 #### NS-1 The folder directly under `data/` is the namespace { #ns-1 }
 
@@ -207,15 +227,14 @@ gets `null`, and passes the `null` to the asset constructor, which fails. The
 `get(level, String)` returns `null` only when the **string** is null, never when
 the lookup misses, so it is not the quiet variant its name suggests.
 
-**Game test.** Every failing case in `wiki-test10` produces that message.
-Evidence: `research/claim-evidence/crash-2026-08-18_18.17.07-server.txt`, and the
-harness `failed chunks` summary.
+**Game test.** Every failing case in `wiki-test10` produces that message, in the
+server crash report and in the `Error generating chunk` lines of the log.
 
 #### NS-5 A profile's unresolved `worldStyle` crashes the server { #ns-5 }
 
 **Game test.** Profile `wttenbare` is `wtten` with one character changed:
 `"worldStyle": "test"` in place of `"nstest:test"`. The server died on the first
-forced chunk and the harness lost its RCON connection.
+forced chunk, before any probe could run.
 
 ```
 Description: Feature placement
@@ -270,23 +289,17 @@ key.
 
 #### NS-9 Override resolution: last pack wins, whole file, no merging { #ns-9 }
 
-**Game test.** Three packs, `research/override-test/`. A base pack holds everything
+**Game test.** Three packs, built for this test. A base pack holds everything
 except one palette, and two further packs each define
 `data/nsov/lostcities/palettes/shared.json` under the same name. They differ in what
 the wall character `W` resolves to, and only one of them also defines a marker
 character `M`. A second building drawn entirely in `M` answers the merge question in
 blocks rather than by inference.
 
-Minecraft enables a newly discovered pack automatically and orders them by folder
-name, so the folder names set the load order. Running it twice with the two files
-swapped separates position from content.
-
-```bash
-python harness.py --pack ../../research/override-test/base --profile nsov \
-    --also-pack ../../research/override-test/run1-ov-aaa \
-    --also-pack ../../research/override-test/run1-ov-zzz \
-    --probes probes/ns9.json
-```
+All three go in `<world>/datapacks/` together. Minecraft enables a newly discovered
+pack automatically and orders them by folder name, so the folder names set the load
+order. Naming them `base`, `ov-aaa` and `ov-zzz` makes that order explicit, and
+running it twice with the two files swapped separates position from content.
 
 | Run | Earlier folder | Later folder | Wall | Marker |
 |---|---|---|---|---|
@@ -320,10 +333,6 @@ touches either.
 Source pages: [City Style](../reference/citystyle.md), [Stuff Object](../reference/stuff.md),
 [Palette](../reference/palette.md), [The Generation Pipeline](../under-the-hood/generation-pipeline.md).
 Pack: `docs/examples/wiki-test11/`, namespace `nstf`, profile `wteleven`.
-
-```bash
-python harness.py --pack ../../docs/examples/wiki-test11 --profile wteleven --probes probes/wt11.json
-```
 
 #### FRT-1 A front is drawn by the adjacent street chunk, never by the building { #frt-1 }
 
@@ -399,9 +408,6 @@ the pack's palette, `inbuilding: true`, `attempts: 30` and counts of 4 to 9, pla
 `citySphereChance: 0.0`, so nothing random can appear beside it. The sphere is
 pinned at `centerx: 136`, `centerz: 136`, `radius: 40`.
 
-```bash
-python harness.py --pack ../../docs/examples/wiki-test13 --profile wtthirteen --probes probes/wt13.json
-```
 
 Glass counted per chunk, and the pattern is the dome:
 
@@ -441,9 +447,6 @@ where `railmain` resolves once per chunk.
 `wttwelve`. No city anywhere: `cityChance` is `0.0` and nothing is pinned, so every
 chunk is open ground and anything that appears came from the scattered pass.
 
-```bash
-python harness.py --pack ../../docs/examples/wiki-test12 --profile wttwelve --probes probes/wt12.json
-```
 
 The world style's `scattered` block is tuned to remove the randomness rather than
 fight it:
@@ -728,9 +731,9 @@ rewriting every block name breaks the same way.
 
 #### F12-8 The 1.12.2 rig boots, and what it wrote { #f12-8 }
 
-**Game test.** `research/server-forge-1.12.2-2.0.22/`, Forge 14.23.5.2859 on
+**Game test.** Forge 14.23.5.2859 on
 Minecraft 1.12.2, Lost Cities `1.12-2.0.22`, on a portable Temurin **JRE 8** at
-`research/portable-java/jre8/`. The server reached `Done (6.759s)!` with five mods
+a portable Temurin JRE 8. The server reached `Done (6.759s)!` with five mods
 loaded and registered dimension **111**.
 
 Java 8 and nothing newer. Forge 1.12.2 boots through LaunchWrapper, which casts the
@@ -772,8 +775,8 @@ number rather than a resource location, and `additionalDimensions` takes
 
 #### F12-9 A userassets.json generates, end to end { #f12-9 }
 
-**Game test.** `research/server-forge-1.12.2-2.0.22/harness12.py`, on the rig from
-[F12-8](#f12-8). One `config/lostcities/userassets.json` holding seven assets of
+**Game test.** On the rig from [F12-8](#f12-8), driven by a 1.12-specific
+procedure because three of the commands the later tests use do not exist there. One `config/lostcities/userassets.json` holding seven assets of
 five types, none of which the mod ships:
 
 ```json
@@ -807,10 +810,10 @@ the region around world spawn. The first boot exists to `setworldspawn 0 64 0`, 
 the second generates the pinned city inside that region.
 
 `/clone` needs its destination loaded, and with no way to force a chunk the scratch
-area has to sit inside the spawn region too. The 1.20.1 harness parks it 992 blocks
+area has to sit inside the spawn region too. The later tests park it 992 blocks
 out, which cannot work here.
 
-#### F12-10 The 1.12 command set cannot run the datapack-era harness { #f12-10 }
+#### F12-10 The 1.12 command set cannot run the datapack-era procedure { #f12-10 }
 
 **Game test.** Three commands the other rigs depend on do not exist in 1.12:
 
@@ -869,15 +872,15 @@ is the opposite direction from [KEY-2](#key-2) and the two are often confused: a
 
 **Game test.** `wiki-test10`'s control building carries `overrideFloors: true` and
 generates 512 gold blocks on 7.4.12. The same pack on 8.2.2 generates **768**. The
-cause was isolated on 7.4.12 itself: `research/wt10-nooverride` is the identical
-pack with that one key deleted, and on 7.4.12 it generates 768 as well, while
-`barepalette`, which never carried the key, stays at 512.
+cause was isolated on 7.4.12 itself. Take `wiki-test10`, delete `overrideFloors`
+from `buildings/full.json` and change nothing else: on 7.4.12 it generates 768 as
+well, while `barepalette`, which never carried the key, stays at 512.
 
 | Pack | Version | `full` | `barepalette` |
 |---|---|---|---|
 | `wiki-test10` | 7.4.12 | 512 | 512 |
-| `wt10-nooverride` | 7.4.12 | **768** | 512 |
-| `wt10-822` | 8.2.2 | **768** | 768 |
+| `wiki-test10`, `overrideFloors` deleted | 7.4.12 | **768** | 512 |
+| `wiki-test10`, folder renamed for 8.2.2 | 8.2.2 | **768** | 768 |
 
 **Code review.** `BuildingRE` declares `overrideFloors` in 7.4.12, 7.5.1, 7.5.2,
 8.4.1, 9.5.1 and 10.0.1, and does not declare it in 5.3.29, 6.0.3, 6.1.6, 6.2.2,
@@ -901,9 +904,8 @@ not match the version's spelling is never scanned.
 | `predefinedcities` | 7.4.12, 7.5.1, 7.5.2, 8.4.1, 9.5.1, 10.0.1 |
 
 **Game test.** `wiki-test10` copied to 8.2.2 unchanged produced nothing at any
-pinned chunk. Renaming the folder from `predefinedcities` to `predefinedcites`, and
-changing nothing else, produced 768 gold and 768 diamond. The pack is
-`research/wt10-822`.
+pinned chunk. Renaming its `predefinedcities` folder to `predefinedcites`, and
+changing nothing else, produced 768 gold and 768 diamond.
 
 `predefinedspheres` is spelled the same way everywhere it exists, and 6.0.3 has no
 sphere registry at all.
@@ -938,9 +940,13 @@ a number stops the server from booting with
 `JsonParseException: Error loading registry data: Not a number`. So the asset parses,
 validates and registers, and is then never consulted.
 
+`wiki-test10` on 6.0.3 needs two edits before it will even load: `pack_format` set
+to 10 for Minecraft 1.19, and the predefined city folder renamed to
+`predefinedcitites`. With both done:
+
 ```
-research/wt10-603, probe world-exists-stone   14240 stone   the chunk generated
-research/wt10-603, probe full-gold                0 gold    the pinned building did not
+count minecraft:stone       in chunk 8,8   14240   the chunk generated
+count minecraft:gold_block  in chunk 8,8       0   the pinned building did not
 ```
 
 The same pack reaching the world through a city style selector instead of a pin
@@ -989,7 +995,7 @@ them read out of the jar and one run in a world.
 | Registry folder | `predefinedcities` | `predefinedcities` | **`predefinedcites`** | `predefinedcities` |
 | Exception tables in `LostCityFeature` | 1 | 6 | **1** | 6 |
 
-`research/wt10-822` on 8.2.2 returned 768 diamond for the building whose
+That pack on 8.2.2 returned 768 diamond for the building whose
 `refpalette` does not resolve, and failed exactly chunks 14,8 and 9,7, the same two
 chunks 7.4.12 fails. 7.5.1 and 9.5.1 fail eight and lose the building. See
 [VER-3](#ver-3).
@@ -999,9 +1005,9 @@ than at 8.2.2, so a version number alone does not tell you which behaviour you h
 
 #### VER-8 A fully namespaced datapack building generates on 6.0.3 { #ver-8 }
 
-**Game test.** `research/wt10-603r` is `wiki-test10` with the predefined city
-removed, since 6.0.3 cannot place one, and the city style selector pointing at
-`nstest:full` alone. Run at `cityChance: 1.0` over a 6 by 6 chunk grid it returned
+**Game test.** Take the 6.0.3 build of `wiki-test10` described in
+[VER-5](#ver-5), delete the predefined city, since 6.0.3 cannot place one, and point
+the city style selector at `nstest:full` alone. Run at `cityChance: 1.0` over a 6 by 6 chunk grid it returned
 36 of 36 probes, 4496 gold blocks across 6 chunks, and no failed chunks.
 
 So namespaced references, the datapack registries, the world style and city style
@@ -1174,10 +1180,6 @@ those pages cite one of these.
 Cities **9.5.1**. All four namespace and feature packs were run against it
 unchanged, no edit to any file.
 
-```bash
-python harness.py --pack ../../docs/examples/wiki-test10 --profile wtten --probes probes/wt10.json
-```
-
 | Pack | 7.4.12, Forge, 1.20.1 | 9.5.1, NeoForge, 1.21.11 | 10.0.1, NeoForge, 26.1.2 |
 |---|---|---|---|
 | `wiki-test10`, 4 probes | 3 of 4 | 3 of 4, and see [VER-3](#ver-3) | 3 of 4, the same |
@@ -1200,13 +1202,12 @@ Minecraft 26.1.2, four packs and 27 probes each, both matching 7.5.1 on Forge do
 to the counts. The sphere returned 1093 gray stained glass on all three.
 
 That spans two NeoForge majors and two Minecraft versions five releases apart.
-Versions 8.2.2 and 8.4.1 are still inferred from their key sets rather than run,
-and 8.2.2 is the one worth doing, since its feature set is **smaller** than 7.4.12's.
+8.2.2 and 8.4.1 have since been run as well, so no version on the NeoForge line is
+inferred from its key set. See [VER-7](#ver-7) and [VER-11](#ver-11).
 
-The rigs are `research/server-neoforge-1.21.11-9.5.1/` and
-`research/server-neoforge-26.1.2-10.0.1/`, both private since they need jars that
-are not ours to ship. Both run on portable Temurin JREs in
-`research/portable-java/`, 21 and 25 respectively.
+The two rigs are NeoForge 21.11.45 on Minecraft 1.21.11 and NeoForge 26.1.2.96 on
+Minecraft 26.1.2, on portable Temurin JREs 21 and 25 respectively. Reproducing them
+means fetching those installers, since the jars are not ours to redistribute.
 
 #### VER-3 7.5 resolves a building's `refpalette` even when no part needs it { #ver-3 }
 
@@ -1272,7 +1273,7 @@ against on every build. See [Key availability](../versions/key-availability.md).
 
 #### HIC-2 Seventeen profile files, three of them private { #hic-2 }
 
-**Game test.** After a harness run, `config/lostcities/profiles/` holds 18 files:
+**Game test.** After any run, `config/lostcities/profiles/` holds 18 files:
 the 17 the mod ships plus whichever one the pack installed. `grep -l '"public":
 false'` returns exactly `bio_wasteland.json`, `biosphere_caves.json` and
 `void_outside.json`.
@@ -1323,7 +1324,7 @@ rather than leaving it open. The entry stays so older links still land somewhere
 writes a common spec to `config/<modid>/common.toml` and a server spec into the
 save.
 
-**Game test.** After any harness run, `research/server-1.20.1-7.4.12/` holds
+**Game test.** After any run, a 7.4.12 server holds
 `config/lostcities/common.toml` with exactly `dimensionsWithProfiles`,
 `optimizedHeightmap` and `heightSampleSize`, and
 `world/serverconfig/lostcities-server.toml` with the other eleven. Deleting the
@@ -1335,10 +1336,9 @@ world deletes the second file and not the first.
 `"General settings"` is passed to `comment(...)` immediately before, so it becomes
 a comment line rather than a section.
 
-**Game test.** Cost a full test round before the harness was fixed. The harness
-now writes the section explicitly, and `harness.py` carries the note: a wrong
-section makes Forge rewrite the file to defaults with no error, which points
-`lostcities:lostcity` at `biosphere`, and the run looks like a generation bug
+**Game test.** Cost a full test round. Writing the keys under any other section
+makes Forge rewrite the file to defaults with no error, which points
+`lostcities:lostcity` at `biosphere`, and the run then looks like a generation bug
 rather than a config typo.
 
 #### CFG-3 `common.toml` holds three keys, and one contradicts its own comment { #cfg-3 }
@@ -1369,8 +1369,8 @@ not to generate. The shipped `json5-test` packs pin to both for this reason.
 **Code review.** All eleven are defined on `SERVER_BUILDER`.
 
 **Game test.** They appear only in `world/serverconfig/lostcities-server.toml`.
-The harness wipes the world between runs, and the file comes back at defaults each
-time, which is how the defaults quoted on the page were read.
+Deleting the world brings the file back at defaults, which is how the defaults
+quoted on the page were read.
 
 #### CFG-7 Standard profiles are rewritten to disk on every launch { #cfg-7 }
 
@@ -1393,9 +1393,10 @@ load and are selectable.
 
 ### KubeJS integration
 
-Source page: [KubeJS Integration](../advanced/kubejs.md). No pack yet. The mod jars
-needed to run one are held privately; installing KubeJS, Rhino and Architectury on
-the test rig is the outstanding step.
+Source page: [KubeJS Integration](../advanced/kubejs.md). Tested by moving
+`wiki-test10`'s twelve asset files into `kubejs/data/nstest/lostcities/` and running
+it again. Reproducing it needs KubeJS, Rhino and Architectury, which are not ours to
+redistribute.
 
 #### KJS-1 Lost Cities assets are ordinary dynamic registry entries { #kjs-1 }
 
@@ -1477,20 +1478,29 @@ Two, both on [Known Issues](../troubleshooting/known-issues.md) with the evidenc
 
 ## The packs
 
+Every pack below ships with this wiki and can be downloaded from the repository.
+
 | Pack | Covers | Read by |
 |---|---|---|
 | `docs/examples/wiki-test/` | Positive claims about palettes, streets and multi-buildings | Eye |
 | `docs/examples/wiki-fail/` | Failure claims. Two of its three profiles are meant to fail | Log |
-| `docs/examples/wiki-test7/` | The pinned grid: 21 assets, 28 probes | Eye or harness |
-| `docs/examples/wiki-test8/` | Ruins, damage, row length, `parts2` | Harness |
-| `docs/examples/wiki-test10/` | Namespace resolution, and what an unresolved reference does | Harness |
-| `research/kubejs-test/` | The same assets loaded through `kubejs/data/` instead. Private, it needs mod jars that are not ours to ship | Harness |
-| `research/override-test/` | Two packs claiming one asset, run twice with the files swapped. Private | Harness |
-| `docs/examples/wiki-test11/` | Building fronts, stuff objects, and what a predefined city does not make a city chunk | Harness |
-| `docs/examples/wiki-test12/` | Scattered structures, with the placement randomness tuned out | Harness |
-| `docs/examples/wiki-test13/` | A predefined sphere, and what its glass character resolves to | Harness |
-| `research/server-neoforge-1.21.11-9.5.1/` | The second rig, NeoForge 21.11.45 on Minecraft 1.21.11. Private | Harness |
-| `research/server-forge-1.12.2-2.0.22/` | The file-asset rig, Forge 1.12.2 on a portable JRE 8. Private | By hand |
+| `docs/examples/wiki-test7/` | The pinned grid: 21 assets, 28 probes | Eye or block count |
+| `docs/examples/wiki-test8/` | Ruins, damage, row length, `parts2` | Block count |
+| `docs/examples/wiki-test10/` | Namespace resolution, and what an unresolved reference does | Block count |
+| `docs/examples/wiki-test11/` | Building fronts, stuff objects, and what a predefined city does not make a city chunk | Block count |
+| `docs/examples/wiki-test12/` | Scattered structures, with the placement randomness tuned out | Block count |
+| `docs/examples/wiki-test13/` | A predefined sphere, and what its glass character resolves to | Block count |
+
+Four more were built for single claims and are described where they are used rather
+than shipped, because each is a small edit to one of the packs above or needs mod
+jars that are not ours to redistribute.
+
+| Built for | What it is |
+|---|---|
+| [KJS-2](#kjs-2) | `wiki-test10`'s twelve files moved to `kubejs/data/nstest/lostcities/`, with KubeJS, Rhino and Architectury installed |
+| [NS-9](#ns-9) | A base pack plus two packs claiming the same asset, run twice with the two files swapped |
+| [KEY-4](#key-4) | `wiki-test10` with `overrideFloors` deleted from `buildings/full.json` |
+| [VER-4](#ver-4), [VER-5](#ver-5) | `wiki-test10` with its predefined city folder renamed to whichever spelling the version compiled in |
 
 `wiki-test7` supersedes `wiki-test5` and `wiki-test6`, which are earlier builds of
 the same grid kept only because their failures are documented above.
