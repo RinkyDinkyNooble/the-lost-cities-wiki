@@ -14,108 +14,108 @@ pack against that jar with nothing else changed.
 
 ### Buildings and levels
 
-| Claim | Result |
-|---|---|
-| Levels run `0` to `maxfloors` **inclusive**, so `maxfloors: 3` is a four-storey building | Confirmed. `maxfloors: 6` produced 7 storeys, `maxfloors: 2` produced 3. |
-| `overrideFloors` replaces the profile's bounds rather than narrowing them | Confirmed. The overriding building generated at 1 storey beside 5-storey towers declaring the same bounds without the key. |
-| `minfloors` is a `max()` applied after the maximum, so it can exceed every ceiling | Confirmed. Two buildings declaring `minfloors: 6` and `maxfloors: 6`, one with `overrideFloors` and one without, both generated 6 storeys under a profile allowing 2 to 3. |
-| A level that matches no part reference fails the chunk | Confirmed. `Misconfiguration! Floor were generated for a building where no part condition matches!` |
-| `parts2` is an overlay placed at the same origin on the same level | Confirmed. Base part 1504 blocks, overlay 8 blocks, both present. |
-| `allowDoors: false` leaves the wall as the part draws it | Confirmed. The same three-storey part placed 2240 wall blocks with doors allowed and 2256 with `allowDoors: false`. |
-| `filler` and `rubble` resolve against the **building's** palette, not the part's | Confirmed, by 590 failed chunks when they did not. |
-| `rubble` is used by the ruin pass | Confirmed. 40 blocks of an otherwise unused character with ruins on, none with ruins off. |
+| ID | Claim | Result |
+|---|---|---|
+| `BLD-1`{#bld-1} | Levels run `0` to `maxfloors` **inclusive**, so `maxfloors: 3` is a four-storey building | Confirmed. `maxfloors: 6` produced 7 storeys, `maxfloors: 2` produced 3. |
+| `BLD-2`{#bld-2} | `overrideFloors` replaces the profile's bounds rather than narrowing them | Confirmed. The overriding building generated at 1 storey beside 5-storey towers declaring the same bounds without the key. |
+| `BLD-3`{#bld-3} | `minfloors` is a `max()` applied after the maximum, so it can exceed every ceiling | Confirmed. Two buildings declaring `minfloors: 6` and `maxfloors: 6`, one with `overrideFloors` and one without, both generated 6 storeys under a profile allowing 2 to 3. |
+| `BLD-4`{#bld-4} | A level that matches no part reference fails the chunk | Confirmed. `Misconfiguration! Floor were generated for a building where no part condition matches!` |
+| `BLD-5`{#bld-5} | `parts2` is an overlay placed at the same origin on the same level | Confirmed. Base part 1504 blocks, overlay 8 blocks, both present. |
+| `BLD-6`{#bld-6} | `allowDoors: false` leaves the wall as the part draws it | Confirmed. The same three-storey part placed 2240 wall blocks with doors allowed and 2256 with `allowDoors: false`. |
+| `BLD-7`{#bld-7} | `filler` and `rubble` resolve against the **building's** palette, not the part's | Confirmed, by 590 failed chunks when they did not. |
+| `BLD-8`{#bld-8} | `rubble` is used by the ruin pass | Confirmed. 40 blocks of an otherwise unused character with ruins on, none with ruins off. |
 
 ### Conditions and part selection
 
-| Claim | Result |
-|---|---|
-| Test keys chain with AND, never OR | Confirmed. A building gated `ground: false` **and** `top: false` came out banded rather than mixed. |
-| `range` includes both ends | Confirmed. |
-| A third number in `range` is discarded silently | Confirmed. `"0,2,9"` gave levels 0 to 2, not 0 to 9. |
-| `belowpart` tests the **current** part, not the one below | Confirmed, and it is a mod bug. A two-level building whose first entry was gated `belowpart: "<none>"` came out gold on both levels with no diamond. See [Known Issues](../troubleshooting/known-issues.md#belowpart-tests-the-wrong-part-in-every-version-that-has-it). |
-| `inpart` and `belowpart` never match from a building's `parts` list | Confirmed. The floor loop passes the literal `<none>` as the current part. |
-| `inpart` does work in a Condition reached from a palette | Confirmed. The chest's `LootTable` came out as the table on the `inpart`-gated entry. |
-| `range` works there too, and counts storeys | Confirmed. `"0,0"` gave one table on the ground floor, `"1,100"` gave another two storeys up. |
+| ID | Claim | Result |
+|---|---|---|
+| `CND-1`{#cnd-1} | Test keys chain with AND, never OR | Confirmed. A building gated `ground: false` **and** `top: false` came out banded rather than mixed. |
+| `CND-2`{#cnd-2} | `range` includes both ends | Confirmed. |
+| `CND-3`{#cnd-3} | A third number in `range` is discarded silently | Confirmed. `"0,2,9"` gave levels 0 to 2, not 0 to 9. |
+| `CND-4`{#cnd-4} | `belowpart` tests the **current** part, not the one below | Confirmed, and it is a mod bug. A two-level building whose first entry was gated `belowpart: "<none>"` came out gold on both levels with no diamond. See [Known Issues](../troubleshooting/known-issues.md#belowpart-tests-the-wrong-part-in-every-version-that-has-it). |
+| `CND-5`{#cnd-5} | `inpart` and `belowpart` never match from a building's `parts` list | Confirmed. The floor loop passes the literal `<none>` as the current part. |
+| `CND-6`{#cnd-6} | `inpart` does work in a Condition reached from a palette | Confirmed. The chest's `LootTable` came out as the table on the `inpart`-gated entry. |
+| `CND-7`{#cnd-7} | `range` works there too, and counts storeys | Confirmed. `"0,0"` gave one table on the ground floor, `"1,100"` gave another two storeys up. |
 
 ### Palettes
 
-| Claim | Result |
-|---|---|
-| The merge order is style, then building, then part | Confirmed. The same character gave gold from the building palette, diamond from the part palette, and lapis where the building overrode a character the shipped style defines concretely. |
-| A part palette **merges** into the building's rather than replacing it | Confirmed. A part palette defining one character still resolved every other character from the building's. |
-| A weighted `blocks` list fills 128 slots, and entries after the one that fills the last slot are unreachable | Confirmed. A list of 120 white, 20 black, then 100 red produced **no red block anywhere**. |
-| `frompalette` resolves to the aliased character | Confirmed. |
-| A concrete definition beats an alias, whatever the order | Confirmed. An alias on a character the shipped style defines concretely lost to that definition. |
-| A circular `frompalette` leaves the character undefined, and reports nothing at load | Confirmed. `Could not find entry '<char>' in the palette for part '<part>'!` at generation, nothing at load. |
-| A `char` of more than one character keeps the first, silently | Confirmed. `"char": "王zz"` registered `王`. |
-| `mob` names a Condition, not an entity | Confirmed. A condition resolving to `minecraft:blaze` produced blaze spawners. |
-| `loot` names a Condition, not a loot table | Confirmed, and the page said otherwise. |
-| With `generateLoot` on and both loot chances at `0`, every chest is filled | Confirmed. 12 of 12. |
-| `tag` places raw NBT | Confirmed. |
-| `torch: true` requires `generateLighting`, and without it the character becomes air | Confirmed. |
-| `damaged` covers the rubble band, not the ruined section | Confirmed, and the page overstated it. See [the control-chunk note](#counting-needs-a-control). |
+| ID | Claim | Result |
+|---|---|---|
+| `PAL-1`{#pal-1} | The merge order is style, then building, then part | Confirmed. The same character gave gold from the building palette, diamond from the part palette, and lapis where the building overrode a character the shipped style defines concretely. |
+| `PAL-2`{#pal-2} | A part palette **merges** into the building's rather than replacing it | Confirmed. A part palette defining one character still resolved every other character from the building's. |
+| `PAL-3`{#pal-3} | A weighted `blocks` list fills 128 slots, and entries after the one that fills the last slot are unreachable | Confirmed. A list of 120 white, 20 black, then 100 red produced **no red block anywhere**. |
+| `PAL-4`{#pal-4} | `frompalette` resolves to the aliased character | Confirmed. |
+| `PAL-5`{#pal-5} | A concrete definition beats an alias, whatever the order | Confirmed. An alias on a character the shipped style defines concretely lost to that definition. |
+| `PAL-6`{#pal-6} | A circular `frompalette` leaves the character undefined, and reports nothing at load | Confirmed. `Could not find entry '<char>' in the palette for part '<part>'!` at generation, nothing at load. |
+| `PAL-7`{#pal-7} | A `char` of more than one character keeps the first, silently | Confirmed. `"char": "王zz"` registered `王`. |
+| `PAL-8`{#pal-8} | `mob` names a Condition, not an entity | Confirmed. A condition resolving to `minecraft:blaze` produced blaze spawners. |
+| `PAL-9`{#pal-9} | `loot` names a Condition, not a loot table | Confirmed, and the page said otherwise. |
+| `PAL-10`{#pal-10} | With `generateLoot` on and both loot chances at `0`, every chest is filled | Confirmed. 12 of 12. |
+| `PAL-11`{#pal-11} | `tag` places raw NBT | Confirmed. |
+| `PAL-12`{#pal-12} | `torch: true` requires `generateLighting`, and without it the character becomes air | Confirmed. |
+| `PAL-13`{#pal-13} | `damaged` covers the rubble band, not the ruined section | Confirmed, and the page overstated it. See [the control-chunk note](#counting-needs-a-control). |
 
 ### Parts
 
-| Claim | Result |
-|---|---|
-| A layer is one flat string read as `charAt(z * xsize + x)`, so row breaks are formatting | Confirmed in both directions. |
-| A layer longer than `xsize * zsize` shifts characters and drops the tail, silently | Confirmed. A 17-character row placed its marker one column along; position 256 was never read. |
-| A layer shorter than that fails the chunk | Confirmed. `String index out of range: 255`. |
-| `shape=` in a stair block string is discarded and recomputed | Confirmed. Five isolated stairs written `shape=outer_right` all came out straight, and a perpendicular pair produced a corner. |
+| ID | Claim | Result |
+|---|---|---|
+| `PRT-1`{#prt-1} | A layer is one flat string read as `charAt(z * xsize + x)`, so row breaks are formatting | Confirmed in both directions. |
+| `PRT-2`{#prt-2} | A layer longer than `xsize * zsize` shifts characters and drops the tail, silently | Confirmed. A 17-character row placed its marker one column along; position 256 was never read. |
+| `PRT-3`{#prt-3} | A layer shorter than that fails the chunk | Confirmed. `String index out of range: 255`. |
+| `PRT-4`{#prt-4} | `shape=` in a stair block string is discarded and recomputed | Confirmed. Five isolated stairs written `shape=outer_right` all came out straight, and a perpendicular pair produced a corner. |
 
 ### City styles, streets and selectors
 
-| Claim | Result |
-|---|---|
-| A multi-building grid is `buildings[x][z]`, outer list X | Confirmed. Red north-west, yellow south-west, blue north-east, green south-east. |
-| A street part name accepts a list, sampled per chunk | Confirmed. Both marked variants appear across the road network, mixed. |
-| `streetblocks.parts` is all or nothing on inheritance | Confirmed. All 7 shapes restated, all generate. |
-| `streetblocks.parts.full` never generates | **Refuted**, and it is a mod bug. See [Streets](../concepts/infrastructure-parts.md#streets). |
-| Selector inheritance is additive, so an inherited selector cannot be emptied | Confirmed, indirectly: emptying one required not inheriting at all. |
-| An empty `bridges` selector fails even at `bridgeChance: 0` | Confirmed. 1842 failed chunks, `Invalid name given to minecraft:root getOrThrow!`. |
-| `parks`, `fountains`, `stairs`, `fronts` and `raildungeons` are safe to leave empty | Confirmed. Zero failed chunks with all five empty. |
-| A city style that inherits nothing must define every character the generator dereferences unguarded | Confirmed. Each run reveals only the next missing character. |
-| Omitting a selector and writing `[]` are the same thing | Confirmed. Both end at an empty list. |
+| ID | Claim | Result |
+|---|---|---|
+| `CTY-1`{#cty-1} | A multi-building grid is `buildings[x][z]`, outer list X | Confirmed. Red north-west, yellow south-west, blue north-east, green south-east. |
+| `CTY-2`{#cty-2} | A street part name accepts a list, sampled per chunk | Confirmed. Both marked variants appear across the road network, mixed. |
+| `CTY-3`{#cty-3} | `streetblocks.parts` is all or nothing on inheritance | Confirmed. All 7 shapes restated, all generate. |
+| `CTY-4`{#cty-4} | `streetblocks.parts.full` never generates | **Refuted**, and it is a mod bug. See [Streets](../concepts/infrastructure-parts.md#streets). |
+| `CTY-5`{#cty-5} | Selector inheritance is additive, so an inherited selector cannot be emptied | Confirmed, indirectly: emptying one required not inheriting at all. |
+| `CTY-6`{#cty-6} | An empty `bridges` selector fails even at `bridgeChance: 0` | Confirmed. 1842 failed chunks, `Invalid name given to minecraft:root getOrThrow!`. |
+| `CTY-7`{#cty-7} | `parks`, `fountains`, `stairs`, `fronts` and `raildungeons` are safe to leave empty | Confirmed. Zero failed chunks with all five empty. |
+| `CTY-8`{#cty-8} | A city style that inherits nothing must define every character the generator dereferences unguarded | Confirmed. Each run reveals only the next missing character. |
+| `CTY-9`{#cty-9} | Omitting a selector and writing `[]` are the same thing | Confirmed. Both end at an empty list. |
 
 ### Predefined cities
 
-| Claim | Result |
-|---|---|
-| A pinned building's `chunkx` and `chunkz` are offsets from the city centre | Confirmed, and the page said they were world coordinates. |
-| A predefined city generates at `cityChance: 0.0` | Confirmed. One city, where it was pinned, in an otherwise empty world. |
-| `preventruins` protects a pinned building | Confirmed. Under `ruinChance: 1.0`, 1767 wall blocks on the unprotected copy against 2224 on the protected one. |
+| ID | Claim | Result |
+|---|---|---|
+| `PRE-1`{#pre-1} | A pinned building's `chunkx` and `chunkz` are offsets from the city centre | Confirmed, and the page said they were world coordinates. |
+| `PRE-2`{#pre-2} | A predefined city generates at `cityChance: 0.0` | Confirmed. One city, where it was pinned, in an otherwise empty world. |
+| `PRE-3`{#pre-3} | `preventruins` protects a pinned building | Confirmed. Under `ruinChance: 1.0`, 1767 wall blocks on the unprotected copy against 2224 on the protected one. |
 
 ### Profiles
 
-| Claim | Result |
-|---|---|
-| A `block` value carrying a 1.12 style `@meta` suffix fails the **whole palette**, not just that character | Confirmed. `minecraft:red_sandstone@2` reaches `ResourceLocation`, whose path rejects `@`, so the palette throws while being built and every character in the file stops resolving. Planted in a working pack, all three of its towers vanished. Lost Cities 7.4.12 ships one such file, `lostcities:bricks_desert_redsand`, unnoticed because assets are built on demand and no shipped style selects it. |
-| A profile name containing a digit, an uppercase letter, a hyphen or a dot is read normally but is **not offered on the world creation screen** | **Withdrawn.** Observed once by hand and contradicted by the code. The list is `STANDARD_PROFILES` filtered on `isPublic()`, and nothing tests the characters of a name. |
-| A profile is offered unless its own file sets `"public": false` | Confirmed from `LostCitySetup.toggleProfile` and the `LostCityProfile(String, String)` constructor, which reads `public` and treats a missing key as true. That is how the sphere-outside profiles are hidden. |
-| A profile is named after everything before the **first dot** in its file name | Confirmed from `ProfileSetup.readProfiles`, which uses `getName().split("\\.")[0]`. `my.thing.json` registers as `my`. |
-| One unreadable profile file drops every profile after it | Confirmed from the same method: the `IOException` handler ends in `return`, not `continue`, so the scan stops. Which profiles vanish depends on directory order. |
-| The profile list is ordered `default` first, then by `String.compareTo` | Confirmed from the comparator `toggleProfile` sorts with. That is code point order, so a digit sorts before an uppercase letter and an uppercase letter before a lowercase one. It is not case-insensitive alphabetical, and it sorts the key rather than the label shown. |
-| A profile key in the wrong section is never read | Confirmed indirectly: a wrong config **section** caused Forge to reset the file to its defaults with no error. |
+| ID | Claim | Result |
+|---|---|---|
+| `PRF-1`{#prf-1} | A `block` value carrying a 1.12 style `@meta` suffix fails the **whole palette**, not just that character | Confirmed. `minecraft:red_sandstone@2` reaches `ResourceLocation`, whose path rejects `@`, so the palette throws while being built and every character in the file stops resolving. Planted in a working pack, all three of its towers vanished. Lost Cities 7.4.12 ships one such file, `lostcities:bricks_desert_redsand`, unnoticed because assets are built on demand and no shipped style selects it. |
+| `PRF-2`{#prf-2} | A profile name containing a digit, an uppercase letter, a hyphen or a dot is read normally but is **not offered on the world creation screen** | **Withdrawn.** Observed once by hand and contradicted by the code. The list is `STANDARD_PROFILES` filtered on `isPublic()`, and nothing tests the characters of a name. |
+| `PRF-3`{#prf-3} | A profile is offered unless its own file sets `"public": false` | Confirmed from `LostCitySetup.toggleProfile` and the `LostCityProfile(String, String)` constructor, which reads `public` and treats a missing key as true. That is how the sphere-outside profiles are hidden. |
+| `PRF-4`{#prf-4} | A profile is named after everything before the **first dot** in its file name | Confirmed from `ProfileSetup.readProfiles`, which uses `getName().split("\\.")[0]`. `my.thing.json` registers as `my`. |
+| `PRF-5`{#prf-5} | One unreadable profile file drops every profile after it | Confirmed from the same method: the `IOException` handler ends in `return`, not `continue`, so the scan stops. Which profiles vanish depends on directory order. |
+| `PRF-6`{#prf-6} | The profile list is ordered `default` first, then by `String.compareTo` | Confirmed from the comparator `toggleProfile` sorts with. That is code point order, so a digit sorts before an uppercase letter and an uppercase letter before a lowercase one. It is not case-insensitive alphabetical, and it sorts the key rather than the label shown. |
+| `PRF-7`{#prf-7} | A profile key in the wrong section is never read | Confirmed indirectly: a wrong config **section** caused Forge to reset the file to its defaults with no error. |
 
 ### Failure behaviour
 
-| Claim | Result |
-|---|---|
-| A mistake in an asset does not crash the game | Confirmed across every pack. The mod catches it per chunk and logs. |
-| A profile naming a `worldStyle` no loaded datapack defines **does** crash | Confirmed. `Description: Feature placement`, because it resolves before the catch. |
-| A fault raised while building a chunk's `BuildingInfo` spreads to neighbouring chunks | Confirmed. 3 broken buildings produced 77 failed chunks across a 13 by 10 chunk area. |
-| A fault raised while placing blocks stays in its own chunk | Confirmed. A circular palette alias 6 chunks from those three failed exactly 1 chunk. |
-| On a sphere landscape nothing catches either | Confirmed. Same pack, same broken building: `default` gave 35 caught and 0 uncaught, `spheres` gave 18 caught and 21 uncaught, and the server shut down. |
-| `landscapeType` takes lowercase values, and a wrong one stops the game starting | Confirmed. `"SPACE"` gives `Bad landscape type: SPACE!` during mod construction. |
-| A sphere landscape needs `cityspheres.outsideProfile` | Confirmed. Without it, `getOutsideProfile() is null`, uncaught. |
+| ID | Claim | Result |
+|---|---|---|
+| `FAIL-1`{#fail-1} | A mistake in an asset does not crash the game | Confirmed across every pack. The mod catches it per chunk and logs. |
+| `FAIL-2`{#fail-2} | A profile naming a `worldStyle` no loaded datapack defines **does** crash | Confirmed. `Description: Feature placement`, because it resolves before the catch. |
+| `FAIL-3`{#fail-3} | A fault raised while building a chunk's `BuildingInfo` spreads to neighbouring chunks | Confirmed. 3 broken buildings produced 77 failed chunks across a 13 by 10 chunk area. |
+| `FAIL-4`{#fail-4} | A fault raised while placing blocks stays in its own chunk | Confirmed. A circular palette alias 6 chunks from those three failed exactly 1 chunk. |
+| `FAIL-5`{#fail-5} | On a sphere landscape nothing catches either | Confirmed. Same pack, same broken building: `default` gave 35 caught and 0 uncaught, `spheres` gave 18 caught and 21 uncaught, and the server shut down. |
+| `FAIL-6`{#fail-6} | `landscapeType` takes lowercase values, and a wrong one stops the game starting | Confirmed. `"SPACE"` gives `Bad landscape type: SPACE!` during mod construction. |
+| `FAIL-7`{#fail-7} | A sphere landscape needs `cityspheres.outsideProfile` | Confirmed. Without it, `getOutsideProfile() is null`, uncaught. |
 
 ### Version comparison
 
-| Claim | Result |
-|---|---|
-| A datapack means the same thing on 7.4.12 and 7.5.1 | Confirmed. The pack written for 7.4.12 gives 28 of 28 on 7.5.1 unchanged. |
-| 7.5 changed placement, not asset handling | Confirmed. The only counts that moved were wall totals, each by a multiple of 16, which is one doorway. |
+| ID | Claim | Result |
+|---|---|---|
+| `VER-1`{#ver-1} | A datapack means the same thing on 7.4.12 and 7.5.1 | Confirmed. The pack written for 7.4.12 gives 28 of 28 on 7.5.1 unchanged. |
+| `VER-2`{#ver-2} | 7.5 changed placement, not asset handling | Confirmed. The only counts that moved were wall totals, each by a multiple of 16, which is one doorway. |
 
 ## The claim register
 
@@ -281,6 +281,35 @@ load order.
 `AssetRegistries.reset()` has exactly two callers: `ModSetup.init`, once at
 `FMLCommonSetupEvent`, and `LostCityFeature`. Nothing on the `/reload` path
 touches either.
+
+### Whole-page entries
+
+Some claims are made the same way on many pages. Rather than repeat the evidence,
+those pages cite one of these.
+
+#### REF-1 The key tables match the codecs, and a build says so { #ref-1 }
+
+**Code review.** `docs/examples/mod-keys.json` holds the key set of every codec and
+of `LostCityProfile`, read out of each jar. `validate.py` compares it against every
+table in `docs/reference/` on every build: a key documented that no version
+declares is an error, and so is a key marked optional that the codec requires.
+
+A row's **name, presence and required-or-optional** are therefore checked
+mechanically. What a key *means* is not, and any row whose meaning has been tested
+carries its own chip.
+
+#### REF-2 Read from the 7.4.12 jar, not run { #ref-2 }
+
+**Code review.** Disassembled with `javap -p -c -constants` from
+`lostcities-1.20-7.4.12.jar`. Behaviour follows from the bytecode alone, with no
+world involved. Where a version other than 7.4.12 is named, the same was done to
+that jar.
+
+#### REF-3 Not checked either way { #ref-3 }
+
+**Unverified.** Neither a run nor a reading covers this. It is written from the
+mod's own documentation, the official wiki, or inference from surrounding code,
+none of which count. Treat it as the least reliable material on the site.
 
 ### How it all connects
 

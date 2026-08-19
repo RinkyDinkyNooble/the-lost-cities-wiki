@@ -1,20 +1,24 @@
+---
+claims: verified
+---
+
 # Multi-Building Reference
 
 !!! tip "TL;DR"
-    `multibuildings/<name>.json` holds a grid of building names. It occupies several city chunks at once instead of one.
+    `multibuildings/<name>.json` holds a grid of building names. It occupies several city chunks at once instead of one. [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 
 ## Keys
 
-| Key | Required | Limits | Meaning |
+| Key [code review](../examples/claim-tests.md#ref-1){.v .v-c} | Required | Limits | Meaning |
 |---|---|---|---|
-| `dimx` / `dimz` | **yes** | 1 or more, and no larger than the `areasize` it is placed with | The grid size, in chunks. |
-| `buildings` | **yes** | | A nested list of building names. See [Grid order](#grid-order) below, because it is not laid out the way it looks. |
+| `dimx` / `dimz` | **yes** | 1 or more, and no larger than the `areasize` it is placed with | The grid size, in chunks |
+| `buildings` | **yes** | | A nested list of building names. See [Grid order](#grid-order), because it is not laid out the way it looks |
 
 ## Grid order
 
-The mod reads the grid as `buildings[x][z]`. **The outer list is the X axis, and the inner list is the Z axis.**
+The mod reads the grid as `buildings[x][z]`. **The outer list is the X axis and the inner list is the Z axis.** [game test](../examples/claim-tests.md#cty-1){.v .v-g}
 
-That is the opposite of how a nested list usually reads. The outer list is not a row running east. Each outer entry is a **column** at one X coordinate, and the entries inside it run north to south.
+That is the opposite of how a nested list usually reads. The outer list is not a row running east: each outer entry is a **column** at one X coordinate, and the entries inside it run north to south. [game test](../examples/claim-tests.md#cty-1){.v .v-g}
 
 | Position | Index | Compass corner |
 |---|---|---|
@@ -22,11 +26,12 @@ That is the opposite of how a nested list usually reads. The outer list is not a
 | `buildings[0][1]` | x 0, z 1 | South-west |
 | `buildings[1][0]` | x 1, z 0 | North-east |
 | `buildings[1][1]` | x 1, z 1 | South-east |
+[game test](../examples/claim-tests.md#cty-1){.v .v-g}
 
-The mod's own `center.json` follows this. Its entries are named `center00`, `center01`, `center10` and `center11`, which is `center<x><z>`.
+The mod's own `center.json` follows this. Its entries are `center00`, `center01`, `center10` and `center11`, which is `center<x><z>`. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
 !!! warning "Getting the order wrong produces a scrambled building, with no error"
-    Nothing validates the grid against the parts it names. If you lay the list out as rows running east, the north-east and south-west chunks swap places. The building generates, no message appears, and the halves do not line up.
+    Nothing checks the grid against the parts it names. Lay the list out as rows running east and the north-east and south-west chunks swap places: the building generates, no message appears, and the halves do not line up. [game test](../examples/claim-tests.md#cty-1){.v .v-g}
 
 ## Example
 
@@ -41,22 +46,23 @@ The mod's own `center.json` follows this. Its entries are named `center00`, `cen
 }
 ```
 
-This is a footprint of 2 by 2 chunks, tiling four separate building definitions into one structure. The first inner list is the western column, running from north to south. Each entry is a normal [Building](building.md) name, referenced the usual [namespaced](../getting-started/namespaces.md) way.
+A footprint of 2 by 2 chunks, tiling four separate building definitions into one structure. The first inner list is the western column, running north to south. Each entry is a normal [Building](building.md) name, referenced the usual [namespaced](../getting-started/namespaces.md) way. [game test](../examples/claim-tests.md#cty-1){.v .v-g}
 
 !!! danger "A multi-building larger than its placement area fails the chunk"
-    The mod picks a random offset inside a square area of chunks, using `random(areasize - dimx + 1)`. If `dimx` or `dimz` exceeds `areasize`, that bound reaches zero or goes negative and the mod throws `bound must be positive`.
+    The mod picks a random offset inside a square area of chunks with `random(areasize - dimx + 1)`. Where `dimx` or `dimz` exceeds `areasize`, that bound reaches zero or goes negative and the mod throws `bound must be positive`. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-    Two different `areasize` values apply, depending on how the multi-building is reached.
+    Two different `areasize` values apply, depending on how the multi-building is reached. [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 
     | Reached through | Setting | Shipped default |
     |---|---|---|
     | A city style's `multibuildings` selector | [World Style](worldstyle.md) `multisettings.areasize` | `10` |
     | A [Scattered Building](scattered.md)'s `multibuilding` | [World Style](worldstyle.md) `scattered.areasize` | `8` |
+    [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 
-    A multi-building used both ways has to fit the smaller of the two. Nothing checks this at load. The mod only fails when a chunk in that area generates.
+    A multi-building used both ways has to fit the smaller of the two. Nothing checks it at load, and the failure waits until a chunk in that area generates. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
 ## See also
 
 - [Building Reference](building.md)
 - [World Style Reference](worldstyle.md) for the two `areasize` settings
-- [Error Messages](../troubleshooting/errors.md) for `bound must be positive`
+- [Error Messages](../troubleshooting/errors.md) for `bound must be positive` <!-- noclaim -->
