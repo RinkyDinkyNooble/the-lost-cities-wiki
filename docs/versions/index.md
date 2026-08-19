@@ -54,7 +54,7 @@ loader requirement is what the jar declares in its own metadata. [code review](.
 | 1.0.2 | 1.1x | Forge, Minecraft 1.11.2 | File | 72 | 0 |
 | 1.0.1 | 1.12 | Forge, Minecraft 1.12.2 | File | 71 | 0 |
 | 1.0.2 | 1.12 | Forge, Minecraft 1.12.2 | File | 72 | 0 |
-| 2.0.22 | 1.12 | Forge, Minecraft 1.12.2 | File | 116 | 0 |
+| 2.0.22 | 1.12 | Forge, Minecraft 1.12.2 | File | 128 | 0 |
 | 2.0.28-alpha | 1.14 | Forge `[28,)`, Minecraft `[1.14]` | File | 131 | 0 |
 | 3.0.2-alpha | 1.15 | Forge `[31,)` | File | 131 | 0 |
 | 4.0.5-alpha | 1.16 | Forge `[31,)` | File | 132 | 0 |

@@ -726,6 +726,50 @@ This is the direct ancestor of a bug still shipping in 7.4.12, where the palette
 built at all. See [PRF-1](#prf-1). A file-era palette copied forward without
 rewriting every block name breaks the same way.
 
+#### F12-8 The 1.12.2 rig boots, and what it wrote { #f12-8 }
+
+**Game test.** `research/server-forge-1.12.2-2.0.22/`, Forge 14.23.5.2859 on
+Minecraft 1.12.2, Lost Cities `1.12-2.0.22`, on a portable Temurin **JRE 8** at
+`research/portable-java/jre8/`. The server reached `Done (6.759s)!` with five mods
+loaded and registered dimension **111**.
+
+Java 8 and nothing newer. Forge 1.12.2 boots through LaunchWrapper, which casts the
+system class loader to `URLClassLoader`, and Java 9 stopped making it one:
+
+```
+java.lang.ClassCastException: jdk.internal.loader.ClassLoaders$AppClassLoader
+cannot be cast to java.net.URLClassLoader
+  at net.minecraft.launchwrapper.Launch.<init>(Launch.java:34)
+```
+
+What first launch produced, all of it read back off disk:
+
+| | |
+|---|---|
+| `config/lostcities/general.cfg` | 14 options |
+| `config/lostcities/profile_<name>.cfg` | **18 files**, 16 public plus 2 private |
+| Keys in `profile_default.cfg` | **128**, across six categories |
+
+**Three things this corrected.** The `assets` load order in the generated file is
+not the order the bytecode reads in: `conditions.json` is **first**, not fifth, and
+`highwayparts.json` comes before `railparts.json`. This page had it wrong from the
+disassembly alone.
+
+Profile sections are named `<category>_<profilename>`, so `cities_default` in one
+file and `cities_wasteland` in another. Copying a profile file therefore needs all
+six headers renamed as well as the file.
+
+One option, `maxcaveheight`, is registered with its name and category swapped. It
+lands in a section called `maxcaveheight` holding a key called
+`structures_<profilename>`, the reverse of every other option in the file.
+
+**Corrected here too:** this wiki previously put 2.0.22 at 116 profile keys, from an
+earlier reading that nothing checked. The file a server writes holds 128.
+
+`general.cfg` also settles the dimension question: `dimensionId` is **111**, a
+number rather than a resource location, and `additionalDimensions` takes
+`<numeric id>:<profile>`.
+
 ### Version and key availability
 
 Source pages: [Key availability](../versions/key-availability.md),
@@ -1089,6 +1133,7 @@ Two, both on [Known Issues](../troubleshooting/known-issues.md) with the evidenc
 | `docs/examples/wiki-test12/` | Scattered structures, with the placement randomness tuned out | Harness |
 | `docs/examples/wiki-test13/` | A predefined sphere, and what its glass character resolves to | Harness |
 | `research/server-neoforge-1.21.11-9.5.1/` | The second rig, NeoForge 21.11.45 on Minecraft 1.21.11. Private | Harness |
+| `research/server-forge-1.12.2-2.0.22/` | The file-asset rig, Forge 1.12.2 on a portable JRE 8. Private | By hand |
 
 `wiki-test7` supersedes `wiki-test5` and `wiki-test6`, which are earlier builds of
 the same grid kept only because their failures are documented above.

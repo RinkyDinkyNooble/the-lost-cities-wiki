@@ -26,16 +26,16 @@ A path with no prefix is a hard failure at startup rather than a skipped entry, 
 
 ## Where your file goes
 
-The default list is the mod's ten files in a fixed order, with one config entry after them: [code review](../examples/claim-tests.md#f12-3){.v .v-c}
+The default list is the mod's ten files in a fixed order, with one config entry after them: [game test](../examples/claim-tests.md#f12-8){.v .v-g}
 
-```
+```title="general.cfg, S:assets, exactly as a first launch writes it"
+/assets/lostcities/citydata/conditions.json
 /assets/lostcities/citydata/palette.json
 /assets/lostcities/citydata/palette_desert.json
 /assets/lostcities/citydata/palette_chisel.json
 /assets/lostcities/citydata/palette_chisel_desert.json
-/assets/lostcities/citydata/conditions.json
-/assets/lostcities/citydata/railparts.json
 /assets/lostcities/citydata/highwayparts.json
+/assets/lostcities/citydata/railparts.json
 /assets/lostcities/citydata/monorailparts.json
 /assets/lostcities/citydata/buildingparts.json
 /assets/lostcities/citydata/library.json
@@ -80,10 +80,12 @@ The config is Forge's old `.cfg`, not TOML, and a profile is a whole file rather
 
 | Path | Holds |
 |---|---|
-| `config/lostcities/general.cfg` | The main settings, including the three options below |
-| `config/lostcities/profile_<name>.cfg` | One profile. 116 keys in 2.0.22, against 131 in 7.4.12 |
+| `config/lostcities/general.cfg` | 14 options, including the three below |
+| `config/lostcities/profile_<name>.cfg` | One profile. **128 keys** in 2.0.22, against 131 in 7.4.12. 18 files ship, 16 public and 2 private |
 | `config/lostcities/userassets.json` | Your assets |
-[code review](../examples/claim-tests.md#f12-5){.v .v-c}
+[game test](../examples/claim-tests.md#f12-8){.v .v-g}
+
+Every key of a profile is on its own page: [File-Era Profile Reference](profile.md). [game test](../examples/claim-tests.md#f12-8){.v .v-g}
 
 Three options in `general.cfg` decide what exists at all: [code review](../examples/claim-tests.md#f12-5){.v .v-c}
 
@@ -97,7 +99,7 @@ Three options in `general.cfg` decide what exists at all: [code review](../examp
 A new profile therefore takes two steps rather than one: write `profile_<name>.cfg`, then add that name to `profiles`. Writing the file alone leaves it unoffered. [code review](../examples/claim-tests.md#f12-5){.v .v-c}
 
 !!! danger "The dimension wiring uses a colon, not an equals"
-    The option is `additionalDimensions` in the `general` category, and the mod gives its format as `'<id>:<profile>'`. [code review](../examples/claim-tests.md#f12-6){.v .v-c}
+    The option is `additionalDimensions` in the `general` category, and its format is `'<id>:<profile>'`. The id is a **number**: `general.cfg` ships `dimensionId=111`, because 1.12 identifies a dimension by integer rather than by resource location. [game test](../examples/claim-tests.md#f12-8){.v .v-g}
 
     The datapack era's `dimensionsWithProfiles` uses `<dimension id>=<profile name>` instead. Carrying the `=` backwards gives an entry that does not parse, and carrying the `:` forwards does the same. [code review](../examples/claim-tests.md#f12-6){.v .v-c} [code review](../examples/claim-tests.md#cfg-4){.v .v-c}
 
