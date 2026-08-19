@@ -1,71 +1,80 @@
+---
+claims: verified
+---
+
 # Damage, Ruins & Explosions
 
 !!! info "You do not need this page to build a custom city"
-    Everything required to author content lives in [Reference](../reference/profile.md) and [Concepts](../concepts/matchers.md). This page explains the mechanism behind keys you are already setting on the Profile page, useful for tuning them with intent instead of by trial and error.
+    Everything required to author content lives in [Reference](../reference/profile.md) and [Concepts](../concepts/matchers.md). This page covers the mechanism behind keys you are already setting on the Profile page, for tuning them with intent rather than by trial and error. <!-- noclaim -->
 
 !!! tip "TL;DR"
-    Each chunk independently rolls for explosions, then breaks blocks around each explosion's center. `notbreakable`-tagged blocks never break; `easybreakable`-tagged ones break more easily. Ruins are a separate, similarly-rolled destruction pass on top of a fully-placed building. Both run after part selection is already finished.
+    Each chunk independently rolls for explosions, then breaks blocks around each centre. `notbreakable`-tagged blocks never break and `easybreakable`-tagged ones break more easily. Ruins are a separate destruction pass on top of a fully placed building. Both run after part selection has finished. [code review](../examples/claim-tests.md#dmg-1){.v .v-c} [code review](../examples/claim-tests.md#pipe-2){.v .v-c}
 
 ## Explosions are per-chunk, independent rolls
 
-Every city chunk independently rolls for a normal explosion (`explosionChance`, radius from `explosionMinRadius`/`Max`, height from `explosionMinHeight`/`Max`) and, separately, a mini explosion (`miniExplosionChance` and its own radius/height range). A single chunk can end up with several overlapping explosions if it is unlucky enough to roll more than one type, or if a neighbouring chunk's explosion reaches into it, damage from every overlapping source accumulates rather than only the strongest one applying. `explosionsInCitiesOnly` restricts where an explosion's *center* can roll, not how far its blast can reach, a blast centered just inside a city can still tear into non-city terrain at its edge.
+Every city chunk independently rolls for a normal explosion, with `explosionChance`, a radius from `explosionMinRadius` and `explosionMaxRadius`, and a height from `explosionMinHeight` and `explosionMaxHeight`. It separately rolls a mini explosion, with `miniExplosionChance` and its own radius and height range. [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+
+One chunk can end up with several overlapping explosions, either by rolling more than one type or by catching a neighbouring chunk's blast, and damage from every overlapping source accumulates rather than only the strongest applying. `explosionsInCitiesOnly` restricts where a blast's **centre** can roll, not how far it reaches, so a blast centred just inside a city can still tear into non-city terrain at its edge. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
 ## What actually breaks
 
-Whether a given block breaks under nearby damage is not a flat roll, block identity matters:
+Whether a block breaks under nearby damage is not a flat roll. Block identity matters. [code review](../examples/claim-tests.md#dmg-1){.v .v-c}
 
 | Tag | Effect |
 |---|---|
-| `lostcities:notbreakable` | Never breaks, regardless of explosion strength. Bedrock, end portal, end portal frame, end gateway by default. |
-| `lostcities:easybreakable` | Breaks more readily than an untagged block. `forge:glass` by default. |
-| *(untagged)* | Normal odds, roughly proportional to distance from the explosion center and its strength. |
+| `lostcities:notbreakable` | Never breaks, whatever the explosion strength. Bedrock, end portal, end portal frame and end gateway by default |
+| `lostcities:easybreakable` | Breaks more readily than an untagged block. `forge:glass` by default |
+| *(untagged)* | Normal odds, roughly proportional to distance from the blast centre and its strength |
+[code review](../examples/claim-tests.md#dmg-1){.v .v-c}
 
-When a block does break, the palette entry's `damaged` key (see [Palette Reference](../reference/palette.md)) decides what it becomes, rubble, a broken variant, or whatever else was authored there. A character with no `damaged` value set just breaks to air.
+When a block does break, the palette entry's `damaged` key decides what it becomes: rubble, a broken variant, or whatever else was authored there. A character with no `damaged` value breaks to air. [game test](../examples/claim-tests.md#pal-13){.v .v-g}
+
+!!! warning "`damaged` covers the rubble band, not the ruined section"
+    Measured rather than assumed, and narrower than this page once claimed. See [Palette Reference](../reference/palette.md). [game test](../examples/claim-tests.md#pal-13){.v .v-g}
 
 ## Debris spreads into neighbouring chunks
 
-Damage does not stop cleanly at a chunk border. `debrisToNearbyChunkFactor` controls how much of a damaged chunk's rubble bleeds into its neighbours, and it is an inverse relationship, **higher values mean less spillover**, not more. Seeing scattered rubble just outside the chunk that actually rolled the explosion is expected behaviour, not a sign that damage settings are misconfigured.
+Damage does not stop cleanly at a chunk border. `debrisToNearbyChunkFactor` controls how much of a damaged chunk's rubble bleeds into its neighbours, and the relationship is inverse: **higher values mean less spillover**. Scattered rubble just outside the chunk that rolled the explosion is expected, not a sign of a misconfiguration. [code review](../examples/claim-tests.md#dmg-2){.v .v-c}
 
 ## Ruins are a separate pass, after the building already exists
 
-Ruin generation is chance-gated on `ruinChance`, and destroys a band of the building's height between `ruinMinlevelPercent` and `ruinMaxlevelPercent`. It runs strictly **after** the building's parts have been selected and placed. A building's part selection never knows it is about to be ruined, so ruin state cannot bias which variant of a floor was picked. It only removes blocks from what was already going to generate.
+Ruin generation is gated on `ruinChance` and destroys a band of the building's height between `ruinMinlevelPercent` and `ruinMaxlevelPercent`. It runs strictly **after** the building's parts have been selected and placed, so part selection never knows it is about to be ruined and ruin state cannot bias which variant of a floor was picked. It only removes blocks from what was already going to generate. [code review](../examples/claim-tests.md#pipe-2){.v .v-c}
+
+The ruin pass is also what consumes a palette's `rubble` character. A character used nowhere else appeared 40 times with ruins on and never with ruins off. [game test](../examples/claim-tests.md#bld-8){.v .v-g}
 
 !!! warning "Ruins and explosions are not the same phase, despite being described together"
-    This is easy to get wrong, and the distinction changes what each one can touch.
+    The distinction changes what each one can touch. [code review](../examples/claim-tests.md#pipe-2){.v .v-c}
 
-    Ruins run **inside** the city-chunk pass, immediately after the building and street are placed:
+    Ruins run **inside** the city-chunk pass, immediately after the building and street are placed: <!-- noclaim -->
 
     ```
     generateBuilding -> generateStreet -> generateRuins -> highways
       -> generateStreetDecorations -> generateHighways -> generateRubble -> generateStuff
     ```
 
-    Explosions and debris run **much later**, back in the top-level chunk pass, after railways and the torch fixup, just before the chunk is flushed.
+    Explosions and debris run **much later**, back in the top-level chunk pass, after railways and the torch fixup, just before the chunk is flushed. [code review](../examples/claim-tests.md#pipe-2){.v .v-c}
 
-    The practical consequence: anything generated after `generateRuins` in that list is **not** ruined. Street decorations, highways, rubble and stuff objects all land on top of an already-ruined building and survive intact. Explosion damage, running later still, does affect all of them.
-
-    So a half-collapsed building with pristine street furniture around it is expected, not a bug. See [The Generation Pipeline](generation-pipeline.md).
+    So anything generated after `generateRuins` in that list is **not** ruined. Street decorations, highways, rubble and stuff objects all land on top of an already-ruined building and survive intact, while explosion damage, running later still, does reach them. A half-collapsed building with pristine street furniture around it is expected. See [The Generation Pipeline](generation-pipeline.md). [code review](../examples/claim-tests.md#pipe-2){.v .v-c}
 
 ## You cannot exempt one building from ruin
 
-**A Building asset has no key that protects it from the ruin pass.** There is no `preventruins`, no `noruin`, and no equivalent under another name.
-
-The full set of controls:
+**A Building asset has no key that protects it from the ruin pass.** No `preventruins`, no `noruin`, and no equivalent under another name. [code review](../examples/claim-tests.md#dmg-3){.v .v-c}
 
 | What you want | How to get it |
 |---|---|
-| A specific landmark left intact | Place it through a [Predefined City](../reference/predefined.md) and set `preventruins: true` on that entry. This is the only per-building exemption in the mod. |
-| Fewer ruined buildings everywhere | Lower `ruinChance` in the [Profile](../reference/profile.md). |
-| No ruined buildings at all | Set `ruinChance` to `0`. |
-| Specific blocks to survive | Add them to the `lostcities:notbreakable` tag. That protects the blocks, not the building. |
+| A specific landmark left intact | Place it through a [Predefined City](../reference/predefined.md) and set `preventruins: true` on that entry. The only per-building exemption in the mod [game test](../examples/claim-tests.md#pre-3){.v .v-g} |
+| Fewer ruined buildings everywhere | Lower `ruinChance` in the [Profile](../reference/profile.md) |
+| No ruined buildings at all | Set `ruinChance` to `0` |
+| Specific blocks to survive | Add them to the `lostcities:notbreakable` tag. That protects the blocks, not the building [code review](../examples/claim-tests.md#dmg-1){.v .v-c} |
+[code review](../examples/claim-tests.md#dmg-3){.v .v-c}
 
 !!! note "Ruin chance is profile-wide and cannot vary by city style"
-    A city style can override `explosionchance`, but there is no city style key for ruin chance. So you cannot make one district ruined and another pristine through city styles. The only per-place control is a predefined city.
+    A city style can override `explosionchance`, and there is no city style key for ruin chance, so one district cannot be ruined while another stays pristine through city styles. A predefined city is the only per-place control. [code review](../examples/claim-tests.md#dmg-4){.v .v-c}
 
-    This asymmetry is easy to miss, because explosions and ruins are otherwise described together and run in the same phase.
+    The asymmetry is easy to miss, because the two are usually described together even though they run in different phases. [code review](../examples/claim-tests.md#pipe-2){.v .v-c}
 
 ## See also
 
 - [Profile Reference](../reference/profile.md#explosions) for every key named above
 - [Palette Reference](../reference/palette.md) for the `damaged` key and block tags
-- [The Generation Pipeline](generation-pipeline.md)
+- [The Generation Pipeline](generation-pipeline.md) <!-- noclaim -->

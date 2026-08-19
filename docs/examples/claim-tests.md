@@ -282,6 +282,106 @@ load order.
 `FMLCommonSetupEvent`, and `LostCityFeature`. Nothing on the `/reload` path
 touches either.
 
+### Generation order, damage and ruins
+
+Source pages: [The Generation Pipeline](../under-the-hood/generation-pipeline.md),
+[Damage, Ruins & Explosions](../under-the-hood/damage-and-ruins.md),
+[How a Chunk Becomes a City](../under-the-hood/city-generation.md).
+
+#### PIPE-1 The per-chunk order of operations { #pipe-1 }
+
+**Code review.** Read off `LostCityTerrainFeature`'s entry point and the methods it
+calls in sequence. The order is structure avoidance, city or non-city, sphere centre
+piece, railways and rail dungeons, torch fixup, damage and debris, flush.
+
+#### PIPE-2 Ruins run inside the city-chunk pass, explosions run after it { #pipe-2 }
+
+**Code review.** The city-chunk branch calls, in this order, `generateBuilding`,
+`generateStreet`, `generateRuins`, the highway levels, `generateStreetDecorations`,
+`generateHighways`, `generateRubble`, `generateStuff`. Explosion damage and debris
+are applied later, in the top-level chunk pass, after the torch fixup.
+
+Anything called after `generateRuins` therefore lands on an already-ruined building
+and is not itself ruined. Explosion damage, being later still, reaches all of it.
+
+#### PIPE-3 A part's air is resolved by the caller, not the part { #pipe-3 }
+
+**Code review.** Parts carry a placeholder for empty space rather than plain air.
+What it becomes, real air, water or nothing, is decided by the system placing the
+part and the current Y against the world's water level. That is why one basement
+floods below sea level and another does not, with no difference in their JSON.
+
+#### CITY-1 A chunk's decisions are made once and written into blocks { #city-1 }
+
+**Code review.** Minecraft asks a chunk generator for a given chunk once, and
+`LostCityTerrainFeature` resolves city membership, building choice, floor count and
+city style during that call, then writes blocks. Nothing re-reads the profile for an
+existing chunk, and the mod registers no reload listener. See [NS-10](#ns-10).
+
+#### CITY-2 Two city-placement modes, chosen by the sign of `cityChance` { #city-2 }
+
+**Code review.** `City.getCityFactor` branches on `cityChance` being negative. At
+zero or above it sums a fading factor from every nearby centre and compares the sum
+against `cityThreshold`, which is why overlapping radii merge cities. At `-1` it
+reads a four-octave Perlin key instead and gates that with the same threshold.
+`citySpawnDistance1` and `2` scale the result near spawn in both modes.
+
+#### CITY-3 City level comes from terrain height, and feeds the floor count { #city-3 }
+
+**Code review.** The eight `cityLevel0Height` to `cityLevel7Height` thresholds are
+compared against the chunk's real terrain height to produce a level from 0 to 7,
+which enters the floor-count formula as `cityFactor`.
+
+#### CITY-4 Sphere candidates sit on a bitmasked grid, and monorails need both sides { #city-4 }
+
+**Code review.** A chunk is a sphere candidate when `chunkX & 15` and `chunkZ & 15`
+both equal 8, one every 16 chunks offset to mid-grid, or `& 31` under `grid32`.
+Overlapping spheres disable the smaller. Each sphere rolls per direction whether it
+wants a monorail, and the line is generated only where both sides rolled true, so
+`monorailChance` is a per-sphere want rather than a per-pair guarantee.
+
+#### CITY-5 Highway lines come from two noise keys and a power-of-two mask { #city-5 }
+
+**Code review.** One Perlin key per axis, shaped by `highwayMainPerlinScale`,
+`highwaySecondaryPerlinScale` and `highwayPerlinFactor`. `highwayDistanceMask` is
+applied as a bitmask, so only a power of two minus one behaves as intended. A line
+needs to be at least 5 chunks long and to touch two cities unless
+`highwayRequiresTwoCities` is off.
+
+#### CITY-6 Multi-building placement is greedy, per area cell, and style-weighted { #city-6 }
+
+**Code review.** Each `multisettings.areasize` cell rolls a count and places largest
+first, where largest is `dimx + dimz` rather than area. `correctstylefactor`,
+default `0.8`, rejects a placement whose chunk city style does not match closely
+enough.
+
+#### DMG-1 Two block tags decide what survives damage { #dmg-1 }
+
+**Code review.** `lostcities:notbreakable` never breaks, and ships with bedrock,
+end portal, end portal frame and end gateway. `lostcities:easybreakable` breaks more
+readily and ships with `forge:glass`. An untagged block rolls on distance from the
+blast centre and its strength.
+
+#### DMG-2 `debrisToNearbyChunkFactor` is inverse { #dmg-2 }
+
+**Code review.** A higher value produces **less** spillover into neighbouring
+chunks, not more. Rubble outside the chunk that rolled the explosion is expected.
+
+#### DMG-3 Nothing exempts an ordinary building from the ruin pass { #dmg-3 }
+
+**Code review.** No Building key protects against ruins: not `preventruins`, not
+`noruin`, and nothing under another name. The only per-building exemption in the mod
+is `preventruins` on an entry of a predefined city.
+
+**Game test.** Under `ruinChance: 1.0`, the unprotected copy of a building kept 1767
+wall blocks against 2224 on the protected copy. See [PRE-3](#pre-3).
+
+#### DMG-4 Ruin chance is profile-wide { #dmg-4 }
+
+**Code review.** A city style can override `explosionchance`. There is no city style
+key for ruin chance, so one district cannot be ruined while another stays pristine
+through city styles alone. A predefined city is the only per-place control.
+
 ### Version and key availability
 
 Source pages: [Key availability](../versions/key-availability.md),
