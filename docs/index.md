@@ -55,7 +55,7 @@ neither**, which is why several pages here disagree with them. <!-- noclaim -->
 fails, a chip pointing at a register entry that does not exist fails, and a claim
 cited as unverified on one page and verified on another fails. <!-- noclaim -->
 
-Two rules follow, and both are in [STYLE.md](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/blob/main/STYLE.md): <!-- noclaim -->
+Two rules follow from that, and this site is written to both: <!-- noclaim -->
 
 - A claim checked on one version is not restated as true of all versions.
 - The mod's own code is the authority on what happens, and the mod's documentation

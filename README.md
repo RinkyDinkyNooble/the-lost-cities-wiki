@@ -62,7 +62,6 @@ The [Versions](https://rinkydinkynooble.github.io/the-lost-cities-wiki/versions/
 | `docs/examples/mod-keys.json` | The mod's real codec and profile keys, extracted from the jars |
 | `docs/examples/json5-test/` | Three packs that build the same city, for testing the DevTool |
 | `mod/` | The Lost Cities - DevTool, source and listing copy |
-| `STYLE.md` | Writing rules |
 | `CONTRIBUTING.md` | How to report or send a correction |
 
 ## Running it locally
@@ -112,7 +111,7 @@ Adding a probe for something the wiki asserts and nobody has run is the most use
 
 Corrections are welcome, especially ones backed by something you observed. State **what you observed** and **which mod version**. You do not need to work out why.
 
-See [CONTRIBUTING.md](CONTRIBUTING.md), and [STYLE.md](STYLE.md) before writing prose.
+There is no style guide to read and no house voice to match. Send the fact roughly worded and it will be edited before it merges. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Licence
 

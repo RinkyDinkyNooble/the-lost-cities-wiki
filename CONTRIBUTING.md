@@ -56,25 +56,18 @@ separate things:
 If you add a key to a reference table, it has to exist in the mod. That is the
 point.
 
-## Writing
+## Wording is not your problem
 
-Read [STYLE.md](STYLE.md) first. The wiki uses one approved term per concept and a
-deliberately plain register, so a correct change written in a different voice still
-needs rewriting before it can be merged. Sending the fact and letting a maintainer
-word it is completely fine.
+There is no style guide to read. The wiki is written in a narrow, deliberately plain
+register, and keeping it that way is the maintainer's job, not yours.
 
-Four rules that catch most first drafts:
+Send the fact in whatever words come out. A correction that is right and roughly
+worded is worth more than one that never gets sent because matching a house voice
+looked like work. It will be edited before it merges, and that is not a criticism of
+how you wrote it.
 
-- **No em dashes.** Use a full stop, a colon, or brackets.
-- **Say what a value does, not what a key is called.** A table cell that only names
-  the topic is treated as a defect. `avoidWater` is not "replace water with air", it
-  is "if `true`, any liquid a part places becomes air instead, and water already in
-  the world is not affected".
-- **Write about the mod, not about the work.** No `I` or `we`, and no account of how
-  a fact was found. "`belowpart` tests the current part. Confirmed on 7.4.12" rather
-  than "a test was run and it turned out to be broken".
-- **No roadmap.** Nothing about what is planned, being built, or coming soon. If a
-  page covers less than its title suggests, state the scope.
+The only thing that gets a change rejected on content is the rule above: a claim with
+nothing behind it.
 
 ## Testing a claim in a world
 
