@@ -10,8 +10,8 @@ claims: verified
 !!! note "Some keys here do not exist on every version"
     `rotatable`, `nearhighway`, `feather`, `minSpawnDistance` and `maxSpawnDistance` arrived in 7.4.12 and are absent in 8.2.2. `allowvoid` arrived in 7.4.12 and is present in 8.2.2. `supportpart` and `clearhighwayrailing` need 7.5.1. See [Key availability](../versions/key-availability.md). [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 
-!!! info "None of this has been placed in a world"
-    Scattered buildings are documented from their codec and from the generation code that reads them. Nothing on this page has been generated on the rig. [unverified](../examples/claim-tests.md#ref-3){.v .v-u}
+!!! info "Placement is tested, the rest of the keys are not"
+    Scattered structures have been generated on the rig and they appear where the area grid says they should. `terrainheight: average` and `terrainfix: clear` are covered by that run. The other `terrainheight` and `terrainfix` values, `nearhighway`, `allowvoid` and `maxheightdiff` as a filter are read from the code and have not been run. [game test](../examples/claim-tests.md#sct-1){.v .v-g}
 
 ## Keys
 

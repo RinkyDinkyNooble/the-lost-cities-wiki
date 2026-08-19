@@ -1,0 +1,21 @@
+{
+  "outsidestyle": "outside",
+  "citystyles": [
+    {
+      "factor": 1.0,
+      "citystyle": "nssc:test"
+    }
+  ],
+  "scattered": {
+    "areasize": 1,
+    "chance": 1.0,
+    "weightnone": 0,
+    "list": [
+      {
+        "name": "nssc:sc_tower",
+        "weight": 1,
+        "maxheightdiff": 250
+      }
+    ]
+  }
+}

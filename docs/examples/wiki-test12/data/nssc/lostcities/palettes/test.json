@@ -1,0 +1,16 @@
+{
+  "palette": [
+    {
+      "char": "_",
+      "block": "minecraft:air"
+    },
+    {
+      "char": "#",
+      "block": "minecraft:white_concrete"
+    },
+    {
+      "char": "G",
+      "block": "minecraft:gold_block"
+    }
+  ]
+}

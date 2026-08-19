@@ -1,0 +1,12 @@
+{
+  "inherit": "citystyle_common",
+  "style": "standard",
+  "selectors": {
+    "buildings": [
+      {
+        "factor": 1.0,
+        "value": "nssc:sc_tower"
+      }
+    ]
+  }
+}

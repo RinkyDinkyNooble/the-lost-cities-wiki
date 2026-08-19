@@ -1,0 +1,8 @@
+{
+  "buildings": [
+    "nssc:sc_tower"
+  ],
+  "terrainheight": "average",
+  "terrainfix": "clear",
+  "heightoffset": 0
+}

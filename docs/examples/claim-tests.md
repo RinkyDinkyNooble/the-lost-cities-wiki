@@ -392,6 +392,34 @@ block.
 the pack's palette, `inbuilding: true`, `attempts: 30` and counts of 4 to 9, placed
 5 iron blocks inside the building. Nothing else in the pack uses `I`.
 
+#### SCT-1 Scattered structures generate, one per area cell { #sct-1 }
+
+**Game test.** Pack `docs/examples/wiki-test12/`, namespace `nssc`, profile
+`wttwelve`. No city anywhere: `cityChance` is `0.0` and nothing is pinned, so every
+chunk is open ground and anything that appears came from the scattered pass.
+
+```bash
+python harness.py --pack ../../docs/examples/wiki-test12 --profile wttwelve --probes probes/wt12.json
+```
+
+The world style's `scattered` block is tuned to remove the randomness rather than
+fight it:
+
+```json
+{ "areasize": 1, "chance": 1.0, "weightnone": 0,
+  "list": [{ "name": "nssc:sc_tower", "weight": 1, "maxheightdiff": 250 }] }
+```
+
+`areasize: 1` makes every chunk its own area, `chance: 1.0` makes every area place
+something, and `weightnone: 0` takes "nothing" out of the draw. Chunks 8,8, 10,10
+and 12,12 each held 512 gold blocks, the full footprint of the structure, with no
+failed chunks.
+
+That covers placement, `terrainheight: average` and `terrainfix: clear`. The other
+`terrainheight` and `terrainfix` values, `nearhighway`, `allowvoid`,
+`maxheightdiff` as a filter, and `rotatable` being inert are still only read from
+the code.
+
 #### LW-1 Lost Cities adapts to terrain, it does not generate it { #lw-1 }
 
 **Code review.** The mod ships no chunk generator class. Its own dimension is
@@ -855,6 +883,7 @@ Two, both on [Known Issues](../troubleshooting/known-issues.md) with the evidenc
 | `research/kubejs-test/` | The same assets loaded through `kubejs/data/` instead. Private, it needs mod jars that are not ours to ship | Harness |
 | `research/override-test/` | Two packs claiming one asset, run twice with the files swapped. Private | Harness |
 | `docs/examples/wiki-test11/` | Building fronts, stuff objects, and what a predefined city does not make a city chunk | Harness |
+| `docs/examples/wiki-test12/` | Scattered structures, with the placement randomness tuned out | Harness |
 
 `wiki-test7` supersedes `wiki-test5` and `wiki-test6`, which are earlier builds of
 the same grid kept only because their failures are documented above.
