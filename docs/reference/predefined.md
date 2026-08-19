@@ -73,7 +73,12 @@ Pinning a city is not a hint. The chunk you name becomes a city centre outright.
 | `centerx` / `centerz` | **yes** | The sphere centre, in blocks |
 | `radius` | **yes** | The sphere radius |
 
-Every key on a predefined sphere is required, and there are no optional ones. The sphere half of this page has never been generated, unlike the city half. [code review](../examples/claim-tests.md#ref-1){.v .v-c} [unverified](../examples/claim-tests.md#ref-3){.v .v-u}
+Every key on a predefined sphere is required, and there are no optional ones. [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+
+A sphere pinned at `centerx: 136`, `centerz: 136` with `radius: 40` built its dome exactly there: 513 glass blocks in the centre chunk, where the shell only crosses above and below, 1093 in the chunk just inside the western edge where it stands almost vertical, and none in the chunk beginning at `136 + 40`. [game test](../examples/claim-tests.md#sph-1){.v .v-g}
+
+!!! note "The whole dome is one block, not a mix"
+    A sphere's glass character is resolved **once per sphere**, so a weighted list of four glass types produces a dome of one of them rather than a speckled one. `CitySphere` keeps a single `glassBlock` and the fill uses it throughout. [game test](../examples/claim-tests.md#sph-2){.v .v-g} [code review](../examples/claim-tests.md#sph-2){.v .v-c}
 
 ## Example
 

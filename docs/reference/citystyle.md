@@ -239,7 +239,7 @@ Write yours the same shape. A 16 by 16 front would cover the entire street chunk
 
 ### Selectors accumulate, they do not replace
 
-This surprises nearly everyone. If a parent lists eight buildings and your child lists three, the resulting pool holds **eleven entries**, not three. There is no way to remove or narrow a parent's selector list. You can only add to it. [game test](../examples/claim-tests.md#cty-5){.v .v-g}
+This surprises nearly everyone. If a parent lists eight buildings and your child lists three, the resulting pool holds **eleven entries**, not three. There is no way to remove or narrow a parent's selector list. You can only add to it. [game test](../examples/claim-tests.md#cty-5){.v .v-g} The same catches `fronts`: `citystyle_common` ships three, so adding one of yours leaves a one-in-four draw, and three runs out of four look like your front is being ignored. [game test](../examples/claim-tests.md#frt-3){.v .v-g}
 
 If your three entries name buildings the parent also names, those buildings appear **twice** in the pool. Their effective weight is the sum of both factors, not your value. [game test](../examples/claim-tests.md#cty-5){.v .v-g}
 

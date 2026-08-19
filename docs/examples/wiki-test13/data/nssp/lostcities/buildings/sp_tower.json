@@ -1,0 +1,14 @@
+{
+  "filler": "#",
+  "refpalette": "nssp:test",
+  "minfloors": 1,
+  "maxfloors": 1,
+  "mincellars": 0,
+  "maxcellars": 0,
+  "overrideFloors": true,
+  "parts": [
+    {
+      "part": "nssp:sp_tower"
+    }
+  ]
+}

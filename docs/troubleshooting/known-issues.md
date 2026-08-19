@@ -67,6 +67,16 @@ Nothing to randomize means nothing to stripe. One palette edit, pure JSON. <!-- 
 !!! note "Per-block variety is a code change, not a setting"
     The number of times the palette is sampled per chunk is fixed in the compiled method. The mod already has a `get(char, Random)` overload that would give per-block variation, and the railway code does not call it. Reaching that behaviour requires a Mixin or a patched jar.
 
+## A sphere dome is one block, whatever its palette says
+
+**Status:** working as designed, and the same shape as the rail stripes above. <!-- noclaim -->
+
+A city sphere's glass character is resolved **once per sphere**, not once per block. `CitySphere` keeps a single `glassBlock` field and the fill routine uses it for the whole dome. [code review](../examples/claim-tests.md#sph-2){.v .v-c}
+
+The shipped `Z` character is a weighted list of plain, gray, blue and light blue stained glass. A dome built from it came out entirely gray stained, with none of the other three anywhere. [game test](../examples/claim-tests.md#sph-2){.v .v-g}
+
+**Fix:** none needed if you wanted one colour. If you wanted a mix, there is no way to get it from the palette layer, because the choice is made before any block is placed. [code review](../examples/claim-tests.md#sph-2){.v .v-c}
+
 ## Four keys parse and then do nothing
 
 **Status:** confirmed dead in 7.4.12, found by sweeping every asset accessor for consumers. [code review](../examples/claim-tests.md#ref-2){.v .v-c}

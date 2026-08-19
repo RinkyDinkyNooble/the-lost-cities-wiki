@@ -1,0 +1,14 @@
+{
+  "dimension": "lostcities:lostcity",
+  "chunkx": 8,
+  "chunkz": 8,
+  "radius": 3,
+  "citystyle": "nssp:test",
+  "buildings": [
+    {
+      "building": "nssp:sp_tower",
+      "chunkx": 0,
+      "chunkz": 0
+    }
+  ]
+}

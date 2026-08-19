@@ -1,0 +1,24 @@
+{
+  "lostcity": {
+    "worldStyle": "nssp:test",
+    "landscapeType": "spheres",
+    "ruinChance": 0.0,
+    "generateLoot": false,
+    "buildingMinFloors": 1,
+    "buildingMaxFloors": 1,
+    "buildingMinCellars": 0,
+    "buildingMaxCellars": 0
+  },
+  "cities": {
+    "cityChance": 0.0
+  },
+  "explosions": {
+    "explosionChance": 0.0,
+    "miniExplosionChance": 0.0
+  },
+  "cityspheres": {
+    "onlyPredefined": true,
+    "outsideProfile": "wtsphout",
+    "citySphereChance": 0.0
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "public": false,
+  "lostcity": {
+    "worldStyle": "nssp:test",
+    "landscapeType": "spheres",
+    "ruinChance": 0.0,
+    "generateLoot": false
+  },
+  "cities": {
+    "cityChance": 0.0
+  },
+  "explosions": {
+    "explosionChance": 0.0,
+    "miniExplosionChance": 0.0
+  }
+}

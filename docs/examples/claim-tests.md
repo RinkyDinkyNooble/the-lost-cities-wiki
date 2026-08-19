@@ -392,6 +392,49 @@ block.
 the pack's palette, `inbuilding: true`, `attempts: 30` and counts of 4 to 9, placed
 5 iron blocks inside the building. Nothing else in the pack uses `I`.
 
+#### SPH-1 A predefined sphere generates its dome where it is pinned { #sph-1 }
+
+**Game test.** Pack `docs/examples/wiki-test13/`, namespace `nssp`, profile
+`wtthirteen` with `landscapeType: spheres`, `onlyPredefined: true` and
+`citySphereChance: 0.0`, so nothing random can appear beside it. The sphere is
+pinned at `centerx: 136`, `centerz: 136`, `radius: 40`.
+
+```bash
+python harness.py --pack ../../docs/examples/wiki-test13 --profile wtthirteen --probes probes/wt13.json
+```
+
+Glass counted per chunk, and the pattern is the dome:
+
+| Chunk | Blocks | Glass | Why |
+|---|---|---|---|
+| 8,8 | 128 to 143 | 513 | The centre. The shell only crosses it above and below |
+| 6,8 | 96 to 111 | 1093 | Just inside the western edge, where the shell stands almost vertical |
+| 11,8 | 176 to 191 | 0 | Starts exactly at the eastern edge, 136 + 40 |
+| 8,11 | z 176 to 191 | 0 | The same on the other axis |
+
+The city pinned at the same spot generated inside it, 1024 blocks. No failed
+chunks and no crash, which is worth saying because a sphere landscape has no
+per-chunk catch. See [FAIL-5](#fail-5).
+
+`onlyPredefined` and `outsideProfile` are covered by that run. Random sphere
+placement, the grid mask, `centerpart`, and monorails between spheres are not.
+
+#### SPH-2 A sphere's glass is one block for the whole dome { #sph-2 }
+
+**Game test.** The shipped `Z` character is a weighted list of four glass types:
+plain, gray stained, blue stained and light blue stained. Every glass block in the
+dome came back `minecraft:gray_stained_glass`, in both chunks that held any, and
+the other three types were absent everywhere.
+
+**Code review.** `CitySphere` holds `private BlockState glassBlock`, one field, set
+once through `setBlocks(glass, base, side)`. `Spheres.fillSphere` is handed that
+single state and uses it for the whole dome. The character is resolved once per
+sphere rather than once per block, so a weighted list gives a dome of one colour
+instead of a speckled one.
+
+This is the same shape of surprise as [the rail stripes](../troubleshooting/known-issues.md#railways-come-out-in-flat-16-block-colour-strips),
+where `railmain` resolves once per chunk.
+
 #### SCT-1 Scattered structures generate, one per area cell { #sct-1 }
 
 **Game test.** Pack `docs/examples/wiki-test12/`, namespace `nssc`, profile
@@ -625,6 +668,24 @@ is the opposite direction from [KEY-2](#key-2) and the two are often confused: a
 Some claims are made the same way on many pages. Rather than repeat the evidence,
 those pages cite one of these.
 
+#### NEO-1 The NeoForge line cannot be run on this rig { #neo-1 }
+
+**Unverified, and deliberately.** The rig is Forge 47.4.10 on Minecraft 1.20.1.
+Every version from 8.2.2 onward needs NeoForge and Minecraft 1.21 or later, which
+is a different loader and a different Minecraft, so nothing on that line can be
+generated here without a second rig.
+
+What **is** checked for those versions is the configuration and datapack surface:
+key names, types, defaults, bounds, and required-or-optional status, all extracted
+from each jar and compared on every build. See [KEY-1](#key-1) and [REF-1](#ref-1).
+
+What is not checked is whether the generator behaves the same way once those keys
+are read. It should, because the surface matches and the generator classes carry
+the same names, and no run has confirmed it.
+
+This is the one gap on the site that a pack cannot close. Closing it needs a
+NeoForge server on Minecraft 1.21 or later.
+
 #### REF-1 The key tables match the codecs, and a build says so { #ref-1 }
 
 **Code review.** `docs/examples/mod-keys.json` holds the key set of every codec and
@@ -648,6 +709,10 @@ that jar.
 **Unverified.** Neither a run nor a reading covers this. It is written from the
 mod's own documentation, the official wiki, or inference from surrounding code,
 none of which count. Treat it as the least reliable material on the site.
+
+Almost nothing sits here now. The entry stays because it is the honest home for a
+claim that arrives without evidence, and because the home page cites it to show
+what an unverified chip looks like.
 
 ### How it all connects
 
@@ -701,15 +766,8 @@ profile key. See [CFG-6](#cfg-6).
 
 #### HIC-5 Non-default landscape types need Lost Worlds { #hic-5 }
 
-**Unverified.** The landscape types are read and acted on by Lost Cities, and the
-profiles that use them carry comments recommending a matching Lost Worlds world
-type, but no run has been made with and without Lost Worlds to show what a
-`floating` or `cavern` profile does on its own. Lost Worlds is not on the rig.
-
-### Configuration
-
-Source page: [Configuration Reference](../reference/config.md). Evidence is the
-rig's own config files, which a real server wrote, plus `mcjty.lostcities.setup.Config`.
+**Superseded by [LW-1](#lw-1)**, which settles the same question from the code
+rather than leaving it open. The entry stays so older links still land somewhere.
 
 #### CFG-1 Settings are split across three files, one of them per world { #cfg-1 }
 
@@ -884,6 +942,7 @@ Two, both on [Known Issues](../troubleshooting/known-issues.md) with the evidenc
 | `research/override-test/` | Two packs claiming one asset, run twice with the files swapped. Private | Harness |
 | `docs/examples/wiki-test11/` | Building fronts, stuff objects, and what a predefined city does not make a city chunk | Harness |
 | `docs/examples/wiki-test12/` | Scattered structures, with the placement randomness tuned out | Harness |
+| `docs/examples/wiki-test13/` | A predefined sphere, and what its glass character resolves to | Harness |
 
 `wiki-test7` supersedes `wiki-test5` and `wiki-test6`, which are earlier builds of
 the same grid kept only because their failures are documented above.

@@ -24,7 +24,7 @@ does not say. <!-- noclaim -->
     Runtime behaviour on the NeoForge line has **not** been run in a world. The
     behaviour pages here are written against 7.4.12 and confirmed on 7.5.1, both on
     Forge. They should carry over, because the surface matches and the generator
-    classes are the same, and nothing has tested that. [unverified](../examples/claim-tests.md#ref-3){.v .v-u}
+    classes are the same, and nothing has tested that. [unverified](../examples/claim-tests.md#neo-1){.v .v-u}
 
 ## The versions
 
@@ -52,7 +52,7 @@ so this claim fails the CI gate if it stops being true. [code review](../example
 
 Read this wiki, then [What changed in 7.5](7-5.md), and the picture is complete.
 The hierarchical road system and its 29 profile keys are declared the same way
-here. [code review](../examples/claim-tests.md#key-1){.v .v-c} [unverified](../examples/claim-tests.md#ref-3){.v .v-u}
+here. [code review](../examples/claim-tests.md#key-1){.v .v-c} [unverified](../examples/claim-tests.md#neo-1){.v .v-u}
 
 ### The one internal rename
 
