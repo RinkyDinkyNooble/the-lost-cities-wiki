@@ -282,6 +282,48 @@ load order.
 `FMLCommonSetupEvent`, and `LostCityFeature`. Nothing on the `/reload` path
 touches either.
 
+### Version and key availability
+
+Source pages: [Key availability](../versions/key-availability.md),
+[What changed in 7.5](../versions/7-5.md), [Which version do I have](../versions/index.md),
+[The file-asset era](../versions/legacy.md), [The NeoForge line](../versions/neoforge.md).
+
+#### KEY-1 The key sets come from disassembling each jar { #key-1 }
+
+**Code review.** Every version's asset codecs were disassembled and each
+`fieldOf` and `optionalFieldOf` call read for the key name it registers. The sets
+were then compared. No release notes were used. The result is
+`docs/examples/mod-keys.json`, which `validate.py` checks the reference pages
+against on every build. See [REF-1](#ref-1).
+
+#### KEY-2 An unknown key is ignored, not rejected { #key-2 }
+
+**Game test.** The control building in `wiki-test10`, known to generate 512 gold
+blocks, was given two extra keys: `thiskeydoesnotexist`, which no version declares,
+and `supportpart`, which is real but arrives in 7.5.1. Run on 7.4.12 the building
+generated exactly as before, 512 blocks, and the pack's other three results were
+unchanged.
+
+```json
+{ "filler": "#", "refpalette": "nstest:test", "...": "...",
+  "thiskeydoesnotexist": true, "supportpart": "nstest:ns_gold" }
+```
+
+**Code review.** These codecs are `RecordCodecBuilder` maps, which read the fields
+they declare and pass over the rest. Nothing in the mod checks for unexpected keys.
+
+An earlier version of the key availability page said an unknown key made the whole
+file fail to parse. It does not. The real cost of writing a newer key on an older
+version is that the key does nothing, quietly, which is harder to notice than a
+parse error would be.
+
+#### KEY-3 A missing required key does fail the file { #key-3 }
+
+**Code review.** A key registered with `fieldOf` rather than `optionalFieldOf`
+produces a decode error when absent, and the registry loader drops the entry. This
+is the opposite direction from [KEY-2](#key-2) and the two are often confused: an
+**extra** key is ignored, a **missing required** key is fatal.
+
 ### Whole-page entries
 
 Some claims are made the same way on many pages. Rather than repeat the evidence,

@@ -1,45 +1,51 @@
+---
+claims: verified
+---
+
 # Key availability
 
 This wiki documents the 224 datapack keys that exist in 7.4.12. **158 of them exist
-in every datapack-era version.** The other 66 do not.
+in every datapack-era version.** The other 66 do not. [code review](../examples/claim-tests.md#key-1){.v .v-c}
 
-If you write a file against this wiki and run it on a different version, a key that
-does not exist there is what breaks first. This page lists exactly which keys those
-are.
-
-Use it when a file that matches the reference pages fails to load anyway.
+Write a file against this wiki, run it on a different version, and a key that does
+not exist there is what changes the result. This page lists which keys those are. [code review](../examples/claim-tests.md#key-1){.v .v-c}
 
 !!! note "This covers the datapack era only"
     Versions before 5.3.29 have no datapack keys at all. See
-    [The file-asset era](legacy.md).
+    [The file-asset era](legacy.md). [code review](../examples/claim-tests.md#key-1){.v .v-c}
 
 ## What happens when a key does not exist
 
-The codec rejects the whole file. The asset does not load. The behaviour depends on
-whether the key was required:
+**Nothing visible.** The key is ignored and the rest of the file loads normally. [game test](../examples/claim-tests.md#key-2){.v .v-g}
 
 | Situation | Result |
 |---|---|
-| An optional key the version does not know | The file fails to parse. An unknown key is not ignored. |
-| A required key the version does not know | The same failure. |
+| A key this version does not know | Ignored. The file loads, the asset works, and the behaviour that key would have controlled is simply absent [game test](../examples/claim-tests.md#key-2){.v .v-g} |
+| A **required** key that is missing | The file fails to decode and the asset does not load at all [code review](../examples/claim-tests.md#key-3){.v .v-c} |
 
-See [Error Messages](../troubleshooting/errors.md) for the text you will see.
+Those two are easy to confuse and they fail in opposite directions. An extra key
+costs nothing at load and everything at generation, because the behaviour it asked
+for never happens and no message says so. A missing required key is loud. [game test](../examples/claim-tests.md#key-2){.v .v-g} [code review](../examples/claim-tests.md#key-3){.v .v-c}
+
+!!! danger "This is why the running version is worth checking first"
+    A datapack written for 7.4.12 loads without complaint on 6.0.3. It quietly stops
+    doing 44 things. See [Error Messages](../troubleshooting/errors.md) for the
+    failures that do produce text. [game test](../examples/claim-tests.md#key-2){.v .v-g}
 
 ## Version numbers are not ordered across Minecraft branches
 
-Before reading the groups below, know this: **6.2.2 has keys that 6.2.3 does not.**
+**6.2.2 has keys that 6.2.3 does not.** [code review](../examples/claim-tests.md#key-1){.v .v-c}
 
 The two were built on different Minecraft branches, 6.2.2 for Minecraft 1.19 and
-6.2.3 for Minecraft 1.19.4. A higher mod version does not imply a newer feature set
-unless both are on the same branch. The same is true of 8.2.2 against 7.5.1.
+6.2.3 for Minecraft 1.19.4. A higher mod version implies a newer feature set only
+when both sit on the same branch. The same holds for 8.2.2 against 7.5.1. [code review](../examples/claim-tests.md#key-1){.v .v-c}
 
 ## Group 1: added in 6.2.2
 
 Absent in 5.3.29, 6.0.3, 6.1.6 and 6.2.3. Present in 6.2.2, 7.4.12 and later.
+26 keys, including the entire **stuff object** asset. [code review](../examples/claim-tests.md#key-1){.v .v-c}
 
-26 keys. This group includes the entire **stuff object** asset.
-
-| Wiki page | Keys |
+| Wiki page [code review](../examples/claim-tests.md#key-1){.v .v-c} | Keys |
 |---|---|
 | [Stuff Object](../reference/stuff.md) | `attempts`, `biomes`, `blocks`, `buildings`, `column`, `inbuilding`, `maxcount`, `maxheight`, `mincount`, `minheight`, `seesky`, `tags`, `upperblocks` |
 | [City Style](../reference/citystyle.md) | `stuff_tags` |
@@ -49,20 +55,18 @@ Absent in 5.3.29, 6.0.3, 6.1.6 and 6.2.3. Present in 6.2.2, 7.4.12 and later.
 
 !!! warning "The stuff object does not exist before 6.2.2"
     Every key of the asset is in this group. On 5.3.29, 6.0.3, 6.1.6 or 6.2.3 the
-    asset type itself is unavailable, not merely reduced.
+    asset type itself is unavailable, not merely reduced. [code review](../examples/claim-tests.md#key-1){.v .v-c}
 
-    The block matcher goes with it. All 3 of its keys arrive in 6.2.2, because the
-    stuff object is what introduced it.
+    The block matcher goes with it. All three of its keys arrive in 6.2.2, because
+    the stuff object is what introduced it. [code review](../examples/claim-tests.md#key-1){.v .v-c}
 
 ## Group 2: added in 7.4.12
 
 Absent in every 5.x and 6.x version, and also absent in **8.2.2**. Present in
-7.4.12, 7.5.1, 8.4.1 and later.
+7.4.12, 7.5.1, 8.4.1 and later. 23 keys, and the group that catches an upgrade to
+8.2.2, whose version number looks newer than 7.4.12 while its feature set is older. [code review](../examples/claim-tests.md#key-1){.v .v-c}
 
-23 keys. This is the group that catches an upgrade to 8.2.2, whose version number
-looks newer than 7.4.12 but whose feature set is older.
-
-| Wiki page | Keys |
+| Wiki page [code review](../examples/claim-tests.md#key-1){.v .v-c} | Keys |
 |---|---|
 | [Building](../reference/building.md) | `overrideFloors` |
 | [Building](../reference/building.md), part reference | `belowpart` |
@@ -78,11 +82,10 @@ looks newer than 7.4.12 but whose feature set is older.
 ## Group 3: missing in 6.0.3 only
 
 Present in 5.3.29, then absent in 6.0.3, then present again from 6.1.6 onward.
+16 keys. 6.0.3 is the thinnest version in the datapack era, with 180 keys against
+the 224 of 7.4.12. [code review](../examples/claim-tests.md#key-1){.v .v-c}
 
-16 keys. 6.0.3 is the weakest version in the datapack era, with 180 keys against
-7.4.12's 224.
-
-| Wiki page | Keys |
+| Wiki page [code review](../examples/claim-tests.md#key-1){.v .v-c} | Keys |
 |---|---|
 | [Building](../reference/building.md) | `allowDoors`, `allowFillers` |
 | [Palette](../reference/palette.md) | `tag` |
@@ -92,21 +95,21 @@ Present in 5.3.29, then absent in 6.0.3, then present again from 6.1.6 onward.
 
 ## Group 4: added in 7.4.12, present in 8.2.2
 
-1 key. Absent in every 5.x and 6.x version.
+1 key. Absent in every 5.x and 6.x version. [code review](../examples/claim-tests.md#key-1){.v .v-c}
 
-| Wiki page | Key |
+| Wiki page [code review](../examples/claim-tests.md#key-1){.v .v-c} | Key |
 |---|---|
 | [Scattered Building](../reference/scattered.md) | `allowvoid` |
 
 ## Keys added after 7.4.12
 
-Version 7.5.1 adds 7 keys that 7.4.12 does not have. If you are reading this wiki
-and running 7.4.12, they do not exist for you. See
-[What changed in 7.5](7-5.md#new-datapack-keys).
+Version 7.5.1 adds 7 keys that 7.4.12 does not have. On 7.4.12 they do not exist,
+and writing one is ignored rather than reported. See
+[What changed in 7.5](7-5.md#new-datapack-keys). [code review](../examples/claim-tests.md#key-1){.v .v-c} [game test](../examples/claim-tests.md#key-2){.v .v-g}
 
 ## Summary by version
 
-| Version | Datapack keys | Groups it lacks |
+| Version [code review](../examples/claim-tests.md#key-1){.v .v-c} | Datapack keys | Groups it lacks |
 |---|---|---|
 | 5.3.29 | 196 | 1, 2, 4 |
 | 6.0.3 | 180 | 1, 2, 3, 4 |
@@ -120,6 +123,6 @@ and running 7.4.12, they do not exist for you. See
 
 ## How this was checked
 
-Each version's asset codecs were disassembled, and every `fieldOf` and
-`optionalFieldOf` call was read to get the key name it registers. The sets were
-then compared. No release notes were used.
+Each version's asset codecs were disassembled and every `fieldOf` and
+`optionalFieldOf` call read for the key name it registers, then the sets were
+compared. No release notes were used. [code review](../examples/claim-tests.md#key-1){.v .v-c}

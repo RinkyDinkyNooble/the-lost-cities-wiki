@@ -190,7 +190,10 @@ def check_page(path: Path, known: set[str],
 
 def main() -> int:
     known = anchors_in_register()
-    targets = [Path(a) for a in sys.argv[1:]] or sorted(DOCS.rglob("*.md"))
+    # Resolve, so a path given relative to the working directory still lands
+    # inside DOCS when the report prints it.
+    targets = ([Path(a).resolve() for a in sys.argv[1:]]
+               or sorted(DOCS.rglob("*.md")))
 
     opted, total = [], 0
     for path in targets:
