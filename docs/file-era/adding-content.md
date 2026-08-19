@@ -5,7 +5,7 @@ claims: verified
 # Adding Your Own Content
 
 !!! tip "TL;DR"
-    Write your assets into `config/lostcities/userassets.json`, which the mod already loads and loads **last**. Anything you define there with the same type and name as something the mod ships replaces it. [code review](../examples/claim-tests.md#f12-3){.v .v-c} [code review](../examples/claim-tests.md#f12-4){.v .v-c}
+    Write your assets into `config/lostcities/userassets.json`, which the mod already loads and loads **last**. Anything you define there with the same type and name as something the mod ships replaces it. A file holding a palette, parts, buildings, a city style, a world style and a pinned city generated all of it on a real 1.12.2 server. [game test](../examples/claim-tests.md#f12-9){.v .v-g}
 
 ## The load list
 
@@ -73,6 +73,24 @@ Each asset is stored under its name, and a later load of the same name replaces 
 The replacement is the **whole asset**, not a merge of keys, so an override has to restate everything the original held that you still want. [code review](../examples/claim-tests.md#f12-4){.v .v-c}
 
 That is the entire override mechanism. There is no namespace to avoid a collision with and no pack ordering, only position in one config list. [code review](../examples/claim-tests.md#f12-4){.v .v-c}
+
+## Turning a world into a Lost Cities world
+
+Two settings, and both are needed. The mod registers a **world type** called
+`lostcities`, and a profile only takes effect on a world of that type. [game test](../examples/claim-tests.md#f12-9){.v .v-g}
+
+| Where | Setting | Does |
+|---|---|---|
+| `server.properties`, or the world creation screen | `level-type=lostcities` | Makes the world a Lost Cities world at all |
+| `general.cfg` | `defaultProfile=<name>` | Says which profile that world uses |
+| `general.cfg` | `additionalDimensions` | Wires a **separate** dimension instead, `<numeric id>:<profile>` |
+[game test](../examples/claim-tests.md#f12-9){.v .v-g}
+
+Setting `defaultProfile` on its own does nothing visible. The world stays ordinary
+terrain, because nothing told it to use the Lost Cities generator. [game test](../examples/claim-tests.md#f12-9){.v .v-g}
+
+The mod also ships its own dimension, id **111** by default in `dimensionId`, with
+`dimensionProfile` choosing its profile. [game test](../examples/claim-tests.md#f12-8){.v .v-g}
 
 ## Config, and one file per profile
 

@@ -7,10 +7,10 @@ claims: verified
 !!! tip "TL;DR"
     Lost Cities 1.0.1 through 5.0.4 does not read datapacks. Content lives in a few combined JSON files inside the jar, you add your own through one `userassets.json`, and the config is Forge's old `.cfg`. Minecraft 1.12.2 is the popular version in this era. [code review](../examples/claim-tests.md#f12-1){.v .v-c}
 
-The rest of this wiki documents the datapack system, which arrived in 5.3.29. On an earlier build none of those files are ever read. These three pages cover what the system was instead. [code review](../examples/claim-tests.md#f12-1){.v .v-c}
+The rest of this wiki documents the datapack system, which arrived in 5.3.29. On an earlier build none of those files are ever read. These four pages cover what the system was instead. [code review](../examples/claim-tests.md#f12-1){.v .v-c}
 
-!!! info "Read from the jar, not yet run"
-    Everything here comes from `lostcities-1.12-2.0.22.jar`, the newest build for Minecraft 1.12.2. None of it has been generated in a world. Forge 1.12.2 boots through LaunchWrapper, which needs the system class loader to be a `URLClassLoader`, and Java 9 stopped making it one, so the rig waits on a Java 8 runtime. Where a page here says a thing happens, it means the code says so. [code review](../examples/claim-tests.md#f12-1){.v .v-c}
+!!! success "Read from the jar, and now run"
+    These pages are written against `lostcities-1.12-2.0.22.jar`, the newest build for Minecraft 1.12.2, on Forge 14.23.5.2859 with a portable Java 8. A `userassets.json` holding a palette, parts, buildings, a city style, a world style and a pinned city generated all of it, so the loading path and the asset format are tested rather than only read. What each individual key does to a world mostly is not. [game test](../examples/claim-tests.md#f12-9){.v .v-g}
 
 ## Which versions
 
@@ -62,8 +62,9 @@ Five datapack types have no file-era equivalent: `variant`, `scattered`, `stuff`
 | Page | Covers |
 |---|---|
 | [File-Era Assets](assets.md) | The ten types, the shape of a file, and what each type holds |
-| [Adding Your Own Content](adding-content.md) | `userassets.json`, the load list, overriding, and the config |
-[code review](../examples/claim-tests.md#f12-2){.v .v-c}
+| [File-Era Profile](profile.md) | All 128 profile keys, with the mod's own descriptions |
+| [Adding Your Own Content](adding-content.md) | `userassets.json`, the load list, overriding, the world type, and the config |
+[code review](../examples/claim-tests.md#f12-2){.v .v-c} [game test](../examples/claim-tests.md#f12-8){.v .v-g}
 
 The reference section of this wiki does **not** apply. Its key tables are read from datapack codecs that do not exist here. Where a key name matches, treat that as a coincidence worth checking rather than a guarantee. [code review](../examples/claim-tests.md#f12-2){.v .v-c}
 

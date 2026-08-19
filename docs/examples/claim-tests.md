@@ -770,6 +770,59 @@ earlier reading that nothing checked. The file a server writes holds 128.
 number rather than a resource location, and `additionalDimensions` takes
 `<numeric id>:<profile>`.
 
+#### F12-9 A userassets.json generates, end to end { #f12-9 }
+
+**Game test.** `research/server-forge-1.12.2-2.0.22/harness12.py`, on the rig from
+[F12-8](#f12-8). One `config/lostcities/userassets.json` holding seven assets of
+five types, none of which the mod ships:
+
+```json
+[ { "type": "palette",   "name": "wt_palette", "...": "..." },
+  { "type": "part",      "name": "wt_gold",    "...": "..." },
+  { "type": "building",  "name": "wt_gold",    "...": "..." },
+  { "type": "citystyle", "name": "wt_style",   "...": "..." },
+  { "type": "worldstyle","name": "wt_world",   "...": "..." },
+  { "type": "city",      "name": "wt_city",    "...": "..." } ]
+```
+
+| Probe | Result |
+|---|---|
+| Gold at chunk 0,0 | First at y=59, **1372 blocks** |
+| Diamond at chunk 2,0 | First at y=53, **1372 blocks** |
+
+Both pinned buildings landed at the chunk offsets the `city` asset gave them, drawn
+from a palette that exists only in `userassets.json`. That exercises the whole
+chain: the config load list, name-based resolution with no namespaces, and the
+`city` type, which the mod ships no example of.
+
+**Three things this took that the pages did not say.**
+
+`level-type=lostcities` in `server.properties`. The mod registers a **world type**
+of that name, and `defaultProfile` only says which profile a Lost Cities overworld
+uses. Without the world type the overworld is ordinary terrain and `defaultProfile`
+does nothing visible.
+
+Two boots. Minecraft 1.12 has no `/forceload`, so a headless server generates only
+the region around world spawn. The first boot exists to `setworldspawn 0 64 0`, and
+the second generates the pinned city inside that region.
+
+`/clone` needs its destination loaded, and with no way to force a chunk the scratch
+area has to sit inside the spawn region too. The 1.20.1 harness parks it 992 blocks
+out, which cannot work here.
+
+#### F12-10 The 1.12 command set cannot run the datapack-era harness { #f12-10 }
+
+**Game test.** Three commands the other rigs depend on do not exist in 1.12:
+
+| 1.20.1 | 1.12.2 |
+|---|---|
+| `/forceload add` | nothing equivalent. Generation follows world spawn |
+| `/execute in <dim> ... if block` | `/testforblock <x> <y> <z> <block>` |
+| `/data get block` | nothing equivalent |
+
+`/clone ... filtered` survives in both and still reports how many blocks it copied,
+which is why counting works the same way on either rig.
+
 ### Version and key availability
 
 Source pages: [Key availability](../versions/key-availability.md),
@@ -827,12 +880,12 @@ unchanged, no edit to any file.
 python harness.py --pack ../../docs/examples/wiki-test10 --profile wtten --probes probes/wt10.json
 ```
 
-| Pack | 7.4.12, Forge | 9.5.1, NeoForge |
-|---|---|---|
-| `wiki-test10`, 4 probes | 3 of 4 | 3 of 4, and see [VER-3](#ver-3) |
-| `wiki-test11`, 7 probes | 7 of 7 | 7 of 7 |
-| `wiki-test12`, 3 probes | 3 of 3 | 3 of 3 |
-| `wiki-test13`, 13 probes | 13 of 13 | 13 of 13 |
+| Pack | 7.4.12, Forge, 1.20.1 | 9.5.1, NeoForge, 1.21.11 | 10.0.1, NeoForge, 26.1.2 |
+|---|---|---|---|
+| `wiki-test10`, 4 probes | 3 of 4 | 3 of 4, and see [VER-3](#ver-3) | 3 of 4, the same |
+| `wiki-test11`, 7 probes | 7 of 7 | 7 of 7 | 7 of 7 |
+| `wiki-test12`, 3 probes | 3 of 3 | 3 of 3 | 3 of 3 |
+| `wiki-test13`, 13 probes | 13 of 13 | 13 of 13 | 13 of 13 |
 
 Counts matched exactly nearly everywhere, including the sphere, which returned
 1093 gray stained glass in the same chunk and none of the other three glass types
@@ -844,12 +897,18 @@ One result moved, and it is **not** a loader difference. Running the same pack o
 [VER-3](#ver-3).
 
 So the claim this entry was opened for holds: at the same feature level the two
-loaders agree. What is covered is 9.5.1 on Minecraft 1.21.11, across four packs and
-27 probes. Versions 8.2.2, 8.4.1 and 10.0.1 are still inferred from the key sets
-rather than run.
+loaders agree. Covered by a run: **9.5.1** on Minecraft 1.21.11 and **10.0.1** on
+Minecraft 26.1.2, four packs and 27 probes each, both matching 7.5.1 on Forge down
+to the counts. The sphere returned 1093 gray stained glass on all three.
 
-The rig is `research/server-neoforge-1.21.11-9.5.1/`, private, since it needs jars
-that are not ours to ship.
+That spans two NeoForge majors and two Minecraft versions five releases apart.
+Versions 8.2.2 and 8.4.1 are still inferred from their key sets rather than run,
+and 8.2.2 is the one worth doing, since its feature set is **smaller** than 7.4.12's.
+
+The rigs are `research/server-neoforge-1.21.11-9.5.1/` and
+`research/server-neoforge-26.1.2-10.0.1/`, both private since they need jars that
+are not ours to ship. Both run on portable Temurin JREs in
+`research/portable-java/`, 21 and 25 respectively.
 
 #### VER-3 7.5 resolves a building's `refpalette` even when no part needs it { #ver-3 }
 
