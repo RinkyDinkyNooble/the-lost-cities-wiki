@@ -1,11 +1,15 @@
+---
+claims: verified
+---
+
 # JSON5 test packs
 
 Three datapacks and two profiles, generated from one definition by
 [generate.py](generate.py) so they cannot drift apart. All three are built to produce
 the **same** three towers, so any difference between them is a fault rather than a
-design choice.
+design choice. <!-- noclaim -->
 
-| Pack | Every asset is |
+| Pack | Every asset is | <!-- noclaim -->
 |---|---|
 | `j5-pure-json` | `.json` |
 | `j5-pure-json5` | `.json5` |
@@ -13,59 +17,59 @@ design choice.
 
 The `.json5` packs need [The Lost Cities - DevTool](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/tree/main/mod).
 `j5-pure-json` needs nothing but Lost Cities 7.4.12 and is the control: it proves the
-towers are correct without the extension in play at all.
+towers are correct without the extension in play at all. <!-- noclaim -->
 
 ## Install
 
 Copy a pack folder, or a zip of it, into `saves/<world>/datapacks/`, or add it on the
 world creation screen under **Data Packs**. One at a time: all three use the namespace
-`j5` and the same asset names, so they are alternatives.
+`j5` and the same asset names, so they are alternatives. <!-- noclaim -->
 
 Copy the profile into `config/lostcities/profiles/`, then restart. Lost Cities reads
 that folder once at startup. Copy one to test a pack alone, or both to see the
-profile override.
+profile override. [code review](../../examples/claim-tests.md#cfg-7){.v .v-c}
 
-Then press **Cities** on the world creation screen and cycle to `jsonfive`.
+Then press **Cities** on the world creation screen and cycle to `jsonfive`. <!-- noclaim -->
 
-`/reload` does not work. Lost Cities does not re-read its own assets on one.
+`/reload` does not work. Lost Cities does not re-read its own assets on one. [code review](../../examples/claim-tests.md#ns-10){.v .v-c}
 
 ## What should happen
 
-Three towers, two chunks apart, about 24 blocks tall, on ground near y 71:
+Three towers, two chunks apart, about 24 blocks tall, on ground near y 71: <!-- noclaim -->
 
 ```
 /tp @s 136 110 136
 ```
 
-| x | Correct | A wrong colour means |
+| x | Correct | A wrong colour means | <!-- noclaim -->
 |---|---|---|
 | 136 | Gold | diamond, the building `.json` won; redstone, the part or palette `.json` won |
 | 168 | Diamond | as above |
 | 200 | Lapis | as above |
 
-Redstone is the tell. Every `.json` twin that can be wrong places it.
+Redstone is the tell. Every `.json` twin that can be wrong places it. <!-- noclaim -->
 
 Both a `minecraft:overworld` and a `lostcities:lostcity` predefined city ship in each
 pack, so the same pack works whether the profile is selected on the world creation
-screen or wired up through `dimensionsWithProfiles`.
+screen or wired up through `dimensionsWithProfiles`. [game test](../../examples/claim-tests.md#cfg-5){.v .v-g}
 
 The two profiles differ only in `description`, so neither changes what generates.
-`/lcdev report` prints that field, which is the only way to tell which file won.
+`/lcdev report` prints that field, which is the only way to tell which file won. <!-- noclaim -->
 
 ## Measured
 
-Each pack on a headless server, same seed, same profile, same probes.
+Each pack on a headless server, same seed, same profile, same probes. <!-- noclaim -->
 
-| Pack | Probes | Failed chunks | Override warnings |
+| Pack | Probes | Failed chunks | Override warnings | <!-- noclaim -->
 |---|---|---|---|
 | `j5-pure-json` | 8 / 8 | none | 0 |
 | `j5-pure-json5` | 8 / 8 | none | 0 |
 | `j5-fighting` | 8 / 8 | none | 12, one per shadowed file |
 
 The 12 cover every asset kind that can be shadowed: worldstyle, citystyle, palette,
-both predefined cities, three parts, three buildings, and the profile.
+both predefined cities, three parts, three buildings, and the profile. <!-- noclaim -->
 
 ## What cannot be `.json5`
 
 `pack.mcmeta`, and only that. Minecraft reads it to decide whether the folder is a
-datapack at all, before any mod code runs.
+datapack at all, before any mod code runs. [code review](../../examples/claim-tests.md#ref-2){.v .v-c}

@@ -200,6 +200,10 @@ def main() -> int:
         if not path.is_file():
             err(str(path), "no such file")
             continue
+        # The register is the evidence, not a page that cites it. Chipping it
+        # would point every entry at itself.
+        if path == REGISTER:
+            continue
         text = path.read_text(encoding="utf-8")
         total += 1
         if front_matter(text).get("claims") == "verified":
