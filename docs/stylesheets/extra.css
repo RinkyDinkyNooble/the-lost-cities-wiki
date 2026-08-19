@@ -27,25 +27,51 @@
   text-decoration: none !important;
 }
 
+/* A chip is a link, and `.md-typeset a` is one class more specific than `.v-g`,
+   so Material's link colour wins unless the chip is qualified the same way.
+   Without `.md-typeset` here every chip renders indigo whatever its kind.
+
+   Each kind is written twice because one hue cannot serve both schemes. Lime on
+   white is unreadable and a dark green on slate is muddy, so the light scheme
+   takes the deep end of the ramp and the dark scheme takes the bright end. */
+
 /* Verified by running the claim in a world and reading the blocks back. */
-.v-g {
-  color: var(--md-typeset-color);
+.md-typeset .v-g {
+  color: #33691e;
   border-color: #43a047;
   background: #43a04722;
 }
 
 /* Verified by reading the compiled code. */
-.v-c {
-  color: var(--md-typeset-color);
+.md-typeset .v-c {
+  color: #1565c0;
   border-color: #1e88e5;
   background: #1e88e522;
 }
 
 /* Neither has been done. Not a synonym for false. */
-.v-u {
-  color: var(--md-typeset-color);
+.md-typeset .v-u {
+  color: #8a6414;
   border-color: #b0863a;
   background: #b0863a22;
+}
+
+[data-md-color-scheme="slate"] .md-typeset .v-g {
+  color: #b2ff59;
+  border-color: #8bc34a;
+  background: #8bc34a26;
+}
+
+[data-md-color-scheme="slate"] .md-typeset .v-c {
+  color: #82b1ff;
+  border-color: #448aff;
+  background: #448aff26;
+}
+
+[data-md-color-scheme="slate"] .md-typeset .v-u {
+  color: #ffd54f;
+  border-color: #c8a038;
+  background: #c8a03826;
 }
 
 .v:hover { filter: brightness(1.25); }

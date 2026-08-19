@@ -865,6 +865,155 @@ produces a decode error when absent, and the registry loader drops the entry. Th
 is the opposite direction from [KEY-2](#key-2) and the two are often confused: an
 **extra** key is ignored, a **missing required** key is fatal.
 
+#### KEY-4 `overrideFloors` is missing from 8.2.2, and its absence changes the build { #key-4 }
+
+**Game test.** `wiki-test10`'s control building carries `overrideFloors: true` and
+generates 512 gold blocks on 7.4.12. The same pack on 8.2.2 generates **768**. The
+cause was isolated on 7.4.12 itself: `research/wt10-nooverride` is the identical
+pack with that one key deleted, and on 7.4.12 it generates 768 as well, while
+`barepalette`, which never carried the key, stays at 512.
+
+| Pack | Version | `full` | `barepalette` |
+|---|---|---|---|
+| `wiki-test10` | 7.4.12 | 512 | 512 |
+| `wt10-nooverride` | 7.4.12 | **768** | 512 |
+| `wt10-822` | 8.2.2 | **768** | 768 |
+
+**Code review.** `BuildingRE` declares `overrideFloors` in 7.4.12, 7.5.1, 7.5.2,
+8.4.1, 9.5.1 and 10.0.1, and does not declare it in 5.3.29, 6.0.3, 6.1.6, 6.2.2,
+6.2.3 or 8.2.2. Where it is not declared it is an unknown key, so it is ignored
+rather than rejected, exactly as [KEY-2](#key-2) describes. The floor count then
+comes from the profile instead of from the building, and the building is taller.
+
+This is the clearest demonstration of why KEY-2 matters. Nothing fails, nothing is
+logged, and the building is half again as tall as the pack intended.
+
+#### VER-4 The predefined city registry is spelled three different ways { #ver-4 }
+
+**Code review.** `CustomRegistries` builds the registry key that decides the
+datapack folder. The spelling is not stable across versions, and a folder that does
+not match the version's spelling is never scanned.
+
+| Folder | Versions |
+|---|---|
+| `predefinedcitites` | 6.0.3 |
+| `predefinedcites` | 5.3.29, 6.1.6, 6.2.2, 6.2.3, 8.2.2 |
+| `predefinedcities` | 7.4.12, 7.5.1, 7.5.2, 8.4.1, 9.5.1, 10.0.1 |
+
+**Game test.** `wiki-test10` copied to 8.2.2 unchanged produced nothing at any
+pinned chunk. Renaming the folder from `predefinedcities` to `predefinedcites`, and
+changing nothing else, produced 768 gold and 768 diamond. The pack is
+`research/wt10-822`.
+
+`predefinedspheres` is spelled the same way everywhere it exists, and 6.0.3 has no
+sphere registry at all.
+
+#### VER-5 Four versions read a predefined city and then never place it { #ver-5 }
+
+**Code review.** `City.getPredefinedBuilding` builds its lookup map by iterating
+`AssetRegistries.PREDEFINED_CITIES.getIterable()`. That method returns the
+`RegistryAssetRegistry`'s own `assets` map, which is a cache filled only by
+`get(level, name)`. Nothing ever fetches a predefined city by name, because finding
+one is what the iteration is for. The map is therefore empty unless something has
+filled the cache from the registry first.
+
+`RegistryAssetRegistry.loadAll(CommonLevelAccessor)` is what fills it, and
+`AssetRegistries.load` is what calls it. Both are absent from four versions:
+
+| Version | `loadAll` | Predefined cities and spheres |
+|---|---|---|
+| 5.3.29 | no | Never placed |
+| 6.0.3 | no | Never placed |
+| 6.1.6 | no | Never placed |
+| 6.2.3 | no | Never placed |
+| 6.2.2, 7.4.12, 7.5.1, 7.5.2, 8.2.2, 8.4.1, 9.5.1, 10.0.1 | yes | Work |
+
+The 1.19 line is where this is most confusing: 6.2.2, for Minecraft 1.19, has the
+loader, and 6.2.3, for Minecraft 1.19.4, does not.
+
+**Game test.** On the 6.0.3 rig a predefined city in the correct
+`predefinedcitites` folder, naming a dimension the profile drives, produced 0 blocks
+at all four pinned chunks. The file is read: putting a string where `chunkx` expects
+a number stops the server from booting with
+`JsonParseException: Error loading registry data: Not a number`. So the asset parses,
+validates and registers, and is then never consulted.
+
+```
+research/wt10-603, probe world-exists-stone   14240 stone   the chunk generated
+research/wt10-603, probe full-gold                0 gold    the pinned building did not
+```
+
+The same pack reaching the world through a city style selector instead of a pin
+generated 4496 gold across 6 chunks, so nothing about the building or its
+references is at fault. See [VER-8](#ver-8).
+
+#### VER-6 6.0.3 has no catch around chunk generation, so a bad reference ends the server { #ver-6 }
+
+**Code review.** `LostCityFeature`'s place method in 6.0.3 compiles with an **empty
+exception table**. Every other datapack-era version wraps the generate call, logs
+`Error generating chunk <x>,<z>` and carries on. 6.0.3 is alone in this.
+
+| Version | Exception tables in `LostCityFeature` |
+|---|---|
+| 6.0.3 | **0** |
+| 5.3.29, 6.1.6, 6.2.2, 6.2.3, 7.4.12, 8.2.2 | 1 |
+| 7.5.1, 7.5.2, 8.4.1, 9.5.1, 10.0.1 | 6 |
+
+**Game test.** On 6.0.3 a city style selecting `nstest:barepart`, whose part name is
+written without a namespace, killed the server mid-run:
+
+```
+net.minecraft.ReportedException: Feature placement
+Caused by: java.lang.RuntimeException: Error getting resource lostcities:ns_lapis!
+  at RegistryAssetRegistry.get(RegistryAssetRegistry.java:67)
+  at BuildingInfo.<init>(BuildingInfo.java:891)
+  at LostCityTerrainFeature.generate(LostCityTerrainFeature.java:261)
+  at LostCityFeature.m_142674_(LostCityFeature.java:76)
+```
+
+The same fault on 7.4.12 is one line in the log and 41 chunks of empty ground. On
+6.0.3 the run does not finish.
+
+#### VER-7 8.2.2 is pre-7.5 code ported to 1.21, not 7.5 code carried forward { #ver-7 }
+
+**Game test and code review.** 8.2.2 carries a higher version number than 7.5.2 and
+behaves like 7.4.12 on every point where the two differ. Six signals agree, five of
+them read out of the jar and one run in a world.
+
+| Signal | 7.4.12 | 7.5.1 | 8.2.2 | 8.4.1 |
+|---|---|---|---|---|
+| Unresolvable building `refpalette`, every part carrying its own | Generates | Absent | **Generates** | not run |
+| Failed chunks from that pack | 2 | 8 | **2** | not run |
+| `overrideFloors` in `BuildingRE` | yes | yes | **no** | yes |
+| `AssetRegistries.loadPredefinedStuff` | yes | yes | **no** | yes |
+| Registry folder | `predefinedcities` | `predefinedcities` | **`predefinedcites`** | `predefinedcities` |
+| Exception tables in `LostCityFeature` | 1 | 6 | **1** | 6 |
+
+`research/wt10-822` on 8.2.2 returned 768 diamond for the building whose
+`refpalette` does not resolve, and failed exactly chunks 14,8 and 9,7, the same two
+chunks 7.4.12 fails. 7.5.1 and 9.5.1 fail eight and lose the building. See
+[VER-3](#ver-3).
+
+The practical reading is that the 7.5 changes reached the 1.21 line at 8.4.1 rather
+than at 8.2.2, so a version number alone does not tell you which behaviour you have.
+
+#### VER-8 A fully namespaced datapack building generates on 6.0.3 { #ver-8 }
+
+**Game test.** `research/wt10-603r` is `wiki-test10` with the predefined city
+removed, since 6.0.3 cannot place one, and the city style selector pointing at
+`nstest:full` alone. Run at `cityChance: 1.0` over a 6 by 6 chunk grid it returned
+36 of 36 probes, 4496 gold blocks across 6 chunks, and no failed chunks.
+
+So namespaced references, the datapack registries, the world style and city style
+chain, and the profile wiring all work on 6.0.3. What does not work there is pinning,
+and any pack that leans on a reference resolving loosely.
+
+A bare `refpalette` is **not** tolerated on 6.0.3: `nstest:barepalette` throws
+`Error getting resource lostcities:test!` even though every one of its parts carries
+a working palette of its own. That is 7.5 behaviour arriving two major versions
+early, which is why [VER-3](#ver-3) describes a window rather than a change of
+direction.
+
 ### Whole-page entries
 
 Some claims are made the same way on many pages. Rather than repeat the evidence,

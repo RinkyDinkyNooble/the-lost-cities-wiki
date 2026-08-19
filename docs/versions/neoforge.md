@@ -21,10 +21,11 @@ does not say. <!-- noclaim -->
     key names, types, defaults, minimums and maximums, and datapack codec keys with
     their required or optional status. Those are machine-compared and identical. [code review](../examples/claim-tests.md#key-1){.v .v-c}
 
-    Runtime behaviour on the NeoForge line **has** now been run twice: 9.5.1 on
-    Minecraft 1.21.11, and 10.0.1 on Minecraft 26.1.2. Four packs and 27 probes
-    each, both matching the Forge line at the same feature level with the counts
-    identical. Versions 8.2.2 and 8.4.1 are still inferred from their key sets. [game test](../examples/claim-tests.md#neo-1){.v .v-g}
+    Runtime behaviour on the NeoForge line **has** now been run three times: 8.2.2
+    on Minecraft 1.21, 9.5.1 on Minecraft 1.21.11, and 10.0.1 on Minecraft 26.1.2.
+    9.5.1 and 10.0.1 took four packs and 27 probes each, both matching the Forge
+    line at the same feature level with the counts identical. 8.2.2 matches 7.4.12
+    rather than 7.5.1. Only 8.4.1 is still inferred from its key set. [game test](../examples/claim-tests.md#neo-1){.v .v-g} [game test](../examples/claim-tests.md#ver-7){.v .v-g}
 
 ## The versions
 
@@ -67,6 +68,24 @@ The version number is higher and the feature set is smaller. [code review](../ex
 8.2.2 is missing **23 datapack keys** and **19 profile keys** that 7.4.12 has, and
 adds none. It also still carries `libraryChance` and `dataCenterChance`, two profile
 keys 7.4.12 had already dropped. [code review](../examples/claim-tests.md#key-1){.v .v-c}
+
+Running it settled the shape of that: 8.2.2 is 7.4-era code ported to Minecraft
+1.21, not 7.5 code carried across. It resolves a building's `refpalette` lazily as
+7.4.12 does, fails the same two chunks on the same pack, and keeps 7.4.12's single
+catch around chunk generation. See
+[Traps specific to one version](index.md#traps-specific-to-one-version). [game test](../examples/claim-tests.md#ver-7){.v .v-g} [code review](../examples/claim-tests.md#ver-7){.v .v-c}
+
+!!! danger "Its predefined city folder is spelled differently"
+    8.2.2 reads `data/<namespace>/lostcities/predefinedcites/`, without the second
+    `i`. A folder named `predefinedcities`, which every 7.x version wants, is never
+    scanned there, so a pinned city looks like it generated nothing. Renaming that
+    one folder took the wiki's namespace pack from 0 blocks to 768 gold and 768
+    diamond. [game test](../examples/claim-tests.md#ver-4){.v .v-g} [code review](../examples/claim-tests.md#ver-4){.v .v-c}
+
+!!! warning "`overrideFloors` does not exist here, and the building gets taller"
+    The same control building generates 512 gold blocks on 7.4.12 and 768 on 8.2.2,
+    because the key that pins its floor count is not declared and is therefore
+    ignored. Nothing is logged. [game test](../examples/claim-tests.md#key-4){.v .v-g}
 
 !!! warning "A datapack written against this wiki loads on 8.2.2 and does less"
     23 of the keys this wiki documents do not exist there. They are **ignored**

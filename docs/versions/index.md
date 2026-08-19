@@ -19,8 +19,8 @@ of this wiki apply. Every number comes from the jar itself; the method is in
 | 7.4.12, Minecraft 1.20.1 | This wiki, as written. It is the documented version. |
 | 7.5.0 or later on Minecraft 1.20.1 | This wiki, plus [What changed in 7.5](7-5.md). Read that page first. |
 | 8.4.1 or later on Minecraft 1.21 or later | This wiki, plus [What changed in 7.5](7-5.md), plus [The NeoForge line](neoforge.md). |
-| 8.2.2 on Minecraft 1.21 | This wiki. Ignore the 7.5 page. See [The NeoForge line](neoforge.md). |
-| 5.3.29 through 6.2.3 | Most of this wiki. Some keys do not exist yet. See [Key availability](#key-availability). |
+| 8.2.2 on Minecraft 1.21 | This wiki. Ignore the 7.5 page. It is 7.4-era code on a 1.21 loader, so read [Traps specific to one version](#traps-specific-to-one-version) too. |
+| 5.3.29 through 6.2.3 | Most of this wiki. Some keys do not exist yet, and on four of these versions predefined cities never generate. See [Traps specific to one version](#traps-specific-to-one-version). |
 | Anything before 5.3.29 | Almost none of it. See [The file-asset era](legacy.md). |
 
 ## The boundary that matters
@@ -78,6 +78,73 @@ The bold row is the version this wiki documents. <!-- noclaim -->
     8.2.2 has a higher mod version than 7.5.1 and does **not** have the hierarchical
     road system 7.5.1 has. The 1.20 line and the 1.21 line advanced in parallel, so
     compare the asset system column rather than the version number. [code review](../examples/claim-tests.md#key-1){.v .v-c}
+
+## Traps specific to one version
+
+Three behaviours vary by version in a way that produces no error message. Each is
+worth checking before assuming a pack is wrong. <!-- noclaim -->
+
+### Predefined cities and spheres do not work on four versions
+
+The asset loads. It parses, it validates, a bad value in it stops the server from
+booting. It is then never consulted, so every pinned building and street is absent
+and nothing is logged. [game test](../examples/claim-tests.md#ver-5){.v .v-g} [code review](../examples/claim-tests.md#ver-5){.v .v-c}
+
+| Version | Predefined cities and spheres [game test](../examples/claim-tests.md#ver-5){.v .v-g} [code review](../examples/claim-tests.md#ver-5){.v .v-c} |
+|---|---|
+| 5.3.29, 6.0.3, 6.1.6, 6.2.3 | **Never placed.** The registry is loaded from the datapack and then read from an empty cache |
+| 6.2.2, 7.4.12, 7.5.1, 7.5.2, 8.2.2, 8.4.1, 9.5.1, 10.0.1 | Work |
+
+6.2.2, for Minecraft 1.19, has the loader. 6.2.3, for Minecraft 1.19.4, does not, so
+this does not improve monotonically with the version number. [code review](../examples/claim-tests.md#ver-5){.v .v-c}
+
+On a version in the top row, place buildings through a [city style](../reference/citystyle.md)
+selector instead. That path works: on 6.0.3 a fully namespaced building reached the
+world 6 times in a 6 by 6 chunk grid, 4496 blocks, with no failed chunks. [game test](../examples/claim-tests.md#ver-8){.v .v-g}
+
+### The predefined city folder is spelled three different ways
+
+A folder that does not match the spelling the version compiled in is never scanned,
+and a pack that names it the other way looks empty. [code review](../examples/claim-tests.md#ver-4){.v .v-c}
+
+| Folder | Versions [code review](../examples/claim-tests.md#ver-4){.v .v-c} |
+|---|---|
+| `data/<ns>/lostcities/predefinedcitites/` | 6.0.3 |
+| `data/<ns>/lostcities/predefinedcites/` | 5.3.29, 6.1.6, 6.2.2, 6.2.3, 8.2.2 |
+| `data/<ns>/lostcities/predefinedcities/` | 7.4.12, 7.5.1, 7.5.2, 8.4.1, 9.5.1, 10.0.1 |
+
+Renaming that one folder, and changing nothing else, took the wiki's own namespace
+pack on 8.2.2 from generating nothing to generating 768 gold and 768 diamond. [game test](../examples/claim-tests.md#ver-4){.v .v-g}
+
+`predefinedspheres` is spelled the same way in every version that has it, and 6.0.3
+has no sphere registry at all. [code review](../examples/claim-tests.md#ver-4){.v .v-c}
+
+### 6.0.3 has no catch around chunk generation
+
+Every other datapack-era version wraps generation, logs `Error generating chunk`, and
+leaves that one chunk empty. 6.0.3 compiles the same method with no exception handler
+at all, so a single unresolvable reference becomes `ReportedException: Feature
+placement` and ends the server. [game test](../examples/claim-tests.md#ver-6){.v .v-g} [code review](../examples/claim-tests.md#ver-6){.v .v-c}
+
+A part name written without a namespace is enough to do it. On 7.4.12 the same pack
+logs one line and leaves 41 chunks of open ground. [game test](../examples/claim-tests.md#ver-6){.v .v-g}
+
+### 8.2.2 behaves like 7.4.12, not like 7.5.1
+
+8.2.2 carries a higher number than 7.5.2 and is 7.4-era code ported to Minecraft
+1.21. Six signals agree, five read out of the jar and one run in a world. [game test](../examples/claim-tests.md#ver-7){.v .v-g} [code review](../examples/claim-tests.md#ver-7){.v .v-c}
+
+| Signal [game test](../examples/claim-tests.md#ver-7){.v .v-g} [code review](../examples/claim-tests.md#ver-7){.v .v-c} | 7.4.12 | 7.5.1 | 8.2.2 | 8.4.1 |
+|---|---|---|---|---|
+| A building whose `refpalette` does not resolve, with every part carrying its own | Generates | Absent | Generates | not run |
+| Failed chunks from that pack | 2 | 8 | 2 | not run |
+| `overrideFloors` on a building | yes | yes | **no** | yes |
+| Predefined asset preloader | yes | yes | **no** | yes |
+| Predefined city folder | `predefinedcities` | `predefinedcities` | **`predefinedcites`** | `predefinedcities` |
+| Catch around chunk generation | 1 | 6 | 1 | 6 |
+
+The 7.5 changes reached the 1.21 line at **8.4.1**, not at 8.2.2. Read
+[What changed in 7.5](7-5.md) for 8.4.1 and later, and not for 8.2.2. [code review](../examples/claim-tests.md#ver-7){.v .v-c}
 
 ## Loader
 

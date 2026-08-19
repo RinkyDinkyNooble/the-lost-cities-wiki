@@ -70,12 +70,14 @@ What you see depends only on **when** the reference is first needed. [game test]
 |---|---|---|
 | A profile's `worldStyle` | Building the dimension, before any chunk exists | **Server crash** on the first chunk generated, reported as `Feature placement` [game test](../examples/claim-tests.md#ns-5){.v .v-g} |
 | A part name in a building's `parts` | The floor loop, every time that building is considered | Chunks around the building fail and generate empty, logged as `Error generating chunk` [game test](../examples/claim-tests.md#ns-6){.v .v-g} |
-| A building's or part's `refpalette` | On 7.4.12, only when a character has to be resolved out of *that* palette. From 7.5, always | On 7.4.12 nothing at all, and the building still generates, if every part carries its own palette. From 7.5 the building fails [game test](../examples/claim-tests.md#ns-7){.v .v-g} [game test](../examples/claim-tests.md#ver-3){.v .v-g} |
+| A building's or part's `refpalette` | On 7.4.12 and 8.2.2, only when a character has to be resolved out of *that* palette. On 6.0.3, and from 7.5, always | On 7.4.12 and 8.2.2 nothing at all, and the building still generates, if every part carries its own palette. Elsewhere the building fails [game test](../examples/claim-tests.md#ns-7){.v .v-g} [game test](../examples/claim-tests.md#ver-3){.v .v-g} [game test](../examples/claim-tests.md#ver-7){.v .v-g} |
 
-That last row is the one that costs an evening, and only on 7.4.12. There, a bare `refpalette` on a building whose parts each declare their own generated a complete, correct tower, and surfaced only as two unrelated-looking chunk failures elsewhere in the city. Give the same building a part with no palette of its own and it disappears. [game test](../examples/claim-tests.md#ns-7){.v .v-g}
+That last row is the one that costs an evening, and only on 7.4.12 and 8.2.2. There, a bare `refpalette` on a building whose parts each declare their own generated a complete, correct tower, and surfaced only as two unrelated-looking chunk failures elsewhere in the city. Give the same building a part with no palette of its own and it disappears. [game test](../examples/claim-tests.md#ns-7){.v .v-g} [game test](../examples/claim-tests.md#ver-7){.v .v-g}
 
-!!! success "7.5 and later resolve the palette either way"
+!!! success "7.5 and later resolve the palette either way, and so did 6.0.3"
     The same pack on 7.5.1 and on 9.5.1 loses the building entirely and fails eight chunks, including the building's own, instead of two unrelated ones. The mistake became visible instead of invisible. A pack that looked correct on 7.4.12 because of this can stop generating that building on 7.5. [game test](../examples/claim-tests.md#ver-3){.v .v-g}
+
+    6.0.3 resolves it eagerly too, two major versions before 7.5, and has no catch around chunk generation, so there it ends the server rather than losing one building. [game test](../examples/claim-tests.md#ver-6){.v .v-g} [game test](../examples/claim-tests.md#ver-8){.v .v-g}
 
 !!! warning "The message names the resolved name, not what you typed"
     `Error getting resource lostcities:wasteland_city!` is what a missing namespace looks like. A `lostcities:` prefix in front of an asset that is not the mod's own means the reference that produced it was written bare. [game test](../examples/claim-tests.md#ns-4){.v .v-g}

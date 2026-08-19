@@ -79,6 +79,13 @@ Absent in every 5.x and 6.x version, and also absent in **8.2.2**. Present in
 | [City Style](../reference/citystyle.md), inside `selectors` | `feather`, `minSpawnDistance`, `maxSpawnDistance` |
 | [Scattered Building](../reference/scattered.md) | `rotatable`, `nearhighway` |
 
+!!! danger "Measured: one key from this group changes a building by half its height"
+    The wiki's control building carries `overrideFloors: true` and generates 512
+    gold blocks on 7.4.12. The identical pack on 8.2.2 generates **768**. Deleting
+    that one key on 7.4.12 gives 768 there as well, which isolates the cause. The
+    building is not broken and nothing is logged. It is simply taller than the pack
+    asked for, because the floor count fell back to the profile. [game test](../examples/claim-tests.md#key-4){.v .v-g} [code review](../examples/claim-tests.md#key-4){.v .v-c}
+
 ## Group 3: missing in 6.0.3 only
 
 Present in 5.3.29, then absent in 6.0.3, then present again from 6.1.6 onward.
