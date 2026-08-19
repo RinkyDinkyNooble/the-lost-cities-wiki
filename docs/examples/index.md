@@ -137,6 +137,21 @@ different reference, and each fails differently: one silently, one across a
 
 Read the results in [the claim register](claim-tests.md#namespaces). <!-- noclaim -->
 
+### Three packs for features nobody had generated
+
+Each of these exists because a page was documenting something from the code alone.
+Each one turns a random feature into something a fixed probe can find. <!-- noclaim -->
+
+| Pack | Covers | The trick that makes it measurable |
+|---|---|---|
+| [`wiki-test11/`](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/tree/main/docs/examples/wiki-test11) | Building fronts and stuff objects | Overriding the three shipped front parts, so the draw cannot pick one of them instead of yours |
+| [`wiki-test12/`](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/tree/main/docs/examples/wiki-test12) | Scattered structures | `areasize: 1`, `chance: 1.0`, `weightnone: 0`, so every chunk is an area that must place one |
+| [`wiki-test13/`](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/tree/main/docs/examples/wiki-test13) | A predefined sphere | `onlyPredefined` on and `citySphereChance` at `0.0`, so the pinned dome is the only one |
+[game test](claim-tests.md#frt-1){.v .v-g}
+
+Results in [the claim register](claim-tests.md#fronts-stuff-objects-and-rotation). All
+three found something the pages had wrong. [game test](claim-tests.md#stf-1){.v .v-g}
+
 !!! note "It does not check everything"
     Nothing here can verify that a block ID exists, or that files are in the right
     folder. Those need the game. It catches the mechanical mistakes, not the wiring
