@@ -1,3 +1,7 @@
+---
+claims: verified
+---
+
 # City Style Reference
 
 !!! tip "TL;DR"
@@ -7,7 +11,7 @@
     More of this page is version-sensitive than any other reference page, because
     the street, park, corridor and general settings all live here.
 
-    | Keys | Need |
+    | Keys | Need | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
     |---|---|
     | `profile_overrides`, holding only `openLotParkChance` | 7.5.0 |
     | Inside `parkblocks`: `parkchance`, `parkborder`, `parkelevation`, `parkstreetthreshold`, `avoidfoliage` | 7.4.12 |
@@ -18,11 +22,11 @@
     | Inside `generalblocks`: `leaves`, `rubbledirt` | present except in 6.0.3 |
 
     The 7.4.12 rows are also absent in 8.2.2, whose version number reads newer. See
-    [Key availability](../versions/key-availability.md).
+    [Key availability](../versions/key-availability.md). [code review](../examples/claim-tests.md#key-1){.v .v-c}
 
 ## Keys
 
-| Key | Required | Meaning |
+| Key | Required | Meaning | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 |---|---|---|
 | `inherit` | no | The name of another city style to build on. See [Inheritance](#inheritance). |
 | `style` | no | The name of a [Style](style.md), which is the palette combinator. This decides how the city looks. |
@@ -48,9 +52,9 @@
         at mcjty.lostcities.worldgen.gen.Corridors.generateCorridors
     ```
 
-    The full set, with the values `citystyle_common` uses:
+    The full set, with the values `citystyle_common` uses: [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 
-    | Block group | Characters | `citystyle_common` |
+    | Block group | Characters | `citystyle_common` | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
     |---|---|---|
     | `streetblocks` | `street`, `border`, `wall` | `S`, `y`, `w` |
     | `corridorblocks` | `roof`, `glass` | `x`, `+` |
@@ -60,17 +64,17 @@
 
     Almost nobody hits this, because almost every city style inherits
     `citystyle_common`. The mod's own `citystyle_standard` sets **none** of these
-    and works only for that reason.
+    and works only for that reason. <!-- noclaim -->
 
     A standalone city style, written to empty an inherited selector for example, has
     to set them all itself. Found the hard way: 2 test runs, 1535 then 357 failed
-    chunks, each exposing the next missing character in turn.
+    chunks, each exposing the next missing character in turn. [game test](../examples/claim-tests.md#cty-8){.v .v-g}
 
     `sphereblocks` only matters in a world with city spheres. The others are reached
-    by any ordinary city.
+    by any ordinary city. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
     All 17 character getters are present and unguarded in 7.4.12, 7.5.1, 8.4.1 and
-    10.0.1, so this is not version specific.
+    10.0.1, so this is not version specific. [code review](../examples/claim-tests.md#key-1){.v .v-c}
 
 !!! warning "None of these numbers are validated"
     Nothing validates a number in an asset JSON, exactly as in the [Profile](profile.md). A `buildingchance` of `4.0` loads and simply means always. The ranges this page mentions are the windows the mod is built around, not checks it performs.
@@ -78,7 +82,7 @@
 !!! warning "Three `streetblocks` keys parse and then do nothing"
     `width`, `streetbase` and `streetvariant` all load, all inherit, and are all readable by a companion mod through `ILostCityCityStyle`. **No generation code reads any of them.**
 
-    | Key | Reaches | Read during generation |
+    | Key | Reaches | Read during generation | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
     |---|---|---|
     | `street` | City style, generator | Yes |
     | `border` | City style, generator | Yes |
@@ -87,9 +91,9 @@
     | `streetbase` | City style, public API only | **No** |
     | `streetvariant` | City style, public API only | **No** |
 
-    All three look load-bearing because the mod's own content sets them. `citystyle_config` exists solely to set `width`, and both `citystyle_common` and `citystyle_border` set `streetbase` and `streetvariant`. Setting them changes nothing about how a street generates.
+    All three look load-bearing because the mod's own content sets them. `citystyle_config` exists solely to set `width`, and both `citystyle_common` and `citystyle_border` set `streetbase` and `streetvariant`. Setting them changes nothing about how a street generates. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-    If you want to change what a street is made of, edit the palette characters the street **part** uses, or point `streetblocks.parts` at your own part. See [Streets, Highways, Rails and Monorails](../concepts/infrastructure-parts.md).
+    If you want to change what a street is made of, edit the palette characters the street **part** uses, or point `streetblocks.parts` at your own part. See [Streets, Highways, Rails and Monorails](../concepts/infrastructure-parts.md). <!-- noclaim -->
 
 !!! danger "`streetblocks.parts.full` is a fourth dead key"
     It loads, it inherits, and the street type it belongs to is never assigned. The
@@ -98,7 +102,7 @@
 
     The other 6 shape keys work. Only `full` is unreachable. Confirmed in game, and
     unreachable in 7.4.12 through 10.0.1. See
-    [Streets, Highways, Rails and Monorails](../concepts/infrastructure-parts.md#streets).
+    [Streets, Highways, Rails and Monorails](../concepts/infrastructure-parts.md#streets). [game test](../examples/claim-tests.md#cty-4){.v .v-g}
 
 !!! warning "The naming is not consistent"
     Six of these keys use a `...blocks` suffix: `generalblocks`, `corridorblocks`, `parkblocks`, `railblocks`, `sphereblocks` and `streetblocks`. One uses a `...settings` suffix: `buildingsettings`. That is genuinely how the mod names them. Copy the exact key. Do not guess from the pattern.
@@ -106,15 +110,15 @@
 !!! note "`railmain` resolves once per chunk, not once per block"
     If `railmain` points at a weighted [Palette](palette.md) entry, that is a `variant` or a `blocks` list rather than a fixed `block`, the mod picks one result and reuses it for the whole rail-bed strip in that chunk. It does not re-roll per block.
 
-    On a long straight railway this appears as solid-coloured strips 16 blocks long, because each chunk gets its own independent roll. The mod's own default city style points `railmain` at the `stonebrick` variant, which is mostly plain stone bricks with a small chance of cracked or mossy, so most chunks look identical and occasionally a whole chunk-length strip stands out.
+    On a long straight railway this appears as solid-coloured strips 16 blocks long, because each chunk gets its own independent roll. The mod's own default city style points `railmain` at the `stonebrick` variant, which is mostly plain stone bricks with a small chance of cracked or mossy, so most chunks look identical and occasionally a whole chunk-length strip stands out. [game test](../examples/claim-tests.md#cty-2){.v .v-g}
 
-    This is how the resolution works, not a fault. If you want every rail chunk to look uniform, use a fixed `block` instead of a weighted one.
+    This is how the resolution works, not a fault. If you want every rail chunk to look uniform, use a fixed `block` instead of a weighted one. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
 ## Selectors and distance gating
 
-All eight selector lists take the same entry shape. Two keys are the common case. Three more exist and are almost unknown.
+All eight selector lists take the same entry shape. Two keys are the common case. Three more exist and are almost unknown. [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 
-| Key | Required | Limits | Meaning |
+| Key | Required | Limits | Meaning | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 |---|---|---|---|
 | `factor` | **yes** | float above 0 | The relative weight. |
 | `value` | **yes** | | The name of the building, park, bridge and so on. |
@@ -122,7 +126,7 @@ All eight selector lists take the same entry shape. Two keys are the common case
 | `maxSpawnDistance` | no | blocks, 0 or more | The weight is 0 further out than this. Defaults to unlimited. |
 | `feather` | no | blocks, 0 or more | The width of a fade band on both edges. `0`, the default, means a hard cutoff. |
 
-Note the **camelCase** on those three, unlike nearly every other key in the mod.
+Note the **camelCase** on those three, unlike nearly every other key in the mod. [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 
 ```json title="Skyscrapers only in the far city, fading in over 500 blocks"
 {
@@ -136,20 +140,20 @@ Note the **camelCase** on those three, unlike nearly every other key in the mod.
 }
 ```
 
-Inside the allowed band the entry carries its full `factor`. Within `feather` blocks of an edge the mod ramps it linearly between 0 and `factor`. Outside that band the weight is 0.
+Inside the allowed band the entry carries its full `factor`. Within `feather` blocks of an edge the mod ramps it linearly between 0 and `factor`. Outside that band the weight is 0. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
 !!! warning "Three things the key names do not tell you"
     **Distance is measured from the world origin, not from world spawn.** The mod squares the chunk's own block coordinates, so the centre of the effect is always 0, 0. If your spawn is not near the origin, this does not behave the way the name suggests.
 
-    **It stops working beyond about 46,340 blocks from the origin.** The mod holds the squared distance in a 32-bit integer, which overflows past that radius. The value goes negative and every comparison flips. The same overflow applies to `minSpawnDistance` and `maxSpawnDistance` themselves, because the mod squares those as integers too. Treat the whole feature as usable only within the first 46,000 blocks.
+    **It stops working beyond about 46,340 blocks from the origin.** The mod holds the squared distance in a 32-bit integer, which overflows past that radius. The value goes negative and every comparison flips. The same overflow applies to `minSpawnDistance` and `maxSpawnDistance` themselves, because the mod squares those as integers too. Treat the whole feature as usable only within the first 46,000 blocks. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-    **If every entry in a list is excluded, the mod picks the first one anyway.** The weighted picker sums the weights to zero and then returns the first element rather than nothing, so a fully gated list falls back silently instead of reporting an error.
+    **If every entry in a list is excluded, the mod picks the first one anyway.** The weighted picker sums the weights to zero and then returns the first element rather than nothing, so a fully gated list falls back silently instead of reporting an error. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
 ### An empty selector list is safe for five of the eight, and fatal for three
 
-Setting a selector to `[]` is not uniformly safe. The weighted picker returns `null` for an empty list, and what happens next depends entirely on which lookup the caller used.
+Setting a selector to `[]` is not uniformly safe. The weighted picker returns `null` for an empty list, and what happens next depends entirely on which lookup the caller used. [game test](../examples/claim-tests.md#cty-7){.v .v-g}
 
-| Selector | Empty list | What you get |
+| Selector | Empty list | What you get | [game test](../examples/claim-tests.md#cty-7){.v .v-g}
 |---|---|---|
 | `parks` | Safe | No park in that chunk. |
 | `fountains` | Safe | No fountain. |
@@ -160,46 +164,46 @@ Setting a selector to `[]` is not uniformly safe. The weighted picker returns `n
 | `multibuildings` | **Crashes** | `Cannot find multibuilding: null` |
 | `bridges` | **Crashes** | `Invalid name given to minecraft:root getOrThrow!` |
 
-The five safe ones go through the mod's warn-and-skip lookup, which returns immediately when the name is `null`. It does not even log, because the null check happens before the registry is consulted. The feature does not appear.
+The five safe ones go through the mod's warn-and-skip lookup, which returns immediately when the name is `null`. It does not even log, because the null check happens before the registry is consulted. The feature does not appear. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-The three fatal ones reach a lookup that refuses a null name.
+The three fatal ones reach a lookup that refuses a null name. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
 !!! danger "`bridges` must be non-empty even when `bridgeChance` is `0`"
     The mod resolves the bridge part **eagerly**, in the same straight run of code that sets the door block and the stair part, for every city chunk that has a building. No chance value is tested first.
 
-    So `bridgeChance: 0` does **not** protect an empty `bridges` list. Setting the chance to zero and the list to `[]` still fails every building chunk. Confirmed in game: 1842 failed chunks in one session, with `bridgeChance` at `0.0`.
+    So `bridgeChance: 0` does **not** protect an empty `bridges` list. Setting the chance to zero and the list to `[]` still fails every building chunk. Confirmed in game: 1842 failed chunks in one session, with `bridgeChance` at `0.0`. [game test](../examples/claim-tests.md#cty-6){.v .v-g}
 
-    If you do not want bridges, leave the list populated and set the chance to `0`. Do not empty the list.
+    If you do not want bridges, leave the list populated and set the chance to `0`. Do not empty the list. <!-- noclaim -->
 
-`fountains` is the opposite case: the mod tests `fountainChance` before it looks anything up, so a zero chance means the selector is never consulted. `parks` is looked up unconditionally, like bridges, but survives it because parks use the safe lookup.
+`fountains` is the opposite case: the mod tests `fountainChance` before it looks anything up, so a zero chance means the selector is never consulted. `parks` is looked up unconditionally, like bridges, but survives it because parks use the safe lookup. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
 !!! warning "Remember that inheritance is additive, so `[]` may not mean empty"
     Writing `"buildings": []` in a style that inherits from `citystyle_common` does not give you an empty list. You inherit the parent's 8 entries and add nothing. The crash above only happens when the **merged** list is empty, which means you either inherited nothing or inherited from a style that has none.
 
 ## What a building front is
 
-`fronts` is the least self-explanatory selector.
+`fronts` is the least self-explanatory selector. <!-- noclaim -->
 
-A front is an extra part that belongs to a **building** but generates in the **adjacent street chunk**, along the edge facing that building. It is the shop awning, porch, step or overhang that makes a building meet the street instead of stopping dead at the chunk line.
+A front is an extra part that belongs to a **building** but generates in the **adjacent street chunk**, along the edge facing that building. It is the shop awning, porch, step or overhang that makes a building meet the street instead of stopping dead at the chunk line. [unverified](../examples/claim-tests.md#ref-3){.v .v-u}
 
-The sequence:
+The sequence: <!-- noclaim -->
 
 1. When the mod builds a building's chunk, it rolls once against `frontchance` (or the profile's `buildingFrontChance`). If the roll wins, that building gets a front part, chosen from the `fronts` selector.
 2. The front is **not** drawn in the building's own chunk. Nothing happens yet.
-3. Later, when a neighbouring **street** chunk generates, it looks at each of its four neighbours in turn. For any neighbour that is a building with a front, it draws that front along the shared edge.
+3. Later, when a neighbouring **street** chunk generates, it looks at each of its four neighbours in turn. For any neighbour that is a building with a front, it draws that front along the shared edge. [unverified](../examples/claim-tests.md#ref-3){.v .v-u}
 
-So one building with a front can have it drawn up to four times, once by each adjacent street chunk, and a street chunk between two buildings draws both.
+So one building with a front can have it drawn up to four times, once by each adjacent street chunk, and a street chunk between two buildings draws both. [unverified](../examples/claim-tests.md#ref-3){.v .v-u}
 
 !!! note "The front uses the building's palette, not the street's"
     The mod generates the part with the **neighbouring building's** context, so the front resolves its characters against that building's merged palette. This is what makes a front match the building it belongs to rather than the road it sits on.
 
-    Hard air in a front resolves to real air, so a front never fills with water, whatever the sea level.
+    Hard air in a front resolves to real air, so a front never fills with water, whatever the sea level. [code review](../examples/claim-tests.md#pipe-3){.v .v-c}
 
 ### When a front does not appear
 
-All of these must hold, or the street chunk skips it:
+All of these must hold, or the street chunk skips it: [unverified](../examples/claim-tests.md#ref-3){.v .v-u}
 
-| Condition | Meaning |
+| Condition | Meaning | [unverified](../examples/claim-tests.md#ref-3){.v .v-u}
 |---|---|
 | The neighbour has a building | Fronts only come from buildings. |
 | The neighbour's building rolled a front | The `frontchance` roll happened in the neighbour's chunk. |
@@ -209,25 +213,25 @@ All of these must hold, or the street chunk skips it:
 
 ### Front parts are deliberately not 16 by 16
 
-This is the exception to the usual footprint rule, and the mod's own content relies on it.
+This is the exception to the usual footprint rule, and the mod's own content relies on it. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-| Shipped part | `xsize` | `zsize` | Layers |
+| Shipped part | `xsize` | `zsize` | Layers | [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 |---|---|---|---|
 | `building_front1` | 2 | 16 | 4 |
 | `building_front2` | 3 | 16 | 4 |
 | `building_front3` | 3 | 16 | 4 |
 
-A front is a **strip**, 2 or 3 blocks deep and 16 long, running the full length of the shared edge. The mod places the same strip on each of the four sides using a different rotation, so you author it once, for one edge, and the mod turns it for the other three.
+A front is a **strip**, 2 or 3 blocks deep and 16 long, running the full length of the shared edge. The mod places the same strip on each of the four sides using a different rotation, so you author it once, for one edge, and the mod turns it for the other three. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-Write yours the same shape. A 16 by 16 front would cover the entire street chunk.
+Write yours the same shape. A 16 by 16 front would cover the entire street chunk. <!-- noclaim -->
 
 ## Inheritance
 
-`inherit` names one other city style. Chains work, so a style can inherit from a style that inherits from another, and the whole chain resolves.
+`inherit` names one other city style. Chains work, so a style can inherit from a style that inherits from another, and the whole chain resolves. [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 
-**There are two completely different merge behaviours, depending on the key.**
+**There are two completely different merge behaviours, depending on the key.** [game test](../examples/claim-tests.md#cty-5){.v .v-g}
 
-| Key group | Behaviour |
+| Key group | Behaviour | [game test](../examples/claim-tests.md#cty-5){.v .v-g}
 |---|---|
 | `selectors`, all eight lists, and `stuff_tags` | **Additive.** The mod appends the parent's entries to yours. You end up with both. |
 | Everything else: `style`, all the `...blocks` characters, `buildingsettings`, all the chances | **The child wins, key by key.** Any individual value you do not set is taken from the parent. |
@@ -235,9 +239,9 @@ Write yours the same shape. A 16 by 16 front would cover the entire street chunk
 
 ### Selectors accumulate, they do not replace
 
-This surprises nearly everyone. If a parent lists eight buildings and your child lists three, the resulting pool holds **eleven entries**, not three. There is no way to remove or narrow a parent's selector list. You can only add to it.
+This surprises nearly everyone. If a parent lists eight buildings and your child lists three, the resulting pool holds **eleven entries**, not three. There is no way to remove or narrow a parent's selector list. You can only add to it. [game test](../examples/claim-tests.md#cty-5){.v .v-g}
 
-If your three entries name buildings the parent also names, those buildings appear **twice** in the pool. Their effective weight is the sum of both factors, not your value.
+If your three entries name buildings the parent also names, those buildings appear **twice** in the pool. Their effective weight is the sum of both factors, not your value. [game test](../examples/claim-tests.md#cty-5){.v .v-g}
 
 ```json title="Parent"
 { "selectors": { "buildings": [
@@ -251,18 +255,18 @@ If your three entries name buildings the parent also names, those buildings appe
 ] } }
 ```
 
-The child's pool is `house` at 5.0, `house` at 1.0, and `tower` at 1.0. So `house` carries an effective weight of 6.0 against `tower`'s 1.0, not 5 to 1.
+The child's pool is `house` at 5.0, `house` at 1.0, and `tower` at 1.0. So `house` carries an effective weight of 6.0 against `tower`'s 1.0, not 5 to 1. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-**If you need a genuinely different building list, do not inherit from a style that has one.** Inherit from a minimal base, or from nothing, and declare the full list yourself.
+**If you need a genuinely different building list, do not inherit from a style that has one.** Inherit from a minimal base, or from nothing, and declare the full list yourself. <!-- noclaim -->
 
 !!! warning "`streetblocks.parts` is the exception, and it is all or nothing"
     Every other nested key merges key by key, so setting `streetblocks.border` alone keeps the parent's `streetblocks.wall`.
 
-    **`streetblocks.parts` does not work that way.** Writing any `parts` block at all, even one holding a single key, discards the parent's entire `parts` block. Every key you did not restate falls back to the mod's built-in default, not to the parent's value. Restate every key you want to keep.
+    **`streetblocks.parts` does not work that way.** Writing any `parts` block at all, even one holding a single key, discards the parent's entire `parts` block. Every key you did not restate falls back to the mod's built-in default, not to the parent's value. Restate every key you want to keep. [game test](../examples/claim-tests.md#cty-3){.v .v-g}
 
 ## How the shipped city styles are organised
 
-The five city styles the mod ships are worth reading before you write your own, because the layering is deliberate.
+The five city styles the mod ships are worth reading before you write your own, because the layering is deliberate. <!-- noclaim -->
 
 ```
 citystyle_config          only { "streetblocks": { "width": 8 } }
@@ -273,7 +277,7 @@ citystyle_    citystyle_    citystyle_border
 standard      desert        (adds buildingsettings and its own selectors)
 ```
 
-The two most used styles are two lines each.
+The two most used styles are two lines each. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
 ```json title="citystyle_standard.json, in full"
 {
@@ -288,27 +292,27 @@ The two most used styles are two lines each.
 }
 ```
 
-Three things are worth taking from this.
+Three things are worth taking from this. <!-- noclaim -->
 
-**1. A desert city is not made of different buildings.** `citystyle_standard` and `citystyle_desert` differ by exactly one key: which [Style](style.md) they point at. Same buildings, same street rules, same selectors, different palettes.
+**1. A desert city is not made of different buildings.** `citystyle_standard` and `citystyle_desert` differ by exactly one key: which [Style](style.md) they point at. Same buildings, same street rules, same selectors, different palettes. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-A city's visual identity comes from the palette layer, not from authoring a separate set of buildings. If you want a themed city, write a new Style and new palettes first, not new buildings.
+A city's visual identity comes from the palette layer, not from authoring a separate set of buildings. If you want a themed city, write a new Style and new palettes first, not new buildings. <!-- noclaim -->
 
-**2. `citystyle_config` exists to be overridden.** It sits at the bottom of the chain and holds one setting, so a modpack can replace one small file through the [`lostcities` namespace](../getting-started/namespaces.md) and have it apply to every city style, without copying anything else.
+**2. `citystyle_config` exists to be overridden.** It sits at the bottom of the chain and holds one setting, so a modpack can replace one small file through the [`lostcities` namespace](../getting-started/namespaces.md) and have it apply to every city style, without copying anything else. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-The pattern is worth copying: put the settings most likely to be changed in their own small file at the base of the chain. The particular setting this file holds, `streetblocks.width`, does nothing in 7.4.12, so do not read the file as evidence that street width is adjustable.
+The pattern is worth copying: put the settings most likely to be changed in their own small file at the base of the chain. The particular setting this file holds, `streetblocks.width`, does nothing in 7.4.12, so do not read the file as evidence that street width is adjustable. <!-- noclaim -->
 
-**3. `citystyle_border` is what city edges use.** It inherits `citystyle_common` and adds `buildingsettings` with `maxfloors: 1`, `maxcellars: 1` and `buildingchance: 0.2`, which gives low, sparse buildings.
+**3. `citystyle_border` is what city edges use.** It inherits `citystyle_common` and adds `buildingsettings` with `maxfloors: 1`, `maxcellars: 1` and `buildingchance: 0.2`, which gives low, sparse buildings. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-This is the style to pair with the [`cityStyleThreshold` and `cityStyleAlternative`](profile.md#cities) profile keys to fade a dense downtown out into low outskirts. If you want that effect, copy this working example.
+This is the style to pair with the [`cityStyleThreshold` and `cityStyleAlternative`](profile.md#cities) profile keys to fade a dense downtown out into low outskirts. If you want that effect, copy this working example. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-`citystyle_border` also restates all the block characters it would have inherited anyway. That is harmless duplication. You do not need to imitate it.
+`citystyle_border` also restates all the block characters it would have inherited anyway. That is harmless duplication. You do not need to imitate it. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
 ### Writing your own
 
-The practical decision is what to inherit from.
+The practical decision is what to inherit from. <!-- noclaim -->
 
-| Goal | Approach |
+| Goal | Approach | <!-- noclaim -->
 |---|---|
 | Retheme an existing city, with different materials and the same content | Set `inherit: "citystyle_common"` and point `style` at your own [Style](style.md). Two lines, exactly like `citystyle_desert`. |
 | Add a few buildings on top of the defaults | Set `inherit: "citystyle_common"` and list only your additions in `selectors.buildings`. The mod appends them to the built-in ones. |
@@ -327,7 +331,7 @@ The practical decision is what to inherit from.
 }
 ```
 
-Everything comes from `citystyle_common` except the Style and the building density. `buildingsettings` merges key by key here, so setting only `buildingchance` leaves the parent's floor and cellar bounds intact.
+Everything comes from `citystyle_common` except the Style and the building density. `buildingsettings` merges key by key here, so setting only `buildingchance` leaves the parent's floor and cellar bounds intact. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
 ## See also
 
@@ -336,4 +340,4 @@ Everything comes from `citystyle_common` except the Style and the building densi
 - [Building Reference](building.md) for the bounds that narrow `buildingsettings` further
 - [Streets, Highways, Rails and Monorails](../concepts/infrastructure-parts.md) for `streetblocks.parts`
 - [Stuff Object Reference](stuff.md) for `stuff_tags`
-- [Glossary](../glossary.md)
+- [Glossary](../glossary.md) <!-- noclaim -->

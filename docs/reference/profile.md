@@ -1,3 +1,7 @@
+---
+claims: verified
+---
+
 # Profile Reference
 
 !!! tip "TL;DR"
@@ -8,7 +12,7 @@
     29 keys are missing from this page and 3 of the keys that are here behave
     differently.
 
-    | If you are on | Read |
+    | If you are on | Read | [code review](../examples/claim-tests.md#key-1){.v .v-c}
     |---|---|
     | 7.4.12 | This page, as written. |
     | 7.5.x, 8.4.1, 9.5.1 or 10.0.1 | This page, plus [What changed in 7.5](../versions/7-5.md). Those four versions share one identical set of 160 keys. |
@@ -17,18 +21,18 @@
     Two changes here matter most. `streetGenerationMode` defaults to the new road
     planner, which refuses a building on any planned road chunk **before** it rolls
     `buildingchance`. And `highwayLevelFromCities` changed its default from `0` to
-    `3`.
+    `3`. [code review](../examples/claim-tests.md#key-1){.v .v-c}
 
 ## The file name is the profile name
 
 The mod reads every file in `config/lostcities/profiles/` whose name ends in
 `.json`, and takes the profile name from the file name. It does not read a name
-from inside the file.
+from inside the file. [code review](../examples/claim-tests.md#cfg-7){.v .v-c}
 
 The name is everything **before the first dot**, because the mod splits the file
-name on `.` and keeps the first piece.
+name on `.` and keeps the first piece. [game test](../examples/claim-tests.md#prf-4){.v .v-g}
 
-| File name | Profile name | Notes |
+| File name | Profile name | Notes | [game test](../examples/claim-tests.md#prf-4){.v .v-g}
 |---|---|---|
 | `mycity.json` | `mycity` | |
 | `mycity2.json` | `mycity2` | Digits are fine. |
@@ -41,11 +45,11 @@ name on `.` and keeps the first piece.
     profiles in a map keyed by that name, so the second file read replaces the
     first. There is no warning, and which one survives depends on directory order.
 
-    Keep dots out of profile file names.
+    Keep dots out of profile file names. <!-- noclaim -->
 
 The name is used as a plain map key. It is not a resource location, so it is not
 restricted to lowercase, and it does not need a namespace. What matters is that the
-name in `dimensionsWithProfiles` matches the file name exactly, including case.
+name in `dimensionsWithProfiles` matches the file name exactly, including case. [code review](../examples/claim-tests.md#cfg-4){.v .v-c}
 
 !!! warning "Loading a profile and being offered it are two different things"
     The rules above govern whether the mod **reads** the file. Whether it is
@@ -57,11 +61,11 @@ name in `dimensionsWithProfiles` matches the file name exactly, including case.
     outside-sphere profiles are hidden. Nothing anywhere inspects the characters of
     a name. An earlier version of this page said a digit, an uppercase letter, a
     hyphen or a dot kept a profile off the screen; that was observed once by hand,
-    is contradicted by the code, and is withdrawn.
+    is contradicted by the code, and is withdrawn. [code review](../examples/claim-tests.md#prf-3){.v .v-c}
 
     The list is ordered `default` first, then by `String.compareTo`, which is code
     point order: digits before uppercase, uppercase before lowercase. It sorts the
-    key rather than the label shown.
+    key rather than the label shown. [code review](../examples/claim-tests.md#prf-6){.v .v-c}
 
 ## File shape
 
@@ -76,16 +80,16 @@ name in `dimensionsWithProfiles` matches the file name exactly, including case.
 }
 ```
 
-`public` is root-level, not inside a category. Defaults to `true`. Set `false` to hide a profile from the in-game selector (used for the "private" outside-sphere profiles mentioned on the [connects page](../getting-started/how-it-connects.md)).
+`public` is root-level, not inside a category. Defaults to `true`. Set `false` to hide a profile from the in-game selector (used for the "private" outside-sphere profiles mentioned on the [connects page](../getting-started/how-it-connects.md)). [code review](../examples/claim-tests.md#prf-3){.v .v-c}
 
-Tables below: **Range** is the window the mod was designed and tested against, and the window the in-game screen enforces. A blank Range means it is not a number (text, block ID, list, or true/false).
+Tables below: **Range** is the window the mod was designed and tested against, and the window the in-game screen enforces. A blank Range means it is not a number (text, block ID, list, or true/false). [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 
 !!! danger "Nothing validates a JSON profile"
     The ranges below are **not enforced** when a profile is loaded from `config/lostcities/profiles/`. `"buildingMaxFloors": 9999` or `"cityChance": -50` load without a warning and are used exactly as written, which shows up as broken generation rather than a clear error.
 
-    Only the in-game config screen clamps: the clamp function has three callers, all of them GUI slider widgets. The load path never calls it, and the real bounds are not even registered by then, since the raw JSON values are read in first.
+    Only the in-game config screen clamps: the clamp function has three callers, all of them GUI slider widgets. The load path never calls it, and the real bounds are not even registered by then, since the raw JSON values are read in first. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-    Treat every range on this page as a rule you have to follow yourself.
+    Treat every range on this page as a rule you have to follow yourself. <!-- noclaim -->
 
 !!! tip "There is also an in-game screen for this"
     The "Cities" button on the world-creation screen exposes about 40 of the more common keys from `lostcity`, `explosions`, and `cityspheres` below (chances, floor/cellar counts, explosion tuning, highway/rail toggles) without touching JSON. It is session-only: nothing is written to `config/lostcities/profiles/` until the world is created. Anything not shown there, including every `spawn*` key, is JSON-only.
@@ -94,7 +98,7 @@ Tables below: **Range** is the window the mod was designed and tested against, a
 
 ### Identity & terrain
 
-| Key | Default | Range | Meaning |
+| Key | Default | Range | Meaning | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 |---|---|---|---|
 | `description` | *(text)* | | Shown for the profile in the selector. |
 | `extraDescription` | `""` | | Extra info text. |
@@ -118,29 +122,29 @@ Tables below: **Range** is the window the mod was designed and tested against, a
 !!! warning "`avoidWater` is narrower than its name and its official description"
     The mod's own config comment says *"all water will be avoided (replaced with air)"*. In 7.4.12 it has **exactly one** effect: while a part is being placed, a block that resolves to the profile's liquid becomes air instead.
 
-    | | |
+    | | | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
     |---|---|
     | Palette characters mapping to water, inside your parts | **Removed** |
     | Natural oceans, rivers, lakes, aquifers | **Untouched** |
     | The water that fills "hard air" below sea level | **Untouched by this flag**, see below |
 
-    So it drains *your buildings*, not *the world*. If you want a dry world you need terrain settings, not this.
+    So it drains *your buildings*, not *the world*. If you want a dry world you need terrain settings, not this. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
 !!! warning "`avoidFoliage` also controls water, which its name does not suggest"
     "Hard air" is a special palette result that becomes water when it sits below the chunk's water level, which is what floods the lower storeys of a coastal building.
 
-    The check that decides this reads **`avoidFoliage`**, not `avoidWater`:
+    The check that decides this reads **`avoidFoliage`**, not `avoidWater`: [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
     - `avoidFoliage: true` → hard air stays air, even below sea level
-    - `avoidFoliage: false` → hard air floods, regardless of `avoidWater`
+    - `avoidFoliage: false` → hard air floods, regardless of `avoidWater` [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-    That looks like a mix-up in the mod rather than a deliberate design, but it is what 7.4.12 does. If you are trying to stop buildings flooding, `avoidFoliage: true` is the flag that works, at the cost of trees and flowers in parks. The per-part [`nowater` meta](part.md#nowater) does the same thing for one part without that cost.
+    That looks like a mix-up in the mod rather than a deliberate design, but it is what 7.4.12 does. If you are trying to stop buildings flooding, `avoidFoliage: true` is the flag that works, at the cost of trees and flowers in parks. The per-part [`nowater` meta](part.md#nowater) does the same thing for one part without that cost. <!-- noclaim -->
 
 ### Landscape types
 
-`landscapeType` accepts exactly six values. It decides what the world outside the cities is made of, and several other keys are only consulted on some of them.
+`landscapeType` accepts exactly six values. It decides what the world outside the cities is made of, and several other keys are only consulted on some of them. [game test](../examples/claim-tests.md#fail-6){.v .v-g}
 
-| Value | What you get |
+| Value | What you get | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 |---|---|
 | `default` | Ordinary terrain, with cities sitting on it. This is the baseline every other type is a departure from. |
 | `floating` | Islands floating in empty space, with cities on the islands. `cityAvoidVoid` matters here, because a city can otherwise hang off an island edge. |
@@ -152,14 +156,14 @@ Tables below: **Range** is the window the mod was designed and tested against, a
 !!! note "`cavernspheres` satisfies two checks at once"
     The mod's internal tests are not one-per-value. `isCavern()` is true for both `cavern` and `cavernspheres`, and `isSpheres()` is true for both `spheres` and `cavernspheres`. So anything gated on either check applies to `cavernspheres`.
 
-    There is one test that separates them. `isVoidSpheres()` is true for `spheres` only, never for `cavernspheres`, which is what distinguishes spheres standing in open terrain from spheres enclosed in rock.
+    There is one test that separates them. `isVoidSpheres()` is true for `spheres` only, never for `cavernspheres`, which is what distinguishes spheres standing in open terrain from spheres enclosed in rock. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
 !!! warning "The terrain itself is not generated by this mod"
     Choosing anything other than `default` expects matching terrain to already exist. Lost Cities places cities, it does not generate floating islands or cavern systems. That is **Lost Worlds**, a separate mod by the same author. See [How It All Connects](../getting-started/how-it-connects.md).
 
 ### Spawn
 
-| Key | Default | Range | Meaning |
+| Key | Default | Range | Meaning | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 |---|---|---|---|
 | `spawnBiome` | `""` | | Force spawn in this biome. Empty = no restriction. |
 | `spawnCity` | `""` | | Force spawn in this predefined city. |
@@ -180,7 +184,7 @@ Tables below: **Range** is the window the mod was designed and tested against, a
 !!! note "These get overridden by CityStyle"
     `buildingChance`, floor/cellar min/max, `parkChance`, `avoidFoliage`/`parkBorder`/`parkElevation`/`parkStreetThreshold`, `fountainChance`, `buildingFrontChance`, and `corridorChance` all have `CityStyle`-level equivalents. When a `CityStyle` sets its own value, it wins. These profile values are only the fallback.
 
-| Key | Default | Range | Meaning |
+| Key | Default | Range | Meaning | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 |---|---|---|---|
 | `buildingChance` | `0.3` | 0 – 1 | Chance a city chunk is a building instead of a street. |
 | `buildingMinFloors` | `0` | 0 – 60 | The fewest floors above ground a building may be given. `0` means the ground floor only. |
@@ -210,11 +214,11 @@ Tables below: **Range** is the window the mod was designed and tested against, a
         (buildingMaxFloorsChance - buildingMinFloorsChance)
     )
     ```
-    capped at `buildingMaxFloors`. `cityFactor` is how "strong" this particular city is, roughly 0 to 1.
+    capped at `buildingMaxFloors`. `cityFactor` is how "strong" this particular city is, roughly 0 to 1. [code review](../examples/claim-tests.md#city-3){.v .v-c}
 
 ### Decay & overgrowth
 
-| Key | Default | Range | Meaning |
+| Key | Default | Range | Meaning | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 |---|---|---|---|
 | `vineChance` | `0.009` | 0 – 1 | Chance an exterior block gets a vine. |
 | `randomLeafBlockChance` | `0.1` | 0 – 1 | Chance of leaf blocks at building/street borders. |
@@ -229,7 +233,7 @@ Tables below: **Range** is the window the mod was designed and tested against, a
 
 ### Highways & railways
 
-| Key | Default | Range | Meaning |
+| Key | Default | Range | Meaning | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 |---|---|---|---|
 | `highwayRequiresTwoCities` | `true` | | If `true`, a highway needs a valid city at **both** ends. `false` lets one city be enough. |
 | `highwayLevelFromCities` | `0` | 0 – 3 | `0` top-left city's height, `1` min of both, `2` max of both, `3` average. |
@@ -246,7 +250,7 @@ Tables below: **Range** is the window the mod was designed and tested against, a
 
 ### Loot & misc
 
-| Key | Default | Range | Meaning |
+| Key | Default | Range | Meaning | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 |---|---|---|---|
 | `generateSpawners` | `true` | | If `false`, no spawners are placed even where a palette asks for them. |
 | `generateLoot` | `true` | | If `false`, chests generate empty even where a palette sets a `loot` table. |
@@ -256,7 +260,7 @@ Tables below: **Range** is the window the mod was designed and tested against, a
 
 ## `cities`
 
-| Key | Default | Range | Meaning |
+| Key | Default | Range | Meaning | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 |---|---|---|---|
 | `cityChance` | `0.01` | -1 – 1 | Chance a chunk is a city center. Exactly `-1` switches to Perlin-noise mode. |
 | `cityMinRadius` | `50` | 1 – 2000 | The smallest radius, in blocks, a city circle can roll. |
@@ -279,9 +283,9 @@ Tables below: **Range** is the window the mod was designed and tested against, a
 
 ## `explosions`
 
-Normal and mini explosions are independent settings.
+Normal and mini explosions are independent settings. [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 
-| Key | Default | Range | Meaning |
+| Key | Default | Range | Meaning | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 |---|---|---|---|
 | `explosionChance` | `0.002` | 0 – 1 | Per-chunk chance of a normal explosion. **Setting this to `0` does not turn explosions off.** `miniExplosionChance` is a separate roll, and its default is 15 times larger. |
 | `explosionMinRadius` | `15` | 1 – 1000 | The smallest blast radius, in blocks, that a normal explosion can roll. |
@@ -298,9 +302,9 @@ Normal and mini explosions are independent settings.
 
 ## `cityspheres`
 
-Mostly relevant to `space`, `spheres`, and `cavernspheres` landscape types.
+Mostly relevant to `space`, `spheres`, and `cavernspheres` landscape types. [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 
-| Key | Default | Range | Meaning |
+| Key | Default | Range | Meaning | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 |---|---|---|---|
 | `citySphereFactor` | `1.2` | 0.1 – 10 | `space` only: outer sphere radius = city radius × this. |
 | `citySphereChance` | `0.7` | 0 – 1 | The chance a given city is enclosed in a sphere. Only consulted on the sphere landscape types. |
@@ -319,9 +323,9 @@ Mostly relevant to `space`, `spheres`, and `cavernspheres` landscape types.
 
 ## `client`
 
-Only affects players who also have Lost Cities installed. `-1` leaves the default alone.
+Only affects players who also have Lost Cities installed. `-1` leaves the default alone. [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 
-| Key | Default | Range | Meaning |
+| Key | Default | Range | Meaning | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 |---|---|---|---|
 | `horizon` | `-1` | -1 – 256 | Overrides the client-side horizon height, which is where the sky meets the fog. `-1` leaves Minecraft's own value alone. |
 | `fogRed` | `-1` | -1 – 1 | Red fog component, `0`–`1` when set explicitly. |
@@ -338,4 +342,4 @@ Only affects players who also have Lost Cities installed. `-1` leaves the defaul
 ## See also
 
 - [How It All Connects](../getting-started/how-it-connects.md) for how a profile gets picked at all
-- [Glossary](../glossary.md)
+- [Glossary](../glossary.md) <!-- noclaim -->
