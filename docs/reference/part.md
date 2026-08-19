@@ -9,7 +9,7 @@ claims: verified
 
 ## Keys
 
-| Key | Required | Meaning | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| Key | Required | Meaning [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|---|
 | `xsize` / `zsize` | **yes** | The footprint size in blocks. Use `16` and `16`. See the warning below. |
 | `slices` | **yes** | The list of layers, bottom to top. Each layer is a list of row strings. |
@@ -47,7 +47,7 @@ That is one layer: a hollow 4 by 4 box made of whatever block `α` maps to. <!--
 
     Confirmed in game on 7.4.12, both directions: [game test](../examples/claim-tests.md#prt-1){.v .v-g}
 
-    | Layer total | Result | [game test](../examples/claim-tests.md#prt-2){.v .v-g}
+    | Layer total | Result [game test](../examples/claim-tests.md#prt-2){.v .v-g} |
     |---|---|
     | 257 characters, one row written 17 long | No error. A marker at the extra position **was** placed, one column further on, and the character at index 256 was never read. |
     | 255 characters, one row written 15 long | The chunk fails with `String index out of range: 255`, which is the last position of a 16 by 16 layer. |
@@ -76,7 +76,7 @@ Each floor of a building occupies **6 blocks** of vertical space, and the mod st
 
 Each entry is a `key` plus exactly one typed value: `boolean`, `char`, `string`, `integer` or `float`. The mod accepts an unknown key and ignores it, but **five keys are real and read during generation**. Two of them are mandatory for certain kinds of part, so `meta` is not optional decoration. [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 
-| Key | Type | Applies to | Effect | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| Key | Type | Applies to | Effect [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|---|---|
 | `support` | char | Highway and bridge parts | The palette character used for the support pillars underneath. |
 | `z1` / `z2` | integer | Stair parts | The Z range along the part's edge that the staircase occupies. |

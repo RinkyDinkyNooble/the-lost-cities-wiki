@@ -15,7 +15,7 @@ behind most reports of a setting that "does nothing". <!-- noclaim -->
 
 ### `torch` needs `generateLighting`
 
-| | | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| | [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|
 | Set | A palette entry with `torch: true` |
 | Defeated by | `lostcity.generateLighting`, default `false` |
@@ -27,7 +27,7 @@ are unlit under a default profile. See [Palette](palette.md#torch-requires-gener
 
 ### `explosionChance: 0` does not stop explosions
 
-| | | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| | [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|
 | Set | `explosions.explosionChance: 0.0` |
 | Defeated by | `explosions.miniExplosionChance`, default `0.03` |
@@ -38,7 +38,7 @@ A profile that wants undamaged buildings has to zero both. [code review](../exam
 
 ### `avoidWater` does not stop buildings flooding
 
-| | | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| | [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|
 | Set | `lostcity.avoidWater: true` |
 | Actually controlled by | `lostcity.avoidFoliage` |
@@ -50,7 +50,7 @@ losing foliage. See [Profile](profile.md). [code review](../examples/claim-tests
 
 ### `buildingchance: 1.0` does not fill every chunk on 7.5.0 or later
 
-| | | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| | [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|
 | Set | `buildingchance: 1.0` on a city style |
 | Defeated by | `streetGenerationMode`, default `HIERARCHICAL_GRID_V1` from 7.5.0 |
@@ -62,7 +62,7 @@ losing foliage. See [Profile](profile.md). [code review](../examples/claim-tests
 
 ### `preventruins` is on the pinned building, not the Building asset
 
-| | | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| | [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|
 | Looking for | A key on a [Building](building.md) that protects it from ruins |
 | Where it is | `preventruins` on a **pinned building inside a predefined city** |
@@ -76,7 +76,7 @@ losing foliage. See [Profile](profile.md). [code review](../examples/claim-tests
 The floor count is clamped to the maximum, then raised to the minimum. The minimum
 is a `max()`, so it wins. [game test](../examples/claim-tests.md#bld-3){.v .v-g}
 
-| Declared | Result | [game test](../examples/claim-tests.md#bld-3){.v .v-g}
+| Declared | Result [game test](../examples/claim-tests.md#bld-3){.v .v-g} |
 |---|---|
 | `maxfloors: 3`, `minfloors: 6` | **6 floors.** The minimum overrides the maximum it was just clamped to. |
 | `maxfloors: 3` alone | At most 3, subject to the profile and city style. |
@@ -100,7 +100,7 @@ Checked in a world on 7.4.12. See [Palette](palette.md#collisions-and-merge-orde
 
 ### A chest is filled only if four things agree
 
-| Gate | Default | Effect when it fails | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| Gate | Default | Effect when it fails [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|---|
 | `generateLoot` | `true` | Every chest is empty. |
 | `buildingWithoutLootChance` | `0.2` | One building in five gets neither loot nor spawners. |
@@ -118,7 +118,7 @@ world style names city styles, and a city style names buildings. [code review](.
 
 A wrong name at the first three is not equal in consequence: [game test](../examples/claim-tests.md#ns-4){.v .v-g}
 
-| Wrong name in | Result | [game test](../examples/claim-tests.md#ns-5){.v .v-g}
+| Wrong name in | Result [game test](../examples/claim-tests.md#ns-5){.v .v-g} |
 |---|---|
 | `dimensionsWithProfiles` | The dimension generates with a default profile. |
 | The profile's `worldStyle` | **The server crashes.** It is resolved before the generation try/catch. |
@@ -140,7 +140,7 @@ On those landscape types nothing catches it, because `LostCitySphereFeature` has
 
 ### A predefined city ignores the values that would otherwise choose
 
-| Normally decided by | Inside a predefined city | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| Normally decided by | Inside a predefined city [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|
 | `cityChance` | Ignored. The centre chunk is a city centre even at `0.0`. |
 | The city radius roll | Fixed to `radius`. |

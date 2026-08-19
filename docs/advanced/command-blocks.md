@@ -49,7 +49,7 @@ This is the reliable workaround for the stair-shape problem described on the [Pa
 
 Anything a command can do, on generation, with no player involved: [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-| Goal | Command shape | [code review](../examples/claim-tests.md#ref-2){.v .v-c}
+| Goal | Command shape [code review](../examples/claim-tests.md#ref-2){.v .v-c} |
 |---|---|
 | Force an exact block state the palette cannot express | `setblock ~ ~ ~ <state> replace` |
 | Fill a small region | `fill ~ ~ ~ ~2 ~2 ~2 <block> replace` |

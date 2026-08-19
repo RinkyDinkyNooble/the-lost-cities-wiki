@@ -13,7 +13,7 @@ status: in-progress
 
 Three ways to author parts, in rough order of how much hand-editing each involves: <!-- noclaim -->
 
-| Approach | Good for | Cost | <!-- noclaim -->
+| Approach | Good for | Cost <!-- noclaim --> |
 |---|---|---|
 | **Write JSON by hand** | small parts, quick edits, anything scripted | tedious past a few layers |
 | **In-game edit mode** | shaping a part in place and seeing it immediately | needs a dedicated world, session is fragile |
@@ -43,7 +43,7 @@ Set `editMode: true` in your [profile](../reference/profile.md)'s `lostcity` sec
 
 All require op (permission level 1) and all refuse outright unless the world was created with `editMode: true`. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-| Command | What it does | [code review](../examples/claim-tests.md#ref-2){.v .v-c}
+| Command | What it does [code review](../examples/claim-tests.md#ref-2){.v .v-c} |
 |---|---|
 | `/lostcities createpart <name> <pos>` | Creates a new empty part at a position and starts editing it |
 | `/lostcities editpart` | Edits the part you are standing inside. **Repaints it from the saved JSON first**, see below |
@@ -100,7 +100,7 @@ This sidesteps every editor limitation above, since nothing round-trips through 
 
 Whatever tool you use has to get these right, and none of them are checked by the mod: [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-| Rule | Consequence of getting it wrong | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| Rule | Consequence of getting it wrong [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|
 | Exactly 16×16, and 6 slices per floor level | Silent corruption, no error |
 | Every row exactly `xsize` **UTF-16 code units** | Diagonal smear across the layer |

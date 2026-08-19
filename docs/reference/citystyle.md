@@ -11,7 +11,7 @@ claims: verified
     More of this page is version-sensitive than any other reference page, because
     the street, park, corridor and general settings all live here.
 
-    | Keys | Need | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+    | Keys | Need [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
     |---|---|
     | `profile_overrides`, holding only `openLotParkChance` | 7.5.0 |
     | Inside `parkblocks`: `parkchance`, `parkborder`, `parkelevation`, `parkstreetthreshold`, `avoidfoliage` | 7.4.12 |
@@ -26,7 +26,7 @@ claims: verified
 
 ## Keys
 
-| Key | Required | Meaning | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| Key | Required | Meaning [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|---|
 | `inherit` | no | The name of another city style to build on. See [Inheritance](#inheritance). |
 | `style` | no | The name of a [Style](style.md), which is the palette combinator. This decides how the city looks. |
@@ -54,7 +54,7 @@ claims: verified
 
     The full set, with the values `citystyle_common` uses: [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 
-    | Block group | Characters | `citystyle_common` | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+    | Block group | Characters | `citystyle_common` [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
     |---|---|---|
     | `streetblocks` | `street`, `border`, `wall` | `S`, `y`, `w` |
     | `corridorblocks` | `roof`, `glass` | `x`, `+` |
@@ -82,7 +82,7 @@ claims: verified
 !!! warning "Three `streetblocks` keys parse and then do nothing"
     `width`, `streetbase` and `streetvariant` all load, all inherit, and are all readable by a companion mod through `ILostCityCityStyle`. **No generation code reads any of them.**
 
-    | Key | Reaches | Read during generation | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+    | Key | Reaches | Read during generation [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
     |---|---|---|
     | `street` | City style, generator | Yes |
     | `border` | City style, generator | Yes |
@@ -118,7 +118,7 @@ claims: verified
 
 All eight selector lists take the same entry shape. Two keys are the common case. Three more exist and are almost unknown. [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 
-| Key | Required | Limits | Meaning | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| Key | Required | Limits | Meaning [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|---|---|
 | `factor` | **yes** | float above 0 | The relative weight. |
 | `value` | **yes** | | The name of the building, park, bridge and so on. |
@@ -153,7 +153,7 @@ Inside the allowed band the entry carries its full `factor`. Within `feather` bl
 
 Setting a selector to `[]` is not uniformly safe. The weighted picker returns `null` for an empty list, and what happens next depends entirely on which lookup the caller used. [game test](../examples/claim-tests.md#cty-7){.v .v-g}
 
-| Selector | Empty list | What you get | [game test](../examples/claim-tests.md#cty-7){.v .v-g}
+| Selector | Empty list | What you get [game test](../examples/claim-tests.md#cty-7){.v .v-g} |
 |---|---|---|
 | `parks` | Safe | No park in that chunk. |
 | `fountains` | Safe | No fountain. |
@@ -203,7 +203,7 @@ So one building with a front can have it drawn up to four times, once by each ad
 
 All of these must hold, or the street chunk skips it: [game test](../examples/claim-tests.md#frt-1){.v .v-g}
 
-| Condition | Meaning | [game test](../examples/claim-tests.md#frt-1){.v .v-g}
+| Condition | Meaning [game test](../examples/claim-tests.md#frt-1){.v .v-g} |
 |---|---|
 | The neighbour has a building | Fronts only come from buildings. |
 | The neighbour's building rolled a front | The `frontchance` roll happened in the neighbour's chunk. |
@@ -215,7 +215,7 @@ All of these must hold, or the street chunk skips it: [game test](../examples/cl
 
 This is the exception to the usual footprint rule, and the mod's own content relies on it. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-| Shipped part | `xsize` | `zsize` | Layers | [code review](../examples/claim-tests.md#ref-2){.v .v-c}
+| Shipped part | `xsize` | `zsize` | Layers [code review](../examples/claim-tests.md#ref-2){.v .v-c} |
 |---|---|---|---|
 | `building_front1` | 2 | 16 | 4 |
 | `building_front2` | 3 | 16 | 4 |
@@ -231,7 +231,7 @@ Write yours the same shape. A 16 by 16 front would cover the entire street chunk
 
 **There are two completely different merge behaviours, depending on the key.** [game test](../examples/claim-tests.md#cty-5){.v .v-g}
 
-| Key group | Behaviour | [game test](../examples/claim-tests.md#cty-5){.v .v-g}
+| Key group | Behaviour [game test](../examples/claim-tests.md#cty-5){.v .v-g} |
 |---|---|
 | `selectors`, all eight lists, and `stuff_tags` | **Additive.** The mod appends the parent's entries to yours. You end up with both. |
 | Everything else: `style`, all the `...blocks` characters, `buildingsettings`, all the chances | **The child wins, key by key.** Any individual value you do not set is taken from the parent. |
@@ -312,7 +312,7 @@ This is the style to pair with the [`cityStyleThreshold` and `cityStyleAlternati
 
 The practical decision is what to inherit from. <!-- noclaim -->
 
-| Goal | Approach | <!-- noclaim -->
+| Goal | Approach <!-- noclaim --> |
 |---|---|
 | Retheme an existing city, with different materials and the same content | Set `inherit: "citystyle_common"` and point `style` at your own [Style](style.md). Two lines, exactly like `citystyle_desert`. |
 | Add a few buildings on top of the defaults | Set `inherit: "citystyle_common"` and list only your additions in `selectors.buildings`. The mod appends them to the built-in ones. |

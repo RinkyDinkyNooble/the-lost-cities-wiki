@@ -23,7 +23,7 @@ claims: verified
 
 ## Entry keys
 
-| Key | Required | Meaning | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| Key | Required | Meaning [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|---|
 | `char` | **yes** | One character. It must be unique within the merged palette set that uses it. See [What counts as a valid character](#what-counts-as-a-valid-character). |
 | `block` | one of these four | A fixed block state string. |
@@ -74,7 +74,7 @@ keeping its original blocks on the way down. [game test](../examples/claim-tests
 Measured on 7.4.12, `ruinChance: 1.0` with explosions off, on a three-storey
 building made entirely of one character mapped `iron_block` to `cobweb`: [game test](../examples/claim-tests.md#pal-13){.v .v-g}
 
-| | | [game test](../examples/claim-tests.md#pal-13){.v .v-g}
+| | [game test](../examples/claim-tests.md#pal-13){.v .v-g} |
 |---|---|
 | Iron left standing | 587 of 2256 |
 | Cobweb from the swap | 2 |
@@ -92,7 +92,7 @@ recolour a ruin. <!-- noclaim -->
 pass, and the [Profile](profile.md)'s `generateLighting` decides whether that pass
 runs at all. [game test](../examples/claim-tests.md#pal-12){.v .v-g}
 
-| `generateLighting` | What the character becomes | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| `generateLighting` | What the character becomes [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|
 | `false`, **the default** | **`minecraft:air`.** The `block` you wrote is discarded and nothing is placed. |
 | `true` | The position is queued, and after the chunk exists the mod places a real vanilla torch there. |
@@ -181,7 +181,7 @@ position first, the mod skips the roll silently. [code review](../examples/claim
 
 A `loot` key that looks correct and still produces an empty chest is normal, and there are five separate reasons. They are independent, so ruling one out does not rule out the rest. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-| Cause | Where it is decided | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| Cause | Where it is decided [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|
 | `generateLoot` is `false` in the profile. Every chest generates empty. | Profile |
 | `buildingWithoutLootChance`, default `0.2`. One building in five is chosen to get neither loot nor spawners, before any chest is considered. | Profile, applied per building |
@@ -206,7 +206,7 @@ Almost any character you can type is valid, provided it is a single UTF-16 code 
 
 `char` is declared as a JSON string, not as a character, and the mod keeps only its **first UTF-16 code unit**. Nothing validates the rest. [game test](../examples/claim-tests.md#pal-7){.v .v-g}
 
-| You write | What the mod registers | [game test](../examples/claim-tests.md#pal-7){.v .v-g}
+| You write | What the mod registers [game test](../examples/claim-tests.md#pal-7){.v .v-g} |
 |---|---|
 | `"α"` | `α`. The normal case. |
 | `"ab"` | `a`. The mod discards the `b` silently. |
@@ -230,7 +230,7 @@ Every character key in every Lost Cities file behaves this way, not only in pale
 
 The mod's own `/lc exportpart` command assigns characters to new blocks from a fixed pool. It exhausts each tier before it moves to the next. The list is worth copying. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-| Tier | Range | Count | [code review](../examples/claim-tests.md#ref-2){.v .v-c}
+| Tier | Range | Count [code review](../examples/claim-tests.md#ref-2){.v .v-c} |
 |---|---|---|
 | 1 | Printable ASCII, except space, `"` and `\` | 92 |
 | 2 | U+0370 to U+03FF, Greek and Coptic (`α β γ Δ Ω`) | 144 |
@@ -270,7 +270,7 @@ Could not find entry 'ß' in the palette for part 'mypack:my_part'!
 
 A weighted list, whether `blocks` here or inside a [Variant](variant.md), fills a **fixed array of 128 slots**, in list order. [game test](../examples/claim-tests.md#pal-3){.v .v-g}
 
-| Total weight | Result | [game test](../examples/claim-tests.md#pal-3){.v .v-g}
+| Total weight | Result [game test](../examples/claim-tests.md#pal-3){.v .v-g} |
 |---|---|
 | Under 128 | The mod throws at palette load: `Not enough blocks in the random list`. |
 | Exactly 128 | Every entry gets its exact stated share. |
@@ -324,7 +324,7 @@ When the mod rotates a part, a block rotates with it only if that block is in th
 
 Besides `rotatable`, five more tags in the `lostcities` namespace affect how palette blocks behave. All are ordinary datapack tags, and you extend them the same way. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-| Tag | Default contents | Effect | [code review](../examples/claim-tests.md#ref-2){.v .v-c}
+| Tag | Default contents | Effect [code review](../examples/claim-tests.md#ref-2){.v .v-c} |
 |---|---|---|
 | `lostcities:notbreakable` | 4 blocks: bedrock, end portal, end portal frame, end gateway | Explosion and ruin damage always skip these, whatever `explosionMaxRadius` or the ruin settings say. |
 | `lostcities:easybreakable` | 39 blocks, listed individually: glass, every stained glass and pane, tinted glass, glowstone, beacon, sea lantern, conduit | These break more readily under explosion and ruin damage than an untagged block. |

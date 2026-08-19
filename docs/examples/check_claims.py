@@ -108,6 +108,37 @@ def is_table(block: list[str]) -> bool:
             and re.match(r"^\s*\|[\s:|-]+\|\s*$", block[1]))
 
 
+def columns(row: str) -> int:
+    """Count a row's cells, ignoring pipes inside code spans or link targets."""
+    r = row.strip()
+    r = r[1:] if r.startswith("|") else r
+    r = r[:-1] if r.endswith("|") else r
+    n, depth, incode = 1, 0, False
+    for ch in r:
+        if ch == "`":
+            incode = not incode
+        elif not incode and ch == "(":
+            depth += 1
+        elif not incode and ch == ")":
+            depth -= 1
+        elif not incode and depth == 0 and ch == "|":
+            n += 1
+    return n
+
+
+def check_table_shape(where: str, block: list[str]) -> None:
+    """A header wider than its separator silently destroys the whole table.
+
+    Markdown gives up and renders every row as one run-on paragraph, which
+    builds cleanly and looks catastrophic. Appending anything past a row's
+    closing pipe is the way it happens.
+    """
+    head, sep = columns(block[0]), columns(block[1])
+    if head != sep:
+        err(where, f"table header has {head} columns and its separator "
+                   f"declares {sep}. Markdown will not render this as a table")
+
+
 def check_chips(where: str, text: str, known: set[str],
                 seen: dict[str, set[str]]) -> list[str]:
     """Validate every chip in a stretch of text and return the statuses found.
@@ -161,6 +192,7 @@ def check_page(path: Path, known: set[str],
             continue
 
         if is_table(block):
+            check_table_shape(where, block)
             # A chip on a data row covers that row. A chip anywhere else in the
             # block, meaning the header or a line run on under the table, covers
             # the table as a whole. Rows may then differ from it by carrying

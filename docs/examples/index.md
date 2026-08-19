@@ -12,7 +12,7 @@ Targets **Lost Cities 7.4.12 / Minecraft 1.20.1 (Forge)**. [code review](../exam
 
 The datapack built step by step in [Your First Custom City](../getting-started/first-city.md). A glass-and-concrete tower that replaces most buildings in a city, in its own `mycity` namespace so it collides with nothing. <!-- noclaim -->
 
-| File | What it is | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| File | What it is [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|
 | [`pack.mcmeta`](first-city/pack.mcmeta) | Makes the folder a datapack |
 | [`palettes/tower.json`](first-city/data/mycity/lostcities/palettes/tower.json) | Five characters, one `damaged` mapping |
@@ -66,7 +66,7 @@ python docs/examples/validate.py docs/examples/first-city
 
 What it catches in a datapack, and where each rule is documented: <!-- noclaim -->
 
-| Check | Documented at | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| Check | Documented at [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|
 | `char` is one UTF-16 code unit, and a longer string is truncated to its first | [Palette](../reference/palette.md#what-counts-as-a-valid-character) |
 | Exactly one of `block`/`variant`/`blocks`/`frompalette` per entry | [Palette](../reference/palette.md) |
@@ -85,7 +85,7 @@ What it catches in a datapack, and where each rule is documented: <!-- noclaim -
 
 And in a profile, if the pack ships one: <!-- noclaim -->
 
-| Check | Documented at | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| Check | Documented at [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|
 | Every key exists, and sits in the section the mod registered it under | [Profile](../reference/profile.md) |
 | `worldStyle` names a world style the pack defines | [Error Messages](../troubleshooting/errors.md#thrown-during-chunk-generation) |
@@ -105,7 +105,7 @@ holds three datapacks and two profiles, generated from one definition so they ca
 drift apart. All three build the **same** three towers, so any difference between
 them is a fault. [game test](../examples/claim-tests.md#kjs-2){.v .v-g}
 
-| Pack | Every asset is | Needs | <!-- noclaim -->
+| Pack | Every asset is | Needs <!-- noclaim --> |
 |---|---|---|
 | `j5-pure-json` | `.json` | nothing but Lost Cities 7.4.12 |
 | `j5-pure-json5` | `.json5` | [The Lost Cities - DevTool](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/tree/main/mod) |
@@ -130,7 +130,7 @@ every namespace in full and generates. The other three each drop `nstest:` from 
 different reference, and each fails differently: one silently, one across a
 40-chunk area, one by taking the server down. [game test](../examples/claim-tests.md#ns-4){.v .v-g}
 
-| Profile | What it changes | Outcome | [game test](../examples/claim-tests.md#ns-5){.v .v-g}
+| Profile | What it changes | Outcome [game test](../examples/claim-tests.md#ns-5){.v .v-g} |
 |---|---|---|
 | `wtten` | nothing | Three of four towers behave as the register records |
 | `wttenbare` | the profile's `worldStyle` loses its namespace | The server crashes on the first chunk |

@@ -30,7 +30,7 @@ The mod collects every entry whose tests pass, then picks one `value` at random.
 
 A Condition entry and a Building part entry accept the same 13 test keys. [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 
-| Key | Type | Meaning | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| Key | Type | Meaning [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|---|
 | `top` | bool | If `true`, matches only when the floor index is at or above the building's top floor. If `false`, matches every other floor. |
 | `ground` | bool | If `true`, matches only floor index 0. If `false`, matches every other floor. |
@@ -80,7 +80,7 @@ When the mod fills a building's floors, the `ConditionContext` it builds is give
 the literal string `<none>` as the current part. It has to be: it is deciding which
 part to use, so there is no current part yet. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-| Where the condition is evaluated | What `inpart` and `belowpart` see | [game test](../examples/claim-tests.md#cnd-5){.v .v-g}
+| Where the condition is evaluated | What `inpart` and `belowpart` see [game test](../examples/claim-tests.md#cnd-5){.v .v-g} |
 |---|---|
 | A [Building](building.md)'s `parts` list | Always `<none>` |
 | A Condition named by a palette's `loot` or `mob` | The real part being placed |
@@ -115,7 +115,7 @@ Both ends are included, so this matches floor indices 9, 10, 11 and 12. Negative
 !!! warning "A malformed `range` either throws or is silently misread"
     The mod splits the string on commas, then reads the first two pieces as integers. It throws `Bad range specification: <l1>,<l2>!` when that fails.
 
-    | You write | Result | [game test](../examples/claim-tests.md#cnd-3){.v .v-g}
+    | You write | Result [game test](../examples/claim-tests.md#cnd-3){.v .v-g} |
     |---|---|
     | `"9,12"` | Matches floors 9 to 12. |
     | `"9"` | Throws. There is no second number. |

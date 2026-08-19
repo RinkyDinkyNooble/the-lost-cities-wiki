@@ -14,7 +14,7 @@ claims: verified
 
 ## Keys
 
-| Key | Required | Default | Meaning | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| Key | Required | Default | Meaning [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|---|---|
 | `filler` | **yes** | | One palette character. The mod uses it to seat the building into the terrain. See [Filler](#filler-what-it-is-and-why-it-is-required). |
 | `rubble` | no | | One palette character, used for rubble when this building is ruined. If the character is not defined in the palette, the mod uses `filler` instead. |
@@ -102,7 +102,7 @@ Then it applies the two bounds, **in this order**: [game test](../examples/claim
 
 Each bound is resolved from three sources: [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-| Bound | `overrideFloors: false` (default) | `overrideFloors: true` | [game test](../examples/claim-tests.md#bld-2){.v .v-g}
+| Bound | `overrideFloors: false` (default) | `overrideFloors: true` [game test](../examples/claim-tests.md#bld-2){.v .v-g} |
 |---|---|---|
 | maximum | The smallest of the profile's `buildingMaxFloors`, the building's `maxfloors`, and the city style's `maxfloors` | The building's `maxfloors`, alone |
 | minimum | The largest of the profile's `buildingMinFloors`, the building's `minfloors`, and the city style's `minfloors` | The building's `minfloors`, alone |
@@ -125,7 +125,7 @@ Each bound is resolved from three sources: [code review](../examples/claim-tests
 **So what is `overrideFloors` actually for?** Making a building **shorter or looser**
 than the profile permits, which is the case the `min` and `max` cannot express: [game test](../examples/claim-tests.md#bld-2){.v .v-g}
 
-| Goal | What to write | [game test](../examples/claim-tests.md#bld-2){.v .v-g}
+| Goal | What to write [game test](../examples/claim-tests.md#bld-2){.v .v-g} |
 |---|---|
 | Never taller than 2, whatever the profile says | `maxfloors: 2`. No override needed, `min()` already wins. |
 | Never shorter than 6, whatever the profile says | `minfloors: 6`. No override needed, `max()` already wins. |
@@ -137,7 +137,7 @@ Cellar counts work the same way, with one addition. The mod adds the chunk's cit
 
 Floor numbering: <!-- noclaim -->
 
-| Level | Index | [game test](../examples/claim-tests.md#bld-1){.v .v-g}
+| Level | Index [game test](../examples/claim-tests.md#bld-1){.v .v-g} |
 |---|---|
 | Deepest cellar | `-cellars` |
 | Ground floor | `0` |
@@ -217,7 +217,7 @@ The same rule applies below ground. If cellars generate and no part matches a ne
 
 Each entry in `parts` is a part name plus any of **13** optional test keys. They are the same set a [Condition](condition.md) entry uses, so anything valid there is valid here. [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 
-| Key | Type | Matches when | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| Key | Type | Matches when [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|---|
 | `part` | string | **Required.** Not a test. It names the [Building Part](part.md) this entry places when every test below passes. An entry without it fails to load. |
 | `floor` | int | The level index equals this number. `0` is ground, negatives are cellars. |
@@ -257,7 +257,7 @@ Among all matching entries the mod picks one at random with equal probability. T
 }
 ```
 
-| | | [game test](../examples/claim-tests.md#cnd-3){.v .v-g}
+| | [game test](../examples/claim-tests.md#cnd-3){.v .v-g} |
 |---|---|
 | **Format** | A string holding two integers separated by a comma. Write `"9,12"`, not `[9,12]` and not `9,12`. |
 | **Bounds** | Inclusive at both ends. `"9,12"` matches 9, 10, 11 and 12. |
@@ -268,7 +268,7 @@ Among all matching entries the mod picks one at random with equal probability. T
 
     These forms do throw `Bad range specification: <l1>,<l2>!`: [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-    | You write | Why it throws | [code review](../examples/claim-tests.md#ref-2){.v .v-c}
+    | You write | Why it throws [code review](../examples/claim-tests.md#ref-2){.v .v-c} |
     |---|---|
     | `"9"` | There is no second number. |
     | `"9, 12"` | The space makes `" 12"` a non-number. |

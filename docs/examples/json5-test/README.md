@@ -9,7 +9,7 @@ Three datapacks and two profiles, generated from one definition by
 the **same** three towers, so any difference between them is a fault rather than a
 design choice. <!-- noclaim -->
 
-| Pack | Every asset is | <!-- noclaim -->
+| Pack | Every asset is <!-- noclaim --> |
 |---|---|
 | `j5-pure-json` | `.json` |
 | `j5-pure-json5` | `.json5` |
@@ -41,7 +41,7 @@ Three towers, two chunks apart, about 24 blocks tall, on ground near y 71: <!-- 
 /tp @s 136 110 136
 ```
 
-| x | Correct | A wrong colour means | <!-- noclaim -->
+| x | Correct | A wrong colour means <!-- noclaim --> |
 |---|---|---|
 | 136 | Gold | diamond, the building `.json` won; redstone, the part or palette `.json` won |
 | 168 | Diamond | as above |
@@ -60,7 +60,7 @@ The two profiles differ only in `description`, so neither changes what generates
 
 Each pack on a headless server, same seed, same profile, same probes. <!-- noclaim -->
 
-| Pack | Probes | Failed chunks | Override warnings | <!-- noclaim -->
+| Pack | Probes | Failed chunks | Override warnings <!-- noclaim --> |
 |---|---|---|---|
 | `j5-pure-json` | 8 / 8 | none | 0 |
 | `j5-pure-json5` | 8 / 8 | none | 0 |

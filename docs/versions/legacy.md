@@ -77,8 +77,8 @@ them, and its syntax, does not. [code review](../examples/claim-tests.md#key-1){
 
 Two options, and neither one is bad. <!-- noclaim -->
 
-| Option | What it costs |
-|---|---| [code review](../examples/claim-tests.md#f12-2){.v .v-c}
+| Option | What it costs [code review](../examples/claim-tests.md#f12-2){.v .v-c} |
+|---|---|
 | Stay | Nothing. [The File-Asset Era](../file-era/index.md) documents the system you have |
 | Move to a datapack version | Rewriting your content once, into one file per asset, and every block name with it |
 

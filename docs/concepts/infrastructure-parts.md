@@ -24,7 +24,7 @@ The single most common assumption is that each street shape is locked to exactly
 }
 ```
 
-| Category | Multiple variants? | How one is chosen | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| Category | Multiple variants? | How one is chosen [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|---|
 | Streets | **Yes**, list or single string | Uniform random, every entry equally likely |
 | Highways | **Yes**, list or single string | Uniform random |
@@ -91,7 +91,7 @@ Any key you leave out keeps its default part name. The keys are not always spell
 
 ### Streets
 
-| Key | Default part | Used when | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| Key | Default part | Used when [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|---|
 | `full` | `street_full` | **Never. See below.** |
 | `straight` | `street_straight` | 2 connections, opposite sides |
@@ -127,7 +127,7 @@ The key is literally `"t"`, not `"tsplit"`. [code review](../examples/claim-test
 
 ### Highways
 
-| Key | Default part | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| Key | Default part [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|
 | `tunnel` | `highway_tunnel` |
 | `open` | `highway_open` |
@@ -142,7 +142,7 @@ The key is literally `"t"`, not `"tsplit"`. [code review](../examples/claim-test
 
 Sixteen keys. Note they are all lowercase with no separators, while the default part names they map to are snake_case, an easy source of silent typos. [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 
-| Key | Default part | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| Key | Default part [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|
 | `stationunderground` | `station_underground` |
 | `stationopen` | `station_open` |
@@ -165,7 +165,7 @@ A surface station gets one extra step. The mod flips a fair coin between the `st
 
 ### Monorails
 
-| Key | Default part | List allowed | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| Key | Default part | List allowed [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|---|
 | `both` | `monorails_both` | No |
 | `vertical` | `monorails_vertical` | No |

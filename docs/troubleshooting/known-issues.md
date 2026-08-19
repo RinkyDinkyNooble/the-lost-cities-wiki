@@ -83,7 +83,7 @@ The shipped `Z` character is a weighted list of plain, gray, blue and light blue
 
 These keys load without complaint, survive inheritance, and never affect generation. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-| Key | Where | How dead | [code review](../examples/claim-tests.md#ref-2){.v .v-c}
+| Key | Where | How dead [code review](../examples/claim-tests.md#ref-2){.v .v-c} |
 |---|---|---|
 | `streetblocks.width` | City Style | Reaches the city style and the public API. No generator reads it. |
 | `streetblocks.streetbase` | City Style | Reaches the city style and the public API. No generator reads it. |
@@ -112,7 +112,7 @@ compiles to. [game test](../examples/claim-tests.md#cnd-4){.v .v-g} [code review
 `belowpart` is therefore a second name for `inpart`, not a test of what is
 underneath. [game test](../examples/claim-tests.md#cnd-4){.v .v-g}
 
-| Version | State | [game test](../examples/claim-tests.md#cnd-5){.v .v-g}
+| Version | State [game test](../examples/claim-tests.md#cnd-5){.v .v-g} |
 |---|---|
 | 7.4.12, 7.5.1, 8.4.1, 9.5.1, 10.0.1 | Key exists, behaves as `inpart` |
 | 8.2.2 | Key not declared. Writing it is a load error, not a silent no-op. |
@@ -154,7 +154,7 @@ City style `inherit` is **additive** for all eight selector lists. Your building
 
 There is no way to remove or narrow an inherited list. [game test](../examples/claim-tests.md#cty-5){.v .v-g}
 
-| What you want | What to do | [game test](../examples/claim-tests.md#cty-5){.v .v-g}
+| What you want | What to do [game test](../examples/claim-tests.md#cty-5){.v .v-g} |
 |---|---|
 | Mostly your buildings | Inherit, and give yours a much larger `factor` |
 | **Only** your buildings | Do not inherit from a style that has any. Declare everything yourself, including all the block characters |
@@ -176,7 +176,7 @@ that set, so the value throws rather than being ignored. [game test](../examples
 **The throw happens while the palette is being built, not while the character is
 being read.** So the file does not lose one character, it loses all of them: [game test](../examples/claim-tests.md#prf-1){.v .v-g}
 
-| Char | Written as | Result | [game test](../examples/claim-tests.md#prf-1){.v .v-g}
+| Char | Written as | Result [game test](../examples/claim-tests.md#prf-1){.v .v-g} |
 |---|---|---|
 | `X` | `minecraft:red_sandstone@2` | the entry at fault |
 | `$` | `minecraft:red_sandstone_slab[type=double]` | valid, and unreachable anyway |
@@ -207,7 +207,7 @@ See [Seeing your changes](../tooling/commands.md#seeing-your-changes) for the fu
 
 Three of the entries above are fixed in compiled code and no datapack or config reaches them. <!-- noclaim -->
 
-| Issue | What it would take | Available today | [code review](../examples/claim-tests.md#ref-2){.v .v-c}
+| Issue | What it would take | Available today [code review](../examples/claim-tests.md#ref-2){.v .v-c} |
 |---|---|---|
 | `belowpart` testing the current part | The accessor it needs does not exist on `ConditionContext` | Yes, as an opt-in fix in the DevTool |
 | `streetblocks.parts.full` never generating | The bound is off by one in a compiled method | Yes, as an opt-in fix in the DevTool |

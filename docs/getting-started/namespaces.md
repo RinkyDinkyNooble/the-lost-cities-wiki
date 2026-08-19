@@ -144,7 +144,7 @@ The pack **latest in load order wins**, and it wins the **whole file**. Two pack
 
 That is different from how two other things in this system behave, and the difference catches people: [game test](../examples/claim-tests.md#ns-9){.v .v-g}
 
-| | Merges | Replaces | [game test](../examples/claim-tests.md#ns-9){.v .v-g}
+| | Merges | Replaces [game test](../examples/claim-tests.md#ns-9){.v .v-g} |
 |---|---|---|
 | Two datapacks, same asset name | | **yes, whole file** [game test](../examples/claim-tests.md#ns-9){.v .v-g} |
 | Block tags | yes | |

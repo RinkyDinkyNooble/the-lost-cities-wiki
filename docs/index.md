@@ -27,7 +27,7 @@ The claim-test pack written for 7.4.12 also passes unchanged on **7.5.1**, so th
 
 The NeoForge line is **in progress**. Its keys, defaults and bounds are mapped, but its behaviour has not been tested the same way, so treat anything version-specific there as unconfirmed until a page says otherwise. [code review](examples/claim-tests.md#key-1){.v .v-c}
 
-| Target | State | [code review](examples/claim-tests.md#key-1){.v .v-c}
+| Target | State [code review](examples/claim-tests.md#key-1){.v .v-c} |
 |---|---|
 | 7.4.12, Minecraft 1.20.1, Forge | Primary. Read from the mod and run in a world. |
 | 7.5.1, Minecraft 1.20.1, Forge | Read from the mod and run in a world. |
@@ -81,7 +81,7 @@ Two rules follow, and both are in [STYLE.md](https://github.com/RinkyDinkyNooble
 
 Read it alongside this site. There are three places, and they are not the same: <!-- noclaim -->
 
-| Source | What it is | <!-- noclaim -->
+| Source | What it is <!-- noclaim --> |
 |---|---|
 | [mcjty.eu/docs/mods/lost-cities](https://mcjty.eu/docs/mods/lost-cities) | The general mod documentation. |
 | [mcjty.eu asset-datapack page](https://www.mcjty.eu/docs/mods/lost-cities/asset-datapack) | The deeper page on the datapack asset system. |
@@ -93,7 +93,7 @@ most were read out of the mod's own code or run in a world. <!-- noclaim -->
 
 ## Where to start
 
-| You want to | Go to | <!-- noclaim -->
+| You want to | Go to <!-- noclaim --> |
 |---|---|
 | Understand how any of this reaches a world | [How It All Connects](getting-started/how-it-connects.md) |
 | Get your own building generating today | [Your First Custom City](getting-started/first-city.md) |

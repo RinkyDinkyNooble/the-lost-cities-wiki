@@ -19,7 +19,7 @@ claims: verified
 
 ## Keys
 
-| Key | Required | Meaning | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| Key | Required | Meaning [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|---|
 | `outsidestyle` | **yes** | The name of a [Style](style.md) used for terrain outside cities. |
 | `citystyles` | **yes** | A list of `{factor, citystyle, biomes}` entries. Weighted, optionally biome-limited picks of which [City Style](citystyle.md) to use. |
@@ -32,7 +32,7 @@ claims: verified
 
 ## `settings`
 
-| Key | Default | Meaning | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| Key | Default | Meaning [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|---|
 | `railwayavoidance` | *(required)* | `ignore` lets buildings generate over railways. `block_railway` suppresses the railway instead. These are the only two accepted values. |
 | `railpartheight6` | `1` | The height, in 6-block floor units, that a railway part occupies. |
@@ -44,7 +44,7 @@ The shipped `standard` world style sets only `railwayavoidance: "ignore"` and `r
 
 This controls how [Multi-Buildings](multibuilding.md) are placed. The mod tiles the world into square areas of `areasize` by `areasize` chunks, and each area gets its own independent roll. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-| Key | Default | Limits | Meaning | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| Key | Default | Limits | Meaning [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|---|---|
 | `areasize` | *(required)* | 1 or more, and at least as large as every multi-building's `dimx` and `dimz` | The side of the placement area, in chunks. The shipped world style uses `10`. |
 | `minimum` | *(required)* | 0 or more, and no greater than `maximum` | The fewest multi-buildings attempted per area. Shipped value `1`. |
@@ -64,7 +64,7 @@ This controls how [Multi-Buildings](multibuilding.md) are placed. The mod tiles 
 
 This controls [Scattered Buildings](scattered.md), the structures out in the wilderness. It uses the same area-tiling idea with its own settings. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-| Key | Default | Limits | Meaning | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| Key | Default | Limits | Meaning [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|---|---|
 | `areasize` | *(required)* | 1 or more, and at least as large as any referenced multi-building's `dimx` and `dimz` | The side of the area, in chunks. Shipped value `8`. |
 | `chance` | *(required)* | 0 to 1 | The chance **per area**, not per chunk. The mod multiplies it by the profile's `scatteredChanceMultiplier` before rolling, so `0` on either side disables scattered buildings entirely. Shipped value `0.7`. |

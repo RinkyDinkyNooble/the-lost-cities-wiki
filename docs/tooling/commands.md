@@ -7,7 +7,7 @@ claims: verified
 !!! tip "TL;DR"
     `/lostcities <command>` (alias `/lost`). Six commands here are useful for checking your custom city actually works.
 
-    | Command | Needs op? | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+    | Command | Needs op? [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
     |---|---|
     | `debug`, `map`, `stats`, `saveprofile` | No, permission level 0 |
     | `locate`, `createbuilding` | **Yes**, permission level 1 |
@@ -21,7 +21,7 @@ claims: verified
 
 **There is no regenerate command.** Lost Cities ships nothing that rebuilds an existing chunk, and it registers no datapack reload listener, so: [code review](../examples/claim-tests.md#ns-10){.v .v-c}
 
-| What you do | Does it pick up edited assets? | [code review](../examples/claim-tests.md#ns-10){.v .v-c}
+| What you do | Does it pick up edited assets? [code review](../examples/claim-tests.md#ns-10){.v .v-c} |
 |---|---|
 | `/reload` | **No.** These registries are read once at world load, and 7.4.12 registers no reload listener. Vanilla does not reload them either. |
 | Leave the world, rejoin (single player) | **Yes.** Logging out clears the mod's asset cache, so the next world load re-reads every file. |

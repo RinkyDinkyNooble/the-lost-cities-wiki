@@ -76,7 +76,7 @@ with the next chunk. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
     If your log has `Feature placement` rather than `Error generating chunk`, check
     `landscapeType` before you look at anything else. [game test](../examples/claim-tests.md#fail-5){.v .v-g}
 
-| What actually happens | | [game test](../examples/claim-tests.md#fail-5){.v .v-g}
+| What actually happens | [game test](../examples/claim-tests.md#fail-5){.v .v-g} |
 |---|---|
 | The game | Keeps running. No crash report is written. |
 | That chunk | Is left partially generated. Terrain may be there with the buildings missing. |
@@ -115,7 +115,7 @@ every version this wiki covers. [code review](../examples/claim-tests.md#key-1){
     The split is where in generation the throw happens, and it decides how far
     from the message to look.
 
-    | Fault | Thrown while | Spreads | [game test](../examples/claim-tests.md#fail-4){.v .v-g}
+    | Fault | Thrown while | Spreads [game test](../examples/claim-tests.md#fail-4){.v .v-g} |
     |---|---|---|
     | A level matching no part, an empty selector, a bad `range` | Building the chunk's `BuildingInfo` | **Yes.** Neighbours build that same info. |
     | An undefined palette character | Placing blocks | **No.** One chunk, one line. |
@@ -175,7 +175,7 @@ A part used a character that the merged palette does not define. [game test](../
 
 The message names the **part**, not the palette, which misleads you when the fault is on the palette side. The causes, in order of likelihood: [game test](../examples/claim-tests.md#pal-6){.v .v-g}
 
-| Cause | Fix | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| Cause | Fix [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|
 | A typo in the part's `slices`, or a row of the wrong length shifting characters | Check row lengths first. The mod never validates them. |
 | The character is defined in a palette that is not in this building's chain | Add it to the part's `refpalette`, or to the [Style](../reference/style.md)'s palettes. |
@@ -191,7 +191,7 @@ A named asset is not in the mod's registry. The name in the message is exactly w
 you wrote, so the fault is a name that does not exist, a missing namespace, or the
 wrong **kind** of name. [game test](../examples/claim-tests.md#ns-4){.v .v-g}
 
-| Cause | Fix | [code review](../examples/claim-tests.md#ref-2){.v .v-c}
+| Cause | Fix [code review](../examples/claim-tests.md#ref-2){.v .v-c} |
 |---|---|
 | The profile's `worldStyle` names a World Style no loaded datapack defines | **This one crashes the game**, because it is resolved before the catch. See [above](#thrown-during-chunk-generation). Check that the profile and the datapack in the world are the same generation of your pack. |
 | A palette `loot` or `mob` key holds a loot table or entity ID | Both name a [Condition](../reference/condition.md). Wrap the value in a one-entry Condition and name that instead. This is by far the most common form. |
@@ -306,7 +306,7 @@ The building's `filler` character did not resolve to a block. [game test](../exa
 
 `Doors` asks the building for its filler block and looks the character up in the **building's** palette. That palette is the [Style](../reference/style.md)'s palettes plus the building's own `refpalette` or `palette`. **A `refpalette` on a part is not in that set.** [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-| Cause | Fix | [game test](../examples/claim-tests.md#bld-7){.v .v-g}
+| Cause | Fix [game test](../examples/claim-tests.md#bld-7){.v .v-g} |
 |---|---|
 | The `filler` character is defined only in a palette that the building's **parts** reference | Add the same `refpalette` to the **building**. |
 | The character is not defined anywhere in scope | Define it, or change `filler` to a character the style already provides. |
@@ -390,7 +390,7 @@ The mod looks up the top-left chunk's characteristics to find out which building
 
 The random number generator throws it when a range is empty. There are three known causes, and none of them produces a helpful message. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-| Cause | Fix | [code review](../examples/claim-tests.md#ref-2){.v .v-c}
+| Cause | Fix [code review](../examples/claim-tests.md#ref-2){.v .v-c} |
 |---|---|
 | A multi-building's `dimx` or `dimz` exceeds the `areasize` it is placed with (`multisettings.areasize` defaults to 10, `scattered.areasize` to 8) | Raise `areasize` or shrink the multi-building. See [Multi-Building](../reference/multibuilding.md). |
 | A [Stuff Object](../reference/stuff.md) whose `maxcount` is equal to or below its `mincount` | `maxcount` must be strictly greater. |
@@ -461,7 +461,7 @@ On 7.5.0 and later the key also accepts `4`, so only a value outside `0` to `4` 
 
 The profile's spawn settings cannot be satisfied. Setting any of `spawnBiome`, `spawnCity`, `spawnSphere`, `spawnNotInBuilding`, `forceSpawnInBuilding`, `forceSpawnBuildings` or `forceSpawnParts` **replaces** the vanilla spawn search rather than layering onto it. If the combination is impossible within `spawnCheckAttempts` chunks, world creation fails outright. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-| Cause | Fix | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| Cause | Fix [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|
 | A `spawnCity` or `spawnSphere` name with no matching [Predefined](../reference/predefined.md) asset | Correct the name or remove the key. |
 | Contradictory filters, such as `spawnNotInBuilding` with `forceSpawnInBuilding` | Choose one. |
@@ -492,7 +492,7 @@ If you see one of these, your road settings are the cause, not your datapack. [c
 The mod validates the road keys against each other, not only against their own
 ranges. A value inside its own range still throws if it contradicts another key. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-| Message | Keys involved | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| Message | Keys involved [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|
 | `Primary road candidate spacing must be between 8 and 128 chunks` | `primaryRoadSpacingX`, `primaryRoadSpacingZ` |
 | `Road separation and edge distance must be between 2 and 32 chunks` | `minimumRoadSeparation`, `minimumRoadEdgeDistance` |
@@ -511,7 +511,7 @@ The same values are checked a second time, by the planner itself. These messages
 are worded differently from the ones above even when they guard the same key, so
 match on the exact text to tell which check failed. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-| Message | Source | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| Message | Source [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|
 | `Invalid primary road activation settings` | Street planner |
 | `Invalid secondary road count range` | Street planner |
@@ -542,7 +542,7 @@ from `streetGenerationMode`: setting one to `LEGACY` does not set the other. <!-
 These two are logged and generation continues. They appear in `logs/latest.log`
 with the `[lostcities/]` prefix, and nowhere else. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-| Message | Meaning | [code review](../examples/claim-tests.md#ref-2){.v .v-c}
+| Message | Meaning [code review](../examples/claim-tests.md#ref-2){.v .v-c} |
 |---|---|
 | `Unknown persisted street mode '<name>' for <dimension>; using LEGACY` | The world's saved street mode is not a name the mod recognises. It falls back to `LEGACY`, so the world generates with 7.4.12 street behaviour from then on. |
 | `Unknown persisted highway mode '<name>' for <dimension>; using LEGACY` | The same, for highways. |
@@ -556,7 +556,7 @@ with the `[lostcities/]` prefix, and nowhere else. [code review](../examples/cla
 
 These carry no useful information for an author. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-| Message | Where it comes from | [code review](../examples/claim-tests.md#ref-2){.v .v-c}
+| Message | Where it comes from [code review](../examples/claim-tests.md#ref-2){.v .v-c} |
 |---|---|
 | `Lost Cities generation context is not active` | Generation context, accessed outside a generation pass. |
 | `Cannot access Lost Cities world generation data without an overworld` | Saved data lookup. |
@@ -572,7 +572,7 @@ These carry no useful information for an author. [code review](../examples/claim
 
 These carry no useful information for an author. Plain JSON content that produces one is worth reporting upstream. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-| Message | Where it comes from | [code review](../examples/claim-tests.md#ref-2){.v .v-c}
+| Message | Where it comes from [code review](../examples/claim-tests.md#ref-2){.v .v-c} |
 |---|---|
 | `Not possible!` | Street shape selection. |
 | `Error with rail!` | Railway generation. |

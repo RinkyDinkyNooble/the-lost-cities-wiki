@@ -12,7 +12,7 @@ claims: verified
     29 keys are missing from this page and 3 of the keys that are here behave
     differently.
 
-    | If you are on | Read | [code review](../examples/claim-tests.md#key-1){.v .v-c}
+    | If you are on | Read [code review](../examples/claim-tests.md#key-1){.v .v-c} |
     |---|---|
     | 7.4.12 | This page, as written. |
     | 7.5.x, 8.4.1, 9.5.1 or 10.0.1 | This page, plus [What changed in 7.5](../versions/7-5.md). Those four versions share one identical set of 160 keys. |
@@ -32,7 +32,7 @@ from inside the file. [code review](../examples/claim-tests.md#cfg-7){.v .v-c}
 The name is everything **before the first dot**, because the mod splits the file
 name on `.` and keeps the first piece. [game test](../examples/claim-tests.md#prf-4){.v .v-g}
 
-| File name | Profile name | Notes | [game test](../examples/claim-tests.md#prf-4){.v .v-g}
+| File name | Profile name | Notes [game test](../examples/claim-tests.md#prf-4){.v .v-g} |
 |---|---|---|
 | `mycity.json` | `mycity` | |
 | `mycity2.json` | `mycity2` | Digits are fine. |
@@ -98,7 +98,7 @@ Tables below: **Range** is the window the mod was designed and tested against, a
 
 ### Identity & terrain
 
-| Key | Default | Range | Meaning | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| Key | Default | Range | Meaning [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|---|---|
 | `description` | *(text)* | | Shown for the profile in the selector. |
 | `extraDescription` | `""` | | Extra info text. |
@@ -122,7 +122,7 @@ Tables below: **Range** is the window the mod was designed and tested against, a
 !!! warning "`avoidWater` is narrower than its name and its official description"
     The mod's own config comment says *"all water will be avoided (replaced with air)"*. In 7.4.12 it has **exactly one** effect: while a part is being placed, a block that resolves to the profile's liquid becomes air instead.
 
-    | | | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+    | | [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
     |---|---|
     | Palette characters mapping to water, inside your parts | **Removed** |
     | Natural oceans, rivers, lakes, aquifers | **Untouched** |
@@ -144,7 +144,7 @@ Tables below: **Range** is the window the mod was designed and tested against, a
 
 `landscapeType` accepts exactly six values. It decides what the world outside the cities is made of, and several other keys are only consulted on some of them. [game test](../examples/claim-tests.md#fail-6){.v .v-g}
 
-| Value | What you get | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| Value | What you get [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|
 | `default` | Ordinary terrain, with cities sitting on it. This is the baseline every other type is a departure from. |
 | `floating` | Islands floating in empty space, with cities on the islands. `cityAvoidVoid` matters here, because a city can otherwise hang off an island edge. |
@@ -163,7 +163,7 @@ Tables below: **Range** is the window the mod was designed and tested against, a
 
 ### Spawn
 
-| Key | Default | Range | Meaning | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| Key | Default | Range | Meaning [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|---|---|
 | `spawnBiome` | `""` | | Force spawn in this biome. Empty = no restriction. |
 | `spawnCity` | `""` | | Force spawn in this predefined city. |
@@ -184,7 +184,7 @@ Tables below: **Range** is the window the mod was designed and tested against, a
 !!! note "These get overridden by CityStyle"
     `buildingChance`, floor/cellar min/max, `parkChance`, `avoidFoliage`/`parkBorder`/`parkElevation`/`parkStreetThreshold`, `fountainChance`, `buildingFrontChance`, and `corridorChance` all have `CityStyle`-level equivalents. When a `CityStyle` sets its own value, it wins. These profile values are only the fallback.
 
-| Key | Default | Range | Meaning | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| Key | Default | Range | Meaning [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|---|---|
 | `buildingChance` | `0.3` | 0 to 1 | Chance a city chunk is a building instead of a street. |
 | `buildingMinFloors` | `0` | 0 to 60 | The fewest floors above ground a building may be given. `0` means the ground floor only. |
@@ -218,7 +218,7 @@ Tables below: **Range** is the window the mod was designed and tested against, a
 
 ### Decay & overgrowth
 
-| Key | Default | Range | Meaning | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| Key | Default | Range | Meaning [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|---|---|
 | `vineChance` | `0.009` | 0 to 1 | Chance an exterior block gets a vine. |
 | `randomLeafBlockChance` | `0.1` | 0 to 1 | Chance of leaf blocks at building/street borders. |
@@ -233,7 +233,7 @@ Tables below: **Range** is the window the mod was designed and tested against, a
 
 ### Highways & railways
 
-| Key | Default | Range | Meaning | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| Key | Default | Range | Meaning [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|---|---|
 | `highwayRequiresTwoCities` | `true` | | If `true`, a highway needs a valid city at **both** ends. `false` lets one city be enough. |
 | `highwayLevelFromCities` | `0` | 0 to 3 | `0` top-left city's height, `1` min of both, `2` max of both, `3` average. |
@@ -250,7 +250,7 @@ Tables below: **Range** is the window the mod was designed and tested against, a
 
 ### Loot & misc
 
-| Key | Default | Range | Meaning | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| Key | Default | Range | Meaning [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|---|---|
 | `generateSpawners` | `true` | | If `false`, no spawners are placed even where a palette asks for them. |
 | `generateLoot` | `true` | | If `false`, chests generate empty even where a palette sets a `loot` table. |
@@ -260,7 +260,7 @@ Tables below: **Range** is the window the mod was designed and tested against, a
 
 ## `cities`
 
-| Key | Default | Range | Meaning | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| Key | Default | Range | Meaning [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|---|---|
 | `cityChance` | `0.01` | -1 to 1 | Chance a chunk is a city center. Exactly `-1` switches to Perlin-noise mode. |
 | `cityMinRadius` | `50` | 1 to 2000 | The smallest radius, in blocks, a city circle can roll. |
@@ -285,7 +285,7 @@ Tables below: **Range** is the window the mod was designed and tested against, a
 
 Normal and mini explosions are independent settings. [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 
-| Key | Default | Range | Meaning | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| Key | Default | Range | Meaning [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|---|---|
 | `explosionChance` | `0.002` | 0 to 1 | Per-chunk chance of a normal explosion. **Setting this to `0` does not turn explosions off.** `miniExplosionChance` is a separate roll, and its default is 15 times larger. |
 | `explosionMinRadius` | `15` | 1 to 1000 | The smallest blast radius, in blocks, that a normal explosion can roll. |
@@ -304,7 +304,7 @@ Normal and mini explosions are independent settings. [code review](../examples/c
 
 Mostly relevant to `space`, `spheres`, and `cavernspheres` landscape types. [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 
-| Key | Default | Range | Meaning | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| Key | Default | Range | Meaning [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|---|---|
 | `citySphereFactor` | `1.2` | 0.1 to 10 | `space` only: outer sphere radius = city radius × this. |
 | `citySphereChance` | `0.7` | 0 to 1 | The chance a given city is enclosed in a sphere. Only consulted on the sphere landscape types. |
@@ -325,7 +325,7 @@ Mostly relevant to `space`, `spheres`, and `cavernspheres` landscape types. [cod
 
 Only affects players who also have Lost Cities installed. `-1` leaves the default alone. [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 
-| Key | Default | Range | Meaning | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| Key | Default | Range | Meaning [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|---|---|
 | `horizon` | `-1` | -1 to 256 | Overrides the client-side horizon height, which is where the sky meets the fog. `-1` leaves Minecraft's own value alone. |
 | `fogRed` | `-1` | -1 to 1 | Red fog component, `0`to`1` when set explicitly. |

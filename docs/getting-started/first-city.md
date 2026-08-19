@@ -17,7 +17,7 @@ A glass-and-concrete tower that takes over most of the buildings in a city, in a
 
 A minimal custom building requires **six** content files and **one** config line. Each file supplies one link in the asset chain. [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 
-| # | File | Why it is needed | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| # | File | Why it is needed [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|---|
 | 1 | a **Palette** | maps characters to blocks |
 | 2 | a **Part** | the actual 16×16×6 block grid |
@@ -202,7 +202,7 @@ This is the whole file, exactly as it ships in [the example bundle](../examples/
 
 Reading it bottom to top: <!-- noclaim -->
 
-| Layer | What it is | [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+| Layer | What it is [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|
 | 0 | A solid `γ` slab. This is the floor you stand on. |
 | 1 | The `α` perimeter wall, hollow inside, with two `ε` bookshelves as interior detail. |
