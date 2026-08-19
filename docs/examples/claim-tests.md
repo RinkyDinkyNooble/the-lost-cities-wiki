@@ -1014,6 +1014,63 @@ a working palette of its own. That is 7.5 behaviour arriving two major versions
 early, which is why [VER-3](#ver-3) describes a window rather than a change of
 direction.
 
+#### VER-9 All four packs run on 8.2.2, and three of the four differences are unknown keys { #ver-9 }
+
+**Game test.** The packs are unchanged apart from renaming the predefined city
+folder, which [VER-4](#ver-4) covers. Profiles and probes are the same files the
+7.4.12 rig uses.
+
+| Pack | 7.4.12 | 8.2.2 | What moved |
+|---|---|---|---|
+| `wiki-test10` namespaces | 4 of 4 | 3 of 4 | `full` and `barepalette` each 768 rather than 512. Failed chunks identical: 41 on `ns_lapis`, 2 on `test` |
+| `wiki-test11` fronts and stuff | 7 of 7 | 6 of 7 | The west front is absent. The other three fronts, the building at 1548 blocks and the stuff object at 5 iron are identical |
+| `wiki-test12` scattered | 3 of 3 | 0 of 3 | Nothing placed. See [VER-10](#ver-10) |
+| `wiki-test13` predefined sphere | 13 of 13 | 13 of 13 | Nothing. 1093 gray stained glass in the same chunk, none of the other three glass types anywhere |
+
+Two of the three differences are one missing key each, and both are silent:
+
+| Difference | Key 8.2.2 does not declare | Effect |
+|---|---|---|
+| 768 rather than 512 | `overrideFloors` | The floor count falls back to the profile and the building is taller. See [KEY-4](#key-4) |
+| Three fronts rather than four | `frontchance` | `frontchance: 1.0` is ignored, so the draw returns to its default and one of the four street chunks did not get one |
+
+Neither logs anything. A pack looks like it loaded and quietly does something else,
+which is [KEY-2](#key-2) with a visible consequence twice over.
+
+The sphere result matters on its own: predefined spheres work on 8.2.2 with the same
+counts as 7.4.12, 9.5.1 and 10.0.1, so the predefined machinery is fine there once
+the folder name is right.
+
+#### VER-10 Scattered buildings did not place on either version using the older path { #ver-10 }
+
+**Game test.** `wiki-test12` sets `areasize: 1`, `chance: 1.0` and `weightnone: 0`,
+which puts one structure in every chunk on 7.4.12. Swept across 49 chunks it produced
+**no blocks at all** on 8.2.2 and none on 6.0.3, with no error and no failed chunk in
+either run.
+
+| Version | Chunks swept | Chunks holding a structure |
+|---|---|---|
+| 7.4.12 | 3 probed | 3 |
+| 6.0.3 | 49 | 0 |
+| 8.2.2 | 49 | 0 |
+
+**Code review.** There are two implementations. From 7.4.12 onward a dedicated
+`mcjty.lostcities.worldgen.gen.Scattered` class does the placement and the profile
+carries `scatteredChanceMultiplier`. On 5.3.29, 6.0.3, 6.1.6, 6.2.2, 6.2.3 and 8.2.2
+that class does not exist; the work happens in
+`LostCityTerrainFeature.generateScattered`, reached only from the outside-chunk path
+and gated by `avoidScattered`, and there is no `scatteredChanceMultiplier`.
+
+| Version | Placement |
+|---|---|
+| 5.3.29, 6.0.3, 6.1.6, 6.2.2, 6.2.3, 8.2.2 | `LostCityTerrainFeature`, outside chunks only |
+| 7.4.12, 7.5.1, 7.5.2, 8.4.1, 9.5.1, 10.0.1 | `worldgen.gen.Scattered` |
+
+Every key `wiki-test12` uses is declared on both versions, so this is not a key
+availability problem. The claim recorded here is narrow and is what was measured:
+these settings place nothing on the older path. What would place something there has
+not been established.
+
 ### Whole-page entries
 
 Some claims are made the same way on many pages. Rather than repeat the evidence,

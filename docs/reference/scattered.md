@@ -10,6 +10,14 @@ claims: verified
 !!! note "Some keys here do not exist on every version"
     `rotatable`, `nearhighway`, `feather`, `minSpawnDistance` and `maxSpawnDistance` arrived in 7.4.12 and are absent in 8.2.2. `allowvoid` arrived in 7.4.12 and is present in 8.2.2. `supportpart` and `clearhighwayrailing` need 7.5.1. See [Key availability](../versions/key-availability.md). [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 
+!!! danger "Nothing placed on 6.0.3 or 8.2.2"
+    The settings on this page put one structure in every chunk on 7.4.12. Swept
+    across 49 chunks they produced no blocks at all on 6.0.3 and none on 8.2.2, with
+    no error logged either time. Those versions place scattered buildings from
+    `LostCityTerrainFeature` rather than the dedicated generator 7.4.12 and later
+    use, and they have no `scatteredChanceMultiplier`. Every key used is declared on
+    both, so this is not a key availability problem. [game test](../examples/claim-tests.md#ver-10){.v .v-g} [code review](../examples/claim-tests.md#ver-10){.v .v-c}
+
 !!! info "Placement is tested, the rest of the keys are not"
     Scattered structures have been generated on the rig and they appear where the area grid says they should. `terrainheight: average` and `terrainfix: clear` are covered by that run. The other `terrainheight` and `terrainfix` values, `nearhighway`, `allowvoid` and `maxheightdiff` as a filter are read from the code and have not been run. [game test](../examples/claim-tests.md#sct-1){.v .v-g}
 

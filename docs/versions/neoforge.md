@@ -87,6 +87,29 @@ catch around chunk generation. See
     because the key that pins its floor count is not declared and is therefore
     ignored. Nothing is logged. [game test](../examples/claim-tests.md#key-4){.v .v-g}
 
+### What all four packs did on 8.2.2
+
+The wiki's four claim-test packs run there unchanged, apart from the folder rename
+above. Three of the four differences from 7.4.12 are one missing key each. [game test](../examples/claim-tests.md#ver-9){.v .v-g}
+
+| Pack [game test](../examples/claim-tests.md#ver-9){.v .v-g} | 7.4.12 | 8.2.2 | What moved |
+|---|---|---|---|
+| Namespaces | 4 of 4 | 3 of 4 | Both buildings 768 rather than 512. Failed chunks identical, 41 and 2 |
+| Fronts and stuff | 7 of 7 | 6 of 7 | One of four fronts absent. The building, the stuff object and the other three fronts are identical |
+| Scattered | 3 of 3 | 0 of 3 | Nothing placed anywhere in 49 chunks |
+| Predefined sphere | 13 of 13 | 13 of 13 | Nothing. 1093 gray stained glass in the same chunk |
+
+The two count changes each trace to one key 8.2.2 does not declare, `overrideFloors`
+and `frontchance`. Both are ignored rather than rejected, so the pack loads and
+quietly does something else. [game test](../examples/claim-tests.md#ver-9){.v .v-g}
+
+Scattered buildings are a different matter: every key the pack uses is declared on
+8.2.2, and it still places nothing. 8.2.2 generates them from
+`LostCityTerrainFeature` rather than the dedicated generator 7.4.12 introduced. See
+[Scattered Building](../reference/scattered.md). [game test](../examples/claim-tests.md#ver-10){.v .v-g} [code review](../examples/claim-tests.md#ver-10){.v .v-c}
+
+Predefined spheres are unaffected, and match 7.4.12, 9.5.1 and 10.0.1 exactly. [game test](../examples/claim-tests.md#ver-9){.v .v-g}
+
 !!! warning "A datapack written against this wiki loads on 8.2.2 and does less"
     23 of the keys this wiki documents do not exist there. They are **ignored**
     rather than rejected, so the pack loads, no message appears, and the behaviour
