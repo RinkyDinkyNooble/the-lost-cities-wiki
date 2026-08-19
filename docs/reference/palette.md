@@ -307,9 +307,9 @@ Every block placed through a part goes through a neighbour-aware correction pass
 
 The mod places parts rotated and mirrored, not only as you authored them. A building reuses the same part on several sides, and streets, highways and rails reuse the same few shapes in whatever orientation the intersection needs. See [Streets, Highways, Rails and Monorails](../concepts/infrastructure-parts.md). [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-When the mod rotates a part, a block rotates with it only if that block is in the `lostcities:rotatable` block tag, or is a rail block. Rail shapes are remapped separately, and always. [unverified](../examples/claim-tests.md#ref-3){.v .v-u}
+When the mod rotates a part, a block rotates with it only if that block is in the `lostcities:rotatable` block tag, or is a rail block. Rail shapes are remapped separately, and always. [code review](../examples/claim-tests.md#rot-1){.v .v-c}
 
-**A block that is not in that tag keeps its original facing when the part rotates.** By default `lostcities:rotatable` contains exactly one entry: the vanilla `minecraft:stairs` tag, which covers every vanilla stair block. So a door, a furnace, a ladder, a banner or a modded directional block looks correct on the side the part was authored for, and wrong on every other side or rotation the part is reused on. [unverified](../examples/claim-tests.md#ref-3){.v .v-u}
+**A block that is not in that tag keeps its original facing when the part rotates.** By default `lostcities:rotatable` contains exactly one entry: the vanilla `minecraft:stairs` tag, which covers every vanilla stair block. So a door, a furnace, a ladder, a banner or a modded directional block looks correct on the side the part was authored for, and wrong on every other side or rotation the part is reused on. [code review](../examples/claim-tests.md#rot-1){.v .v-c}
 
 !!! tip "Fixing it"
     Add the block to `lostcities:rotatable` with a normal datapack tag merge. You need no code and no Lost Cities file.

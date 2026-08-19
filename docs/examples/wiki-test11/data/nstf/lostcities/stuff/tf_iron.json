@@ -1,0 +1,10 @@
+{
+  "tags": [
+    "tftag"
+  ],
+  "column": "I",
+  "mincount": 4,
+  "maxcount": 9,
+  "attempts": 30,
+  "inbuilding": true
+}

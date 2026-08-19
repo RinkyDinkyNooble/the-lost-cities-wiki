@@ -1,0 +1,27 @@
+{
+  "inherit": "citystyle_common",
+  "style": "standard",
+  "stuff_tags": [
+    "tftag"
+  ],
+  "buildingsettings": {
+    "buildingchance": 0.0
+  },
+  "streetblocks": {
+    "frontchance": 1.0
+  },
+  "selectors": {
+    "buildings": [
+      {
+        "factor": 1.0,
+        "value": "nstf:tf_main"
+      }
+    ],
+    "fronts": [
+      {
+        "factor": 1.0,
+        "value": "nstf:tf_front"
+      }
+    ]
+  }
+}

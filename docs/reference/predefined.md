@@ -59,6 +59,11 @@ Pinning a city is not a hint. The chunk you name becomes a city centre outright.
 | The [World Style](worldstyle.md)'s weighted city style pick | Fixed to `citystyle` [code review](../examples/claim-tests.md#ref-2){.v .v-c} |
 | `buildingchance`, per chunk | Ignored on any chunk holding a pinned building or a pinned street [game test](../examples/claim-tests.md#pre-1){.v .v-g} |
 
+!!! danger "At `cityChance: 0.0`, an unpinned chunk inside the radius is not a city chunk"
+    The radius bounds the city, and on its own it does not make the chunks inside it part of one. With `cityChance` at `0.0` and nothing else pinned, the chunk beside a pinned building reported `is city: false` and generated as open ground, so the building had no street next to it and no [front](citystyle.md#what-a-building-front-is) was ever drawn. [game test](../examples/claim-tests.md#frt-2){.v .v-g}
+
+    Pin the streets you want, as the `streets` list above does, and those chunks become city. This is worth ruling out first when a feature that needs a street neighbour appears to do nothing. [game test](../examples/claim-tests.md#frt-2){.v .v-g}
+
 ## Predefined Sphere
 
 | Key [code review](../examples/claim-tests.md#ref-1){.v .v-c} | Required | Meaning |

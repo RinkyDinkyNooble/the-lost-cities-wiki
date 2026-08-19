@@ -192,7 +192,7 @@ A surface station gets one extra step. The mod flips a fair coin between the `st
 
 This is a rule about these four families, not about parts in general. A [building front](../reference/citystyle.md#front-parts-are-deliberately-not-16-by-16) is deliberately a narrow strip, and the mod ships three of them at 2×16 and 3×16. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-**Author variants in the same orientation as the part they replace.** The mod picks the rotation from the road layout, not from your part, so a `street_bend` variant gets rotated by the same rule the built-in one does. If your bend is drawn facing a different way than the original, it will be rotated wrongly at three quarters of the corners in your world. `full`, `none`, and `all` are never rotated, so those can safely be asymmetric. [unverified](../examples/claim-tests.md#ref-3){.v .v-u}
+**Author variants in the same orientation as the part they replace.** The mod picks the rotation from the road layout, not from your part, so a `street_bend` variant gets rotated by the same rule the built-in one does. If your bend is drawn facing a different way than the original, it will be rotated wrongly at three quarters of the corners in your world. `full`, `none`, and `all` are never rotated, so those can safely be asymmetric. [code review](../examples/claim-tests.md#rot-1){.v .v-c}
 
 **Reuse the palette characters the category expects.** A highway part expects its `support` character, and a rail part expects the rail palette. A part that references a character its palette does not define throws during generation. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 

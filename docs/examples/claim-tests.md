@@ -315,6 +315,98 @@ failure, and it names the character rather than the collision that caused it.
 `FMLCommonSetupEvent`, and `LostCityFeature`. Nothing on the `/reload` path
 touches either.
 
+### Fronts, stuff objects and rotation
+
+Source pages: [City Style](../reference/citystyle.md), [Stuff Object](../reference/stuff.md),
+[Palette](../reference/palette.md), [The Generation Pipeline](../under-the-hood/generation-pipeline.md).
+Pack: `docs/examples/wiki-test11/`, namespace `nstf`, profile `wteleven`.
+
+```bash
+python harness.py --pack ../../docs/examples/wiki-test11 --profile wteleven --probes probes/wt11.json
+```
+
+#### FRT-1 A front is drawn by the adjacent street chunk, never by the building { #frt-1 }
+
+**Game test.** One pinned building with a pinned street on each of its four sides.
+The building is white, the front is emerald.
+
+| Chunk | Emerald |
+|---|---|
+| The building's own chunk | **0** |
+| Street to the east | 126 |
+| Street to the west | 124 |
+| Street to the north | 124 |
+| Street to the south | 126 |
+
+So one building's front really is drawn four times, once by each neighbour, and
+never in the building's own chunk.
+
+**Code review.** The street branch calls `generateFrontPart` four times, on
+`getXmin`, `getZmin`, `getXmax` and `getZmax`, with `ROTATE_NONE`, `ROTATE_90`,
+`ROTATE_180` and `ROTATE_270`. Each call passes the **neighbour's** `BuildingInfo`
+as the generation context, which is what makes a front resolve against the
+building's palette rather than the street's.
+
+#### FRT-2 At `cityChance: 0.0` an unpinned chunk inside a predefined city is not a city chunk { #frt-2 }
+
+**Game test.** Found while the front test was returning nothing. With
+`buildingchance` at `0.0` and the streets left unpinned, `/lcdev report` on the
+chunk beside the pinned building said:
+
+```
+is city: false
+building: none, this is a street or open chunk
+```
+
+Pinning the four streets flipped it to `is city: true` and the fronts appeared. So
+the radius of a predefined city does not by itself make the chunks inside it part
+of the city when `cityChance` is `0.0`. A chunk becomes city because it is pinned,
+as a building or as a street.
+
+That is why the older test packs pin the streets between their buildings, and it is
+worth knowing before concluding that some other feature is broken.
+
+#### FRT-3 Adding a front while inheriting leaves a one-in-four draw { #frt-3 }
+
+**Game test.** `citystyle_common` already ships three fronts, and selector
+inheritance is additive, so a city style that inherits it and adds one has four in
+the pool. The first three runs of this test drew a shipped front and found no
+emerald at all, which reads exactly like the feature not working.
+
+Overriding `lostcities:building_front1`, `2` and `3` at their own paths, which
+replaces them outright by [NS-9](#ns-9), made the draw deterministic and the test
+passed 7 of 7. A concrete instance of [CTY-5](#cty-5).
+
+#### STF-1 A stuff object's `column` is a palette character, and it is what gets placed { #stf-1 }
+
+**Code review.** `Stuff.actuallyGenerateStuff` takes `getColumn()`, applies
+`charAt(0)`, and resolves it through `CompiledPalette.get(char)`. It is not a
+filter and not a block name. A multi-character string keeps the first character,
+the same rule as `char` in a palette.
+
+The mod's own `chains.json` and `cobweb.json` use `"column": "{"` and
+`"column": "\\"`, which are palette characters rather than anything readable as a
+block.
+
+**Game test.** A stuff object with `"column": "I"`, where `I` is `iron_block` in
+the pack's palette, `inbuilding: true`, `attempts: 30` and counts of 4 to 9, placed
+5 iron blocks inside the building. Nothing else in the pack uses `I`.
+
+#### ROT-1 Only tagged blocks and rails rotate with a part { #rot-1 }
+
+**Code review.** `LostCityTerrainFeature.transformBlockState(Transform, BlockState)`
+is three branches and nothing else:
+
+1. the block is in `lostcities:rotatable`, so `state.rotate(transform)`
+2. the state is a rail, so the rail shape property is turned instead
+3. neither, so the state is returned **unchanged**
+
+The shipped tag holds one entry, `#minecraft:stairs`. So out of the box stairs
+rotate, rails rotate, and everything else keeps the facing it was authored with.
+
+No world test. Rotation reaches parts through highways, railways, monorails and
+scattered buildings, none of which the rig has generated.
+
 ### Generation order, damage and ruins
 
 Source pages: [The Generation Pipeline](../under-the-hood/generation-pipeline.md),
@@ -718,6 +810,7 @@ Two, both on [Known Issues](../troubleshooting/known-issues.md) with the evidenc
 | `docs/examples/wiki-test10/` | Namespace resolution, and what an unresolved reference does | Harness |
 | `research/kubejs-test/` | The same assets loaded through `kubejs/data/` instead. Private, it needs mod jars that are not ours to ship | Harness |
 | `research/override-test/` | Two packs claiming one asset, run twice with the files swapped. Private | Harness |
+| `docs/examples/wiki-test11/` | Building fronts, stuff objects, and what a predefined city does not make a city chunk | Harness |
 
 `wiki-test7` supersedes `wiki-test5` and `wiki-test6`, which are earlier builds of
 the same grid kept only because their failures are documented above.

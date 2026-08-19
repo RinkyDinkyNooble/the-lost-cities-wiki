@@ -10,14 +10,14 @@ claims: verified
 !!! warning "This asset type does not exist before 6.2.2"
     Every key on this page arrived in 6.2.2. On 5.3.29, 6.0.3, 6.1.6 or 6.2.3 the mod does not know the stuff object at all. See [Key availability](../versions/key-availability.md). [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 
-!!! info "None of this has been placed in a world"
-    Stuff objects are documented from their codec and have never been generated on the rig. The arithmetic below follows from the bytecode; the visual result does not. [unverified](../examples/claim-tests.md#ref-3){.v .v-u}
+!!! tip "`column` is a palette character, not a block"
+    It is the thing that gets placed, taken as the first character of the string and resolved through the building's merged palette. The mod's own files use `"column": "{"` and `"column": "\\"`, which read as nonsense until you know that. [game test](../examples/claim-tests.md#stf-1){.v .v-g} [code review](../examples/claim-tests.md#stf-1){.v .v-c}
 
 ## Keys
 
 | Key [code review](../examples/claim-tests.md#ref-1){.v .v-c} | Required | Limits | Meaning |
 |---|---|---|---|
-| `column` | **yes** | | Identifies a valid vertical placement column |
+| `column` | **yes** | | The **palette character** to place. Only the first character of the string is read, so a longer one silently keeps the first, the same rule as a palette's `char` |
 | `mincount` / `maxcount` | **yes** | `maxcount` must be **greater than** `mincount` | How many objects to place per successful attempt |
 | `attempts` | **yes** | 1 or more | How many placement attempts to make. `0` places nothing, silently |
 | `tags` | no | | Matched against a [City Style](citystyle.md)'s `stuff_tags` |
@@ -50,16 +50,19 @@ The inside-a-building defaults apply only when `inbuilding` is set and the chunk
 
 ## Example
 
-```json
+```json title="Places the block your palette maps to 'c', inside buildings"
 {
-  "column": "minecraft:air",
+  "column": "c",
   "mincount": 1,
   "maxcount": 3,
   "attempts": 10,
+  "inbuilding": true,
   "blocks": { "if_any": ["minecraft:stone_bricks"] },
   "tags": ["ruined"]
 }
 ```
+
+A stuff object with `"column": "I"` and `I` mapped to `minecraft:iron_block` placed 5 iron blocks inside a test building. Nothing else in that pack used `I`. [game test](../examples/claim-tests.md#stf-1){.v .v-g}
 
 ## See also
 

@@ -184,15 +184,15 @@ The three fatal ones reach a lookup that refuses a null name. [code review](../e
 
 `fronts` is the least self-explanatory selector. <!-- noclaim -->
 
-A front is an extra part that belongs to a **building** but generates in the **adjacent street chunk**, along the edge facing that building. It is the shop awning, porch, step or overhang that makes a building meet the street instead of stopping dead at the chunk line. [unverified](../examples/claim-tests.md#ref-3){.v .v-u}
+A front is an extra part that belongs to a **building** but generates in the **adjacent street chunk**, along the edge facing that building. It is the shop awning, porch, step or overhang that makes a building meet the street instead of stopping dead at the chunk line. [game test](../examples/claim-tests.md#frt-1){.v .v-g}
 
 The sequence: <!-- noclaim -->
 
 1. When the mod builds a building's chunk, it rolls once against `frontchance` (or the profile's `buildingFrontChance`). If the roll wins, that building gets a front part, chosen from the `fronts` selector.
 2. The front is **not** drawn in the building's own chunk. Nothing happens yet.
-3. Later, when a neighbouring **street** chunk generates, it looks at each of its four neighbours in turn. For any neighbour that is a building with a front, it draws that front along the shared edge. [unverified](../examples/claim-tests.md#ref-3){.v .v-u}
+3. Later, when a neighbouring **street** chunk generates, it looks at each of its four neighbours in turn. For any neighbour that is a building with a front, it draws that front along the shared edge. [game test](../examples/claim-tests.md#frt-1){.v .v-g}
 
-So one building with a front can have it drawn up to four times, once by each adjacent street chunk, and a street chunk between two buildings draws both. [unverified](../examples/claim-tests.md#ref-3){.v .v-u}
+So one building with a front can have it drawn up to four times, once by each adjacent street chunk, and a street chunk between two buildings draws both. [game test](../examples/claim-tests.md#frt-1){.v .v-g}
 
 !!! note "The front uses the building's palette, not the street's"
     The mod generates the part with the **neighbouring building's** context, so the front resolves its characters against that building's merged palette. This is what makes a front match the building it belongs to rather than the road it sits on.
@@ -201,9 +201,9 @@ So one building with a front can have it drawn up to four times, once by each ad
 
 ### When a front does not appear
 
-All of these must hold, or the street chunk skips it: [unverified](../examples/claim-tests.md#ref-3){.v .v-u}
+All of these must hold, or the street chunk skips it: [game test](../examples/claim-tests.md#frt-1){.v .v-g}
 
-| Condition | Meaning | [unverified](../examples/claim-tests.md#ref-3){.v .v-u}
+| Condition | Meaning | [game test](../examples/claim-tests.md#frt-1){.v .v-g}
 |---|---|
 | The neighbour has a building | Fronts only come from buildings. |
 | The neighbour's building rolled a front | The `frontchance` roll happened in the neighbour's chunk. |

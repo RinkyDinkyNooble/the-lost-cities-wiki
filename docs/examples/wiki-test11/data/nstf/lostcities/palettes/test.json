@@ -1,0 +1,24 @@
+{
+  "palette": [
+    {
+      "char": "_",
+      "block": "minecraft:air"
+    },
+    {
+      "char": "#",
+      "block": "minecraft:white_concrete"
+    },
+    {
+      "char": "W",
+      "block": "minecraft:white_concrete"
+    },
+    {
+      "char": "F",
+      "block": "minecraft:emerald_block"
+    },
+    {
+      "char": "I",
+      "block": "minecraft:iron_block"
+    }
+  ]
+}

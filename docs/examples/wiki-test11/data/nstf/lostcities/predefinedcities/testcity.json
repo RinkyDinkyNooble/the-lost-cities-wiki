@@ -1,0 +1,32 @@
+{
+  "dimension": "lostcities:lostcity",
+  "chunkx": 8,
+  "chunkz": 8,
+  "radius": 8,
+  "citystyle": "nstf:test",
+  "buildings": [
+    {
+      "building": "nstf:tf_main",
+      "chunkx": 0,
+      "chunkz": 0
+    }
+  ],
+  "streets": [
+    {
+      "chunkx": 1,
+      "chunkz": 0
+    },
+    {
+      "chunkx": -1,
+      "chunkz": 0
+    },
+    {
+      "chunkx": 0,
+      "chunkz": 1
+    },
+    {
+      "chunkx": 0,
+      "chunkz": -1
+    }
+  ]
+}
