@@ -31,7 +31,7 @@ World generation feature
 :   A piece of terrain generation logic Minecraft can inject into biomes, like ore veins or trees. Lost Cities reaches ordinary worlds this way instead of through a dedicated dimension. [code review](examples/claim-tests.md#hic-4){.v .v-c}
 
 Chunk generator
-:   The system that decides what terrain goes in each chunk. Lost Cities ships its own for its dedicated dimension, `lostcities:lostcity`. [code review](examples/claim-tests.md#hic-3){.v .v-c}
+:   The system that decides what terrain goes in each chunk. Lost Cities ships none: its `lostcities:lostcity` dimension uses vanilla noise terrain with the overworld settings, and the mod adds cities to it as a feature. [code review](examples/claim-tests.md#lw-1){.v .v-c}
 
 Profile
 :   A Lost Cities config file, not a datapack file, that picks a world style and sets 131 generation settings. See [How It All Connects](getting-started/how-it-connects.md). [code review](examples/claim-tests.md#hic-1){.v .v-c}

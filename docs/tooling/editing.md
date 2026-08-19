@@ -71,7 +71,7 @@ Both `editpart` and `resumeedit` find the part by looking at your Y position: th
 !!! danger "Export collapses two characters that map to the same block"
     `exportpart` works backwards from block states to characters using a reverse lookup, one block state to one character. If your palette deliberately maps two different characters to the same block, for example one plain and one carrying a `loot` table, a `mob`, or an NBT `tag`, the export cannot tell them apart and picks one.
 
-    You lose the distinction silently, and the exported part looks correct. If your part depends on such a pair, re-apply it to the exported JSON by hand, or do not round-trip that part through the editor at all. [unverified](../examples/claim-tests.md#ref-3){.v .v-u}
+    You lose the distinction silently, and the exported part looks correct. If your part depends on such a pair, re-apply it to the exported JSON by hand, or do not round-trip that part through the editor at all. [code review](../examples/claim-tests.md#exp-1){.v .v-c}
 
 ### What export actually produces
 

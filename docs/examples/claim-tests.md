@@ -392,6 +392,49 @@ block.
 the pack's palette, `inbuilding: true`, `attempts: 30` and counts of 4 to 9, placed
 5 iron blocks inside the building. Nothing else in the pack uses `I`.
 
+#### LW-1 Lost Cities adapts to terrain, it does not generate it { #lw-1 }
+
+**Code review.** The mod ships no chunk generator class. Its own dimension is
+ordinary vanilla noise terrain:
+
+```json title="data/lostcities/dimension/lostcity.json"
+{
+  "type": "lostcities:lostcity",
+  "generator": {
+    "type": "minecraft:noise",
+    "seed": 0,
+    "settings": "minecraft:overworld",
+    "biome_source": { "type": "minecraft:multi_noise", "preset": "overworld" }
+  }
+}
+```
+
+Every use of `isFloating`, `isCavern` and `isSpace` in `LostCityTerrainFeature`
+reads the existing terrain and adapts to it: avoiding void, seating a building's
+filler and border, clearing headroom in a cavern. None of them build the landscape.
+
+So `landscapeType` tells the mod what to **expect** underneath, not what to make. A
+`floating` profile over ordinary terrain gets cities placed by floating-island
+rules on ground that is not floating.
+
+The mod's own API carries one hook for the other mod, `ILostWorldsChunkGenerator`,
+and it exposes a single method, `getOuterSeaLevel()`, read only by the sphere
+generator. That is the whole of the coupling.
+
+No world test. Lost Worlds is not on the rig, so what a `floating` profile looks
+like without it has not been observed, only what the code does with it.
+
+#### EXP-1 Export collapses two characters that map to one block { #exp-1 }
+
+**Code review.** `EditorInfo` holds
+`private final Map<BlockState, Character> reversedPalette`, and
+`addPaletteEntry(char, BlockState)` writes into it. Two characters mapping to the
+same block state means the second write replaces the first, so only one survives.
+
+`CommandExportPart` asks `getPaleteEntry(BlockState)` for each position and, when
+that returns nothing, allocates the next unused character from a fixed alphabet.
+Neither path can recover a distinction the reverse map has already lost.
+
 #### ROT-1 Only tagged blocks and rails rotate with a part { #rot-1 }
 
 **Code review.** `LostCityTerrainFeature.transformBlockState(Transform, BlockState)`
@@ -607,10 +650,11 @@ never has a file. See [CFG-7](#cfg-7).
 
 #### HIC-3 The dimension, and the bed gateway that reaches it { #hic-3 }
 
-**Code review.** The mod registers `lostcities:lostcity` with its own chunk
-generator. The gateway is keyed off `Config.SPECIAL_BED_BLOCK`, defined on the
-server spec with the default `minecraft:diamond_block`, so it is a per-world
-setting rather than a profile key. See [CFG-6](#cfg-6).
+**Code review.** The mod ships the dimension `lostcities:lostcity`, whose terrain
+is vanilla noise rather than a generator of the mod's own. See [LW-1](#lw-1). The
+gateway is keyed off `Config.SPECIAL_BED_BLOCK`, defined on the server spec with
+the default `minecraft:diamond_block`, so it is a per-world setting rather than a
+profile key. See [CFG-6](#cfg-6).
 
 #### HIC-4 Two biome modifiers, both on `#minecraft:is_overworld` { #hic-4 }
 

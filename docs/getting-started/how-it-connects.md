@@ -62,7 +62,7 @@ Three of the 17 set `"public": false` and do not appear in the in-game selector:
 
 === "Dedicated dimension"
 
-    The mod ships `lostcities:lostcity`, its own dimension with a custom chunk generator. Clean if you want cities in a separate world. [code review](../examples/claim-tests.md#hic-3){.v .v-c}
+    The mod ships its own dimension, `lostcities:lostcity`. Its terrain is ordinary vanilla noise using the `minecraft:overworld` settings, not a generator of the mod's own, and Lost Cities is added to it as a feature exactly as it is added to a normal world. Clean if you want cities kept separate. [code review](../examples/claim-tests.md#lw-1){.v .v-c}
 
     **Getting players in and out**: the mod includes its own two-way gateway, no portal item or command needed. A bed sitting on the block named by `specialBedBlock`, surrounded by skull blocks on both sides and both far corners (any skull type), works as a sleep-to-teleport gateway. Sleeping in it while in the Lost Cities dimension sends you to the Overworld; sleeping in it anywhere else sends you into the Lost Cities dimension, which must already be loaded on the server. That block is [a per-world config key](../reference/config.md#lostcities-servertoml), not a profile key, and it defaults to `minecraft:diamond_block`. [code review](../examples/claim-tests.md#hic-3){.v .v-c}
 
@@ -78,7 +78,9 @@ Three of the 17 set `"public": false` and do not appear in the in-game selector:
 
 ## Landscape type needs a matching terrain mod
 
-A profile's landscape type (`floating`, `space`, `cavern`, and the rest) expects matching terrain underneath it, and the mod does not generate that terrain itself. That is **Lost Worlds**, a separate mod by the same author. Anything but the default landscape means pairing both mods. [unverified](../examples/claim-tests.md#hic-5){.v .v-u}
+A profile's landscape type (`floating`, `space`, `cavern`, and the rest) says what terrain the mod should **expect** underneath, not what it should build. Lost Cities ships no chunk generator: its own dimension is vanilla noise terrain with the overworld settings, and every landscape branch in the generator reads the existing heightmap and adapts to it. [code review](../examples/claim-tests.md#lw-1){.v .v-c}
+
+Making the terrain match is **Lost Worlds**, a separate mod by the same author, so anything but the default landscape means pairing both. Set `floating` without it and cities are placed by floating-island rules on ground that is not floating. [code review](../examples/claim-tests.md#lw-1){.v .v-c}
 
 ## See also
 
