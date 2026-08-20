@@ -32,7 +32,7 @@ ones**.
 
 ## Sending a change
 
-Run both gates before opening a pull request. CI runs the same two and blocks the
+Run the gates before opening a pull request. CI runs the same six and blocks the
 deploy on them:
 
 ```bash
@@ -40,11 +40,37 @@ mkdocs build --strict
 ```
 
 ```bash
-python docs/examples/validate.py docs/examples/first-city
+python docs/examples/validate.py
 ```
 
-`--strict` turns a broken link or anchor into a failure. The validator checks three
-separate things:
+```bash
+python docs/examples/check_claims.py
+```
+
+```bash
+python docs/examples/key-coverage.py
+```
+
+```bash
+python docs/examples/check_pages.py
+```
+
+```bash
+python docs/examples/check_render.py
+```
+
+`--strict` turns a broken link or a missing nav target into a failure. It does not
+check the fragment after a `#`, nor whether a table still rendered as a table, which
+is what `check_render.py` reads the built HTML for. Both faults are silent: a label
+that stops resolving is a claim that looks cited and is not, and a table with
+anything inserted between its rows renders as one run-on paragraph.
+
+`check_claims.py` requires every block that asserts something to carry a label, and
+every label to point at an entry that exists. `key-coverage.py` requires every key
+the mod declares to appear in an example pack, and `check_pages.py` requires every
+key the mod declares to be named on the reference page that documents its type.
+
+The validator checks three separate things:
 
 - the example datapack still satisfies every rule the wiki documents, and any page
   that inlines a whole example file still matches it byte for byte
@@ -78,6 +104,14 @@ are documented on [Claim Tests](docs/examples/claim-tests.md):
 |---|---|
 | `docs/examples/wiki-test/` | Positive claims. Do this, and that happens. |
 | `docs/examples/wiki-fail/` | Failure modes. Two of its profiles are meant to fail. |
+| `docs/examples/behaviour/` | Features that place themselves: cellars, highways, railways, city spheres. Each one paired with a control that turns it off. |
+| `docs/examples/matcher-test/` | Whether a biome matcher gates the entry it is attached to. |
+| `docs/examples/every-key/` | Every key the codecs declare, in a pack that still generates. |
+
+A pack that measures something the generator places needs a **control**: a second
+profile differing by one key, with the feature off. Without it a count cannot tell
+"the feature worked" from "the pack happened to put one there". Two of the five
+controls in `behaviour/` came back non-zero, and both were findings.
 
 If you want to test something the wiki asserts and nobody has run, adding a probe to
 one of these is the best possible contribution. Every test that came back wrong so
@@ -95,9 +129,11 @@ and prints what the world actually built. It works on every Lost Cities version 
 
 ## Scope
 
-This wiki documents the **datapack asset system**, which starts at mod version
-5.3.29. Versions before that load their content from files inside the jar and are
-out of scope. See [Versions](docs/versions/index.md).
+This wiki's reference section documents the **datapack asset system**, which starts
+at mod version 5.3.29. Versions before that load their content from files inside the
+jar, and they have their own section rather than being out of scope: see
+[The File-Asset Era](docs/file-era/index.md). Which pages apply to which release is
+on [Versions](docs/versions/index.md).
 
 ## Licence
 

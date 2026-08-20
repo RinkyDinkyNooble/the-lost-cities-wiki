@@ -245,7 +245,13 @@ def main():
             defaults = server_defaults.get(v.get("server"), {})
             for key, meta in prof.items():
                 if key in defaults:
-                    meta["default"] = defaults[key]
+                    value = defaults[key]
+                    # Forge writes a boolean as 0 or 1. Storing that leaves the
+                    # file saying `"type": "Boolean", "default": 1`, which is the
+                    # wrong type for anything reading this as a schema.
+                    if meta.get("type") == "Boolean":
+                        value = bool(value)
+                    meta["default"] = value
 
         known = data["versions"].get(version)
         note = ""

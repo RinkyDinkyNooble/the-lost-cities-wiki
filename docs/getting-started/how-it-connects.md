@@ -53,7 +53,10 @@ Four worth opening first, because each one changes something different: [game te
 - **biosphere**: jungle in glass domes on barren land
 - **space**: glass bubbles floating in a void [game test](../examples/claim-tests.md#hic-2){.v .v-g}
 
-Three of the 17 set `"public": false` and do not appear in the in-game selector: `bio_wasteland` and `void_outside`, which only define what generates *outside* the glass spheres in sphere-based profiles, and `biosphere_caves`, which is a full profile wired to a Lost Worlds dimension rather than chosen by hand. A spheres profile of your own will likely want a private outside-profile too. [game test](../examples/claim-tests.md#hic-2){.v .v-g}
+Three of the 17 set `"public": false` and do not appear in the in-game selector: `bio_wasteland` and `void_outside`, which only define what generates *outside* the glass spheres in sphere-based profiles, and `biosphere_caves`, which is a full profile wired to a Lost Worlds dimension rather than chosen by hand. [game test](../examples/claim-tests.md#hic-2){.v .v-g}
+
+!!! danger "A sphere profile without `outsideProfile` takes the server down"
+    A spheres profile does not merely *want* an outside profile, it needs one. Leave `outsideProfile` empty and the first chunk outside a sphere dereferences a null profile, and because the sphere feature has no try/catch the **server stops** rather than the chunk failing. Thirteen caught null pointers and one uncaught one, for a single unset key. Point it at one of the private profiles above, or at your own. [game test](../examples/claim-tests.md#bhv-5){.v .v-g}
 
 !!! note "An eighteenth profile exists with no file"
     `customized` is a standard profile the write loop skips, so it never appears in the folder while still being a name `dimensionsWithProfiles` accepts. It is what the world creation screen's customise button writes into. [code review](../examples/claim-tests.md#cfg-7){.v .v-c} [game test](../examples/claim-tests.md#hic-2){.v .v-g}

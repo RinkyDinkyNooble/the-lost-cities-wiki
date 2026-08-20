@@ -21,7 +21,7 @@ of this wiki apply. Every number comes from the jar itself; the method is in
 | 8.4.1 or later on Minecraft 1.21 or later | This wiki, plus [What changed in 7.5](7-5.md), plus [The NeoForge line](neoforge.md). Coming from 8.2.2, clear `selectedProfile` first or the server will not boot. |
 | 8.2.2 on Minecraft 1.21 | This wiki. Ignore the 7.5 page. It is 7.4-era code on a 1.21 loader, so read [Traps specific to one version](#traps-specific-to-one-version) too. |
 | 5.3.29 through 6.2.3 | Most of this wiki. Some keys do not exist yet, and on four of these versions predefined cities never generate. See [Traps specific to one version](#traps-specific-to-one-version). |
-| Anything before 5.3.29 | Almost none of it. See [The file-asset era](legacy.md). |
+| Anything before 5.3.29 | None of the reference section. That era has its own: [The File-Asset Era](../file-era/index.md), read out of the 1.12.2 jar and run on its own rig. [The file-asset era](legacy.md) is the quick answer to which era you are in. |
 
 ## The boundary that matters
 

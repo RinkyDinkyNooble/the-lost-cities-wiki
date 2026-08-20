@@ -30,6 +30,20 @@ claims: verified
 | `parts` | no | Overrides for the default monorail, highway and railway part names. A name given here **replaces** the mod's part for that shape rather than joining a pool: pointing every highway shape at one part makes every highway in the world that part. See [Streets, Highways, Rails and Monorails](../concepts/infrastructure-parts.md). [game test](../examples/claim-tests.md#bhv-3){.v .v-g} |
 | `citybiomemultipliers` | no | A list of `{multiplier, biomes}` entries giving a per-biome city density multiplier. A `multiplier` below 1 makes cities rarer in those biomes, and above 1 makes them denser. The shipped world style uses `0.1` for oceans and `0.3` for rivers. |
 
+## Inside `citystyles`
+
+Each entry in the list takes three keys: [game test](../examples/claim-tests.md#mat-1){.v .v-g}
+
+| Key | Required | Meaning [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
+|---|---|---|
+| `citystyle` | **yes** | The name of a [City Style](citystyle.md). Resolved with `getOrThrow`, so a wrong namespace throws |
+| `factor` | **yes** | The weight of this entry against the others that also match the chunk |
+| `biomes` | no | A [biome matcher](../concepts/matchers.md). An entry whose matcher rejects the chunk is not a candidate there at all, rather than a candidate with weight zero |
+
+With no `biomes` key an entry is always a candidate. That is the difference the
+matcher makes: three entries differing only in their matcher produced only the one
+whose matcher passed, and it built exactly what an ungated entry builds. [game test](../examples/claim-tests.md#mat-1){.v .v-g}
+
 ## `settings`
 
 | Key | Default | Meaning [code review](../examples/claim-tests.md#ref-1){.v .v-c} |

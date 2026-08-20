@@ -14,6 +14,8 @@ claims: verified
     | Keys | Need [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
     |---|---|
     | `profile_overrides`, holding only `openLotParkChance` | 7.5.0 |
+    | Inside `streetblocks`: `largeparts` and `tertiaryparts` | 7.5.0 |
+    | Inside `selectors`: `largebridges` | 7.5.0 |
     | Inside `parkblocks`: `parkchance`, `parkborder`, `parkelevation`, `parkstreetthreshold`, `avoidfoliage` | 7.4.12 |
     | Inside `streetblocks`: `frontchance`, `fountainchance` | 7.4.12 |
     | Inside `corridorblocks`: `corridorchance` | 7.4.12 |
@@ -38,8 +40,8 @@ claims: verified
 | `parkblocks` | no | `parkchance`, `parkstreetthreshold` (a count of surrounding street chunks, 0 to 8), `avoidfoliage`, `parkborder`, `parkelevation`, plus the `elevation` and `grass` characters. |
 | `railblocks` | no | The `railmain` character. |
 | `sphereblocks` | no | The `inner`, `border` and `glass` characters for city spheres. |
-| `streetblocks` | no | `fountainchance` and `frontchance`, the `street`, `border` and `wall` characters, plus a nested `parts` block for [street part-name overrides](../concepts/infrastructure-parts.md). Three more keys parse and do nothing: `width`, `streetbase` and `streetvariant`. A fourth, `parts.full`, parses and is never reached. See the warning below. |
-| `selectors` | no | Eight weighted lists: `buildings`, `bridges`, `parks`, `fountains`, `stairs`, `fronts`, `raildungeons` and `multibuildings`. See [Selectors](#selectors-and-distance-gating). |
+| `streetblocks` | no | `fountainchance` and `frontchance`, the `street`, `border` and `wall` characters, plus a nested `parts` block for [street part-name overrides](../concepts/infrastructure-parts.md). From 7.5.0, `largeparts` and `tertiaryparts` take the same block of shape keys again, one for the wide planned roads and one for access roads, so a 7.5 city style can hold three independent street part sets. Three more keys parse and do nothing: `width`, `streetbase` and `streetvariant`. A fourth, `parts.full`, parses and is never reached. See the warning below. |
+| `selectors` | no | Eight weighted lists: `buildings`, `bridges`, `parks`, `fountains`, `stairs`, `fronts`, `raildungeons` and `multibuildings`, plus `largebridges` from 7.5.0, which carries the bridges for the wide planned roads. See [Selectors](#selectors-and-distance-gating). |
 
 !!! danger "A city style that inherits nothing must define its own characters"
     The generator reads these characters and dereferences them **without a null

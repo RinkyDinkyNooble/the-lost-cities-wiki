@@ -72,14 +72,20 @@ config-group-first.
 
 ## 6. Gates
 
+The same six CI runs. `check_render.py` reads the built site, so it has to come
+after the build.
+
 ```bash
 cd ../..
 .venv/Scripts/python.exe -m mkdocs build --strict
 .venv/Scripts/python.exe docs/examples/validate.py
 .venv/Scripts/python.exe docs/examples/check_claims.py
+.venv/Scripts/python.exe docs/examples/key-coverage.py
+.venv/Scripts/python.exe docs/examples/check_pages.py
+.venv/Scripts/python.exe docs/examples/check_render.py
 ```
 
-- [ ] All three clean
+- [ ] All six clean
 
 ## 7. Commit and tag
 

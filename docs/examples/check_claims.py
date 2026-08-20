@@ -98,8 +98,18 @@ def blocks(lines: list[str]):
 
 
 def anchors_in_register() -> set[str]:
+    """Every id the register defines, rejecting any it defines twice.
+
+    A duplicate id is worse than a missing one. A chip naming it still resolves,
+    so nothing errors and nothing looks wrong, but the reader lands on whichever
+    of the two the browser reaches first, which is the older entry. The claim
+    reads as cited while pointing at evidence for something else.
+    """
     text = REGISTER.read_text(encoding="utf-8")
-    return set(re.findall(r"\{\s*#([a-z0-9-]+)\s*\}", text))
+    found = re.findall(r"\{\s*#([a-z0-9-]+)\s*\}", text)
+    for name in sorted({a for a in found if found.count(a) > 1}):
+        err(REGISTER.name, f"register id defined more than once: #{name}")
+    return set(found)
 
 
 def is_table(block: list[str]) -> bool:

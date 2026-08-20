@@ -33,8 +33,10 @@ A world generates a chunk and decides this is a city, floor 2 of a building. [co
 
 Every step is a name lookup, and every name lookup follows the [namespacing](namespaces.md) rules. [code review](../examples/claim-tests.md#ns-3){.v .v-c}
 
-!!! note "A Style is not a visual theme"
+!!! note "A Style is not a visual theme, and the chain above is not the only one"
     Despite the name, a `Style` describes no look. It is a weighted **palette picker**: each slot resolves to one palette from a list, and the resolved palettes are merged. Full detail on the [Style](../reference/style.md) page. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
+
+    The chain above is the one a **city chunk** follows. Every chunk that is not a city chunk skips steps 2 to 5 and takes its palette from the World Style's `outsidestyle` instead, which is a second Style entirely. A character defined in one and not the other exists in half the world. [game test](../examples/claim-tests.md#bhv-5){.v .v-g}
 
 ## See also
 

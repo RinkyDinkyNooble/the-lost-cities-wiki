@@ -279,7 +279,12 @@ Could not find entry 'ß' in the palette for part 'mypack:my_part'!
 
 ## The 128-slot rule for `blocks` and `variant`
 
-A weighted list, whether `blocks` here or inside a [Variant](variant.md), fills a **fixed array of 128 slots**, in list order. [game test](../examples/claim-tests.md#pal-3){.v .v-g}
+A weighted list, whether `blocks` here or inside a [Variant](variant.md), fills a **fixed array of 128 slots**, in list order. Each entry in that list takes two keys: [game test](../examples/claim-tests.md#pal-3){.v .v-g}
+
+| Key | Required | Meaning [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
+|---|---|---|
+| `random` | **yes** | How many of the 128 slots this entry claims. Not a chance and not a share: it is a slot count, which is why the totals below behave as they do |
+| `block` | **yes** | The block state that fills those slots |
 
 | Total weight | Result [game test](../examples/claim-tests.md#pal-3){.v .v-g} |
 |---|---|

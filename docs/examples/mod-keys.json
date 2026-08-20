@@ -4354,12 +4354,12 @@
     "avoidFoliage": {
      "section": "lostcity",
      "type": "Boolean",
-     "default": 0
+     "default": false
     },
     "avoidWater": {
      "section": "lostcity",
      "type": "Boolean",
-     "default": 0
+     "default": false
     },
     "baseBlock": {
      "section": "lostcity",
@@ -4381,7 +4381,7 @@
     "bridgeSupports": {
      "section": "lostcity",
      "type": "Boolean",
-     "default": 1
+     "default": true
     },
     "buildingChance": {
      "section": "lostcity",
@@ -4453,7 +4453,7 @@
     "cityAvoidVoid": {
      "section": "cities",
      "type": "Boolean",
-     "default": 1
+     "default": true
     },
     "cityChance": {
      "section": "cities",
@@ -4604,7 +4604,7 @@
     "citySphereClearAboveUntilAir": {
      "section": "cityspheres",
      "type": "Boolean",
-     "default": 0
+     "default": false
     },
     "citySphereClearBelow": {
      "section": "cityspheres",
@@ -4616,7 +4616,7 @@
     "citySphereClearBelowUntilAir": {
      "section": "cityspheres",
      "type": "Boolean",
-     "default": 0
+     "default": false
     },
     "citySphereFactor": {
      "section": "cityspheres",
@@ -4659,7 +4659,7 @@
     "editMode": {
      "section": "lostcity",
      "type": "Boolean",
-     "default": 0
+     "default": false
     },
     "explosionChance": {
      "section": "explosions",
@@ -4697,7 +4697,7 @@
     "explosionsInCitiesOnly": {
      "section": "explosions",
      "type": "Boolean",
-     "default": 1
+     "default": true
     },
     "extraDescription": {
      "section": "lostcity",
@@ -4730,7 +4730,7 @@
     "forceSpawnInBuilding": {
      "section": "lostcity",
      "type": "Boolean",
-     "default": 0
+     "default": false
     },
     "forceSpawnParts": {
      "section": "lostcity",
@@ -4744,27 +4744,27 @@
     "generateLighting": {
      "section": "lostcity",
      "type": "Boolean",
-     "default": 0
+     "default": false
     },
     "generateLoot": {
      "section": "lostcity",
      "type": "Boolean",
-     "default": 1
+     "default": true
     },
     "generateNether": {
      "section": "lostcity",
      "type": "Boolean",
-     "default": 0
+     "default": false
     },
     "generateSpawners": {
      "section": "lostcity",
      "type": "Boolean",
-     "default": 1
+     "default": true
     },
     "grid32": {
      "section": "cityspheres",
      "type": "Boolean",
-     "default": 0
+     "default": false
     },
     "groundLevel": {
      "section": "lostcity",
@@ -4802,7 +4802,7 @@
     "highwayRequiresTwoCities": {
      "section": "lostcity",
      "type": "Boolean",
-     "default": 1
+     "default": true
     },
     "highwaySecondaryPerlinScale": {
      "section": "lostcity",
@@ -4812,7 +4812,7 @@
     "highwaySupports": {
      "section": "lostcity",
      "type": "Boolean",
-     "default": 1
+     "default": true
     },
     "horizon": {
      "section": "client",
@@ -4883,7 +4883,7 @@
     "multiUseCorner": {
      "section": "lostcity",
      "type": "Boolean",
-     "default": 0
+     "default": false
     },
     "oceanCorrectionBorder": {
      "section": "cities",
@@ -4895,7 +4895,7 @@
     "onlyPredefined": {
      "section": "cityspheres",
      "type": "Boolean",
-     "default": 0
+     "default": false
     },
     "outsideGroundLevel": {
      "section": "cityspheres",
@@ -4914,7 +4914,7 @@
     "parkBorder": {
      "section": "lostcity",
      "type": "Boolean",
-     "default": 1
+     "default": true
     },
     "parkChance": {
      "section": "lostcity",
@@ -4924,7 +4924,7 @@
     "parkElevation": {
      "section": "lostcity",
      "type": "Boolean",
-     "default": 1
+     "default": true
     },
     "parkStreetThreshold": {
      "section": "lostcity",
@@ -4941,22 +4941,22 @@
     "railwayStationsEnabled": {
      "section": "lostcity",
      "type": "Boolean",
-     "default": 1
+     "default": true
     },
     "railwaySurfaceStationsEnabled": {
      "section": "lostcity",
      "type": "Boolean",
-     "default": 1
+     "default": true
     },
     "railwaysCanEnd": {
      "section": "lostcity",
      "type": "Boolean",
-     "default": 0
+     "default": false
     },
     "railwaysEnabled": {
      "section": "lostcity",
      "type": "Boolean",
-     "default": 1
+     "default": true
     },
     "randomLeafBlockChance": {
      "section": "lostcity",
@@ -4978,7 +4978,7 @@
     "rubbleLayer": {
      "section": "lostcity",
      "type": "Boolean",
-     "default": 1
+     "default": true
     },
     "rubbleLeaveScale": {
      "section": "lostcity",
@@ -5035,7 +5035,7 @@
     "spawnNotInBuilding": {
      "section": "lostcity",
      "type": "Boolean",
-     "default": 0
+     "default": false
     },
     "spawnRadiusIncrease": {
      "section": "lostcity",
@@ -5084,7 +5084,7 @@
     "useAvgHeightmap": {
      "section": "lostcity",
      "type": "Boolean",
-     "default": 0
+     "default": false
     },
     "vineChance": {
      "section": "lostcity",
@@ -5469,12 +5469,12 @@
     "avoidFoliage": {
      "section": "lostcity",
      "type": "Boolean",
-     "default": 0
+     "default": false
     },
     "avoidWater": {
      "section": "lostcity",
      "type": "Boolean",
-     "default": 0
+     "default": false
     },
     "baseBlock": {
      "section": "lostcity",
@@ -5496,7 +5496,7 @@
     "bridgeSupports": {
      "section": "lostcity",
      "type": "Boolean",
-     "default": 1
+     "default": true
     },
     "buildingChance": {
      "section": "lostcity",
@@ -5568,7 +5568,7 @@
     "cityAvoidVoid": {
      "section": "cities",
      "type": "Boolean",
-     "default": 1
+     "default": true
     },
     "cityChance": {
      "section": "cities",
@@ -5719,7 +5719,7 @@
     "citySphereClearAboveUntilAir": {
      "section": "cityspheres",
      "type": "Boolean",
-     "default": 0
+     "default": false
     },
     "citySphereClearBelow": {
      "section": "cityspheres",
@@ -5731,7 +5731,7 @@
     "citySphereClearBelowUntilAir": {
      "section": "cityspheres",
      "type": "Boolean",
-     "default": 0
+     "default": false
     },
     "citySphereFactor": {
      "section": "cityspheres",
@@ -5774,7 +5774,7 @@
     "editMode": {
      "section": "lostcity",
      "type": "Boolean",
-     "default": 0
+     "default": false
     },
     "explosionChance": {
      "section": "explosions",
@@ -5812,7 +5812,7 @@
     "explosionsInCitiesOnly": {
      "section": "explosions",
      "type": "Boolean",
-     "default": 1
+     "default": true
     },
     "extraDescription": {
      "section": "lostcity",
@@ -5845,7 +5845,7 @@
     "forceSpawnInBuilding": {
      "section": "lostcity",
      "type": "Boolean",
-     "default": 0
+     "default": false
     },
     "forceSpawnParts": {
      "section": "lostcity",
@@ -5861,27 +5861,27 @@
     "generateLighting": {
      "section": "lostcity",
      "type": "Boolean",
-     "default": 0
+     "default": false
     },
     "generateLoot": {
      "section": "lostcity",
      "type": "Boolean",
-     "default": 1
+     "default": true
     },
     "generateNether": {
      "section": "lostcity",
      "type": "Boolean",
-     "default": 0
+     "default": false
     },
     "generateSpawners": {
      "section": "lostcity",
      "type": "Boolean",
-     "default": 1
+     "default": true
     },
     "grid32": {
      "section": "cityspheres",
      "type": "Boolean",
-     "default": 0
+     "default": false
     },
     "groundLevel": {
      "section": "lostcity",
@@ -5985,7 +5985,7 @@
     "highwayRequiresTwoCities": {
      "section": "lostcity",
      "type": "Boolean",
-     "default": 1
+     "default": true
     },
     "highwayRouteCityPenalty": {
      "section": "lostcity",
@@ -6000,7 +6000,7 @@
     "highwaySupports": {
      "section": "lostcity",
      "type": "Boolean",
-     "default": 1
+     "default": true
     },
     "horizon": {
      "section": "client",
@@ -6090,7 +6090,7 @@
     "multiUseCorner": {
      "section": "lostcity",
      "type": "Boolean",
-     "default": 0
+     "default": false
     },
     "oceanCorrectionBorder": {
      "section": "cities",
@@ -6102,7 +6102,7 @@
     "onlyPredefined": {
      "section": "cityspheres",
      "type": "Boolean",
-     "default": 0
+     "default": false
     },
     "openLotParkChance": {
      "section": "lostcity",
@@ -6126,7 +6126,7 @@
     "parkBorder": {
      "section": "lostcity",
      "type": "Boolean",
-     "default": 1
+     "default": true
     },
     "parkChance": {
      "section": "lostcity",
@@ -6136,7 +6136,7 @@
     "parkElevation": {
      "section": "lostcity",
      "type": "Boolean",
-     "default": 1
+     "default": true
     },
     "parkStreetThreshold": {
      "section": "lostcity",
@@ -6191,22 +6191,22 @@
     "railwayStationsEnabled": {
      "section": "lostcity",
      "type": "Boolean",
-     "default": 1
+     "default": true
     },
     "railwaySurfaceStationsEnabled": {
      "section": "lostcity",
      "type": "Boolean",
-     "default": 1
+     "default": true
     },
     "railwaysCanEnd": {
      "section": "lostcity",
      "type": "Boolean",
-     "default": 0
+     "default": false
     },
     "railwaysEnabled": {
      "section": "lostcity",
      "type": "Boolean",
-     "default": 1
+     "default": true
     },
     "randomLeafBlockChance": {
      "section": "lostcity",
@@ -6228,7 +6228,7 @@
     "rubbleLayer": {
      "section": "lostcity",
      "type": "Boolean",
-     "default": 1
+     "default": true
     },
     "rubbleLeaveScale": {
      "section": "lostcity",
@@ -6313,7 +6313,7 @@
     "spawnNotInBuilding": {
      "section": "lostcity",
      "type": "Boolean",
-     "default": 0
+     "default": false
     },
     "spawnRadiusIncrease": {
      "section": "lostcity",
@@ -6386,7 +6386,7 @@
     "useAvgHeightmap": {
      "section": "lostcity",
      "type": "Boolean",
-     "default": 0
+     "default": false
     },
     "vineChance": {
      "section": "lostcity",

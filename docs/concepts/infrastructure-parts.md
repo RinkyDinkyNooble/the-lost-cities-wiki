@@ -94,6 +94,16 @@ A name given here **replaces** the mod's part for that shape rather than joining
 
 Any key you leave out keeps its default part name. The keys are not always spelled like the part names they default to. [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 
+A [World Style](../reference/worldstyle.md)'s `parts` block takes three keys, one per family, and each holds the shape keys listed below it: [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+
+| Key | Holds [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
+|---|---|
+| `highways` | The highway shape keys |
+| `railways` | The railway shape keys |
+| `monorails` | The three monorail keys |
+
+Streets are not in that block. They live on a [City Style](../reference/citystyle.md) under `streetblocks.parts`, which is what lets them vary by biome while these three cannot. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
+
 ### Streets
 
 | Key | Default part | Used when [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
@@ -105,8 +115,12 @@ Any key you leave out keeps its default part name. The keys are not always spell
 | `all` | `street_all` | 4 connections (crossroads) |
 | `end` | `street_end` | 1 connection |
 | `none` | `street_none` | 0 connections |
+| `connector` | `street_large_connector` | Where a wide road meets a narrower one. **7.5.1 and later** |
+| `stair` | `street_stair` | Where a road changes city level. **7.5.1 and later** |
 
 The key is literally `"t"`, not `"tsplit"`. [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+
+The last two arrived with the planned road network. The same block of keys appears three times on a 7.5 city style, under `parts` for ordinary streets, `largeparts` for the wide planned roads and `tertiaryparts` for access roads, each taking the full set independently. See [What changed in 7.5](../versions/7-5.md#new-datapack-keys). [code review](../examples/claim-tests.md#key-1){.v .v-c}
 
 !!! danger "`full` never generates. Setting it does nothing."
     A street chunk is assigned one of 3 street types. `PARK` is chosen by
@@ -132,16 +146,26 @@ The key is literally `"t"`, not `"tsplit"`. [code review](../examples/claim-test
 
 ### Highways
 
-| Key | Default part [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
-|---|---|
-| `tunnel` | `highway_tunnel` |
-| `open` | `highway_open` |
-| `bridge` | `highway_bridge` |
-| `tunnel_bi` | `highway_tunnel_bi` |
-| `open_bi` | `highway_open_bi` |
-| `bridge_bi` | `highway_bridge_bi` |
+Six keys in 7.4.12 and **twelve** from 7.5.1 onward. [code review](../examples/claim-tests.md#key-1){.v .v-c}
+
+| Key | Default part | Needs [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
+|---|---|---|
+| `tunnel` | `highway_tunnel` | 7.4.12 |
+| `open` | `highway_open` | 7.4.12 |
+| `bridge` | `highway_bridge` | 7.4.12 |
+| `tunnel_bi` | `highway_tunnel_bi` | 7.4.12 |
+| `open_bi` | `highway_open_bi` | 7.4.12 |
+| `bridge_bi` | `highway_bridge_bi` | 7.4.12 |
+| `open_bend` | `highway_open_bend` | **7.5.1** |
+| `open_t` | `highway_open_t` | **7.5.1** |
+| `bridge_bend` | `highway_bridge_bend` | **7.5.1** |
+| `bridge_t` | `highway_bridge_t` | **7.5.1** |
+| `tunnel_bend` | `highway_tunnel_bend` | **7.5.1** |
+| `tunnel_t` | `highway_tunnel_t` | **7.5.1** |
 
 `_bi` ("bidirectional") is used where an X highway and a Z highway meet at the same level. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
+
+The six `_bend` and `_t` shapes arrived with the planned road network in 7.5.1. Before it a highway only ran straight or crossed another at the same level, so there was nothing to turn a corner with. On 7.4.12 these six keys are unknown and [ignored](../versions/key-availability.md), which means a pack written for 7.5 loads on 7.4.12 rather than failing. The reverse is the trap: a 7.4.12 pack that overrides every highway shape keeps its straight sections on 7.5 and gets the mod's own parts at every corner. [code review](../examples/claim-tests.md#key-1){.v .v-c}
 
 ### Railways
 

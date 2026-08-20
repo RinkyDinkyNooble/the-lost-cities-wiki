@@ -60,6 +60,54 @@ losing foliage. See [Profile](profile.md). [code review](../examples/claim-tests
 `streetGenerationMode: LEGACY` restores the 7.4.12 ordering. See
 [What changed in 7.5](../versions/7-5.md). [code review](../examples/claim-tests.md#key-1){.v .v-c}
 
+### `railwaysEnabled: false` leaves every railway station standing
+
+| | [game test](../examples/claim-tests.md#bhv-4){.v .v-g} |
+|---|---|
+| Set | `lostcity.railwaysEnabled: false` |
+| Defeated by | `lostcity.railwayStationsEnabled`, default `true` |
+| Result | The switch is read **only** on chunks whose rail type is not a station, so the running rail goes and the stations remain. Measured: 13792 of 24320 railway blocks survived. |
+| Checked | Run in a world, 7.4.12 |
+
+Both have to be off to clear the network. `railwaySurfaceStationsEnabled` narrows
+stations to underground ones rather than removing them. [game test](../examples/claim-tests.md#bhv-4){.v .v-g}
+
+### `buildingMaxCellars: 0` does not mean no cellars
+
+| | [game test](../examples/claim-tests.md#bhv-1){.v .v-g} |
+|---|---|
+| Set | `lostcity.buildingMaxCellars: 0` |
+| Defeated by | The chunk's own city level, which is **added** to the maximum |
+| Result | The maximum is a base, not a cap. Measured: 2352 cellar blocks over sixteen chunks at a maximum of `0`, and none once every chunk was pinned to level 0. |
+| Checked | Run in a world, 7.4.12 |
+
+City level comes from terrain height through `cityLevel0Height` and its seven
+siblings, so a flat world is the only one where `0` means zero. [game test](../examples/claim-tests.md#bhv-1){.v .v-g}
+
+### `cityChance: 1.0` gives a world of streets, not buildings
+
+| | [game test](../examples/claim-tests.md#mat-2){.v .v-g} |
+|---|---|
+| Set | `cities.cityChance: 1.0`, to make everything a city |
+| Defeated by | `lostcity.highwayDistanceMask`, default `7` |
+| Result | With the whole world a city, the highway network claims chunk after chunk, and a claimed chunk refuses a building unless its city level is at least two above the highway's. On flat ground that never happens, so every chunk comes back a street. |
+| Checked | Run in a world, 7.4.12 |
+
+Nothing is logged. Setting `highwayDistanceMask: 0` alongside it restores the
+buildings. This is separate from the 7.5 road planner above, and it applies on
+every version. [game test](../examples/claim-tests.md#mat-2){.v .v-g}
+
+### A character defined in one style resolves in half the world
+
+| | [game test](../examples/claim-tests.md#bhv-5){.v .v-g} |
+|---|---|
+| Set | A palette layered into the [Style](style.md) a city style names in `style` |
+| Not covered by it | Every chunk that is **not** a city chunk, which resolves against the world style's `outsidestyle` instead |
+| Result | The character is defined where a building stands and undefined everywhere else. A city sphere's shell is drawn on non-city chunks, so a shell character defined only in the city style's style resolves to null and the **server** stops, uncaught, naming nothing. |
+| Checked | Run in a world, 7.4.12 |
+
+Layer the same palette into both styles. See [Style](style.md#two-styles-are-in-play-and-which-one-applies-depends-on-the-chunk). [game test](../examples/claim-tests.md#bhv-5){.v .v-g}
+
 ### `preventruins` is on the pinned building, not the Building asset
 
 | | [code review](../examples/claim-tests.md#ref-1){.v .v-c} |

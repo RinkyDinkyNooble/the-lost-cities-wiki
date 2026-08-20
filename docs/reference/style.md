@@ -11,7 +11,14 @@ claims: verified
 
 | Key [code review](../examples/claim-tests.md#ref-1){.v .v-c} | Required | Meaning |
 |---|---|---|
-| `randompalettes` | **yes** | A list of lists. Each inner list is one slot, holding weighted `{factor, palette}` choices |
+| `randompalettes` | **yes** | A list of lists. Each inner list is one slot, and every slot rolls independently |
+
+Each entry inside a slot takes two keys, both required: [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+
+| Key | Required | Meaning [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
+|---|---|---|
+| `palette` | **yes** | The name of a [Palette](palette.md). Resolved with `getOrThrow`, so a wrong namespace throws rather than falling through to another choice |
+| `factor` | **yes** | The weight of this choice within its slot. Weights are relative to the others in the same slot, not to 1.0 |
 
 ## Example: two independent slots
 
@@ -34,6 +41,29 @@ The two slots roll independently and the results are merged. The wall slot picks
 
 Every palette named here goes through `getOrThrow`, so a name in the wrong namespace throws rather than falling through to the next choice. [code review](../examples/claim-tests.md#ns-4){.v .v-c}
 
+## Two styles are in play, and which one applies depends on the chunk
+
+A Style is named in two different places, and a world uses both at once: [game test](../examples/claim-tests.md#bhv-5){.v .v-g}
+
+| Named by | Key | Applies to [game test](../examples/claim-tests.md#bhv-5){.v .v-g} |
+|---|---|---|
+| [City Style](citystyle.md) | `style` | Chunks that are city chunks |
+| [World Style](worldstyle.md) | `outsidestyle` | Every chunk that is not |
+
+A chunk compiles its palette from one or the other, never from both, so a character
+defined in only one of them resolves in half the world and is undefined in the rest. [game test](../examples/claim-tests.md#bhv-5){.v .v-g}
+
+!!! danger "A city sphere's shell is drawn on non-city chunks"
+    Which makes it the case that catches people out. The shell character comes from
+    the city style, and it is placed on chunks that resolve against the **outside**
+    style. Define it only in the city style's `style` and the lookup returns null,
+    and the sphere feature has no null check: the **server** goes down with a bare
+    `NullPointerException` during feature placement, naming no file, no part and no
+    character. [game test](../examples/claim-tests.md#bhv-5){.v .v-g}
+
+    A pack that uses its own characters anywhere outside a building wants the same
+    palette layered into both styles. [game test](../examples/claim-tests.md#bhv-5){.v .v-g}
+
 ## When the roll happens
 
 Every slot rolls **once per chunk**, from a random source seeded by the chunk coordinate, so the same chunk in the same world always lands on the same palette. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
@@ -49,4 +79,4 @@ A normal building occupies one chunk, which makes that the same as once per buil
 
 - [The Content Model](../getting-started/content-model.md)
 - [Palette Reference](palette.md) for what a resolved palette contains
-- [City Style Reference](citystyle.md) for what points at a Style <!-- noclaim -->
+- [City Style Reference](citystyle.md) and [World Style Reference](worldstyle.md), the two assets that point at a Style <!-- noclaim -->

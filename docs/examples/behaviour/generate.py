@@ -89,17 +89,16 @@ write("palettes", "main", {
 })
 
 # ----------------------------------------------------------------------- style
-# A city style's own block characters, `sphereblocks.glass` among them, are
-# resolved through the style named on the city style, not through the palette a
-# part references. Pointing at the mod's `standard` style leaves this pack's
-# characters undefined there, and the sphere shell then draws nothing at all,
-# silently. The mod's two palettes come first so the shipped parts this pack
-# leans on still resolve, and this pack's palette is layered last so its own
+# A city style's own block characters, `sphereblocks.glass` among them, are resolved
+# through the style named on the city style, not through the palette a part
+# references. Pointing at the mod's `standard` style leaves this pack's characters
+# undefined there, and the sphere shell then draws nothing at all, silently.
+#
+# The layers up to the last are the mod's own `standard` style with one palette each
+# instead of a weighted choice, so nothing here varies run to run. Dropping the brick
+# and glass layers fails the shipped parts this pack still uses for streets and
+# fronts, with "Could not find entry '$'". This pack's palette goes last so its own
 # characters win.
-# The layers up to the last are the mod's own `standard` style with one palette
-# each instead of a weighted choice, so nothing here varies run to run. Dropping
-# the brick and glass layers fails the shipped parts this pack still uses for
-# streets and fronts, with "Could not find entry '$'".
 write("styles", "main", {
     "randompalettes": [
         [{"factor": 1.0, "palette": "common"}],

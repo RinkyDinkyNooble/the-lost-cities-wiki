@@ -154,7 +154,7 @@ Tables below: **Range** is the window the mod was designed and tested against, a
 |---|---|
 | `default` | Ordinary terrain, with cities sitting on it. This is the baseline every other type is a departure from. |
 | `floating` | Islands floating in empty space, with cities on the islands. `cityAvoidVoid` matters here, because a city can otherwise hang off an island edge. |
-| `space` | Everything inside glass bubbles in a void. The `cityspheres` section drives this, and `citySphereFactor` sizes the outer sphere relative to the city. |
+| `space` | Everything inside glass bubbles in a void. The `cityspheres` section drives this. |
 | `cavern` | Cities inside a large enclosed cave system rather than on an open surface. |
 | `spheres` | Spheres on otherwise normal terrain, rather than in a void. |
 | `cavernspheres` | Spheres inside a cavern. This is the hybrid: the mod treats it as **both** a cavern and a sphere type. |
@@ -246,7 +246,7 @@ Tables below: **Range** is the window the mod was designed and tested against, a
 | `highwayDistanceMask` | `7` | ≥ 0 | Spacing bitmask, must be a power of two minus one (`0`, `1`, `3`, `7`, `15`...). `0` disables highways outright: the level lookup returns -1 before reading anything else, and no highway part is placed anywhere. [game test](../examples/claim-tests.md#bhv-3){.v .v-g} |
 | `highwayMainPerlinScale` | `50.0` | 1 to 1000 | Noise scale, main axis. |
 | `highwaySecondaryPerlinScale` | `10.0` | 1 to 1000 | Noise scale, cross axis. |
-| `highwayPerlinFactor` | `2.0` | -100 to 100 | Noise threshold. `0` ≈ 50% chance. Higher suppresses highways. |
+| `highwayPerlinFactor` | `2.0` | -100 to 100 | Noise threshold. `0` ≈ 50% chance on an eligible chunk. Higher suppresses highways. Only chunks at a multiple of 8 are eligible at all, so this thins an already sparse grid rather than placing highways anywhere. |
 | `highwaySupports` | `true` | | If `true`, highways get support pillars where needed. Set `false` for highways that span void. |
 | `railwayDungeonChance` | `0.01` | 0 to 1 | Chance a chunk next to a railway gets a dungeon. |
 | `railwaysCanEnd` | `false` | | If `true`, a spot that would have been a station but has no city above gets a dead-end rail part instead. Useful when cities are rare. |
@@ -312,7 +312,7 @@ Mostly relevant to `space`, `spheres`, and `cavernspheres` landscape types. [cod
 
 | Key | Default | Range | Meaning [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|---|---|
-| `citySphereFactor` | `1.2` | 0.1 to 10 | `space` only: outer sphere radius = city radius × this. |
+| `citySphereFactor` | `1.2` | 0.1 to 10 | Scales every city sphere's radius, on **any** sphere landscape. Not `space` only, whatever the config comment says. See the note below. [code review](../examples/claim-tests.md#sph-3){.v .v-c} |
 | `citySphereChance` | `0.7` | 0 to 1 | The chance a given city is enclosed in a sphere. Only consulted on the sphere landscape types, and only on a chunk that is already a city chunk: at the default `cityChance` of `0.01` no sphere appeared anywhere in a 225 chunk grid. `0.0` places none. [game test](../examples/claim-tests.md#bhv-5){.v .v-g} |
 | `citySphereClearAbove` | `0` | 0 to 1024 | Blocks cleared above the sphere. `0` disables. |
 | `citySphereClearBelow` | `0` | 0 to 1024 | Blocks cleared below the sphere. `0` disables. |
@@ -326,6 +326,19 @@ Mostly relevant to `space`, `spheres`, and `cavernspheres` landscape types. [cod
 | `outsideProfile` | `""` | | Profile used for terrain outside the spheres. **Effectively required on a sphere landscape**: leave it empty and the first chunk that asks about the outside world throws `getOutsideProfile() is null`, uncaught. See [connects page](../getting-started/how-it-connects.md). |
 | `outsideGroundLevel` | `-1` | -1 to 256 | **Deprecated**, use `groundLevel` on `outsideProfile` instead. |
 | `grid32` | `false` | | If `true`, city spheres align to a 32×32 chunk grid. `false` uses 16×16. |
+
+!!! warning "`citySphereFactor` is not `space` only, and it does not scale the whole radius"
+    The mod's config comment reads *"Only used in 'space' landscape"*. `getSphereRadius` reads it on every path, with no landscape check anywhere in the method, so it applies on `spheres` and `cavernspheres` too. [code review](../examples/claim-tests.md#sph-3){.v .v-c}
+
+    It also multiplies less than the name suggests. For a sphere on a predefined city the whole radius is scaled, but for an ordinary one only the random part is: [code review](../examples/claim-tests.md#sph-3){.v .v-c}
+
+    | Sphere | Radius [code review](../examples/claim-tests.md#sph-3){.v .v-c} |
+    |---|---|
+    | On a predefined city | `radius × citySphereFactor` |
+    | Anywhere else | `cityMinRadius + random(cityMaxRadius - cityMinRadius) × citySphereFactor` |
+
+    So on an ordinary sphere the factor can never take the radius below `cityMinRadius`, and lowering it pulls every sphere towards that floor rather than shrinking it proportionally. [code review](../examples/claim-tests.md#sph-3){.v .v-c}
+
 
 ## `client`
 

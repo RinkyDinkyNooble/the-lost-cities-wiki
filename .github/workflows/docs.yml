@@ -33,11 +33,36 @@ jobs:
       - name: Build site (strict)
         run: mkdocs build --strict
 
-      # The example datapack has to keep satisfying the rules the wiki
-      # documents. If this fails, either the example broke or a documented
-      # rule changed and the validator wasn't updated with it.
-      - name: Validate example datapack
-        run: python docs/examples/validate.py docs/examples/first-city
+      # Every example pack, not only first-city. The others carry the claims
+      # the wiki cites, so a rule change that breaks one of those breaks a
+      # published result.
+      - name: Validate the example datapacks
+        run: python docs/examples/validate.py
+
+      # Every block that asserts something carries a verification chip, every
+      # chip points at a register entry that exists, and no table has lost a
+      # column. Documented as a gate in mod/RELEASING.md and previously not run
+      # here, which meant it could only fail on someone's machine.
+      - name: Check the claim register
+        run: python docs/examples/check_claims.py
+
+      # Every key the codecs and the profile declare appears in an example.
+      # This is what stops a key being documented and never demonstrated.
+      - name: Check key coverage
+        run: python docs/examples/key-coverage.py
+
+      # The other direction from validate.py: every key the mod declares has to
+      # be named on the page that documents its type. First run found 26 that
+      # were not, six of them added by 7.5 and written up nowhere.
+      - name: Check every key reaches a page
+        run: python docs/examples/check_pages.py
+
+      # Two faults only the rendered HTML shows: an anchor that no longer
+      # resolves, and a table that stopped being a table because something was
+      # inserted between its rows. The second one took out 116 rows across 21
+      # files once, with every gate passing throughout.
+      - name: Check the rendered site
+        run: python docs/examples/check_render.py
 
       - name: Upload site
         uses: actions/upload-pages-artifact@v3

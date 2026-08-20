@@ -31,25 +31,32 @@ the wrong part, and the `full` street shape never being selected.
 Built for Minecraft 1.20.1 and Lost Cities 7.4.12. See [mod/README.md](mod/README.md)
 for every setting and the evidence behind it.
 
-Claims are checked one of two ways, and pages say which:
+Every claim carries one of three labels, and every page says which:
 
-| How | What it means |
+| Label | What it means |
 |---|---|
-| Read from the mod | The behaviour was traced through the compiled code of the version named on the page. |
-| Run in a world | The behaviour was reproduced in game, and the result is on [Claim Tests](https://rinkydinkynooble.github.io/the-lost-cities-wiki/examples/claim-tests/). |
+| Game test | Run on a headless server against a named pack, with the blocks read back out of the world |
+| Code review | Read out of the compiled jar of the version named on the page, with the class and method named |
+| Unverified | Neither. A statement about the evidence, not about the claim |
 
-Testing has corrected several pages here and turned up two mod bugs. Those are on [Known Issues](https://rinkydinkynooble.github.io/the-lost-cities-wiki/troubleshooting/known-issues/) with the evidence.
+Every one of them links to a numbered entry on [Claim Tests](https://rinkydinkynooble.github.io/the-lost-cities-wiki/examples/claim-tests/), which is the register of what was run and how to run it again. One unverified label remains on the whole site.
+
+Testing has corrected pages here and turned up mod bugs. Those are on [Known Issues](https://rinkydinkynooble.github.io/the-lost-cities-wiki/troubleshooting/known-issues/) with the evidence.
 
 ## Version coverage
 
+Ten versions have been booted and had their blocks read back, not two.
+
 | Target | State |
 |---|---|
-| Lost Cities **7.4.12**, Minecraft 1.20.1, Forge | Primary. Read from the mod and run in a world. |
-| **7.5.1**, Minecraft 1.20.1, Forge | Read from the mod and run in a world. The 7.4.12 claim-test pack passes unchanged on it. |
-| 8.x, 9.x, 10.x on NeoForge | In progress. Key and default differences are mapped; behaviour is not yet tested. |
-| Before 5.3.29 | Out of scope. Those versions load content from inside the jar rather than from datapacks. |
+| Lost Cities **7.4.12**, Minecraft 1.20.1, Forge | Primary. Every page is written against it. |
+| **7.5.1**, Minecraft 1.20.1, Forge | The 7.4.12 claim-test pack passes unchanged, with one documented difference in how a building's palette is resolved. |
+| **8.2.2** and **8.4.1**, Minecraft 1.21, NeoForge | Run in a world. 8.2.2 has a higher number than 7.5 and a smaller feature set. |
+| **9.5.1** and **10.0.1**, Minecraft 1.21.11 and 26.1.2, NeoForge | Run in a world, identical counts to Forge. |
+| **5.3.29**, **6.0.3**, **6.2.2**, Minecraft 1.18 and 1.19 | Run in a world. The thin end of the datapack era. |
+| **2.0.22** and earlier | A different asset system, with its own section and its own rig. |
 
-The [Versions](https://rinkydinkynooble.github.io/the-lost-cities-wiki/versions/) section states which pages apply to which release. 7.5.1, 8.4.1, 9.5.1 and 10.0.1 declare the same 160 profile keys and 231 datapack keys, compared by name, type, default, minimum and maximum, so one set of pages covers all four.
+The [Versions](https://rinkydinkynooble.github.io/the-lost-cities-wiki/versions/) section states which pages apply to which release. 7.5.1, 8.4.1, 9.5.1 and 10.0.1 declare the same 160 profile keys and 268 datapack keys, compared by name, type, default, minimum and maximum, so one set of pages covers all four.
 
 ## Layout
 

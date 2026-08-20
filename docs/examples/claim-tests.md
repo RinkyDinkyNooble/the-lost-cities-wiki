@@ -7,8 +7,13 @@ This page is the register of claims that have been checked in a running world, t
 packs that check them, and how to run those packs.
 
 Every result below is from Lost Cities **7.4.12** on Minecraft **1.20.1**, Forge,
-unless a row says otherwise. Results marked 7.5.1 were produced by running the same
-pack against that jar with nothing else changed.
+unless the entry says otherwise. An entry naming another version was produced by
+running the same pack against that jar with nothing else changed, which is what
+makes the two numbers comparable at all.
+
+Ten versions have been run this way, from **2.0.22** on Minecraft 1.12.2 to
+**10.0.1** on Minecraft 26.1.2. `testrig/` in this repository installs any of them
+and runs these packs.
 
 ## What has been checked in a world
 
@@ -1549,6 +1554,27 @@ Two settings are needed and neither is obvious:
   null check: the **server goes down** with a bare `NullPointerException` during
   feature placement, naming no file, no part and no character.
 
+#### SPH-3 `citySphereFactor` is not `space` only, and scales less than its name says { #sph-3 }
+
+**Code review.** `CitySphere.getSphereRadius` in 7.4.12. The mod's own config comment
+reads *"Only used in 'space' landscape"*. The method contains no landscape check on
+any path, so the factor applies on `spheres` and `cavernspheres` as well.
+
+It also multiplies a different thing depending on how the sphere arose:
+
+| Sphere | Radius |
+|---|---|
+| On a predefined city | `PredefinedCity.getRadius() × CITYSPHERE_FACTOR` |
+| Anywhere else | `CITY_MINRADIUS + random(CITY_MAXRADIUS - CITY_MINRADIUS) × CITYSPHERE_FACTOR` |
+
+On the second path the factor never touches `cityMinRadius`, so it cannot take a
+sphere below that floor. Lowering it pulls every sphere towards the minimum rather
+than scaling it.
+
+Found by reading every profile key's config comment out of the jar and setting it
+beside what this wiki says about the key. The comment is the mod's, the behaviour is
+the code's, and where they disagree this site documents the code.
+
 #### BHV-6 Monorails were not reproduced { #bhv-6 }
 
 **Unverified.** The monorail parts a world style names were never placed, in any
@@ -1911,7 +1937,10 @@ Every pack below ships with this wiki and can be downloaded from the repository.
 | `docs/examples/wiki-test11/` | Building fronts, stuff objects, and what a predefined city does not make a city chunk | Block count |
 | `docs/examples/wiki-test12/` | Scattered structures, with the placement randomness tuned out | Block count |
 | `docs/examples/wiki-test13/` | A predefined sphere, and what its glass character resolves to | Block count |
+| `docs/examples/matcher-test/` | Whether a biome matcher gates the world style entry it sits on, with an ungated control | Block count |
+| `docs/examples/behaviour/` | Cellars, `preferslonely`, highways, railways and city spheres, each against a control that turns the feature off | Block count |
 | `docs/examples/every-key/` | Every key the codecs declare, in a pack that loads. A reference, not a tutorial | Block count |
+| `docs/examples/json5-test/` | Three packs building the same three towers, for the DevTool's `.json5` handling | Block count |
 | `docs/examples/file-era-test/` | The file-asset era: one `userassets.json`, no datapack | Block count |
 
 Four more were built for single claims and are described where they are used rather
@@ -1925,8 +1954,11 @@ jars that are not ours to redistribute.
 | [KEY-4](#key-4) | `wiki-test10` with `overrideFloors` deleted from `buildings/full.json` |
 | [VER-4](#ver-4), [VER-5](#ver-5) | `wiki-test10` with its predefined city folder renamed to whichever spelling the version compiled in |
 
-`wiki-test7` supersedes `wiki-test5` and `wiki-test6`, which are earlier builds of
-the same grid kept only because their failures are documented above.
+Three packs in the folder are superseded and kept only because results above were
+produced on them: `wiki-test5` and `wiki-test6` are earlier builds of the grid that
+`wiki-test7` replaced, and `wiki-test9` is an earlier JSON5 test that `json5-test`
+replaced. Nothing on this page needs them, and a new test should start from one of
+the packs in the table instead.
 
 ### The pinned grid
 

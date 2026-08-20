@@ -51,11 +51,13 @@ The grid test is a bitmask on the chunk coordinate. By default a chunk is a cand
 !!! warning "Monorails need agreement from both sides"
     Each sphere independently rolls, per direction, whether it wants a monorail connection that way, and a line generates between two spheres only where **both** rolled true facing each other. `monorailChance: 1.0` means every sphere always wants one, which is not the same as every pair agreeing. At `1.0` both sides do roll true, so every geometrically possible connection appears, but the check stays per pair rather than global. [code review](../examples/claim-tests.md#city-4){.v .v-c}
 
+    All of that is read from the code. **No monorail has been placed in a test.** Sphere generation itself has been, and monorails have not, in any arrangement tried. [unverified](../examples/claim-tests.md#bhv-6){.v .v-u}
+
 ## Highways
 
 Two independent Perlin noise keys, one per axis, decide where highway lines run, shaped by `highwayMainPerlinScale`, `highwaySecondaryPerlinScale` and `highwayPerlinFactor`. [code review](../examples/claim-tests.md#city-5){.v .v-c}
 
-`highwayDistanceMask` is a bitmask, so it takes `0`, `1`, `3`, `7`, `15` and so on, a power of two minus one. It spaces candidate lines at regular intervals rather than letting the noise key put them anywhere, which is why it jumps in fixed increments instead of scaling smoothly. A candidate line generates only where it is at least 5 chunks long and touches two cities, unless `highwayRequiresTwoCities` is `false`, and its height comes from whichever endpoint rule `highwayLevelFromCities` selects. [code review](../examples/claim-tests.md#city-5){.v .v-c}
+`highwayDistanceMask` is a bitmask, so it takes `0`, `1`, `3`, `7`, `15` and so on, a power of two minus one. It spaces candidate lines at regular intervals rather than letting the noise key put them anywhere, which is why it jumps in fixed increments instead of scaling smoothly. **`0` is not the tightest spacing, it is off**: the level lookup returns -1 before it reads anything else, and no highway generates anywhere. [game test](../examples/claim-tests.md#bhv-3){.v .v-g} A candidate line generates only where it is at least 5 chunks long and touches two cities, unless `highwayRequiresTwoCities` is `false`, and its height comes from whichever endpoint rule `highwayLevelFromCities` selects. [code review](../examples/claim-tests.md#city-5){.v .v-c}
 
 ## Multi-chunk buildings
 

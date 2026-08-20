@@ -21,6 +21,10 @@ claims: verified
 }
 ```
 
+| Key | Required | Meaning [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
+|---|---|---|
+| `values` | **yes** | The whole file is this one key: a list of entries, each holding a `value`, a `factor` and any of the test keys below. |
+
 The mod collects every entry whose tests pass, then picks one `value` at random. `factor` weights that pick. If no entry matches, the condition returns nothing. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
 !!! note "Weighted here, unweighted in a Building"
