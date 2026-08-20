@@ -454,4 +454,80 @@ with io.open(os.path.join(profile, "ekdemo.json"), "w",
         "explosions": {"explosionChance": 0.0, "miniExplosionChance": 0.0},
     }, indent=2) + "\n")
 
+# ============================================================== the full profile
+# `ekdemo` above is a minimal profile: it sets the handful of keys the tests need
+# and leaves everything else alone. `ekfull` is the opposite. It sets EVERY profile
+# key the mod declares, so that a reader can see the shape and the section of each
+# one in a file that actually runs.
+#
+# Each key is written at its own documented default, read straight out of
+# `mod-keys.json`. That is what makes the file safe: a profile setting every key to
+# the value the mod would have used anyway generates the same world as one setting
+# none of them, so the fixture proves the keys parse without changing what it builds.
+# The handful of keys the test itself depends on are overridden below.
+#
+# The five `client` keys are deliberately absent. Fog and horizon exist only on the
+# client, so a headless server can neither read nor demonstrate them.
+
+KEYS = json.load(io.open(os.path.join(HERE, "..", "mod-keys.json"),
+                         encoding="utf-8"))
+PROFILE_KEYS = max(
+    KEYS["versions"].values(),
+    key=lambda v: len(v["profile"]))["profile"]
+
+# Keys whose default is null. A null means "unset", which demonstrates nothing, so
+# each gets a real value pointing at something this pack defines.
+FILL_IN = {
+    "cityStyleAlternative": NS + ":demo",
+    "outsideProfile": "bio_wasteland",
+    "spawnCity": NS + ":demo",
+    "spawnSphere": NS + ":demo",
+    "spawnBiome": "minecraft:plains",
+    "forceSpawnBuildings": [NS + ":tower"],
+    "forceSpawnParts": [NS + ":body"],
+    "icon": "minecraft:stone",
+    "warning": "A reference fixture. Not a playable profile.",
+    "extraDescription": "Sets every profile key the mod declares.",
+}
+
+# What the test needs, overriding the defaults.
+OVERRIDE = {
+    "worldStyle": NS + ":demo",
+    "cityChance": 0.0,            # only the pinned city generates
+    "ruinChance": 0.0,
+    "explosionChance": 0.0,
+    "miniExplosionChance": 0.0,
+    "generateLoot": False,
+    "buildingMinFloors": 2, "buildingMaxFloors": 2,
+    "buildingMinCellars": 0, "buildingMaxCellars": 0,
+}
+
+
+def profile_value(name, meta):
+    if name in OVERRIDE:
+        return OVERRIDE[name]
+    if name in FILL_IN:
+        return FILL_IN[name]
+    default, kind = meta.get("default"), meta.get("type", "")
+    if kind == "Boolean":
+        return bool(default)
+    if default is None:
+        # No default and no fill-in: fall back to something of the right shape,
+        # so the key is still present and still parses.
+        return [] if kind == "StringList" else ""
+    return default
+
+
+full = {}
+for name, meta in sorted(PROFILE_KEYS.items()):
+    section = meta.get("section")
+    if section == "client":
+        continue
+    full.setdefault(section, {})[name] = profile_value(name, meta)
+
+io.open(os.path.join(profile, "ekfull.json"), "w",
+        encoding="utf-8", newline="\n").write(json.dumps(full, indent=2) + "\n")
+print("ekfull.json: %d keys across %d sections"
+      % (sum(len(v) for v in full.values()), len(full)))
+
 print("every-key pack written to", HERE)

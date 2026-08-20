@@ -1260,6 +1260,35 @@ Recorded as measured rather than explained. The mechanism has not been traced, a
 one slice against two is a narrow enough difference that it is worth knowing before
 it is worth theorising about. Every other part in the fixture is two slices or more.
 
+#### EK-6 A profile setting every key still generates the default world { #ek-6 }
+
+**Game test.** `docs/examples/every-key/profile/ekfull.json` sets **all 155**
+profile keys the mod declares, across `lostcity`, `cities`, `cityspheres` and
+`explosions`. It runs on every version that can pin a city and produces exactly what
+the minimal profile beside it produces: 512 gold and 256 emerald, or 768 gold on the
+two versions without `overrideFloors`.
+
+That is the point rather than a coincidence. Every key is written at **its own
+documented default**, read out of `mod-keys.json`, so a profile that sets everything
+behaves identically to one that sets nothing. It demonstrates the shape and the
+section of each key without changing what the world builds, which is what makes it
+safe to read from.
+
+| | Sets | Generates |
+|---|---|---|
+| `ekdemo` | 9 keys | 512 gold, 256 emerald |
+| `ekfull` | **155 keys** | 512 gold, 256 emerald |
+
+Ten keys have no default, because a null there means unset and demonstrates nothing.
+Those are given real values pointing at assets this pack defines: `spawnCity`,
+`spawnSphere`, `cityStyleAlternative`, `forceSpawnBuildings`, `forceSpawnParts`,
+`outsideProfile`, `spawnBiome`, `icon`, `warning` and `extraDescription`.
+
+The **five `client` keys are absent on purpose**: `fogRed`, `fogGreen`, `fogBlue`,
+`fogDensity` and `horizon` exist only on the client, so a headless server can
+neither read nor demonstrate them. `key-coverage.py` excludes them from its
+denominator rather than reporting a gap that no amount of work would close.
+
 #### EK-5 `inbiome` on a part reference kills chunk generation on 1.21 { #ek-5 }
 
 **Game test.** A part reference carrying `inbiome` made every chunk in the test grid

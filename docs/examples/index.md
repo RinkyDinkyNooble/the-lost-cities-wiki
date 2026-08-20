@@ -73,9 +73,15 @@ world style. [game test](claim-tests.md#ek-1){.v .v-g}
     references and a world style overriding every highway part with its own default.
     Start from [`first-city`](#first-city) instead. <!-- noclaim -->
 
+It ships two profiles. `ekdemo` sets the nine keys the tests need. **`ekfull` sets
+all 155 profile keys the mod declares**, each at its own documented default, so it
+demonstrates every key's name and section while generating exactly the same world as
+the minimal one. The five client-only keys, fog and horizon, are absent because a
+server cannot show them. [game test](claim-tests.md#ek-6){.v .v-g}
+
 Coverage is enforced rather than claimed. `key-coverage.py` fails if any declared
-key is missing from an example, and checks each top-level type against its own
-folder so two keys sharing a name are counted separately: [game test](claim-tests.md#ek-1){.v .v-g}
+key is missing from an example, checks each top-level type against its own folder so
+two keys sharing a name are counted separately, and counts profile keys too: [game test](claim-tests.md#ek-1){.v .v-g} [game test](claim-tests.md#ek-6){.v .v-g}
 
 ```bash
 python docs/examples/key-coverage.py

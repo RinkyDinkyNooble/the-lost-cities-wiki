@@ -73,6 +73,32 @@ def walk_keys(node, out):
             walk_keys(item, out)
 
 
+# Fog and horizon. They exist only on the client, so a headless server can never
+# demonstrate them, and counting them as gaps would misreport the work as unfinished.
+CLIENT_ONLY = "client"
+
+
+def scan_profiles(pack_root):
+    """Every profile key any profile file in this pack sets."""
+    seen = set()
+    for root, _, files in os.walk(pack_root):
+        if os.path.basename(root) != "profile":
+            continue
+        for name in files:
+            if not name.endswith(".json"):
+                continue
+            try:
+                doc = json.load(io.open(os.path.join(root, name), encoding="utf-8"))
+            except Exception:
+                continue
+            for section, body in doc.items():
+                if isinstance(body, dict):
+                    seen |= set(body)
+                else:
+                    seen.add(section)
+    return seen
+
+
 def scan(pack_root):
     """Return (keys seen anywhere, keys seen per registry folder)."""
     everywhere = set()
@@ -118,6 +144,16 @@ def main():
 
     missing_names = sorted(all_names - everywhere)
 
+    profile = data["versions"][version]["profile"]
+    prof_used = set()
+    for r in roots:
+        prof_used |= scan_profiles(r)
+    prof_all = {k for k, meta in profile.items()
+                if meta.get("section") != CLIENT_ONLY}
+    prof_missing = sorted(prof_all - prof_used)
+    prof_client = sorted(k for k, meta in profile.items()
+                         if meta.get("section") == CLIENT_ONLY)
+
     own_gaps = []
     for folder, typename in FOLDER_TYPE.items():
         if typename not in codec:
@@ -138,7 +174,9 @@ def main():
         for k in missing_names:
             owners = sorted(t for t, ks in codec.items() if k in ks)
             print(f"{k:<24} {', '.join(owners)}")
-        return 1 if missing_names else 0
+        for k in prof_missing:
+            print(f"{k:<24} profile [{profile[k].get('section')}]")
+        return 1 if (missing_names or prof_missing) else 0
 
     covered = len(all_names) - len(missing_names)
     pct = 100 * covered // len(all_names) if all_names else 0
@@ -146,6 +184,10 @@ def main():
     print(f"  key names demonstrated   {covered}/{len(all_names)}  ({pct}%)")
     print(f"  top-level types checked  {len(covered_types)}/{len(set(FOLDER_TYPE.values()))}")
     print(f"  own-key gaps             {len(own_gaps)}")
+    pdone = len(prof_all) - len(prof_missing)
+    ppct = 100 * pdone // len(prof_all) if prof_all else 0
+    print(f"  profile keys set         {pdone}/{len(prof_all)}  ({ppct}%)"
+          f"   [{len(prof_client)} client-only keys excluded]")
 
     if own_gaps:
         print("\nkeys a top-level type declares that no file of that type uses:")
@@ -153,11 +195,16 @@ def main():
             print(f"  {folder}/  {typename}.{key}")
         if len(own_gaps) > 40:
             print(f"  ... and {len(own_gaps) - 40} more")
+    if prof_missing:
+        print("\n%d profile keys no example sets, for example: %s"
+              % (len(prof_missing), ", ".join(prof_missing[:6])))
     if missing_names:
-        print(f"\n{len(missing_names)} key names no example uses. "
-              "Run with --missing for the list and who declares them.")
-    else:
-        print("\nEvery key name the codecs declare appears in an example.")
+        print("\n%d key names no example uses. Run with --missing for the list "
+              "and who declares them." % len(missing_names))
+    elif not prof_missing:
+        print("\nEvery key the codecs and the profile declare appears in an "
+              "example, apart from the %d client-only keys, which a headless "
+              "server cannot show." % len(prof_client))
     return 0
 
 

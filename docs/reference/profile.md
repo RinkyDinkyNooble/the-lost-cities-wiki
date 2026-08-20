@@ -4,6 +4,12 @@ claims: verified
 
 # Profile Reference
 
+!!! tip "Every key of this page, in one runnable file"
+    `docs/examples/every-key/profile/ekfull.json` sets all 155 profile keys at their
+    documented defaults, in the section each one belongs to. It runs, and it builds
+    the same world as a profile that sets none of them. Useful when you want to see
+    where a key goes rather than what it does. [game test](../examples/claim-tests.md#ek-6){.v .v-g}
+
 !!! tip "TL;DR"
     A profile is `config/lostcities/profiles/<name>.json`. Five sections: `lostcity`, `cities`, `explosions`, `cityspheres`, `client`, plus a root `public` flag. Every key below is optional, omit it and the default applies.
 
