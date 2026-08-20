@@ -940,9 +940,8 @@ a number stops the server from booting with
 `JsonParseException: Error loading registry data: Not a number`. So the asset parses,
 validates and registers, and is then never consulted.
 
-`wiki-test10` on 6.0.3 needs two edits before it will even load: `pack_format` set
-to 10 for Minecraft 1.19, and the predefined city folder renamed to
-`predefinedcitites`. With both done:
+`wiki-test10` on 6.0.3 needs one edit before its predefined city is read at all: the
+folder renamed to `predefinedcitites`, per [VER-4](#ver-4). With that done:
 
 ```
 count minecraft:stone       in chunk 8,8   14240   the chunk generated
@@ -952,6 +951,14 @@ count minecraft:gold_block  in chunk 8,8       0   the pinned building did not
 The same pack reaching the world through a city style selector instead of a pin
 generated 4496 gold across 6 chunks, so nothing about the building or its
 references is at fault. See [VER-8](#ver-8).
+
+`pack_format` is **not** the reason, and an earlier version of this entry said it was.
+A dedicated server auto-enables anything in `world/datapacks/` whatever the file
+declares. The same pack was run on Minecraft 1.19 declaring `9` and declaring `15`,
+and the log reports `Found new data pack ... loading it automatically` both times.
+The packs on this site all declare `15` and load unchanged on 1.19, 1.20.1, 1.21,
+1.21.11 and 26.1.2. This covers a server picking up a pack from that folder, which is
+what these tests do, and says nothing about the client's Data Packs screen.
 
 #### VER-6 6.0.3 has no catch around chunk generation, so a bad reference ends the server { #ver-6 }
 
