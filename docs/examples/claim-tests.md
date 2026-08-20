@@ -933,6 +933,13 @@ filled the cache from the registry first.
 The 1.19 line is where this is most confusing: 6.2.2, for Minecraft 1.19, has the
 loader, and 6.2.3, for Minecraft 1.19.4, does not.
 
+**Game test, 6.2.2.** Run on a Forge 43.5.0 server for Minecraft 1.19.2, the pinned
+buildings generate: 768 gold and 768 diamond, with 41 chunks failing on `ns_lapis`
+and 2 on `test`. So the loader's presence is what decides it, and this was predicted
+from the code before it was run. 768 rather than 512 because 6.2.2 declares no
+`overrideFloors`, and 2 failed chunks rather than 8 because it tolerates an
+unresolved `refpalette` as 7.4.12 does.
+
 **Game test.** On the 6.0.3 rig a predefined city in the correct
 `predefinedcitites` folder, naming a dimension the profile drives, produced 0 blocks
 at all four pinned chunks. The file is read: putting a string where `chunkx` expects
