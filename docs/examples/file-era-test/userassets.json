@@ -1,0 +1,318 @@
+[
+  {
+    "type": "palette",
+    "name": "wt_palette",
+    "palette": [
+      {
+        "char": "#",
+        "block": "minecraft:concrete@0"
+      },
+      {
+        "char": "G",
+        "block": "minecraft:gold_block"
+      },
+      {
+        "char": "D",
+        "block": "minecraft:diamond_block"
+      }
+    ]
+  },
+  {
+    "type": "part",
+    "name": "wt_gold",
+    "xsize": 16,
+    "zsize": 16,
+    "palette": "wt_palette",
+    "slices": [
+      [
+        "GGGGGGGGGGGGGGGG",
+        "GGGGGGGGGGGGGGGG",
+        "GGGGGGGGGGGGGGGG",
+        "GGGGGGGGGGGGGGGG",
+        "GGGGGGGGGGGGGGGG",
+        "GGGGGGGGGGGGGGGG",
+        "GGGGGGGGGGGGGGGG",
+        "GGGGGGGGGGGGGGGG",
+        "GGGGGGGGGGGGGGGG",
+        "GGGGGGGGGGGGGGGG",
+        "GGGGGGGGGGGGGGGG",
+        "GGGGGGGGGGGGGGGG",
+        "GGGGGGGGGGGGGGGG",
+        "GGGGGGGGGGGGGGGG",
+        "GGGGGGGGGGGGGGGG",
+        "GGGGGGGGGGGGGGGG"
+      ],
+      [
+        "GGGGGGGGGGGGGGGG",
+        "GGGGGGGGGGGGGGGG",
+        "GGGGGGGGGGGGGGGG",
+        "GGGGGGGGGGGGGGGG",
+        "GGGGGGGGGGGGGGGG",
+        "GGGGGGGGGGGGGGGG",
+        "GGGGGGGGGGGGGGGG",
+        "GGGGGGGGGGGGGGGG",
+        "GGGGGGGGGGGGGGGG",
+        "GGGGGGGGGGGGGGGG",
+        "GGGGGGGGGGGGGGGG",
+        "GGGGGGGGGGGGGGGG",
+        "GGGGGGGGGGGGGGGG",
+        "GGGGGGGGGGGGGGGG",
+        "GGGGGGGGGGGGGGGG",
+        "GGGGGGGGGGGGGGGG"
+      ],
+      [
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                "
+      ],
+      [
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                "
+      ],
+      [
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                "
+      ],
+      [
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                "
+      ]
+    ]
+  },
+  {
+    "type": "part",
+    "name": "wt_diamond",
+    "xsize": 16,
+    "zsize": 16,
+    "palette": "wt_palette",
+    "slices": [
+      [
+        "DDDDDDDDDDDDDDDD",
+        "DDDDDDDDDDDDDDDD",
+        "DDDDDDDDDDDDDDDD",
+        "DDDDDDDDDDDDDDDD",
+        "DDDDDDDDDDDDDDDD",
+        "DDDDDDDDDDDDDDDD",
+        "DDDDDDDDDDDDDDDD",
+        "DDDDDDDDDDDDDDDD",
+        "DDDDDDDDDDDDDDDD",
+        "DDDDDDDDDDDDDDDD",
+        "DDDDDDDDDDDDDDDD",
+        "DDDDDDDDDDDDDDDD",
+        "DDDDDDDDDDDDDDDD",
+        "DDDDDDDDDDDDDDDD",
+        "DDDDDDDDDDDDDDDD",
+        "DDDDDDDDDDDDDDDD"
+      ],
+      [
+        "DDDDDDDDDDDDDDDD",
+        "DDDDDDDDDDDDDDDD",
+        "DDDDDDDDDDDDDDDD",
+        "DDDDDDDDDDDDDDDD",
+        "DDDDDDDDDDDDDDDD",
+        "DDDDDDDDDDDDDDDD",
+        "DDDDDDDDDDDDDDDD",
+        "DDDDDDDDDDDDDDDD",
+        "DDDDDDDDDDDDDDDD",
+        "DDDDDDDDDDDDDDDD",
+        "DDDDDDDDDDDDDDDD",
+        "DDDDDDDDDDDDDDDD",
+        "DDDDDDDDDDDDDDDD",
+        "DDDDDDDDDDDDDDDD",
+        "DDDDDDDDDDDDDDDD",
+        "DDDDDDDDDDDDDDDD"
+      ],
+      [
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                "
+      ],
+      [
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                "
+      ],
+      [
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                "
+      ],
+      [
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                "
+      ]
+    ]
+  },
+  {
+    "type": "building",
+    "name": "wt_gold",
+    "filler": "#",
+    "parts": [
+      {
+        "part": "wt_gold"
+      }
+    ]
+  },
+  {
+    "type": "building",
+    "name": "wt_diamond",
+    "filler": "#",
+    "parts": [
+      {
+        "part": "wt_diamond"
+      }
+    ]
+  },
+  {
+    "type": "citystyle",
+    "name": "wt_style",
+    "inherit": "citystyle_common",
+    "style": "standard",
+    "buildings": [
+      {
+        "factor": 1.0,
+        "building": "wt_gold"
+      }
+    ]
+  },
+  {
+    "type": "worldstyle",
+    "name": "wt_world",
+    "outsidestyle": "outside",
+    "citystyles": [
+      {
+        "factor": 1.0,
+        "citystyle": "wt_style"
+      }
+    ]
+  },
+  {
+    "type": "city",
+    "name": "wt_city",
+    "dimension": 0,
+    "chunkx": 0,
+    "chunkz": 0,
+    "radius": 4,
+    "citystyle": "wt_style",
+    "buildings": [
+      {
+        "building": "wt_gold",
+        "chunkx": 0,
+        "chunkz": 0
+      },
+      {
+        "building": "wt_diamond",
+        "chunkx": 2,
+        "chunkz": 0
+      }
+    ]
+  }
+]

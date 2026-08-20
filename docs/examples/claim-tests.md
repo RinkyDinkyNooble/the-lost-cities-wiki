@@ -790,8 +790,13 @@ five types, none of which the mod ships:
 
 | Probe | Result |
 |---|---|
-| Gold at chunk 0,0 | First at y=59, **1372 blocks** |
-| Diamond at chunk 2,0 | First at y=53, **1372 blocks** |
+| Gold at chunk 0,0 | First at y=65, **1856 blocks** |
+| Diamond at chunk 2,0 | First at y=53, **1628 blocks** |
+
+The pack is `docs/examples/file-era-test/`, and the counts above are what the test
+rig reproduces on the seed it pins. An earlier run on an unpinned seed gave 1372 for
+both: the building is the same and the terrain it is cut into is not, which is why
+the rig fixes the seed.
 
 Both pinned buildings landed at the chunk offsets the `city` asset gave them, drawn
 from a palette that exists only in `userassets.json`. That exercises the whole

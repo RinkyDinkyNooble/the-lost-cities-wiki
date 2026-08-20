@@ -485,9 +485,17 @@ def report(res, spec_name):
     print()
     width = max([len(r[1]) for r in res["rows"]] + [4])
     for state, pid, detail, note, claim in res["rows"]:
-        tail = "   " + note if note else ""
-        detail = detail if len(detail) <= 21 else detail[:20] + "…"
-        print(f"  {state:<5} {pid:<{width}}  {detail:<22}{claim[:52]}{tail}")
+        short = detail if len(detail) <= 21 else detail[:20] + "…"
+        print(f"  {state:<5} {pid:<{width}}  {short:<22}{claim[:52]}")
+        # Anything that did not pass gets its full detail and reason on their own
+        # lines. Truncating exactly when something went wrong is the wrong choice.
+        if state != "pass":
+            if len(detail) > 21:
+                print(f"  {'':<5} {'':<{width}}  {detail}")
+            if note:
+                print(f"  {'':<5} {'':<{width}}  {note}")
+        elif note:
+            print(f"  {'':<5} {'':<{width}}  {note}")
     tally = {}
     for state, *_ in res["rows"]:
         tally[state] = tally.get(state, 0) + 1

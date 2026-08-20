@@ -1,0 +1,27 @@
+{
+  "_about": "The file-asset era. Lost Cities 1.0.1 through 5.0.4 never read a datapack: content comes from one userassets.json named in the config's load list. This proves that path end to end.",
+  "pack": "file-era-test",
+  "asset_system": "file",
+  "userassets": "userassets.json",
+  "spawn": [0, 64, 0],
+  "probes": [
+    {
+      "id": "gold-chunk-0-0",
+      "kind": "count",
+      "claim": "a building defined only in userassets.json generates where the city asset pins it",
+      "requires": [],
+      "chunk": [0, 0],
+      "block": "minecraft:gold_block",
+      "min": 1
+    },
+    {
+      "id": "diamond-chunk-2-0",
+      "kind": "count",
+      "claim": "and a second one, at the offset its city asset gives it",
+      "requires": [],
+      "chunk": [2, 0],
+      "block": "minecraft:diamond_block",
+      "min": 1
+    }
+  ]
+}

@@ -34,7 +34,11 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from rcon import Rcon  # noqa: E402
 from adapters.modern import Error  # noqa: E402
 
-SCRATCH = (-128, 16, -128)
+# High in the air, not underground. 1.12's /clone throws a
+# ConcurrentModificationException if the destination holds tile entities, and any
+# scratch area cut into terrain eventually will once the seed changes. Empty sky
+# inside the spawn region cannot.
+SCRATCH = (-128, 200, -128)
 
 
 class Legacy112:
@@ -101,12 +105,24 @@ class Legacy112:
             if y is None:
                 return 0, f"no {p['block']} in column {x + 8},{z + 8}"
             sx, sy, sz = SCRATCH
-            reply = con.command(
-                f"clone {x} {y - 2} {z} {x + 15} {y + 20} {z + 15} "
-                f"{sx} {sy} {sz} filtered normal {p['block']}")
-            m = re.search(r"([0-9]+) block", reply)
-            n = int(m.group(1)) if m else 0
-            return n, f"first at y={y}, {n} blocks"
+            cmd = (f"clone {x} {y - 2} {z} {x + 15} {y + 20} {z + 15} "
+                   f"{sx} {sy} {sz} filtered normal {p['block']}")
+            # 1.12's /clone iterates the world's pending block updates without
+            # guarding the map, so it throws ConcurrentModificationException if
+            # anything in the region still has a scheduled tick. That is a race in
+            # the command, not a wrong answer, so it is worth retrying: a freshly
+            # generated chunk drains its pending ticks within a few seconds.
+            for attempt in range(4):
+                reply = con.command(cmd)
+                m = re.search(r"([0-9]+) block", reply)
+                if m:
+                    n = int(m.group(1))
+                    return n, f"first at y={y}, {n} blocks"
+                if attempt < 3:
+                    self.log(f"{p['id']}: clone refused, letting the region "
+                             f"settle ({attempt + 1}/3)")
+                    time.sleep(5)
+            return 0, f"first at y={y}, 0 blocks  |  " + reply.strip()[:90]
         if kind == "block":
             x, y, z = p["pos"]
             reply = con.command(f"testforblock {x} {y} {z} {p['block']}")
@@ -141,6 +157,7 @@ class Legacy112:
         try:
             with Rcon(port=self.port, password=self.password) as con:
                 con.command("gamerule doDaylightCycle false")
+                time.sleep(spec.get("settle", 10))
                 for p in spec["probes"]:
                     raw, detail = self.measure(con, p)
                     rows.append({"id": p["id"], "raw": raw, "detail": detail})
