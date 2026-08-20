@@ -85,6 +85,11 @@ The two families live in **different files**, which is easy to get wrong: [code 
 
     These are one set per world style, resolved with no biome input, so **highways, rails, and monorails cannot vary by biome**. The only way to differentiate them is a separate world style entirely. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
+A name given here **replaces** the mod's part for that shape rather than joining a pool alongside it. Pointing every highway shape at one part makes every highway in the world that part, and the same holds for railways. [game test](../examples/claim-tests.md#bhv-3){.v .v-g}
+
+!!! warning "Monorail parts have not been placed in a test"
+    Highway and railway parts named this way were run in a world and counted. Monorail parts were not: no arrangement tried placed one, including two spheres present, `monorailChance` at `1.0`, and the spheres shrunk so the chunks between them lie outside both. Treat a custom monorail part as untested rather than as working. [unverified](../examples/claim-tests.md#bhv-6){.v .v-u}
+
 ## The part name keys
 
 Any key you leave out keeps its default part name. The keys are not always spelled like the part names they default to. [code review](../examples/claim-tests.md#ref-1){.v .v-c}

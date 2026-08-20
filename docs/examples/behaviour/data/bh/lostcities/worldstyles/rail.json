@@ -1,0 +1,29 @@
+{
+  "outsidestyle": "bh:outside",
+  "citystyles": [
+    {
+      "factor": 1.0,
+      "citystyle": "bh:plain"
+    }
+  ],
+  "parts": {
+    "railways": {
+      "railsflat": "bh:rail",
+      "railsbend": "bh:rail",
+      "railsdown1": "bh:rail",
+      "railsdown2": "bh:rail",
+      "railshorizontal": "bh:rail",
+      "railshorizontalend": "bh:rail",
+      "railshorizontalwater": "bh:rail",
+      "railsvertical": "bh:rail",
+      "railsverticalwater": "bh:rail",
+      "rails3split": "bh:rail",
+      "stationopen": "bh:rail",
+      "stationopenroof": "bh:rail",
+      "stationstaircase": "bh:rail",
+      "stationstaircasesurface": "bh:rail",
+      "stationunderground": "bh:rail",
+      "stationundergroundstairs": "bh:rail"
+    }
+  }
+}

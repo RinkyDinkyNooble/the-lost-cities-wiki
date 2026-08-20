@@ -245,6 +245,17 @@ That is 492 characters in total, far more than any part needs. The two ASCII omi
 !!! tip "Prefer non-ASCII for your own entries"
     The mod merges your palette with its own, and a collision replaces the other entry silently rather than reporting an error. The merged palette for the standard style already claims **56 characters**, mostly ASCII. Starting your own entries in the Greek or Cyrillic range keeps you clear of anything the mod adds in a later version.
 
+!!! danger "Every letter and every digit is already taken"
+    Across all the palettes the mod ships, **88 characters** are in use, and they include the whole of `a-z`, `A-Z` and `0-9`. So a character you add to a style that also lists the mod's palettes is not a new character. It is a character taken **away** from every shipped part that used it, and those parts then draw your block.
+
+    Seven ASCII characters are free in every shipped palette: [game test](../examples/claim-tests.md#bhv-7){.v .v-g}
+
+    ```text
+    "   '   ,   <   >   ?   ]
+    ```
+
+    Nothing errors when you collide. The only symptom is the wrong blocks turning up somewhere in the world, usually nowhere near the file you were editing: a test pack that used `S` for a marker counted 303 of them in a world that had built none. [game test](../examples/claim-tests.md#bhv-7){.v .v-g}
+
 ### Collisions and merge order
 
 A `char` only has to be unique within the **merged** palette that a part actually sees. The mod builds that palette in this order, and each step overwrites the one before it: [game test](../examples/claim-tests.md#pal-2){.v .v-g}

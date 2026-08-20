@@ -1,0 +1,19 @@
+{
+  "outsidestyle": "bh:outside",
+  "citystyles": [
+    {
+      "factor": 1.0,
+      "citystyle": "bh:plain"
+    }
+  ],
+  "parts": {
+    "highways": {
+      "open": "bh:hway",
+      "open_bi": "bh:hway",
+      "bridge": "bh:hway",
+      "bridge_bi": "bh:hway",
+      "tunnel": "bh:hway",
+      "tunnel_bi": "bh:hway"
+    }
+  }
+}

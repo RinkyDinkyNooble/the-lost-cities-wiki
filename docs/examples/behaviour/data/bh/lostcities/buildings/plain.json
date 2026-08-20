@@ -1,0 +1,16 @@
+{
+  "filler": "\"",
+  "refpalette": "bh:main",
+  "minfloors": 1,
+  "maxfloors": 1,
+  "parts": [
+    {
+      "part": "bh:cellar",
+      "cellar": true
+    },
+    {
+      "part": "bh:body",
+      "cellar": false
+    }
+  ]
+}

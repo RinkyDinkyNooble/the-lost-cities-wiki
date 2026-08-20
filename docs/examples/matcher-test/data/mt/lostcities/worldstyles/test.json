@@ -1,0 +1,32 @@
+{
+  "outsidestyle": "outside",
+  "citystyles": [
+    {
+      "factor": 1.0,
+      "citystyle": "mt:gold",
+      "biomes": {
+        "if_any": [
+          "minecraft:the_void"
+        ]
+      }
+    },
+    {
+      "factor": 1.0,
+      "citystyle": "mt:diamond",
+      "biomes": {
+        "if_all": [
+          "minecraft:the_void"
+        ]
+      }
+    },
+    {
+      "factor": 1.0,
+      "citystyle": "mt:emerald",
+      "biomes": {
+        "excluding": [
+          "minecraft:the_void"
+        ]
+      }
+    }
+  ]
+}

@@ -164,6 +164,51 @@ wrong is the most common reason a pinned city appears not to generate at all. [g
 Instructions, coordinates and what each wrong colour means are in the pack's
 [README](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/blob/main/docs/examples/json5-test/README.md). <!-- noclaim -->
 
+### `behaviour`: features that place themselves
+
+[`behaviour/`](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/tree/main/docs/examples/behaviour)
+covers the features a pinned grid cannot reach, because the generator decides where
+they go: cellars, `preferslonely`, highways, railways and city spheres. [game test](claim-tests.md#bhv-5){.v .v-g}
+
+Every one is a **pair**. One profile turns the feature on, a second differs from it
+by a single key and turns it off, and both count the same marker block over the
+same boxes. A count on its own would prove nothing here, because "found some" could
+be luck and "found none" could be a broken pack. The off run is what makes the on
+run readable. [game test](claim-tests.md#bhv-3){.v .v-g}
+
+| Pair | The single key that differs | On | Off |
+|---|---|---|---|
+| Cellars | `buildingMaxCellars` | 17515 | 2352, and 0 once the city level is pinned [game test](claim-tests.md#bhv-1){.v .v-g} |
+| `preferslonely` | the key itself, `0.0` against `1.0` | 18028 | 4560, not 0 [game test](claim-tests.md#bhv-2){.v .v-g} |
+| Highways | `highwayDistanceMask` | 49152 | 0 [game test](claim-tests.md#bhv-3){.v .v-g} |
+| Railways | `railwaysEnabled`, then `railwayStationsEnabled` | 24320 | 13792, then 0 [game test](claim-tests.md#bhv-4){.v .v-g} |
+| City spheres | `citySphereChance` | 20835 | 0 [game test](claim-tests.md#bhv-5){.v .v-g} |
+
+Two of those five off runs are not zero, and neither was expected. Both are
+documented on the pages the keys belong to. [game test](claim-tests.md#bhv-1){.v .v-g} [game test](claim-tests.md#bhv-4){.v .v-g}
+
+Monorails are the one feature in this pack that was attempted and never placed.
+What has already been ruled out is recorded so a later attempt does not repeat it. [unverified](claim-tests.md#bhv-6){.v .v-u}
+
+```bash
+python docs/examples/behaviour/generate.py
+```
+
+### `matcher-test`: does a biome matcher actually gate anything
+
+[`matcher-test/`](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/tree/main/docs/examples/matcher-test)
+is three city styles that are identical apart from the block they build from,
+reached through three `citystyles` entries that are identical apart from the
+matcher on each: `if_any`, `if_all` and `excluding`, all naming the void biome. [game test](claim-tests.md#mat-1){.v .v-g}
+
+The void biome cannot occur in an overworld, so the expected result is the same on
+every version and every seed. It ships with a control whose entry carries no
+matcher at all, and the `excluding` run builds exactly the control's number. [game test](claim-tests.md#mat-1){.v .v-g}
+
+```bash
+python docs/examples/matcher-test/generate.py
+```
+
 ### `wiki-test10`: what a bad namespace does
 
 [`wiki-test10/`](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/tree/main/docs/examples/wiki-test10)

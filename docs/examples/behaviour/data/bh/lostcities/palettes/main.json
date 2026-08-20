@@ -1,0 +1,32 @@
+{
+  "palette": [
+    {
+      "char": "\"",
+      "block": "minecraft:white_concrete"
+    },
+    {
+      "char": "'",
+      "block": "minecraft:gold_block"
+    },
+    {
+      "char": ",",
+      "block": "minecraft:lapis_block"
+    },
+    {
+      "char": "<",
+      "block": "minecraft:redstone_block"
+    },
+    {
+      "char": ">",
+      "block": "minecraft:emerald_block"
+    },
+    {
+      "char": "?",
+      "block": "minecraft:iron_block"
+    },
+    {
+      "char": "]",
+      "block": "minecraft:sea_lantern"
+    }
+  ]
+}

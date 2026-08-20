@@ -1,0 +1,21 @@
+{
+  "lostcity": {
+    "ruinChance": 0.0,
+    "generateLoot": false,
+    "buildingMinFloors": 1,
+    "buildingMaxFloors": 1,
+    "buildingMinCellars": 1,
+    "buildingMaxCellars": 1,
+    "buildingChance": 1.0,
+    "highwayDistanceMask": 0,
+    "railwaysEnabled": false,
+    "worldStyle": "bh:plain"
+  },
+  "cities": {
+    "cityChance": 1.0
+  },
+  "explosions": {
+    "explosionChance": 0.0,
+    "miniExplosionChance": 0.0
+  }
+}

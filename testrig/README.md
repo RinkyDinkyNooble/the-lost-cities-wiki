@@ -123,6 +123,10 @@ The packs live in `docs/examples/` and are part of the wiki, not of the rig.
 | `wiki-test11` | Building fronts and stuff objects |
 | `wiki-test12` | Scattered structures |
 | `wiki-test13` | A predefined sphere, and what its glass character resolves to |
+| `every-key` | Every key the codecs declare, in a pack that still generates |
+| `matcher-test` | Whether a biome matcher gates the world style entry it is on |
+| `behaviour` | Cellars, `preferslonely`, highways, railways and city spheres |
+| `file-era-test` | The pre-datapack asset system, on the 1.12.2 rig |
 
 Every claim they check is written up on
 [Claim Tests](../docs/examples/claim-tests.md).
@@ -150,6 +154,20 @@ naming it:
 
 `grid` is in **chunks**. `from` and `to` are in **blocks**.
 
+For anything that places itself rather than sitting where the pack pinned it, use
+`boxes` instead of `from`/`to`. It takes a list of `[from, to]` pairs and adds the
+counts together:
+
+```json
+{ "id": "highway-built", "kind": "count",
+  "claim": "the highway network places the parts the world style names",
+  "boxes": [[[128, 40, 128], [143, 167, 143]],
+            [[144, 40, 128], [159, 167, 143]]],
+  "block": "minecraft:iron_block", "min": 1 }
+```
+
+One box per chunk is the usual shape, because of the size limit below.
+
 | Probe kind | Answers |
 |---|---|
 | `count` | How many of one block are in a box |
@@ -162,7 +180,26 @@ version without them reports `n/a`.
 
 A `count` box cannot exceed 32768 blocks. That is exactly one chunk footprint 128
 levels tall, because counting is done with a filtered `/clone` and that is where
-`/clone` stops.
+`/clone` stops. A box also cannot be wider or deeper than the rig's scratch area,
+which is 32 by 32: `/clone` writes the source box's full extent starting at the
+destination corner, so a box wider than the scratch fails with "That position is
+not loaded" even when it is well under the size limit.
+
+`/forceload add` refuses more than 256 chunks in one call, so a `grid` larger than
+16 by 16 loads nothing and every probe then reads an empty world.
+
+## Pair a test with its control
+
+Anything that places itself where the generator decides needs two runs, not one.
+A count on its own cannot tell "the feature worked" from "the pack happened to put
+one there", and it cannot tell "the feature is off" from "the pack never built
+anything". So each feature gets a profile that turns it on and a second that
+differs by exactly one key and turns it off, both counting the same block over the
+same boxes.
+
+Every result in the `behaviour` pack is a pair, and two of the five off runs came
+back non-zero. Neither was expected, and neither would have been visible without
+the pairing.
 
 ## Options
 

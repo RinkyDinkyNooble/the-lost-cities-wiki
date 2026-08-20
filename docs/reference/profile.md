@@ -243,14 +243,14 @@ Tables below: **Range** is the window the mod was designed and tested against, a
 |---|---|---|---|
 | `highwayRequiresTwoCities` | `true` | | If `true`, a highway needs a valid city at **both** ends. `false` lets one city be enough. |
 | `highwayLevelFromCities` | `0` | 0 to 3 | `0` top-left city's height, `1` min of both, `2` max of both, `3` average. |
-| `highwayDistanceMask` | `7` | ≥ 0 | Spacing bitmask, must be a power of two minus one (`0`, `1`, `3`, `7`, `15`...). `0` disables highways. |
+| `highwayDistanceMask` | `7` | ≥ 0 | Spacing bitmask, must be a power of two minus one (`0`, `1`, `3`, `7`, `15`...). `0` disables highways outright: the level lookup returns -1 before reading anything else, and no highway part is placed anywhere. [game test](../examples/claim-tests.md#bhv-3){.v .v-g} |
 | `highwayMainPerlinScale` | `50.0` | 1 to 1000 | Noise scale, main axis. |
 | `highwaySecondaryPerlinScale` | `10.0` | 1 to 1000 | Noise scale, cross axis. |
 | `highwayPerlinFactor` | `2.0` | -100 to 100 | Noise threshold. `0` ≈ 50% chance. Higher suppresses highways. |
 | `highwaySupports` | `true` | | If `true`, highways get support pillars where needed. Set `false` for highways that span void. |
 | `railwayDungeonChance` | `0.01` | 0 to 1 | Chance a chunk next to a railway gets a dungeon. |
 | `railwaysCanEnd` | `false` | | If `true`, a spot that would have been a station but has no city above gets a dead-end rail part instead. Useful when cities are rare. |
-| `railwaysEnabled` | `true` | | If `false`, no rail lines generate. Stations still do, they are gated separately. |
+| `railwaysEnabled` | `true` | | If `false`, no rail lines generate. **Stations still do**, and they are more than half the network: turning this off alone left 13792 of 24320 railway blocks standing. `railwayStationsEnabled` has to go too. [game test](../examples/claim-tests.md#bhv-4){.v .v-g} |
 | `railwayStationsEnabled` | `true` | | If `false`, no railway stations generate. |
 | `railwaySurfaceStationsEnabled` | `true` | | If `false`, only underground stations generate, never surface ones. |
 
@@ -268,7 +268,7 @@ Tables below: **Range** is the window the mod was designed and tested against, a
 
 | Key | Default | Range | Meaning [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|---|---|
-| `cityChance` | `0.01` | -1 to 1 | Chance a chunk is a city center. Exactly `-1` switches to Perlin-noise mode. |
+| `cityChance` | `0.01` | -1 to 1 | Chance a chunk is a city center. Exactly `-1` switches to Perlin-noise mode. Raising it to `1.0` does not give you a world of buildings: the highway network then claims chunk after chunk, and a claimed chunk refuses a building whatever `buildingchance` says, so the whole grid comes back streets. Set `highwayDistanceMask` to `0` alongside it. [game test](../examples/claim-tests.md#mat-2){.v .v-g} |
 | `cityMinRadius` | `50` | 1 to 2000 | The smallest radius, in blocks, a city circle can roll. |
 | `cityMaxRadius` | `128` | 1 to 2000 | The largest radius, in blocks. Each city rolls a radius between the two. |
 | `cityPerlinScale` | `3.0` | huge range, effectively unbounded | Noise scale for Perlin city placement. Larger values stretch the noise, so cities become broader and further apart. Ignored unless `cityChance` is exactly `-1`. |
@@ -313,7 +313,7 @@ Mostly relevant to `space`, `spheres`, and `cavernspheres` landscape types. [cod
 | Key | Default | Range | Meaning [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|---|---|
 | `citySphereFactor` | `1.2` | 0.1 to 10 | `space` only: outer sphere radius = city radius × this. |
-| `citySphereChance` | `0.7` | 0 to 1 | The chance a given city is enclosed in a sphere. Only consulted on the sphere landscape types. |
+| `citySphereChance` | `0.7` | 0 to 1 | The chance a given city is enclosed in a sphere. Only consulted on the sphere landscape types, and only on a chunk that is already a city chunk: at the default `cityChance` of `0.01` no sphere appeared anywhere in a 225 chunk grid. `0.0` places none. [game test](../examples/claim-tests.md#bhv-5){.v .v-g} |
 | `citySphereClearAbove` | `0` | 0 to 1024 | Blocks cleared above the sphere. `0` disables. |
 | `citySphereClearBelow` | `0` | 0 to 1024 | Blocks cleared below the sphere. `0` disables. |
 | `citySphereClearAboveUntilAir` | `false` | | If `true`, clearing continues above whatever `citySphereClearAbove` removed, until it reaches air. |

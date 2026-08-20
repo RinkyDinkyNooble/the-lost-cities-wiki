@@ -17,6 +17,8 @@ Traps encoded here, each of which cost a test round to find:
   * /clone needs its destination loaded, so the scratch area is force loaded too.
   * /clone caps at 32768 blocks, which is exactly one chunk footprint 128 tall.
     A count box larger than that returns nothing rather than a partial answer.
+  * /clone also needs the whole destination extent loaded, not just its corner. A
+    box wider than the scratch area fails even when it is well under the cap.
   * The Lost Cities config section is [profiles]. Under any other name Forge
     rewrites the file to defaults with no error, which points the dimension at
     'biosphere' and makes a config typo look like a generation bug.
@@ -36,7 +38,13 @@ from rcon import Rcon  # noqa: E402
 
 DIM = "lostcities:lostcity"
 SCRATCH = (992, 40, 992)
-SCRATCH_BOX = (992, 992, 1007, 1007)
+# 32 by 32, not 16 by 16. /clone writes the source box's full extent starting at
+# the destination corner, so the destination has to be at least as wide and as deep
+# as the source. A single chunk footprint only ever fits a box one chunk wide, and a
+# probe that has to span four chunks to be sure of catching a building then fails
+# with "That position is not loaded" rather than returning a count. 32 by 32 fits
+# any box within the 32768 block cap that is at least 32 levels tall.
+SCRATCH_BOX = (992, 992, 1023, 1023)
 
 
 class Error(Exception):
@@ -174,20 +182,31 @@ class Modern:
 
     # ---------------------------------------------------------------- measuring
 
+    def count_box(self, con, probe_id, block, corner_a, corner_b):
+        (x0, y0, z0), (x1, y1, z1) = corner_a, corner_b
+        sx, sy, sz = SCRATCH
+        reply = con.command(
+            f"execute in {DIM} run clone {x0} {y0} {z0} {x1} {y1} {z1} "
+            f"{sx} {sy} {sz} filtered {block}")
+        if "not loaded" in reply:
+            raise Error(f"{probe_id}: scratch area not loaded. " + reply)
+        found = re.search(r"([0-9]+) block", reply)
+        return int(found.group(1)) if found else 0
+
     def measure(self, con, p):
         """Return (raw, detail). raw is a count, a bool, or NBT text."""
         kind = p.get("kind", "count")
         if kind == "count":
-            (x0, y0, z0), (x1, y1, z1) = p["from"], p["to"]
-            sx, sy, sz = SCRATCH
-            reply = con.command(
-                f"execute in {DIM} run clone {x0} {y0} {z0} {x1} {y1} {z1} "
-                f"{sx} {sy} {sz} filtered {p['block']}")
-            if "not loaded" in reply:
-                raise Error(f"{p['id']}: scratch area not loaded. " + reply)
-            found = re.search(r"([0-9]+) block", reply)
-            n = int(found.group(1)) if found else 0
-            return n, f"{n} blocks"
+            # `boxes` sums several boxes into one number. The cap is per /clone,
+            # so anything that spreads over an area rather than sitting in a known
+            # chunk has to be counted a chunk at a time and added up. A single box
+            # can only ever answer "is it here", and for a building, a highway or a
+            # sphere, where it lands is not something the pack decides.
+            boxes = p.get("boxes") or [[p["from"], p["to"]]]
+            n = sum(self.count_box(con, p["id"], p["block"], a, b)
+                    for a, b in boxes)
+            unit = "blocks" if len(boxes) == 1 else f"blocks over {len(boxes)} boxes"
+            return n, f"{n} {unit}"
         if kind == "block":
             x, y, z = p["pos"]
             reply = con.command(

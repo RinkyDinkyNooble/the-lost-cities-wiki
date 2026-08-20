@@ -170,6 +170,15 @@ The recorded runs were driven over RCON by a script rather than typed by hand. N
 result here depends on that script: each one is the five steps above against the
 pack and profile its section names.
 
+That script is in the repository, under `testrig/`, and it runs the versions this
+page cites. It downloads nothing: point it at server jars and portable Java builds
+you fetch yourself, and it reports which versions are ready.
+
+```bash
+python testrig/rig.py doctor
+python testrig/rig.py run 7.4.12 wiki-test11
+```
+
 Minecraft 1.12 has none of `/forceload`, `/execute in <dimension>` or `/data`, so the
 file-asset tests use a different route. See [F12-10](#f12-10).
 
@@ -1353,6 +1362,235 @@ Each value takes either one part name or a list of them, which is what the helpe
 for. No shipped world style sets `parts` at all, so the fixture holds the only worked
 example of any of them.
 
+### Matchers and world style selection
+
+#### MAT-1 A biome matcher gates the `citystyles` entry it is attached to { #mat-1 }
+
+**Game test.** `docs/examples/matcher-test/` holds three city styles that are
+identical apart from the block they build from, reached through three `citystyles`
+entries that are identical apart from the matcher on each:
+
+| Entry | Matcher | Builds | Counted |
+|---|---|---|---|
+| 1 | `if_any: [minecraft:the_void]` | gold | **0** |
+| 2 | `if_all: [minecraft:the_void]` | diamond | **0** |
+| 3 | `excluding: [minecraft:the_void]` | emerald | **12096** |
+
+Counted over sixteen chunks at full height, on 7.4.12.
+
+The void biome is what an empty world returns and cannot occur in an overworld, so
+the expected result is the same on every version and every seed. Naming a real
+biome would tie the answer to what the seed put at the test chunk, and biome
+generation is not stable across Minecraft versions.
+
+The control is the run that makes this readable. `matcher-control` is the same pack
+with one `citystyles` entry carrying **no** `biomes` key, and it builds **12096**
+emerald, the same number. So the `excluding` entry produced exactly the world an
+ungated entry produces, and the two rejections are rejections rather than an
+unbuilt pack.
+
+No predefined city anywhere in this pack, deliberately: a predefined city names its
+`citystyle` directly and would bypass the selection list being measured.
+
+**Run on every version.** The pack is unchanged between them, and all nine
+datapack-era versions agree: both rejections are total and the `excluding` entry is
+the one that builds.
+
+| Version | `if_any` void | `if_all` void | `excluding` void |
+|---|---|---|---|
+| 5.3.29 | 0 | 0 | 9024 |
+| 6.0.3 | 0 | 0 | 4544 |
+| 6.2.2 | 0 | 0 | 18064 |
+| 7.4.12 | 0 | 0 | 12096 |
+| 7.5.1 | 0 | 0 | 6032 |
+| 8.2.2 | 0 | 0 | 18028 |
+| 8.4.1 | 0 | 0 | 6032 |
+| 9.5.1 | 0 | 0 | 6032 |
+| 10.0.1 | 0 | 0 | 6032 |
+
+The last column varies because floor heights and street layout differ between
+versions, not because the matcher does. What is being measured is which of three
+city styles built, and that answer is the same everywhere. 2.0.22 reports `n/a`: the
+file-asset era has no world styles.
+
+`BiomeMatcher` declares all three keys in **every** version, including 5.3.29 and
+6.0.3. The 6.2.2 requirement noted on [Matchers](../concepts/matchers.md) applies to
+the block matcher and the resource location matcher, not to this one.
+
+#### MAT-2 `cityChance: 1.0` makes the highway network refuse every building { #mat-2 }
+
+**Game test.** Found while building [MAT-1](#mat-1), and worth its own entry
+because nothing reports it.
+
+At `cityChance: 1.0` the whole world is one city, so the highway network claims
+chunk after chunk. A chunk the network has claimed refuses a building unless the
+chunk's city level is at least **two above** the highway's level, and on flat
+terrain it never is. Every chunk in the grid came back a street. No error, no
+warning, and `buildingchance: 1.0` in the city style makes no difference.
+
+`highwayDistanceMask: 0` is the off switch. The highway level lookup returns -1
+before it reads anything else when the mask is 0 or less.
+
+| Profile | Buildings in the grid |
+|---|---|
+| `cityChance: 1.0`, highways at their default | **0** |
+| the same with `highwayDistanceMask: 0` | **12096 blocks of building** |
+
+### Behaviour: cellars, lonely buildings and infrastructure
+
+`docs/examples/behaviour/` is one pack behind every entry in this section. Each
+result is a **pair**: a profile that turns the feature on, and one that differs by
+a single key and turns it off, both counted over the same boxes. These features
+place themselves where the generator decides, so a count on its own proves
+nothing. The off run is what makes the on run mean something.
+
+All numbers below are 7.4.12 on the public rig.
+
+#### BHV-1 The profile's cellar maximum is a base, not a cap { #bhv-1 }
+
+**Game test.** A building declares a part whose condition is `cellar: true` and
+leaves its own cellar bounds unset, so the profile's count is the only thing that
+decides whether that part is ever reached.
+
+| Run | `buildingMaxCellars` | City level | Cellar blocks | Above-ground blocks |
+|---|---|---|---|---|
+| `behaviour-cellars` | 1 | free | **17515** | 17980 |
+| `behaviour-cellars-off` | **0** | free | **2352** | 18028 |
+| `behaviour-cellars-flat` | **0** | pinned to 0 | **0** | 18064 |
+
+The middle row is the finding. A maximum of 0 still produces cellars, because the
+chunk's city level is **added** to that maximum before the count is drawn:
+`maxCellars = profile.BUILDING_MAXCELLARS + cityLevel`. The bottom row removes the
+addition by pinning every chunk to level 0 with `cityLevel0Height: 384`, and the
+maximum then holds exactly.
+
+This confirms what [Building](../reference/building.md#how-floor-and-cellar-counts-are-decided)
+already said from the code, with a number against it.
+
+`cityLevel0Height` is in the **`cities`** section, not `lostcity`. Put in the wrong
+section it is not read at all, and the run comes back identical to the one without
+it, which reads as the setting having no effect.
+
+#### BHV-2 `preferslonely: 1.0` thins a city, it does not empty it { #bhv-2 }
+
+**Game test.** Two runs of the same pack. The only difference is one key on the one
+building type the city style selects.
+
+| `preferslonely` | Building blocks over sixteen chunks |
+|---|---|
+| `0.0` | **18028** |
+| `1.0` | **4560** |
+
+The effect is large and it is **not total**. About a quarter of what the control
+builds survives.
+
+That matters because reading the code alone suggests it should be total: each chunk
+rolls once against each of its four neighbours' `preferslonely`, `Random.nextFloat`
+never returns 1.0, and every neighbour here is the same building type. The
+measurement disagrees, and the measurement is what this page records. The
+mechanism behind the surviving quarter has not been traced.
+
+No inherited buildings are involved. A count of the mod's own building block in the
+same run returns 0, so every building measured is this pack's.
+
+#### BHV-3 A world style's highway parts are placed, and the mask switches highways off { #bhv-3 }
+
+**Game test.** Every highway shape in the world style points at one part built from
+iron, so any iron in the world came from the highway network.
+
+| `highwayDistanceMask` | Highway blocks over sixty-four chunks |
+|---|---|
+| `1` | **49152** |
+| `0` | **0** |
+
+So the mask is a switch as well as a spacing, and `parts.highways` on a world style
+replaces the mod's own highway parts rather than adding to them.
+
+#### BHV-4 `railwaysEnabled: false` leaves every station standing { #bhv-4 }
+
+**Game test.** Three runs, each one key apart.
+
+| Run | Railway blocks |
+|---|---|
+| Rail and stations both on | **24320** |
+| `railwaysEnabled: false` | **13792** |
+| and `railwayStationsEnabled: false` as well | **0** |
+
+`railwaysEnabled` is read **only on chunks whose rail type is not a station**.
+Stations are governed by `railwayStationsEnabled`, and turning off the first key
+alone leaves more than half the network in the ground.
+
+#### BHV-5 A city sphere generates from `citySphereChance` alone { #bhv-5 }
+
+**Game test.** No predefined sphere anywhere in the pack.
+
+| `citySphereChance` | Sphere shell blocks |
+|---|---|
+| `1.0` | **20835** |
+| `0.0` | **0** |
+
+Sphere centres sit on a fixed grid: a chunk is a centre when both its coordinates
+are 8 modulo 16, or modulo 32 with `grid32` set.
+
+Two settings are needed and neither is obvious:
+
+- **`outsideProfile` is not optional in a sphere world.** Left unset, the sphere
+  feature dereferences a null profile on the first chunk outside a sphere, and
+  because that feature has no try/catch the **server goes down** rather than the
+  chunk failing. Thirteen caught null pointers and one uncaught one, for one key.
+- **`cityChance` still has to be high.** At the mod's default of 0.01 no sphere
+  appeared anywhere in the grid, so a sphere needs its chunk to be a city chunk
+  first.
+- **The shell character has to be defined in the `outsidestyle`**, not only in the
+  city style's own style. A chunk that is not a city chunk compiles its palette
+  from the world style's `outsidestyle`, and a sphere's shell is drawn on those
+  chunks. Pointing `outsidestyle` at the mod's own style while the shell character
+  is defined only in the pack left the lookup null, and the sphere feature has no
+  null check: the **server goes down** with a bare `NullPointerException` during
+  feature placement, naming no file, no part and no character.
+
+#### BHV-6 Monorails were not reproduced { #bhv-6 }
+
+**Unverified.** The monorail parts a world style names were never placed, in any
+arrangement tried: both spheres present at `citySphereChance: 1.0`,
+`monorailChance: 1.0`, the grid spanning two sphere centres sixteen chunks apart,
+and `citySphereFactor` lowered so the two spheres do not touch and the chunks
+between them lie outside both.
+
+What the code says, for whoever picks this up. `Monorails.generateMonorails` draws
+the `both` part when a chunk has a horizontal **and** a vertical monorail, and
+otherwise the `vertical` part, at `groundLevel + monorailOffset`. A chunk fully
+inside a sphere takes a different branch that fills to ground with the city style's
+border block and never touches a monorail part at all. The four candidate flags on
+a sphere are each rolled against `monorailChance`, so at 1.0 all four are set.
+
+Recorded as measured-and-absent rather than left out, because a later attempt
+should start from what has already been ruled out.
+
+#### BHV-7 Every letter and digit is already taken by the mod's palettes { #bhv-7 }
+
+**Game test.** A pack that layers its own palette on top of the mod's, which is
+what a city style's `style` asset does, takes each character it defines **away**
+from every shipped part that used it. The mod's palettes between them use every
+letter, every digit, and most punctuation.
+
+Two controls in this pack failed because of it, and both failed quietly:
+
+| Control | Should have counted | Counted | Why |
+|---|---|---|---|
+| A world with no sphere | 0 shell blocks | **303** | the shell marker was `S`, and shipped parts draw `S` |
+| A world with no cellars | 0 cellar blocks | **26** | the cellar marker was `L` |
+
+Both went to exactly 0 when the markers moved to characters no shipped palette
+defines. Seven characters are free across every palette the mod ships:
+
+```
+"   '   ,   <   >   ?   ]
+```
+
+The failure mode is worth the space: nothing errors, nothing is logged, and the
+only symptom is that the wrong blocks appear somewhere in the world.
+
 ### Whole-page entries
 
 Some claims are made the same way on many pages. Rather than repeat the evidence,
@@ -1628,17 +1866,16 @@ tell. A claim being here means untested, not suspect.
 
 | Area | Why it is not covered |
 |---|---|
-| Cellars | Every pack so far runs with `mincellars` and `maxcellars` at 0. Negative level indices, `cellar: true`, and the city level added to the cellar maximum are all untraced in a world. |
-| Highways, railways, monorails | Only streets have been generated. Infrastructure parts need a much wider force-loaded area than the pinned grid uses. |
-| City spheres | Sphere generation itself, `onlyPredefined`, and monorail agreement between spheres. One bug has already been found in this area by accident. |
-| Scattered buildings and `stuff` | Both asset types are documented from their codecs and neither has been placed. |
-| Building fronts | `fronts`, `buildingFrontChance`, and the claim that a front is drawn by the adjacent street chunk. |
-| `preferslonely` | Needs a count over many chunks rather than a pinned grid. |
+| Monorails | Attempted and not placed. What was ruled out is in [BHV-6](#bhv-6). |
+| `onlyPredefined` on city spheres | Sphere generation itself is covered by [BHV-5](#bhv-5); this key is not. |
 | Part rotation and `lostcities:rotatable` | The claim that an untagged block keeps its facing when a part is rotated. |
 | `avoidWater` and `avoidFoliage` | Including the finding that `avoidFoliage` is what controls flooding. |
-| `isbuilding`, `issphere`, `chunkx`, `chunkz` | Four condition keys with no coverage. |
-| Predefined spheres | The city half is covered, the sphere half is not. |
 | The in-game editor | Six commands documented from the code. They need a client, not a headless server. |
+| Client-only profile keys | `fogRed`, `fogGreen`, `fogBlue`, `fogDensity` and `horizon`. A headless server can neither read nor show them. |
+
+Everything in this section is counted on **7.4.12**. Where a result is expected to
+differ on another version, the probe carries that version's number and the rig
+reports it as a pass rather than a difference.
 
 ## Corrections this produced
 

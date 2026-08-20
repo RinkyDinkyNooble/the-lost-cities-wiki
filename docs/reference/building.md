@@ -131,7 +131,13 @@ than the profile permits, which is the case the `min` and `max` cannot express: 
 | Never shorter than 6, whatever the profile says | `minfloors: 6`. No override needed, `max()` already wins. |
 | Exactly 2, in a profile whose `buildingMinFloors` is 4 | `minfloors: 2`, `maxfloors: 2`, **and** `overrideFloors: true`. Without it the profile's minimum of 4 wins the `max()`. |
 
-Cellar counts work the same way, with one addition. The mod adds the chunk's city level to the profile's cellar maximum, so a building on higher terrain is allowed deeper cellars. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
+Cellar counts work the same way, with one addition. The mod adds the chunk's city level to the profile's cellar maximum, so a building on higher terrain is allowed deeper cellars. [code review](../examples/claim-tests.md#ref-2){.v .v-c} [game test](../examples/claim-tests.md#bhv-1){.v .v-g}
+
+!!! warning "`buildingMaxCellars: 0` does not mean no cellars"
+    The maximum is a **base**, not a cap. Because the chunk's city level is added
+    to it, a profile set to `0` still builds cellars on every chunk above level 0.
+    Measured: `0` produced 2352 cellar blocks over sixteen chunks, and the same
+    profile with every chunk pinned to level 0 produced none. [game test](../examples/claim-tests.md#bhv-1){.v .v-g}
 
 ## Floor coverage: the most common failure
 
@@ -312,7 +318,9 @@ Use it for decoration or variation layered over a structural base. Put one plain
 
 When the mod decides whether a chunk gets a building, it looks at the building type of the four orthogonally adjacent chunks, west, east, north and south. It rolls once against each neighbour's `preferslonely`. If any roll succeeds, this chunk gets no building. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-So `preferslonely: 0.8` on a cathedral means chunks next to a cathedral are usually left empty, which gives the cathedral open space. `1.0` always leaves them empty. This applies only to normal single-chunk buildings. A [multi-building](multibuilding.md) ignores it. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
+So `preferslonely: 0.8` on a cathedral means chunks next to a cathedral are usually left empty, which gives the cathedral open space. This applies only to normal single-chunk buildings. A [multi-building](multibuilding.md) ignores it. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
+
+`1.0` does **not** empty every neighbour. In a city whose only building type carries `1.0`, about a quarter of the buildings a `0.0` control builds still generate: 4560 blocks against 18028 over the same sixteen chunks. The effect is large and it is not total, and the reason for the surviving quarter has not been traced. Treat the value as a strong preference rather than a guarantee. [game test](../examples/claim-tests.md#bhv-2){.v .v-g}
 
 ## See also
 

@@ -25,14 +25,18 @@ Pages are written against Lost Cities **7.4.12** for **Minecraft 1.20.1** on For
 
 The claim-test pack written for 7.4.12 also passes unchanged on **7.5.1**, so the two share the same datapack behaviour even though 7.5 changed where cities put things. [game test](examples/claim-tests.md#ver-1){.v .v-g}
 
-The NeoForge line is **in progress**. Its keys, defaults and bounds are mapped, but its behaviour has not been tested the same way, so treat anything version-specific there as unconfirmed until a page says otherwise. [code review](examples/claim-tests.md#key-1){.v .v-c}
+The NeoForge line is no longer inferred. Every version below has been booted on the [test rig](examples/claim-tests.md#how-a-game-test-on-this-page-is-run) and had its blocks read back out of the world, so a version-specific statement here rests on a run rather than on a key set. [game test](examples/claim-tests.md#neo-1){.v .v-g}
 
-| Target | State [code review](examples/claim-tests.md#key-1){.v .v-c} |
+| Target | State |
 |---|---|
-| 7.4.12, Minecraft 1.20.1, Forge | Primary. Read from the mod and run in a world. |
-| 7.5.1, Minecraft 1.20.1, Forge | Read from the mod and run in a world. |
-| 8.x, 9.x, 10.x, NeoForge | In progress. Keys and defaults mapped. |
-| Before 5.3.29 | Out of scope. Content lives inside the jar, not in datapacks. |
+| 7.4.12, Minecraft 1.20.1, Forge | Primary. Every page here is written against it, and every claim pack was authored on it. [game test](examples/claim-tests.md#ver-1){.v .v-g} |
+| 7.5.1, Minecraft 1.20.1, Forge | Runs the same packs unchanged, with one documented difference in how a building's palette is resolved. [game test](examples/claim-tests.md#ver-3){.v .v-g} |
+| 8.2.2, Minecraft 1.21, NeoForge | Run in a world. A higher number than 7.5 and a **smaller** feature set, because it is pre-7.5 code ported forward. [game test](examples/claim-tests.md#ver-9){.v .v-g} |
+| 8.4.1, Minecraft 1.21, NeoForge | Run in a world. This is where the 7.5 changes reached the 1.21 line. [game test](examples/claim-tests.md#ver-11){.v .v-g} |
+| 9.5.1 and 10.0.1, Minecraft 1.21.11 and 26.1.2, NeoForge | Run in a world, all four packs, identical counts to Forge. [game test](examples/claim-tests.md#neo-1){.v .v-g} |
+| 6.2.2, Minecraft 1.19 | Run in a world. Builds a floor taller than 7.4.12 from the same file, because it has no `overrideFloors`. [game test](examples/claim-tests.md#key-4){.v .v-g} |
+| 5.3.29 and 6.0.3, Minecraft 1.18 and 1.19 | Run in a world, and neither can place a predefined city at all. Datapack content still loads. [game test](examples/claim-tests.md#ver-5){.v .v-g} |
+| 2.0.22 and earlier | A different asset system entirely, run on its own rig and covered in [The File-Asset Era](file-era/index.md). [game test](examples/claim-tests.md#f12-9){.v .v-g} |
 
 The [Versions](versions/index.md) section covers the mod's history from Minecraft 1.11.2 to Minecraft 26.1, which asset system each release uses, and which pages here apply to it. [code review](examples/claim-tests.md#key-1){.v .v-c}
 

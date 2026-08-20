@@ -1,0 +1,21 @@
+{
+  "inherit": "citystyle_common",
+  "style": "bh:main",
+  "explosionchance": 0.0,
+  "buildingsettings": {
+    "buildingchance": 1.0
+  },
+  "sphereblocks": {
+    "glass": "]",
+    "border": "\"",
+    "inner": "\""
+  },
+  "selectors": {
+    "buildings": [
+      {
+        "factor": 1.0,
+        "value": "bh:lonely"
+      }
+    ]
+  }
+}

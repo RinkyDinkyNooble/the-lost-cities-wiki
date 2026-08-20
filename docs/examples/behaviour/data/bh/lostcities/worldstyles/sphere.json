@@ -1,0 +1,22 @@
+{
+  "outsidestyle": "bh:outside",
+  "citystyles": [
+    {
+      "factor": 1.0,
+      "citystyle": "bh:plain"
+    }
+  ],
+  "parts": {
+    "monorails": {
+      "both": "bh:mono",
+      "station": "bh:mono",
+      "vertical": "bh:mono"
+    }
+  },
+  "cityspheres": {
+    "centerpart": "bh:body",
+    "centerpartoffset": 0,
+    "centerpartorigin": "ground",
+    "centertype": "default"
+  }
+}

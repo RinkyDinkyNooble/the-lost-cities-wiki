@@ -1,0 +1,9 @@
+{
+  "outsidestyle": "bh:outside",
+  "citystyles": [
+    {
+      "factor": 1.0,
+      "citystyle": "bh:plain"
+    }
+  ]
+}

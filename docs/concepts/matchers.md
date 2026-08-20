@@ -14,11 +14,16 @@ Several unrelated keys share this filter shape rather than each inventing one: a
 
 ## The shape
 
-| Key [code review](../examples/claim-tests.md#ref-1){.v .v-c} | Meaning |
+| Key [game test](../examples/claim-tests.md#mat-1){.v .v-g} | Meaning |
 |---|---|
 | `if_all` | Every entry in this list must match |
 | `if_any` | At least one entry in this list must match |
 | `excluding` | None of these may match |
+
+All three were run in a world on a [World Style](../reference/worldstyle.md)'s
+`citystyles` entries. Three city styles differing only in the matcher on the entry
+that reaches them: the two gated on a biome that cannot occur built nothing, and
+the one excluding it built exactly what an ungated entry builds. [game test](../examples/claim-tests.md#mat-1){.v .v-g}
 
 Every key is optional, and a matcher with nothing set matches anything. [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 

@@ -1,0 +1,15 @@
+{
+  "filler": "#",
+  "refpalette": "mt:main",
+  "minfloors": 1,
+  "maxfloors": 1,
+  "mincellars": 0,
+  "maxcellars": 0,
+  "overrideFloors": true,
+  "preferslonely": 0.0,
+  "parts": [
+    {
+      "part": "mt:gold"
+    }
+  ]
+}
