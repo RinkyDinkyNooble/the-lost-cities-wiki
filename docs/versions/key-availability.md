@@ -4,8 +4,8 @@ claims: verified
 
 # Key availability
 
-This wiki documents the 224 datapack keys that exist in 7.4.12. **158 of them exist
-in every datapack-era version.** The other 66 do not. [code review](../examples/claim-tests.md#key-1){.v .v-c}
+This wiki documents the 253 datapack keys that exist in 7.4.12. **180 of them exist
+in every datapack-era version.** The other 73 do not. [code review](../examples/claim-tests.md#key-1){.v .v-c}
 
 Write a file against this wiki, run it on a different version, and a key that does
 not exist there is what changes the result. This page lists which keys those are. [code review](../examples/claim-tests.md#key-1){.v .v-c}
@@ -90,7 +90,7 @@ Absent in every 5.x and 6.x version, and also absent in **8.2.2**. Present in
 
 Present in 5.3.29, then absent in 6.0.3, then present again from 6.1.6 onward.
 16 keys. 6.0.3 is the thinnest version in the datapack era, with 180 keys against
-the 224 of 7.4.12. [code review](../examples/claim-tests.md#key-1){.v .v-c}
+the 253 of 7.4.12. [code review](../examples/claim-tests.md#key-1){.v .v-c}
 
 | Wiki page [code review](../examples/claim-tests.md#key-1){.v .v-c} | Keys |
 |---|---|
@@ -121,15 +121,27 @@ and writing one is ignored rather than reported. See
 | 5.3.29 | 196 | 1, 2, 4 |
 | 6.0.3 | 180 | 1, 2, 3, 4 |
 | 6.1.6 | 196 | 1, 2, 4 |
-| 6.2.2 | 200 | 2, 4 |
+| 6.2.2 | 229 | 2, 4 |
 | 6.2.3 | 196 | 1, 2, 4 |
-| 7.4.12 | 224 | none |
-| 7.5.1 | 231 | none, plus 7 extra |
-| 8.2.2 | 201 | 2 |
-| 8.4.1, 9.5.1, 10.0.1 | 231 | none, plus 7 extra |
+| 7.4.12 | 253 | none |
+| 7.5.1, 7.5.2 | 268 | none, plus 15 extra |
+| 8.2.2 | 230 | 2 |
+| 8.4.1, 9.5.1, 10.0.1 | 268 | none, plus 15 extra |
 
 ## How this was checked
 
-Each version's asset codecs were disassembled and every `fieldOf` and
-`optionalFieldOf` call read for the key name it registers, then the sets were
-compared. No release notes were used. [code review](../examples/claim-tests.md#key-1){.v .v-c}
+Each version's asset codecs are disassembled and every `fieldOf`,
+`optionalFieldOf` and `Tools.listOrStringList` call read for the key name it
+registers, then the sets are compared. No release notes are used. [code review](../examples/claim-tests.md#key-1){.v .v-c}
+
+`testrig/extract-keys.py` does it, and writes `docs/examples/mod-keys.json`, which
+`validate.py` checks the reference tables against on every build. Twelve versions
+are recorded there, so a number on this page can be re-derived rather than trusted: [code review](../examples/claim-tests.md#key-1){.v .v-c}
+
+```bash
+python testrig/extract-keys.py
+```
+
+The counts here were lower before that script existed. Three codec types register
+their fields through a helper rather than through `fieldOf`, and reading only
+`fieldOf` missed all three. [code review](../examples/claim-tests.md#ek-4){.v .v-c} [code review](../examples/claim-tests.md#key-1){.v .v-c}

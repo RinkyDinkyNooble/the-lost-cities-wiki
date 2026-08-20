@@ -48,7 +48,7 @@ so this claim fails the CI gate if it stops being true. [code review](../example
 | Surface | Result |
 |---|---|
 | Profile keys | The same 160 names, with identical types, defaults, minimums and maximums. Zero differences across 7.5.1, 8.4.1, 9.5.1 and 10.0.1 |
-| Datapack keys | The same 231 keys, each required or optional in the same way |
+| Datapack keys | The same 268 keys, each required or optional in the same way |
 [code review](../examples/claim-tests.md#key-1){.v .v-c}
 
 Read this wiki, then [What changed in 7.5](7-5.md), and the picture is complete.

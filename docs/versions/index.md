@@ -63,14 +63,14 @@ loader requirement is what the jar declares in its own metadata. [code review](.
 | 5.3.29 | 1.18 | Forge `[40.1.50,)` | Datapack | 111 | 196 |
 | 6.0.3 | 1.19 | Forge `[31,)` | Datapack | 111 | 180 |
 | 6.1.6 | 1.19.3 | Forge `[43.1.30,)` | Datapack | 107 | 196 |
-| 6.2.2 | 1.19 | Forge `[43.1.30,)` | Datapack | 110 | 200 |
+| 6.2.2 | 1.19 | Forge `[43.1.30,)` | Datapack | 110 | 229 |
 | 6.2.3 | 1.19.4 | Forge `[43.1.30,)` | Datapack | 107 | 196 |
-| **7.4.12** | **1.20** | **Forge `[47,)`** | **Datapack** | **131** | **224** |
-| 7.5.1 | 1.20 | Forge `[47,)` | Datapack, hierarchical roads | 160 | 231 |
-| 8.2.2 | 1.21 | NeoForge `[21.0,)` | Datapack | 114 | 201 |
-| 8.4.1 | 1.21 | NeoForge `[21.0,)` | Datapack, hierarchical roads | 160 | 231 |
-| 9.5.1 | 1.21.11 | NeoForge `[21.11,)` | Datapack, hierarchical roads | 160 | 231 |
-| 10.0.1 | 26.1.2 | NeoForge `[26.1.2.0-beta,)` | Datapack, hierarchical roads | 160 | 231 |
+| **7.4.12** | **1.20** | **Forge `[47,)`** | **Datapack** | **131** | **253** |
+| 7.5.1 | 1.20 | Forge `[47,)` | Datapack, hierarchical roads | 160 | 268 |
+| 8.2.2 | 1.21 | NeoForge `[21.0,)` | Datapack | 114 | 230 |
+| 8.4.1 | 1.21 | NeoForge `[21.0,)` | Datapack, hierarchical roads | 160 | 268 |
+| 9.5.1 | 1.21.11 | NeoForge `[21.11,)` | Datapack, hierarchical roads | 160 | 268 |
+| 10.0.1 | 26.1.2 | NeoForge `[26.1.2.0-beta,)` | Datapack, hierarchical roads | 160 | 268 |
 
 The bold row is the version this wiki documents. <!-- noclaim -->
 
@@ -180,15 +180,15 @@ version: [code review](../examples/claim-tests.md#key-1){.v .v-c}
 
 | Version [code review](../examples/claim-tests.md#key-1){.v .v-c} | Datapack keys | Against 7.4.12 |
 |---|---|---|
-| 5.3.29 | 196 | 28 fewer |
-| 6.0.3 | 180 | 44 fewer |
-| 6.1.6 | 196 | 28 fewer |
-| 6.2.2 | 200 | 24 fewer |
-| 6.2.3 | 196 | 28 fewer |
-| 7.4.12 | 224 | documented baseline |
-| 7.5.1 | 231 | 7 more |
-| 8.2.2 | 201 | 23 fewer |
-| 8.4.1, 9.5.1, 10.0.1 | 231 | 7 more |
+| 5.3.29 | 196 | 57 fewer |
+| 6.0.3 | 180 | 73 fewer |
+| 6.1.6 | 196 | 57 fewer |
+| 6.2.2 | 229 | 24 fewer |
+| 6.2.3 | 196 | 57 fewer |
+| 7.4.12 | 253 | documented baseline |
+| 7.5.1, 7.5.2 | 268 | 15 more |
+| 8.2.2 | 230 | 23 fewer |
+| 8.4.1, 9.5.1, 10.0.1 | 268 | 15 more |
 
 A key used on a version that predates it is **ignored**, not rejected. The file
 loads, nothing is logged, and the behaviour that key asked for never happens. That
@@ -202,7 +202,7 @@ diffing the full key sets rather than reading release notes. [code review](../ex
 
 - **Profile keys.** 7.5.1, 8.4.1, 9.5.1 and 10.0.1 declare the same 160 keys, with
   identical types, defaults, minimums and maximums. Zero differences.
-- **Datapack keys.** The same 231 keys, with the same required or optional status on
+- **Datapack keys.** The same 268 keys, with the same required or optional status on
   each. The only change is a Java class rename in 9.5.1, from
   `ResourceLocationMatcher` to `IdentifierMatcher`. The JSON keys that class carries,
   `if_any` and `excluding`, are unchanged. [code review](../examples/claim-tests.md#key-1){.v .v-c}

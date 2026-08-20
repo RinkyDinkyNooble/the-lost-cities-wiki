@@ -839,11 +839,28 @@ Source pages: [Key availability](../versions/key-availability.md),
 
 #### KEY-1 The key sets come from disassembling each jar { #key-1 }
 
-**Code review.** Every version's asset codecs were disassembled and each
-`fieldOf` and `optionalFieldOf` call read for the key name it registers. The sets
-were then compared. No release notes were used. The result is
+**Code review.** Every version's asset codecs are disassembled and each `fieldOf`,
+`optionalFieldOf` and `Tools.listOrStringList` call read for the key name it
+registers. The sets are then compared. No release notes are used. The result is
 `docs/examples/mod-keys.json`, which `validate.py` checks the reference pages
 against on every build. See [REF-1](#ref-1).
+
+`testrig/extract-keys.py` does this, so the export is reproducible rather than
+hand-built, and **twelve versions** are recorded rather than two:
+
+```bash
+python testrig/extract-keys.py
+```
+
+Running it against the two versions that had been built by hand reproduced both
+exactly, 253 and 268 codec keys and 131 and 160 profile keys, which is what makes
+the ten it added trustworthy.
+
+Profile keys come from `LostCityProfile`'s own `Configuration.get*` calls, which
+carry the key, its section, its type and, for numbers, its minimum and maximum.
+Defaults are **not** read from a booted server unless asked for: a server install is
+shared between mod versions, so the `default.json` sitting in one belongs to
+whichever version ran last.
 
 #### KEY-2 An unknown key is ignored, not rejected { #key-2 }
 
