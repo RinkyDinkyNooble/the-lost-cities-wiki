@@ -1,0 +1,278 @@
+{
+  "_about": "A predefined sphere, and what its glass character resolves to.",
+  "pack": "wiki-test13",
+  "profile": "wtthirteen",
+  "grid": {
+    "x0": 4,
+    "z0": 4,
+    "x1": 13,
+    "z1": 13
+  },
+  "anchor": [
+    136,
+    72,
+    136
+  ],
+  "probes": [
+    {
+      "id": "c11-glass",
+      "kind": "count",
+      "claim": "minecraft:glass in c11",
+      "requires": [
+        "predefined_sphere"
+      ],
+      "from": [
+        176,
+        40,
+        128
+      ],
+      "to": [
+        191,
+        167,
+        143
+      ],
+      "block": "minecraft:glass",
+      "min": 0
+    },
+    {
+      "id": "c11-gray_stained",
+      "kind": "count",
+      "claim": "minecraft:gray_stained_glass in c11",
+      "requires": [
+        "predefined_sphere"
+      ],
+      "from": [
+        176,
+        40,
+        128
+      ],
+      "to": [
+        191,
+        167,
+        143
+      ],
+      "block": "minecraft:gray_stained_glass",
+      "min": 0
+    },
+    {
+      "id": "c11-blue_stained",
+      "kind": "count",
+      "claim": "minecraft:blue_stained_glass in c11",
+      "requires": [
+        "predefined_sphere"
+      ],
+      "from": [
+        176,
+        40,
+        128
+      ],
+      "to": [
+        191,
+        167,
+        143
+      ],
+      "block": "minecraft:blue_stained_glass",
+      "min": 0
+    },
+    {
+      "id": "c11-light_blue_s",
+      "kind": "count",
+      "claim": "minecraft:light_blue_stained_glass in c11",
+      "requires": [
+        "predefined_sphere"
+      ],
+      "from": [
+        176,
+        40,
+        128
+      ],
+      "to": [
+        191,
+        167,
+        143
+      ],
+      "block": "minecraft:light_blue_stained_glass",
+      "min": 0
+    },
+    {
+      "id": "c6-glass",
+      "kind": "count",
+      "claim": "minecraft:glass in c6",
+      "requires": [
+        "predefined_sphere"
+      ],
+      "from": [
+        96,
+        40,
+        128
+      ],
+      "to": [
+        111,
+        167,
+        143
+      ],
+      "block": "minecraft:glass",
+      "min": 0
+    },
+    {
+      "id": "c6-gray_stained",
+      "kind": "count",
+      "claim": "minecraft:gray_stained_glass in c6",
+      "requires": [
+        "predefined_sphere"
+      ],
+      "from": [
+        96,
+        40,
+        128
+      ],
+      "to": [
+        111,
+        167,
+        143
+      ],
+      "block": "minecraft:gray_stained_glass",
+      "min": 0
+    },
+    {
+      "id": "c6-blue_stained",
+      "kind": "count",
+      "claim": "minecraft:blue_stained_glass in c6",
+      "requires": [
+        "predefined_sphere"
+      ],
+      "from": [
+        96,
+        40,
+        128
+      ],
+      "to": [
+        111,
+        167,
+        143
+      ],
+      "block": "minecraft:blue_stained_glass",
+      "min": 0
+    },
+    {
+      "id": "c6-light_blue_s",
+      "kind": "count",
+      "claim": "minecraft:light_blue_stained_glass in c6",
+      "requires": [
+        "predefined_sphere"
+      ],
+      "from": [
+        96,
+        40,
+        128
+      ],
+      "to": [
+        111,
+        167,
+        143
+      ],
+      "block": "minecraft:light_blue_stained_glass",
+      "min": 0
+    },
+    {
+      "id": "c8z11-glass",
+      "kind": "count",
+      "claim": "minecraft:glass in c8z11",
+      "requires": [
+        "predefined_sphere"
+      ],
+      "from": [
+        128,
+        40,
+        176
+      ],
+      "to": [
+        143,
+        167,
+        191
+      ],
+      "block": "minecraft:glass",
+      "min": 0
+    },
+    {
+      "id": "c8z11-gray_stained",
+      "kind": "count",
+      "claim": "minecraft:gray_stained_glass in c8z11",
+      "requires": [
+        "predefined_sphere"
+      ],
+      "from": [
+        128,
+        40,
+        176
+      ],
+      "to": [
+        143,
+        167,
+        191
+      ],
+      "block": "minecraft:gray_stained_glass",
+      "min": 0
+    },
+    {
+      "id": "c8z11-blue_stained",
+      "kind": "count",
+      "claim": "minecraft:blue_stained_glass in c8z11",
+      "requires": [
+        "predefined_sphere"
+      ],
+      "from": [
+        128,
+        40,
+        176
+      ],
+      "to": [
+        143,
+        167,
+        191
+      ],
+      "block": "minecraft:blue_stained_glass",
+      "min": 0
+    },
+    {
+      "id": "c8z11-light_blue_s",
+      "kind": "count",
+      "claim": "minecraft:light_blue_stained_glass in c8z11",
+      "requires": [
+        "predefined_sphere"
+      ],
+      "from": [
+        128,
+        40,
+        176
+      ],
+      "to": [
+        143,
+        167,
+        191
+      ],
+      "block": "minecraft:light_blue_stained_glass",
+      "min": 0
+    },
+    {
+      "id": "city",
+      "kind": "count",
+      "claim": "control",
+      "requires": [
+        "predefined_city"
+      ],
+      "from": [
+        128,
+        40,
+        128
+      ],
+      "to": [
+        143,
+        167,
+        143
+      ],
+      "block": "minecraft:gold_block",
+      "min": 1
+    }
+  ]
+}

@@ -83,6 +83,16 @@ If you want to test something the wiki asserts and nobody has run, adding a prob
 one of these is the best possible contribution. Every test that came back wrong so
 far has found either a documentation error or a bug in the mod.
 
+You do not have to set a server up by hand. `testrig/` does it:
+
+```bash
+python testrig/rig.py doctor
+```
+
+It tells you which jars and which Java to fetch, installs the server, runs a pack
+and prints what the world actually built. It works on every Lost Cities version from
+2.0.22 to 10.0.1. See [testrig/README.md](testrig/README.md).
+
 ## Scope
 
 This wiki documents the **datapack asset system**, which starts at mod version

@@ -1,0 +1,185 @@
+{
+  "_about": [
+    "Everything that differs between Lost Cities versions, in one file.",
+    "Every value here was read from the jars themselves or measured on a running",
+    "server. None of it comes from documentation.",
+    "",
+    "'servers' are keyed by loader, not by mod version, because one install serves",
+    "several mod versions: 7.4.12 and 7.5.1 share a Forge install, 8.2.2 and 8.4.1",
+    "share a NeoForge one. The mod jar is swapped in per run.",
+    "",
+    "'capabilities' is what a version can actually do. A probe declaring 'requires'",
+    "against something absent here reports n/a rather than failing, because a",
+    "version that cannot pin a city has not failed a pinning test.",
+    "",
+    "'registries' is the ONLY thing the rig rewrites inside a pack. A folder the",
+    "version did not compile in is never scanned, so the pack silently looks empty.",
+    "Nothing else is adapted: an undeclared key is the thing under test.",
+    "",
+    "To stop the rig printing download links, delete the 'url' fields."
+  ],
+
+  "rcon": { "port": 25575, "password": "lcwiki" },
+
+  "javas": {
+    "8": {
+      "why": "Minecraft 1.12.2. Forge boots through LaunchWrapper, which casts the system class loader to URLClassLoader. Java 9 stopped it being one, and there is no workaround.",
+      "url": "https://adoptium.net/temurin/releases/?version=8"
+    },
+    "17": {
+      "why": "Minecraft 1.18.2 through 1.20.1.",
+      "url": "https://adoptium.net/temurin/releases/?version=17"
+    },
+    "21": {
+      "why": "Minecraft 1.21 and 1.21.11.",
+      "url": "https://adoptium.net/temurin/releases/?version=21"
+    },
+    "25": {
+      "why": "Minecraft 26.1.2. Its class files are version 69, which Java 21 refuses.",
+      "url": "https://adoptium.net/temurin/releases/?version=25"
+    }
+  },
+
+  "servers": {
+    "forge-1.12.2-14.23.5.2859": {
+      "loader": "forge", "minecraft": "1.12.2", "java": "8",
+      "installer": "forge-1.12.2-14.23.5.2859-installer.jar",
+      "launch": "jar", "server_jar": "forge-1.12.2-14.23.5.2859.jar",
+      "level_type": "lostcities",
+      "url": "https://files.minecraftforge.net/net/minecraftforge/forge/index_1.12.2.html"
+    },
+    "forge-1.18.2-40.3.0": {
+      "loader": "forge", "minecraft": "1.18.2", "java": "17",
+      "installer": "forge-1.18.2-40.3.0-installer.jar",
+      "launch": "args", "loader_dir": "net/minecraftforge/forge/1.18.2-40.3.0",
+      "url": "https://files.minecraftforge.net/net/minecraftforge/forge/index_1.18.2.html"
+    },
+    "forge-1.19-41.1.0": {
+      "loader": "forge", "minecraft": "1.19", "java": "17",
+      "installer": "forge-1.19-41.1.0-installer.jar",
+      "launch": "args", "loader_dir": "net/minecraftforge/forge/1.19-41.1.0",
+      "url": "https://files.minecraftforge.net/net/minecraftforge/forge/index_1.19.html"
+    },
+    "forge-1.19.2-43.5.0": {
+      "loader": "forge", "minecraft": "1.19.2", "java": "17",
+      "installer": "forge-1.19.2-43.5.0-installer.jar",
+      "launch": "args", "loader_dir": "net/minecraftforge/forge/1.19.2-43.5.0",
+      "url": "https://files.minecraftforge.net/net/minecraftforge/forge/index_1.19.2.html"
+    },
+    "forge-1.20.1-47.4.10": {
+      "loader": "forge", "minecraft": "1.20.1", "java": "17",
+      "installer": "forge-1.20.1-47.4.10-installer.jar",
+      "launch": "args", "loader_dir": "net/minecraftforge/forge/1.20.1-47.4.10",
+      "url": "https://files.minecraftforge.net/net/minecraftforge/forge/index_1.20.1.html"
+    },
+    "neoforge-21.0.167": {
+      "loader": "neoforge", "minecraft": "1.21", "java": "21",
+      "installer": "neoforge-21.0.167-installer.jar",
+      "launch": "args", "loader_dir": "net/neoforged/neoforge/21.0.167",
+      "url": "https://projects.neoforged.net/neoforged/neoforge"
+    },
+    "neoforge-21.11.45": {
+      "loader": "neoforge", "minecraft": "1.21.11", "java": "21",
+      "installer": "neoforge-21.11.45-installer.jar",
+      "launch": "args", "loader_dir": "net/neoforged/neoforge/21.11.45",
+      "url": "https://projects.neoforged.net/neoforged/neoforge"
+    },
+    "neoforge-26.1.2.96": {
+      "loader": "neoforge", "minecraft": "26.1.2", "java": "25",
+      "installer": "neoforge-26.1.2.96-installer.jar",
+      "launch": "args", "loader_dir": "net/neoforged/neoforge/26.1.2.96",
+      "url": "https://projects.neoforged.net/neoforged/neoforge"
+    }
+  },
+
+  "mod_url": "https://www.curseforge.com/minecraft/mc-mods/the-lost-cities/files",
+
+  "versions": {
+    "2.0.22": {
+      "server": "forge-1.12.2-14.23.5.2859",
+      "mod_jar": "lostcities-1.12-2.0.22.jar",
+      "adapter": "legacy112",
+      "asset_system": "file",
+      "capabilities": [],
+      "note": "File-asset era. Datapacks are never read. Content comes from userassets.json."
+    },
+    "5.3.29": {
+      "server": "forge-1.18.2-40.3.0",
+      "mod_jar": "lostcities-1.18-5.3.29.jar",
+      "adapter": "modern",
+      "registries": { "predefined_city": "predefinedcites" },
+      "capabilities": [],
+      "note": "First datapack version. Predefined assets load and are never placed: AssetRegistries has no loadAll."
+    },
+    "6.0.3": {
+      "server": "forge-1.19-41.1.0",
+      "mod_jar": "lostcities-1.19-6.0.3.jar",
+      "adapter": "modern",
+      "registries": { "predefined_city": "predefinedcitites" },
+      "capabilities": [],
+      "note": "Thinnest key set, 180 against 224. Predefined never placed, no sphere registry, and the only datapack-era version with no catch around chunk generation."
+    },
+    "6.2.2": {
+      "server": "forge-1.19.2-43.5.0",
+      "mod_jar": "lostcities-1.19-6.2.2.jar",
+      "adapter": "modern",
+      "registries": { "predefined_city": "predefinedcites" },
+      "capabilities": ["predefined_city", "predefined_sphere", "stuff"],
+      "note": "The only 6.x where predefined cities work. 6.2.3, which is newer, does not."
+    },
+    "7.4.12": {
+      "server": "forge-1.20.1-47.4.10",
+      "mod_jar": "lostcities-1.20-7.4.12.jar",
+      "adapter": "modern",
+      "baseline": true,
+      "registries": { "predefined_city": "predefinedcities" },
+      "capabilities": ["predefined_city", "predefined_sphere", "stuff",
+                       "scattered", "override_floors", "front_chance"],
+      "note": "The version the wiki documents. Every expectation in the probe files is this version's."
+    },
+    "7.5.1": {
+      "server": "forge-1.20.1-47.4.10",
+      "mod_jar": "lostcities-1.20-7.5.1.jar",
+      "adapter": "modern",
+      "registries": { "predefined_city": "predefinedcities" },
+      "capabilities": ["predefined_city", "predefined_sphere", "stuff",
+                       "scattered", "override_floors", "front_chance"],
+      "note": "Hierarchical roads, and a building's refpalette is resolved even when no part needs it."
+    },
+    "8.2.2": {
+      "server": "neoforge-21.0.167",
+      "mod_jar": "lostcities-1.21-8.2.2.jar",
+      "adapter": "modern",
+      "registries": { "predefined_city": "predefinedcites" },
+      "capabilities": ["predefined_city", "predefined_sphere", "stuff"],
+      "note": "7.4-era code on a 1.21 loader. No overrideFloors, no frontchance, and scattered buildings never place."
+    },
+    "8.4.1": {
+      "server": "neoforge-21.0.167",
+      "mod_jar": "lostcities-1.21-8.4.1.jar",
+      "adapter": "modern",
+      "registries": { "predefined_city": "predefinedcities" },
+      "capabilities": ["predefined_city", "predefined_sphere", "stuff",
+                       "scattered", "override_floors", "front_chance"],
+      "note": "Where the 7.5 changes reach the 1.21 line. Will not boot on a config left by 8.2.2: clear selectedProfile."
+    },
+    "9.5.1": {
+      "server": "neoforge-21.11.45",
+      "mod_jar": "LostCities-1.21.11-9.5.1.jar",
+      "adapter": "modern",
+      "registries": { "predefined_city": "predefinedcities" },
+      "capabilities": ["predefined_city", "predefined_sphere", "stuff",
+                       "scattered", "override_floors", "front_chance"],
+      "note": "Matches 7.5.1 exactly on every pack run so far."
+    },
+    "10.0.1": {
+      "server": "neoforge-26.1.2.96",
+      "mod_jar": "LostCities-26.1.2-10.0.1.jar",
+      "adapter": "modern",
+      "registries": { "predefined_city": "predefinedcities" },
+      "capabilities": ["predefined_city", "predefined_sphere", "stuff",
+                       "scattered", "override_floors", "front_chance"],
+      "note": "Newest. Needs Java 25."
+    }
+  }
+}

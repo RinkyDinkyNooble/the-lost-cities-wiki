@@ -1,0 +1,133 @@
+{
+  "_about": "Namespace resolution, and what an unresolved reference does.",
+  "pack": "wiki-test10",
+  "profile": "wtten",
+  "grid": {
+    "x0": 6,
+    "z0": 6,
+    "x1": 16,
+    "z1": 16
+  },
+  "anchor": [
+    130,
+    72,
+    130
+  ],
+  "probes": [
+    {
+      "id": "full-gold",
+      "kind": "count",
+      "claim": "every reference spelled in full: the tower generates",
+      "requires": [
+        "predefined_city"
+      ],
+      "from": [
+        128,
+        40,
+        128
+      ],
+      "to": [
+        143,
+        167,
+        143
+      ],
+      "block": "minecraft:gold_block",
+      "min": 1
+    },
+    {
+      "id": "barepalette-diamond",
+      "kind": "count",
+      "claim": "a bare refpalette is never resolved when every part carries its own, so the building still generates",
+      "requires": [
+        "predefined_city"
+      ],
+      "from": [
+        160,
+        40,
+        128
+      ],
+      "to": [
+        175,
+        167,
+        143
+      ],
+      "block": "minecraft:diamond_block",
+      "min": 512,
+      "max": 512,
+      "expect": {
+        "7.5.1": {
+          "min": 0,
+          "max": 0,
+          "why": "VER-3: from 7.5 the building's refpalette is resolved even when no part needs it"
+        },
+        "8.4.1": {
+          "min": 0,
+          "max": 0,
+          "why": "VER-3, reaching the 1.21 line at 8.4.1"
+        },
+        "9.5.1": {
+          "min": 0,
+          "max": 0,
+          "why": "VER-3"
+        },
+        "10.0.1": {
+          "min": 0,
+          "max": 0,
+          "why": "VER-3"
+        },
+        "8.2.2": {
+          "min": 768,
+          "max": 768,
+          "why": "KEY-4: overrideFloors is not declared here, so the building is a floor taller"
+        },
+        "6.2.2": {
+          "min": 768,
+          "max": 768,
+          "why": "6.2.2 declares no overrideFloors, so the building is a floor taller, and it tolerates an unresolved refpalette as 7.4.12 does"
+        }
+      }
+    },
+    {
+      "id": "barepart-lapis",
+      "kind": "count",
+      "claim": "a part name written bare resolves to lostcities:ns_lapis and is not found",
+      "requires": [
+        "predefined_city"
+      ],
+      "from": [
+        192,
+        40,
+        128
+      ],
+      "to": [
+        207,
+        167,
+        143
+      ],
+      "block": "minecraft:lapis_block",
+      "min": 0,
+      "max": 0
+    },
+    {
+      "id": "barepalette-only-emerald",
+      "kind": "count",
+      "claim": "bare refpalette with a part that has no palette of its own: nothing is drawn",
+      "requires": [
+        "predefined_city"
+      ],
+      "from": [
+        224,
+        40,
+        128
+      ],
+      "to": [
+        239,
+        167,
+        143
+      ],
+      "block": "minecraft:emerald_block",
+      "min": 0,
+      "max": 0
+    }
+  ]
+}

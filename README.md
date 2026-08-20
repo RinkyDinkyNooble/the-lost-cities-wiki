@@ -62,6 +62,7 @@ The [Versions](https://rinkydinkynooble.github.io/the-lost-cities-wiki/versions/
 | `docs/examples/mod-keys.json` | The mod's real codec and profile keys, extracted from the jars |
 | `docs/examples/json5-test/` | Three packs that build the same city, for testing the DevTool |
 | `mod/` | The Lost Cities - DevTool, source and listing copy |
+| `testrig/` | Runs the wiki's claims against a real server, on any version |
 | `CONTRIBUTING.md` | How to report or send a correction |
 
 ## Running it locally
@@ -103,7 +104,15 @@ Together they stop the docs, the example, and the mod's real schema from driftin
 
 `docs/examples/wiki-test7/` is a datapack whose only job is to be checked. A predefined city pins it to fixed chunk coordinates, so every test has a block address rather than needing to be found.
 
-It also runs unattended on a headless Forge server: force load the grid, then read the result back over RCON, using a filtered `/clone` to count blocks. Setup and the probe list are on [Claim Tests](https://rinkydinkynooble.github.io/the-lost-cities-wiki/examples/claim-tests/).
+`testrig/` runs those packs unattended against a real server, on any Lost Cities version from 2.0.22 to 10.0.1. It boots a headless server, force loads the grid, and reads the blocks back over RCON.
+
+```bash
+python testrig/rig.py doctor
+```
+
+`doctor` names every file you need to fetch and where to put it. The rig downloads nothing itself, because the mod, the loaders and the Java runtimes are not ours to redistribute. See [testrig/README.md](testrig/README.md).
+
+`matrix` runs one pack across every version you have installed and prints the comparison, which is how the version differences on this site were found.
 
 Adding a probe for something the wiki asserts and nobody has run is the most useful contribution available.
 

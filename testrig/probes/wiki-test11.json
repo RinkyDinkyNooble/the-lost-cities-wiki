@@ -1,0 +1,167 @@
+{
+  "_about": "Building fronts and stuff objects.",
+  "pack": "wiki-test11",
+  "profile": "wteleven",
+  "grid": {
+    "x0": 5,
+    "z0": 5,
+    "x1": 12,
+    "z1": 12
+  },
+  "anchor": [
+    130,
+    72,
+    130
+  ],
+  "probes": [
+    {
+      "id": "building-white",
+      "kind": "count",
+      "claim": "the pinned building generated at all",
+      "requires": [
+        "predefined_city"
+      ],
+      "from": [
+        128,
+        40,
+        128
+      ],
+      "to": [
+        143,
+        167,
+        143
+      ],
+      "block": "minecraft:white_concrete",
+      "min": 1
+    },
+    {
+      "id": "stuff-iron-in-building",
+      "kind": "count",
+      "claim": "column names a palette character, and stuff placed it inside the building",
+      "requires": [
+        "predefined_city",
+        "stuff"
+      ],
+      "from": [
+        128,
+        40,
+        128
+      ],
+      "to": [
+        143,
+        167,
+        143
+      ],
+      "block": "minecraft:iron_block",
+      "min": 1
+    },
+    {
+      "id": "front-east",
+      "kind": "count",
+      "claim": "the street chunk east of the building drew the building's front",
+      "requires": [
+        "predefined_city"
+      ],
+      "from": [
+        144,
+        40,
+        128
+      ],
+      "to": [
+        159,
+        167,
+        143
+      ],
+      "block": "minecraft:emerald_block",
+      "min": 1
+    },
+    {
+      "id": "front-west",
+      "kind": "count",
+      "claim": "and so did the street chunk west of it",
+      "requires": [
+        "predefined_city"
+      ],
+      "from": [
+        112,
+        40,
+        128
+      ],
+      "to": [
+        127,
+        167,
+        143
+      ],
+      "block": "minecraft:emerald_block",
+      "min": 1,
+      "expect": {
+        "8.2.2": {
+          "min": 0,
+          "max": 0,
+          "why": "frontchance is not declared on 8.2.2, so the draw falls back to its default and one of the four street chunks misses"
+        }
+      }
+    },
+    {
+      "id": "front-north",
+      "kind": "count",
+      "claim": "and north",
+      "requires": [
+        "predefined_city"
+      ],
+      "from": [
+        128,
+        40,
+        112
+      ],
+      "to": [
+        143,
+        167,
+        127
+      ],
+      "block": "minecraft:emerald_block",
+      "min": 1
+    },
+    {
+      "id": "front-south",
+      "kind": "count",
+      "claim": "and south, which is the up-to-four-times claim",
+      "requires": [
+        "predefined_city"
+      ],
+      "from": [
+        128,
+        40,
+        144
+      ],
+      "to": [
+        143,
+        167,
+        159
+      ],
+      "block": "minecraft:emerald_block",
+      "min": 1
+    },
+    {
+      "id": "no-front-in-building-chunk",
+      "kind": "count",
+      "claim": "the front is never drawn in the building's own chunk",
+      "requires": [
+        "predefined_city"
+      ],
+      "from": [
+        128,
+        40,
+        128
+      ],
+      "to": [
+        143,
+        167,
+        143
+      ],
+      "block": "minecraft:emerald_block",
+      "min": 0,
+      "max": 0
+    }
+  ]
+}
