@@ -1,0 +1,148 @@
+{
+  "inherit": "citystyle_common",
+  "style": "ek:demo",
+  "explosionchance": 0.0,
+  "buildingsettings": {
+    "buildingchance": 1.0,
+    "minfloors": 2,
+    "maxfloors": 2,
+    "mincellars": 0,
+    "maxcellars": 0
+  },
+  "streetblocks": {
+    "street": "b",
+    "streetbase": "b",
+    "streetvariant": "b",
+    "border": "b",
+    "wall": "b",
+    "width": 6,
+    "parts": {
+      "full": "street_full",
+      "straight": "street_straight",
+      "end": "street_end",
+      "bend": "street_bend",
+      "t": "street_t",
+      "none": "street_none",
+      "all": "street_all",
+      "connector": "street_large_connector",
+      "stair": "street_stair"
+    },
+    "largeparts": {
+      "full": "street_full",
+      "straight": "street_straight",
+      "end": "street_end",
+      "bend": "street_bend",
+      "t": "street_t",
+      "none": "street_none",
+      "all": "street_all",
+      "connector": "street_large_connector",
+      "stair": "street_stair"
+    },
+    "tertiaryparts": {
+      "full": "street_full",
+      "straight": "street_straight",
+      "end": "street_end",
+      "bend": "street_bend",
+      "t": "street_t",
+      "none": "street_none",
+      "all": "street_all",
+      "connector": "street_large_connector",
+      "stair": "street_stair"
+    },
+    "frontchance": 1.0,
+    "fountainchance": 0.0
+  },
+  "parkblocks": {
+    "elevation": "b",
+    "grass": "g",
+    "parkchance": 0.0,
+    "parkborder": false,
+    "parkelevation": false,
+    "parkstreetthreshold": 3,
+    "avoidfoliage": true
+  },
+  "corridorblocks": {
+    "roof": "b",
+    "glass": "w",
+    "corridorchance": 0.0
+  },
+  "railblocks": {
+    "railmain": "b"
+  },
+  "sphereblocks": {
+    "glass": "w",
+    "border": "b",
+    "inner": "b"
+  },
+  "generalblocks": {
+    "glowstone": "o",
+    "ironbars": "i",
+    "leaves": "l",
+    "rubbledirt": "r"
+  },
+  "profile_overrides": {
+    "openLotParkChance": 0.0
+  },
+  "stuff_tags": [
+    "demo"
+  ],
+  "selectors": {
+    "buildings": [
+      {
+        "factor": 1.0,
+        "value": "ek:tower",
+        "feather": 1,
+        "minSpawnDistance": 0,
+        "maxSpawnDistance": 10000
+      }
+    ],
+    "multibuildings": [
+      {
+        "factor": 1.0,
+        "value": "ek:demo"
+      }
+    ],
+    "fronts": [
+      {
+        "factor": 1.0,
+        "value": "ek:front"
+      }
+    ],
+    "bridges": [
+      {
+        "factor": 1.0,
+        "value": "ek:support"
+      }
+    ],
+    "largebridges": [
+      {
+        "factor": 1.0,
+        "value": "ek:support"
+      }
+    ],
+    "fountains": [
+      {
+        "factor": 1.0,
+        "value": "ek:support"
+      }
+    ],
+    "parks": [
+      {
+        "factor": 1.0,
+        "value": "ek:support"
+      }
+    ],
+    "raildungeons": [
+      {
+        "factor": 1.0,
+        "value": "ek:support"
+      }
+    ],
+    "stairs": [
+      {
+        "factor": 1.0,
+        "value": "ek:support"
+      }
+    ]
+  }
+}

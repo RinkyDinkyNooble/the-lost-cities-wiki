@@ -1,0 +1,42 @@
+{
+  "column": "h",
+  "mincount": 1,
+  "maxcount": 2,
+  "attempts": 4,
+  "minheight": 40,
+  "maxheight": 120,
+  "inbuilding": true,
+  "seesky": false,
+  "tags": [
+    "demo"
+  ],
+  "upperblocks": {
+    "if_any": [
+      "minecraft:air"
+    ]
+  },
+  "biomes": {
+    "excluding": [
+      "#minecraft:is_ocean"
+    ]
+  },
+  "blocks": {
+    "if_any": [
+      "minecraft:gold_block"
+    ],
+    "if_all": [
+      "minecraft:gold_block"
+    ],
+    "excluding": [
+      "minecraft:bedrock"
+    ]
+  },
+  "buildings": {
+    "if_any": [
+      "ek:tower"
+    ],
+    "excluding": [
+      "ek:annex"
+    ]
+  }
+}

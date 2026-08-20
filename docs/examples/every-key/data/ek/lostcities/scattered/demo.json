@@ -1,0 +1,12 @@
+{
+  "buildings": [
+    "ek:annex"
+  ],
+  "multibuilding": "ek:demo",
+  "terrainheight": "highest",
+  "terrainfix": "repeatslice",
+  "heightoffset": 0,
+  "rotatable": true,
+  "clearhighwayrailing": true,
+  "supportpart": "ek:support"
+}

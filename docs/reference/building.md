@@ -19,7 +19,7 @@ claims: verified
 | `filler` | **yes** | | One palette character. The mod uses it to seat the building into the terrain. See [Filler](#filler-what-it-is-and-why-it-is-required). |
 | `rubble` | no | | One palette character, used for rubble when this building is ruined. If the character is not defined in the palette, the mod uses `filler` instead. |
 | `refpalette` | no | | Name of a shared palette. |
-| `palette` | no | | An embedded palette, used instead of `refpalette`. |
+| `palette` | no | | An embedded palette, used instead of `refpalette`. It is a whole palette asset, so the entry list nests under a second `palette` key, exactly as on a [Part](part.md#the-shape-of-slices). Written as a bare list it decodes to nothing and is not an error. |
 | `minfloors` / `maxfloors` | no | `-1` | Bounds on the number of floors above ground. By default these only narrow the count the profile already chose. They do not replace it. See [Floor counts](#how-floor-and-cellar-counts-are-decided). |
 | `mincellars` / `maxcellars` | no | `-1` | The same, for levels below ground. |
 | `allowDoors` | no | `true` | If `true`, the mod cuts doorways through this building's walls to adjacent city chunks. If `false`, the walls are left exactly as the part draws them and the building is sealed. The top floor never gets doors either way. Measured on 7.4.12: the same three-storey part placed 2240 wall blocks with doors allowed and 2256 with `allowDoors: false`. |
@@ -231,7 +231,14 @@ Each entry in `parts` is a part name plus any of **13** optional test keys. They
 | `inpart` | string or list | The current part name is in this set. |
 | `belowpart` | string or list | The part directly below is in this set. |
 | `inbuilding` | string or list | The current building name is in this set. |
-| `inbiome` | string or list | The current biome is in this set. |
+| `inbiome` | string | The current biome is in this set. **Avoid it here on Minecraft 1.21 and later**, see below. |
+
+!!! danger "`inbiome` on a part reference fails every chunk on 1.21 and later"
+    Reading a biome here means reading it out of a neighbouring chunk while that chunk is still generating, which Minecraft 1.21 refuses. Measured on 8.2.2: one part reference carrying `inbiome` failed **335** chunks with `Exception generating new chunk`. The same pack runs clean on 7.4.12 and 7.5.1. [game test](../examples/claim-tests.md#ek-5){.v .v-g}
+
+    The same key on a [Condition](condition.md) is safe on every version, because a condition is evaluated later. Put the biome test there instead. [game test](../examples/claim-tests.md#ek-5){.v .v-g}
+
+    The accepted shape also moved. 7.5.1 takes a list or a string, 8.2.2 takes only a string, and 7.4.12 accepted an object and quietly did nothing with it. A bare string is the only form every version accepts. [game test](../examples/claim-tests.md#ek-5){.v .v-g}
 
 ```json
 { "part": "apartment_floor", "floor": 2 }

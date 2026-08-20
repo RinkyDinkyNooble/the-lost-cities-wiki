@@ -1,0 +1,22 @@
+{
+  "dimension": "lostcities:lostcity",
+  "chunkx": 8,
+  "chunkz": 8,
+  "radius": 8,
+  "citystyle": "ek:demo",
+  "buildings": [
+    {
+      "building": "ek:tower",
+      "chunkx": 0,
+      "chunkz": 0,
+      "multi": false,
+      "preventruins": true
+    }
+  ],
+  "streets": [
+    {
+      "chunkx": 1,
+      "chunkz": 0
+    }
+  ]
+}

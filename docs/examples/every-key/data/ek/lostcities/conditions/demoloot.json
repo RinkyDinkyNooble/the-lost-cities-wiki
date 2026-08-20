@@ -1,0 +1,65 @@
+{
+  "values": [
+    {
+      "factor": 8,
+      "value": "minecraft:chests/simple_dungeon",
+      "range": "4,100"
+    },
+    {
+      "factor": 2,
+      "value": "minecraft:chests/simple_dungeon",
+      "cellar": true
+    },
+    {
+      "factor": 2,
+      "value": "minecraft:chests/simple_dungeon",
+      "floor": 0
+    },
+    {
+      "factor": 2,
+      "value": "minecraft:chests/simple_dungeon",
+      "ground": true
+    },
+    {
+      "factor": 2,
+      "value": "minecraft:chests/simple_dungeon",
+      "top": true
+    },
+    {
+      "factor": 2,
+      "value": "minecraft:chests/simple_dungeon",
+      "inpart": "ek:body"
+    },
+    {
+      "factor": 2,
+      "value": "minecraft:chests/simple_dungeon",
+      "belowpart": "ek:body"
+    },
+    {
+      "factor": 2,
+      "value": "minecraft:chests/simple_dungeon",
+      "inbuilding": "ek:tower"
+    },
+    {
+      "factor": 2,
+      "value": "minecraft:chests/simple_dungeon",
+      "isbuilding": true
+    },
+    {
+      "factor": 1,
+      "value": "minecraft:chests/simple_dungeon",
+      "issphere": false
+    },
+    {
+      "factor": 1,
+      "value": "minecraft:chests/simple_dungeon",
+      "chunkx": 8,
+      "chunkz": 8
+    },
+    {
+      "factor": 1,
+      "value": "minecraft:chests/simple_dungeon",
+      "inbiome": "minecraft:plains"
+    }
+  ]
+}

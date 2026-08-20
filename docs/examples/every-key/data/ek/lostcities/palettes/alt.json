@@ -1,0 +1,12 @@
+{
+  "palette": [
+    {
+      "char": "@",
+      "frompalette": "#"
+    },
+    {
+      "char": "w",
+      "block": "minecraft:white_stained_glass"
+    }
+  ]
+}

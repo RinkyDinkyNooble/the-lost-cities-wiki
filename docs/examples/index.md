@@ -56,6 +56,42 @@ The [tutorial](../getting-started/first-city.md) explains why each step is there
 - Palette characters are Greek (`α β γ δ ε`) rather than ASCII, because the mod already claims most printable ASCII and collisions overwrite silently. See [What counts as a valid character](../reference/palette.md#what-counts-as-a-valid-character).
 - The building keeps one part reference with **no conditions**, which is what prevents the [most common failure](../reference/building.md#floor-coverage-the-most-common-failure). <!-- noclaim -->
 
+## `every-key`, the reference fixture
+
+[`every-key/`](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/tree/main/docs/examples/every-key)
+uses **every key the mod's codecs declare**, 209 of them across all thirteen
+top-level asset types, in a pack that loads and generates. [game test](claim-tests.md#ek-1){.v .v-g}
+
+It answers the question a key table cannot: what does this actually look like in a
+file? `palette` on a building and `palette` on a part share a name and are different
+keys, and the fixture shows both. So are `parts` on a building and `parts` on a
+world style. [game test](claim-tests.md#ek-1){.v .v-g}
+
+!!! warning "A reference, not a tutorial"
+    Nothing in this pack is a sensible city. It exists to be read one key at a time,
+    and copying it wholesale gives you a building with thirteen competing part
+    references and a world style overriding every highway part with its own default.
+    Start from [`first-city`](#first-city) instead. <!-- noclaim -->
+
+Coverage is enforced rather than claimed. `key-coverage.py` fails if any declared
+key is missing from an example, and checks each top-level type against its own
+folder so two keys sharing a name are counted separately: [game test](claim-tests.md#ek-1){.v .v-g}
+
+```bash
+python docs/examples/key-coverage.py
+```
+
+Building it corrected several things on this site. An embedded `palette` is a whole
+palette asset and nests, which no page said; a part of a single slice drew nothing at
+all; and the key export itself was missing three codec types worth 37 keys, because
+those types register their fields through a helper rather than through `fieldOf`. [code review](claim-tests.md#ek-4){.v .v-c} [game test](claim-tests.md#ek-3){.v .v-g}
+
+Regenerate it after editing `generate.py`: <!-- noclaim -->
+
+```bash
+python docs/examples/every-key/generate.py
+```
+
 ## validate.py
 
 [`validate.py`](validate.py) checks a datapack against the rules this wiki documents. <!-- noclaim -->
@@ -147,6 +183,7 @@ Each one turns a random feature into something a fixed probe can find. <!-- nocl
 | [`wiki-test11/`](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/tree/main/docs/examples/wiki-test11) | Building fronts and stuff objects | Overriding the three shipped front parts, so the draw cannot pick one of them instead of yours |
 | [`wiki-test12/`](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/tree/main/docs/examples/wiki-test12) | Scattered structures | `areasize: 1`, `chance: 1.0`, `weightnone: 0`, so every chunk is an area that must place one |
 | [`wiki-test13/`](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/tree/main/docs/examples/wiki-test13) | A predefined sphere | `onlyPredefined` on and `citySphereChance` at `0.0`, so the pinned dome is the only one |
+| [`file-era-test/`](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/tree/main/docs/examples/file-era-test) | The file-asset era, before datapacks | One `userassets.json` holding seven assets, for Lost Cities 1.0.1 through 5.0.4 |
 [game test](claim-tests.md#frt-1){.v .v-g}
 
 Results in [the claim register](claim-tests.md#fronts-stuff-objects-and-rotation). All

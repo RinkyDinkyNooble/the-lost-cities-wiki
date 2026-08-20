@@ -108,6 +108,14 @@
      "leaves": "optional",
      "rubbledirt": "optional"
     },
+    "HighwayParts": {
+     "bridge": "optional",
+     "bridge_bi": "optional",
+     "open": "optional",
+     "open_bi": "optional",
+     "tunnel": "optional",
+     "tunnel_bi": "optional"
+    },
     "MonorailParts": {
      "both": "optional",
      "station": "optional",
@@ -220,6 +228,24 @@
     "RailSettings": {
      "railmain": "optional"
     },
+    "RailwayParts": {
+     "rails3split": "optional",
+     "railsbend": "optional",
+     "railsdown1": "optional",
+     "railsdown2": "optional",
+     "railsflat": "optional",
+     "railshorizontal": "optional",
+     "railshorizontalend": "optional",
+     "railshorizontalwater": "optional",
+     "railsvertical": "optional",
+     "railsverticalwater": "optional",
+     "stationopen": "optional",
+     "stationopenroof": "optional",
+     "stationstaircase": "optional",
+     "stationstaircasesurface": "optional",
+     "stationunderground": "optional",
+     "stationundergroundstairs": "optional"
+    },
     "ResourceLocationMatcher": {
      "excluding": "optional",
      "if_any": "optional"
@@ -260,6 +286,15 @@
      "border": "optional",
      "glass": "optional",
      "inner": "optional"
+    },
+    "StreetParts": {
+     "all": "optional",
+     "bend": "optional",
+     "end": "optional",
+     "full": "optional",
+     "none": "optional",
+     "straight": "optional",
+     "t": "optional"
     },
     "StreetSettings": {
      "border": "optional",
@@ -1258,6 +1293,20 @@
      "leaves": "optional",
      "rubbledirt": "optional"
     },
+    "HighwayParts": {
+     "bridge": "optional",
+     "bridge_bend": "optional",
+     "bridge_bi": "optional",
+     "bridge_t": "optional",
+     "open": "optional",
+     "open_bend": "optional",
+     "open_bi": "optional",
+     "open_t": "optional",
+     "tunnel": "optional",
+     "tunnel_bend": "optional",
+     "tunnel_bi": "optional",
+     "tunnel_t": "optional"
+    },
     "MonorailParts": {
      "both": "optional",
      "station": "optional",
@@ -1370,6 +1419,24 @@
     "RailSettings": {
      "railmain": "optional"
     },
+    "RailwayParts": {
+     "rails3split": "optional",
+     "railsbend": "optional",
+     "railsdown1": "optional",
+     "railsdown2": "optional",
+     "railsflat": "optional",
+     "railshorizontal": "optional",
+     "railshorizontalend": "optional",
+     "railshorizontalwater": "optional",
+     "railsvertical": "optional",
+     "railsverticalwater": "optional",
+     "stationopen": "optional",
+     "stationopenroof": "optional",
+     "stationstaircase": "optional",
+     "stationstaircasesurface": "optional",
+     "stationunderground": "optional",
+     "stationundergroundstairs": "optional"
+    },
     "ResourceLocationMatcher": {
      "excluding": "optional",
      "if_any": "optional"
@@ -1413,6 +1480,17 @@
      "border": "optional",
      "glass": "optional",
      "inner": "optional"
+    },
+    "StreetParts": {
+     "all": "optional",
+     "bend": "optional",
+     "connector": "optional",
+     "end": "optional",
+     "full": "optional",
+     "none": "optional",
+     "stair": "optional",
+     "straight": "optional",
+     "t": "optional"
     },
     "StreetSettings": {
      "border": "optional",

@@ -1,0 +1,70 @@
+{
+  "_about": "The every-key fixture. Its job is to prove that a pack using every key the codecs declare still loads and generates, so the keys it demonstrates are demonstrably real rather than plausible.",
+  "pack": "every-key",
+  "profile": "ekdemo",
+  "grid": {
+    "x0": 6,
+    "z0": 6,
+    "x1": 16,
+    "z1": 16
+  },
+  "anchor": [
+    130,
+    72,
+    130
+  ],
+  "probes": [
+    {
+      "id": "tower-gold",
+      "kind": "count",
+      "claim": "the pinned building generates, so every key in the pack parsed",
+      "requires": [
+        "predefined_city"
+      ],
+      "from": [
+        128,
+        40,
+        128
+      ],
+      "to": [
+        143,
+        167,
+        143
+      ],
+      "block": "minecraft:gold_block",
+      "min": 1,
+      "expect": {
+        "6.2.2": {
+          "min": 768,
+          "max": 768,
+          "why": "no overrideFloors on 6.2.2, so the building is a floor taller. Same cause as KEY-4"
+        },
+        "8.2.2": {
+          "min": 768,
+          "max": 768,
+          "why": "no overrideFloors on 8.2.2. See KEY-4"
+        }
+      }
+    },
+    {
+      "id": "tower-emerald",
+      "kind": "count",
+      "claim": "its top part draws a character only its own embedded palette defines",
+      "requires": [
+        "predefined_city"
+      ],
+      "from": [
+        128,
+        40,
+        128
+      ],
+      "to": [
+        143,
+        167,
+        143
+      ],
+      "block": "minecraft:emerald_block",
+      "min": 1
+    }
+  ]
+}

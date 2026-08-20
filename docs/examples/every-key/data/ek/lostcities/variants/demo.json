@@ -1,0 +1,12 @@
+{
+  "blocks": [
+    {
+      "random": 32,
+      "block": "minecraft:polished_andesite"
+    },
+    {
+      "random": 1000,
+      "block": "minecraft:andesite"
+    }
+  ]
+}

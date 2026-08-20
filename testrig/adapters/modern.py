@@ -221,8 +221,14 @@ class Modern:
     def run(self, packs, profile_dir, profile, spec, patch=None,
             keep_config=False):
         self.prepare(packs, profile_dir, profile, patch, keep_config)
-        proc = self.boot()
         rows, err = [], None
+        try:
+            proc = self.boot()
+        except Exception as exc:
+            # A server that will not start is a result about that
+            # version, not a reason to abandon the other nine.
+            return {"probes": [], "failed_chunks": self.failed_chunks(),
+                    "error": "%s: %s" % (type(exc).__name__, exc)}
         try:
             with Rcon(port=self.port, password=self.password) as con:
                 self.generate(con, spec["grid"], spec["anchor"])

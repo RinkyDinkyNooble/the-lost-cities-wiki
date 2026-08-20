@@ -1,0 +1,115 @@
+{
+  "outsidestyle": "outside",
+  "citystyles": [
+    {
+      "factor": 1.0,
+      "citystyle": "ek:demo",
+      "biomes": {
+        "if_any": [
+          "minecraft:plains"
+        ]
+      }
+    },
+    {
+      "factor": 1.0,
+      "citystyle": "ek:demo"
+    }
+  ],
+  "citybiomemultipliers": [
+    {
+      "multiplier": 0.1,
+      "biomes": {
+        "if_any": [
+          "#minecraft:is_ocean"
+        ]
+      }
+    }
+  ],
+  "settings": {
+    "railwayavoidance": "ignore",
+    "railpartheight6": 1,
+    "vinenorth": {
+      "Name": "minecraft:vine"
+    },
+    "vinesouth": {
+      "Name": "minecraft:vine"
+    },
+    "vineeast": {
+      "Name": "minecraft:vine"
+    },
+    "vinewest": {
+      "Name": "minecraft:vine"
+    }
+  },
+  "multisettings": {
+    "areasize": 10,
+    "minimum": 1,
+    "maximum": 5,
+    "correctstylefactor": 0.8,
+    "attempts": 50
+  },
+  "cityspheres": {
+    "centerpart": "ek:support",
+    "centerpartoffset": 0,
+    "centerpartorigin": "ground",
+    "centertype": "default"
+  },
+  "parts": {
+    "highways": {
+      "open": "highway_open",
+      "open_bend": "highway_open_bend",
+      "open_bi": "highway_open_bi",
+      "open_t": "highway_open_t",
+      "bridge": "highway_bridge",
+      "bridge_bend": "highway_bridge_bend",
+      "bridge_bi": "highway_bridge_bi",
+      "bridge_t": "highway_bridge_t",
+      "tunnel": "highway_tunnel",
+      "tunnel_bend": "highway_tunnel_bend",
+      "tunnel_bi": "highway_tunnel_bi",
+      "tunnel_t": "highway_tunnel_t"
+    },
+    "railways": {
+      "railsflat": "rails_flat",
+      "railsbend": "rails_bend",
+      "railsdown1": "rails_down1",
+      "railsdown2": "rails_down2",
+      "railshorizontal": "rails_horizontal",
+      "railshorizontalend": "rails_horizontal_end",
+      "railshorizontalwater": "rails_horizontal_water",
+      "railsvertical": "rails_vertical",
+      "railsverticalwater": "rails_vertical_water",
+      "rails3split": "rails_3split",
+      "stationopen": "station_open",
+      "stationopenroof": "station_openroof",
+      "stationstaircase": "station_staircase",
+      "stationstaircasesurface": "station_staircase_surface",
+      "stationunderground": "station_underground",
+      "stationundergroundstairs": "station_underground_stairs"
+    },
+    "monorails": {
+      "both": "monorails_both",
+      "station": "monorails_station",
+      "vertical": "monorails_vertical"
+    }
+  },
+  "scattered": {
+    "areasize": 8,
+    "chance": 0.0,
+    "weightnone": 100,
+    "list": [
+      {
+        "name": "ek:demo",
+        "weight": 1,
+        "maxheightdiff": 3,
+        "allowvoid": false,
+        "nearhighway": false,
+        "biomes": {
+          "excluding": [
+            "#minecraft:is_ocean"
+          ]
+        }
+      }
+    ]
+  }
+}

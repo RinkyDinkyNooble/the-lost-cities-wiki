@@ -532,7 +532,15 @@ def cmd_matrix(manifest, args):
 
     results = []
     for version in targets:
-        res = run_one(manifest, version, spec_path, args)
+        try:
+            res = run_one(manifest, version, spec_path, args)
+        except Exception as exc:
+            # The point of a matrix is the comparison. Losing one column is worth
+            # far less than losing the other nine to one bad server.
+            spec = json.load(io.open(spec_path, encoding="utf-8"))
+            res = skipped(version, spec, "%s: %s" % (type(exc).__name__, exc))
+            res["rows"] = [("error", p["id"], "run did not complete", "",
+                            p.get("claim", "")) for p in spec["probes"]]
         report(res, os.path.basename(spec_path))
         results.append(res)
 

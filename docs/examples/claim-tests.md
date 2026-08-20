@@ -1188,6 +1188,125 @@ the field read throws. A fresh install never sees it. An upgrade always does.
 The fix is one line, and it is worth doing before the first boot rather than after
 reading a crash report.
 
+### The every-key fixture
+
+Source pack: `docs/examples/every-key/`, namespace `ek`, profile `ekdemo`. Built by
+`generate.py` beside it and measured by `docs/examples/key-coverage.py`.
+
+#### EK-1 A pack using every declared key still loads and generates { #ek-1 }
+
+**Game test.** The fixture uses every key the codecs declare, across all thirteen
+top-level asset types, and generates: 512 gold from the pinned building's body parts
+and 256 diamond from its top part, with no failed chunks on 7.4.12.
+
+```
+key names demonstrated   209/209
+top-level types checked  13/13
+own-key gaps             0
+```
+
+Coverage is enforced rather than asserted. `key-coverage.py` fails if any key a
+codec declares is absent from an example, and it checks top-level types against
+their own folder, so `palette` on a building and `palette` on a part are counted
+separately rather than treated as one key that happens to share a name.
+
+The fixture is a **reference**, not a tutorial. Nothing about it is a sensible city.
+`docs/examples/first-city/` is the pack to learn from.
+
+#### EK-2 An embedded palette is a whole palette asset, not a list of entries { #ek-2 }
+
+**Code review.** `BuildingPartRE` and `BuildingRE` have no field for a list of
+palette entries. Both declare `refPaletteName` for `refpalette`, and both parse
+`palette` with **`PaletteRE.CODEC`**, which is the codec for a whole palette file.
+A palette file is `{"palette": [ ... ]}`, so an embedded palette nests:
+
+```json
+"palette": { "palette": [ { "char": "D", "block": "minecraft:diamond_block" } ] }
+```
+
+**Game test.** Written as a bare list, which is the natural guess, the field is not
+an error. `optionalFieldOf` yields nothing, the characters resolve to nothing, and
+the building's `filler` quietly takes the part's whole volume.
+
+The test has to use a character defined **nowhere else**, or the style's palettes
+supply it and both forms appear to work. The fixture's top part draws `Q`, which only
+its own embedded palette defines:
+
+| Written as | Emerald placed |
+|---|---|
+| `"palette": {"palette": [ ... ]}` | **256** |
+| `"palette": [ ... ]` | **0**, and nothing logged |
+
+An earlier version of this entry used a character the style also defined, which made
+both forms look identical. That is the trap the fixture is for.
+
+The reference pages described this key as "an embedded palette, used instead of
+`refpalette`", which is true and does not say the shape. Both now show it.
+
+#### EK-3 A part of a single slice drew nothing { #ek-3 }
+
+**Game test.** The same part, same palette, same building, differing only in height:
+
+| Slices | Diamond placed |
+|---|---|
+| 1 | **0** |
+| 2 | 256 |
+
+No error either way, and the building's filler occupied the space in the failing
+case. Reproduced with an embedded palette and again with `refpalette`, so it is not
+a palette problem.
+
+Recorded as measured rather than explained. The mechanism has not been traced, and
+one slice against two is a narrow enough difference that it is worth knowing before
+it is worth theorising about. Every other part in the fixture is two slices or more.
+
+#### EK-5 `inbiome` on a part reference kills chunk generation on 1.21 { #ek-5 }
+
+**Game test.** A part reference carrying `inbiome` made every chunk in the test grid
+fail on 8.2.2, 335 of them, with `Exception generating new chunk`. The stack is the
+same every time:
+
+```
+ConditionContext.parseTest -> BuildingInfo$2.getBiome
+  -> LevelReader.getBiome -> WorldGenRegion.getChunk
+  ReportedException: Exception generating new chunk
+```
+
+The test reads a biome out of a neighbouring chunk while that chunk is still
+generating, which 1.21 refuses. 7.4.12 and 7.5.1 run the same pack with no failures
+at all.
+
+The same key on a **condition** is fine on every version, because a condition is
+evaluated later. The fixture therefore demonstrates `inbiome` on a condition and
+deliberately not on a part reference.
+
+`inbiome` is also not a `BiomeMatcher`, despite `biomes` elsewhere being one. It is
+one biome name as a plain string, and the accepted shapes differ: 7.5.1 takes a list
+or a string, 8.2.2 takes only a string, and 7.4.12 accepted an object and did nothing
+with it. A bare string is the only form all of them take.
+
+#### EK-4 The key export was missing three codec types { #ek-4 }
+
+**Code review.** `HighwayParts`, `RailwayParts` and `StreetParts` are real codecs
+with real JSON keys, and none of them were in `docs/examples/mod-keys.json`. That is
+**37 keys**, so the fixture's first claim of full coverage was measured against a
+key set that was short by a sixth.
+
+They were missed because they do not call `fieldOf` at all. All three register their
+fields through `Tools.listOrStringList(key, default, fn)`, and an extractor keyed on
+`fieldOf` walks straight past them. No other regasset type uses that helper, so this
+is the whole of the gap.
+
+| Type | Keys | Where it is used |
+|---|---|---|
+| `StreetParts` | 9 on 7.5.1, 7 on 7.4.12 | `streetblocks.parts`, `largeparts`, `tertiaryparts` |
+| `HighwayParts` | 12 on 7.5.1, 6 on 7.4.12 | A world style's `parts.highways` |
+| `RailwayParts` | 16 | A world style's `parts.railways` |
+
+Each value takes either one part name or a list of them, which is what the helper is
+for. No shipped world style sets `parts` at all, so the fixture holds the only worked
+example of any of them.
+
 ### Whole-page entries
 
 Some claims are made the same way on many pages. Rather than repeat the evidence,
@@ -1509,6 +1628,8 @@ Every pack below ships with this wiki and can be downloaded from the repository.
 | `docs/examples/wiki-test11/` | Building fronts, stuff objects, and what a predefined city does not make a city chunk | Block count |
 | `docs/examples/wiki-test12/` | Scattered structures, with the placement randomness tuned out | Block count |
 | `docs/examples/wiki-test13/` | A predefined sphere, and what its glass character resolves to | Block count |
+| `docs/examples/every-key/` | Every key the codecs declare, in a pack that loads. A reference, not a tutorial | Block count |
+| `docs/examples/file-era-test/` | The file-asset era: one `userassets.json`, no datapack | Block count |
 
 Four more were built for single claims and are described where they are used rather
 than shipped, because each is a small edit to one of the packs above or needs mod

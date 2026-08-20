@@ -1,0 +1,87 @@
+{
+  "filler": "#",
+  "rubble": "b",
+  "refpalette": "ek:main",
+  "palette": {
+    "palette": [
+      {
+        "char": "h",
+        "block": "minecraft:chain"
+      }
+    ]
+  },
+  "minfloors": 2,
+  "maxfloors": 2,
+  "mincellars": 0,
+  "maxcellars": 0,
+  "overrideFloors": true,
+  "allowDoors": false,
+  "allowFillers": false,
+  "preferslonely": 0.0,
+  "parts": [
+    {
+      "part": "ek:top",
+      "top": true
+    },
+    {
+      "part": "ek:body",
+      "top": false,
+      "ground": true
+    },
+    {
+      "part": "ek:body",
+      "top": false,
+      "cellar": false
+    },
+    {
+      "part": "ek:body",
+      "top": false,
+      "floor": 1
+    },
+    {
+      "part": "ek:body",
+      "top": false,
+      "range": "0,1"
+    },
+    {
+      "part": "ek:body",
+      "top": false,
+      "inpart": "ek:body"
+    },
+    {
+      "part": "ek:body",
+      "top": false,
+      "belowpart": "ek:body"
+    },
+    {
+      "part": "ek:body",
+      "top": false,
+      "inbuilding": "ek:tower"
+    },
+    {
+      "part": "ek:body",
+      "top": false,
+      "isbuilding": true
+    },
+    {
+      "part": "ek:body",
+      "top": false,
+      "issphere": false
+    },
+    {
+      "part": "ek:body",
+      "top": false,
+      "chunkx": 8,
+      "chunkz": 8
+    },
+    {
+      "part": "ek:body",
+      "top": false
+    }
+  ],
+  "parts2": [
+    {
+      "part": "ek:meta_demo"
+    }
+  ]
+}

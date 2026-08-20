@@ -14,8 +14,21 @@ claims: verified
 | `xsize` / `zsize` | **yes** | The footprint size in blocks. Use `16` and `16`. See the warning below. |
 | `slices` | **yes** | The list of layers, bottom to top. Each layer is a list of row strings. |
 | `refpalette` | no | The name of a shared palette. |
-| `palette` | no | An embedded palette, used instead of `refpalette`. |
+| `palette` | no | An embedded palette, used instead of `refpalette`. It is a whole palette asset, so the entry list nests under a second `palette` key. See below. |
 | `meta` | no | A list of typed key and value pairs. **The key is `meta`, not `metadata`.** |
+
+!!! danger "An embedded `palette` nests, and gets no error if it does not"
+    This key is parsed with the **palette asset's own codec**, not as a list of entries. A palette file is `{"palette": [ ... ]}`, so an embedded one is nested the same way. [code review](../examples/claim-tests.md#ek-2){.v .v-c}
+
+    ```json title="Correct"
+    "palette": { "palette": [ { "char": "D", "block": "minecraft:diamond_block" } ] }
+    ```
+
+    ```json title="Silently does nothing"
+    "palette": [ { "char": "D", "block": "minecraft:diamond_block" } ]
+    ```
+
+    The bare list is the natural guess and it is not an error. The field decodes to nothing, the characters resolve to nothing, and the building's `filler` takes the part's whole volume. Measured on a character no other palette defines: 0 blocks written bare, 256 written nested, nothing logged either way. If the character also exists in the [Style](style.md)'s palettes, both forms appear to work, which is what makes this hard to notice. [game test](../examples/claim-tests.md#ek-2){.v .v-g}
 
 ## The shape of `slices`
 

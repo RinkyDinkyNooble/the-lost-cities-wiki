@@ -1,0 +1,86 @@
+{
+  "palette": [
+    {
+      "char": "_",
+      "block": "minecraft:air"
+    },
+    {
+      "char": "G",
+      "block": "minecraft:gold_block"
+    },
+    {
+      "char": "D",
+      "block": "minecraft:diamond_block"
+    },
+    {
+      "char": "#",
+      "block": "minecraft:white_concrete"
+    },
+    {
+      "char": "b",
+      "blocks": [
+        {
+          "random": 8,
+          "block": "minecraft:cracked_stone_bricks"
+        },
+        {
+          "random": 1000,
+          "block": "minecraft:stone_bricks"
+        }
+      ],
+      "damaged": "minecraft:iron_bars"
+    },
+    {
+      "char": "v",
+      "variant": "ek:demo"
+    },
+    {
+      "char": "c",
+      "block": "minecraft:chest",
+      "loot": "ek:demoloot",
+      "tag": {
+        "Items": [
+          {
+            "Slot": 0,
+            "id": "minecraft:coal",
+            "Count": 4
+          }
+        ]
+      }
+    },
+    {
+      "char": "s",
+      "block": "minecraft:spawner",
+      "mob": "ek:demomobs"
+    },
+    {
+      "char": "T",
+      "block": "minecraft:wall_torch[facing=north]",
+      "torch": true
+    },
+    {
+      "char": "h",
+      "block": "minecraft:chain"
+    },
+    {
+      "char": "g",
+      "block": "minecraft:grass_block"
+    },
+    {
+      "char": "l",
+      "block": "minecraft:oak_leaves"
+    },
+    {
+      "char": "i",
+      "block": "minecraft:iron_bars"
+    },
+    {
+      "char": "o",
+      "block": "minecraft:glowstone"
+    },
+    {
+      "char": "r",
+      "block": "minecraft:dirt"
+    }
+  ]
+}
