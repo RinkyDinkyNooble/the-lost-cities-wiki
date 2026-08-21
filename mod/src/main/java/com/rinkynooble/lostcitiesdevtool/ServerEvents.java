@@ -1,5 +1,6 @@
 package com.rinkynooble.lostcitiesdevtool;
 
+import com.rinkynooble.lostcitiesdevtool.command.ExportCommand;
 import com.rinkynooble.lostcitiesdevtool.command.PlotCommand;
 import com.rinkynooble.lostcitiesdevtool.command.ReportCommand;
 import com.rinkynooble.lostcitiesdevtool.command.WorkshopCommand;
@@ -41,6 +42,7 @@ public class ServerEvents {
         WorkshopCommand.register(event.getDispatcher());
         PlotCommand.register(event.getDispatcher());
         PlotCommand.registerMark(event.getDispatcher());
+        ExportCommand.register(event.getDispatcher());
     }
 
     /**
