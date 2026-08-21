@@ -1,6 +1,8 @@
 package com.rinkynooble.lostcitiesdevtool.command;
 
 import com.rinkynooble.lostcitiesdevtool.LostCitiesDevTool;
+import com.rinkynooble.lostcitiesdevtool.chat.Chat;
+import com.rinkynooble.lostcitiesdevtool.chat.ProfileKeys;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -53,6 +55,15 @@ public class ReportCommand {
         dispatcher.register(Commands.literal("lcdev")
                 .then(Commands.literal("report")
                         .executes(ctx -> report(ctx, null)))
+                // Not about this chunk, or any chunk. What a profile key means,
+                // straight out of the mod's own config comments, so nobody has to
+                // leave the game to look one up.
+                .then(Commands.literal("key")
+                        .then(Commands.argument("name", StringArgumentType.word())
+                                .suggests((c, b) -> SharedSuggestionProvider.suggest(
+                                        ProfileKeys.all().keySet(), b))
+                                .executes(ctx -> describeKey(ctx,
+                                        StringArgumentType.getString(ctx, "name")))))
                 .then(Commands.literal("char")
                         .then(Commands.argument("character", StringArgumentType.greedyString())
                                 .executes(ctx -> report(ctx,
@@ -82,6 +93,50 @@ public class ReportCommand {
                                                                 ctx, "id"))))))));
     }
 
+    /**
+     * {@code /lcdev key <name>}: what a profile key means.
+     *
+     * <p>Every description here is the mod's own, lifted from the comment it writes
+     * above that key when it generates a config file. Three of them say something
+     * the code does not do, and those carry the correction underneath rather than
+     * being quietly replaced, because the wrong comment is what the reader will find
+     * in their own file.
+     */
+    private static int describeKey(CommandContext<CommandSourceStack> ctx, String name) {
+        CommandSourceStack source = ctx.getSource();
+        ProfileKeys.Key key = ProfileKeys.get(name);
+        if (key == null) {
+            Chat.fail(source, "No profile key by that name", name,
+                    "Tab completion lists all " + ProfileKeys.all().size()
+                            + " of them. Names are case sensitive");
+            return 0;
+        }
+
+        Chat.header(source, key.name(), key.section() == null
+                ? "" : "section " + key.section());
+        if (key.type() != null) {
+            Chat.kv(source, "type", key.type().toLowerCase());
+        }
+        if (key.defaultValue() != null) {
+            Chat.kv(source, "default", key.defaultValue());
+        }
+        if (key.min() != null && key.max() != null) {
+            Chat.kv(source, "range", key.min() + " to " + key.max());
+            Chat.note(source, "Nothing enforces that range. An out-of-range value "
+                    + "loads silently and is used as written.");
+        }
+        if (key.comment() != null) {
+            Chat.note(source, "What the mod writes above this key in a config file:");
+            Chat.prose(source, key.comment());
+        }
+        if (key.correction() != null) {
+            Chat.warn(source, "That comment is wrong.");
+            Chat.note(source, key.correction().actually());
+            Chat.note(source, "Evidence: " + key.correction().evidence());
+        }
+        return 1;
+    }
+
     private static CompletableFuture<Suggestions> suggestAssets(
             CommandContext<CommandSourceStack> ctx, SuggestionsBuilder builder) {
         return SharedSuggestionProvider.suggest(
@@ -96,15 +151,17 @@ public class ReportCommand {
         IDimensionInfo provider = Registration.LOSTCITY_FEATURE.get()
                 .getDimensionInfo((WorldGenLevel) level);
         if (provider == null) {
-            source.sendFailure(Component.literal(
-                    "No Lost Cities profile is attached to " + level.dimension().location()
-                            + ". Check dimensionsWithProfiles under [profiles] in "
-                            + "config/lostcities/common.toml"));
+            Chat.fail(source, "No Lost Cities profile is attached to this dimension",
+                    String.valueOf(level.dimension().location()),
+                    "Add it to dimensionsWithProfiles, under [profiles] in "
+                            + "config/lostcities/common.toml. The section is [profiles], "
+                            + "whatever the comment above it says");
             return 0;
         }
 
-        head(source, "chunk " + pos.x + "," + pos.z
-                + "   block " + (pos.x * 16) + "," + (pos.z * 16));
+        Chat.header(source, "Chunk " + pos.x + ", " + pos.z,
+                "blocks " + (pos.x * 16) + "," + (pos.z * 16)
+                        + " to " + (pos.x * 16 + 15) + "," + (pos.z * 16 + 15));
         line(source, "profile", provider.getProfile().getName());
         // The description is the only field an author controls that survives
         // into the running world, which makes it the way to tell two profile
@@ -121,18 +178,18 @@ public class ReportCommand {
                     new ChunkCoord(provider.getType(), pos.x, pos.z), provider);
         } catch (Exception e) {
             // The same fault a chunk would hit. Saying so is the answer to the question.
-            source.sendFailure(Component.literal(
-                    "This chunk cannot be described: " + e.getClass().getSimpleName()
-                            + ": " + e.getMessage()));
-            source.sendFailure(Component.literal(
-                    "That is a fault in the chunk's selection stage, so it also fails "
-                            + "every chunk that queries this one."));
+            Chat.fail(source, "This chunk cannot be described",
+                    e.getClass().getSimpleName()
+                            + (e.getMessage() == null ? "" : ": " + e.getMessage()),
+                    "The fault is in the chunk's selection stage, so it fails every "
+                            + "chunk that queries this one as well. Look for the "
+                            + "earliest matching error in the log, not the most recent");
             return 0;
         }
 
         line(source, "is city", String.valueOf(info.isCity));
         line(source, "city level", String.valueOf(info.cityLevel));
-        line(source, "ground level", String.valueOf(info.groundLevel));
+        Chat.profileKey(source, "groundLevel", String.valueOf(info.groundLevel));
         if (info.getCityStyle() != null) {
             line(source, "city style", info.getCityStyle().getName());
         }
@@ -399,10 +456,10 @@ public class ReportCommand {
             return 1;
         } catch (Exception e) {
             LostCitiesDevTool.LOGGER.error("lcdev lookup failed", e);
-            source.sendFailure(Component.literal(
-                    "The lookup failed: " + e.getClass().getSimpleName()
-                            + (e.getMessage() == null ? "" : ": " + e.getMessage())
-                            + ". The full trace is in the log."));
+            Chat.fail(source, "The lookup failed",
+                    e.getClass().getSimpleName()
+                            + (e.getMessage() == null ? "" : ": " + e.getMessage()),
+                    "The full trace is in the log");
             return 0;
         }
     }
@@ -445,10 +502,10 @@ public class ReportCommand {
         List<PaletteLookup.Source> matches = PaletteLookup.withId(scan.sources(), id);
         if (matches.isEmpty()) {
             reportUnreadable(source, scan);
-            source.sendFailure(Component.literal(
-                    "No palette, part or building named " + id + " carries a palette. "
-                            + "A part or building only appears here if it defines one "
-                            + "inline; one using refpalette points at a palette asset."));
+            Chat.fail(source, "Nothing named that carries a palette", String.valueOf(id),
+                    "A part or building appears here only if it defines a palette "
+                            + "inline. One using refpalette points at a palette asset, "
+                            + "so ask for that asset by name instead");
             return;
         }
         head(source, String.format("character '%c'  U+%04X in %s", c, (int) c, id));
@@ -474,8 +531,8 @@ public class ReportCommand {
         List<PaletteLookup.Source> matches = PaletteLookup.withId(scan.sources(), id);
         if (matches.isEmpty()) {
             reportUnreadable(source, scan);
-            source.sendFailure(Component.literal(
-                    "No palette, part or building named " + id + " carries a palette."));
+            Chat.fail(source, "Nothing named that carries a palette",
+                    String.valueOf(id), null);
             return;
         }
         head(source, "characters mapping to " + wanted + " in " + id);
@@ -517,16 +574,15 @@ public class ReportCommand {
         IDimensionInfo provider = Registration.LOSTCITY_FEATURE.get()
                 .getDimensionInfo((WorldGenLevel) level);
         if (provider == null) {
-            source.sendFailure(Component.literal(
-                    "No Lost Cities profile is attached to " + level.dimension().location()));
+            Chat.fail(source, "No Lost Cities profile is attached to this dimension",
+                    String.valueOf(level.dimension().location()), null);
             return null;
         }
         try {
             return BuildingInfo.getBuildingInfo(
                     new ChunkCoord(provider.getType(), pos.x, pos.z), provider);
         } catch (Exception e) {
-            source.sendFailure(Component.literal(
-                    "This chunk cannot be described: " + e.getMessage()));
+            Chat.fail(source, "This chunk cannot be described", e.getMessage(), null);
             return null;
         }
     }
@@ -545,16 +601,19 @@ public class ReportCommand {
             try {
                 int cp = Integer.parseInt(t.substring(2), 16);
                 if (cp > 0xFFFF) {
-                    source.sendFailure(Component.literal(
+                    Chat.fail(source, "That character cannot be a palette key",
                             "U+" + Integer.toHexString(cp).toUpperCase()
-                                    + " is above U+FFFF and cannot be a palette key. "
-                                    + "The mod keeps only the leading surrogate."));
+                                    + ", which is above U+FFFF",
+                            "The mod keeps only the leading surrogate of a pair, so "
+                                    + "every character in the same range of 1024 "
+                                    + "collapses onto one key. Stay inside U+0000 to "
+                                    + "U+FFFF");
                     return null;
                 }
                 return (char) cp;
             } catch (NumberFormatException e) {
-                source.sendFailure(Component.literal(
-                        "'" + t + "' is not a code point. Write it as U+0470."));
+                Chat.fail(source, "That is not a code point", "'" + t + "'",
+                        "Write it as U+0470");
                 return null;
             }
         }
@@ -562,13 +621,10 @@ public class ReportCommand {
     }
 
     private static void head(CommandSourceStack source, String text) {
-        source.sendSuccess(() -> Component.literal(text)
-                .withStyle(ChatFormatting.AQUA), false);
+        Chat.header(source, text);
     }
 
     private static void line(CommandSourceStack source, String key, String value) {
-        source.sendSuccess(() -> Component.literal(key + ": ")
-                .withStyle(ChatFormatting.GRAY)
-                .append(Component.literal(value).withStyle(ChatFormatting.WHITE)), false);
+        Chat.kv(source, key, value);
     }
 }

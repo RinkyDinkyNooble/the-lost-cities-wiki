@@ -1,0 +1,20 @@
+{
+ "_about": "Hand written, unlike profile_keys.json beside it. Keys whose shipped config comment says something the code does not do. The comment is still shown, with the correction under it, because a person reading their own config file will see the comment and needs to know it misleads. Each entry names the evidence.",
+ "corrections": {
+  "citySphereFactor": {
+   "says": "Only used in 'space' landscape",
+   "actually": "Used on every sphere landscape. getSphereRadius has no landscape check on any path, so it applies to spheres and cavernspheres too. It also scales only the random part of an ordinary sphere's radius, so it can never take one below cityMinRadius.",
+   "evidence": "SPH-3"
+  },
+  "avoidWater": {
+   "says": "If true then all water will be avoided (replaced with air)",
+   "actually": "Only affects a block a part places. Whether hard air floods below sea level is read from avoidFoliage, whose name does not suggest it.",
+   "evidence": "profile.md, Key Interactions"
+  },
+  "buildingMaxCellars": {
+   "says": "The maximum number of cellars (below ground). 0 means no cellar",
+   "actually": "A base, not a cap. The chunk's city level is added to it, so 0 still builds cellars on any chunk above level 0. Measured: 2352 cellar blocks over sixteen chunks at a maximum of 0, and none once every chunk was pinned to level 0.",
+   "evidence": "BHV-1"
+  }
+ }
+}
