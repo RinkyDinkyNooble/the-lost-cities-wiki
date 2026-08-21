@@ -1,6 +1,7 @@
 package com.rinkynooble.lostcitiesdevtool;
 
 import com.rinkynooble.lostcitiesdevtool.command.ReportCommand;
+import com.rinkynooble.lostcitiesdevtool.command.WorkshopCommand;
 import com.rinkynooble.lostcitiesdevtool.json5.Json5Listener;
 import com.rinkynooble.lostcitiesdevtool.json5.Json5Overrides;
 import com.rinkynooble.lostcitiesdevtool.validate.ValidationListener;
@@ -36,6 +37,7 @@ public class ServerEvents {
     @SubscribeEvent
     public static void onRegisterCommands(RegisterCommandsEvent event) {
         ReportCommand.register(event.getDispatcher());
+        WorkshopCommand.register(event.getDispatcher());
     }
 
     /**
