@@ -1,0 +1,273 @@
+# The DevTool Commands
+
+Every `/lcdev` command, what each argument means, and what it does to your world.
+
+!!! note "This page documents the companion mod, not Lost Cities"
+    `/lcdev` comes from [The Lost Cities - DevTool](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/releases/tag/1.0.1). Lost Cities' own commands are on [Testing and Debugging Commands](commands.md). Nothing here is a claim about Lost Cities' behaviour, so it carries no verification chips: it describes a tool this wiki ships.
+
+## Everything at a glance
+
+| Command | Needs op? | What it is for |
+|---|---|---|
+| `/lcdev report` | No | What the generator chose for the chunk you are standing in |
+| `/lcdev key <name>` | No | What a profile key means, its section, type, range and default |
+| `/lcdev char <character>` | No | What a palette character resolves to here |
+| `/lcdev block <id>` | No | Which characters produce a given block here |
+| `/lcdev in <asset> char <character>` | No | The same lookup inside one named asset |
+| `/lcdev in <asset> block <id>` | No | The same, in reverse, inside one named asset |
+| `/lcdev workshop go` | No | Teleport to the workshop dimension |
+| `/lcdev workshop rows` | No | Every catalogue row, each one a place to click |
+| `/lcdev workshop here` | No | Which plot you are standing on and what it compiles into |
+| `/lcdev workshop build` | **Level 2** | Lay the catalogue out, or repaint it |
+| `/lcdev workshop grow <row> <plots>` | **Level 2** | Make a row longer, or lay out one that is empty |
+| `/lcdev plot get [key]` | No | What this plot's settings say |
+| `/lcdev plot keys` | No | Every setting this plot accepts, and what each does |
+| `/lcdev plot file` | No | Where this plot's settings file is, click to copy |
+| `/lcdev plot resolve <dx> <dz> <level>` | No | The settings that apply to one chunk on one level |
+| `/lcdev plot set <key> <value>` | **Level 2** | Set a value for the whole plot |
+| `/lcdev plot setchunk <dx> <dz> <key> <value>` | **Level 2** | Set it for one chunk of the plot |
+| `/lcdev plot setlevel <level> <key> <value>` | **Level 2** | Set it for one level of the plot |
+| `/lcdev plot clear <key>` | **Level 2** | Remove a key from this plot |
+| `/lcdev plot show` | **Level 2** | Draw where each level starts, on the walkway |
+| `/lcdev plot hide` | **Level 2** | Rub those markers out |
+| `/lcdev mark <key> <value>` | **Level 2** | Attach a palette key to the block you are looking at |
+| `/lcdev export <name> [-f]` | **Level 2** | Compile the workshop into a datapack |
+| `/lcdev import <worldstyle> [keep]` | **Level 2** | Paste a loaded pack into the workshop |
+
+Level 2 is the operator level a single-player world gets with cheats on, or `op` on
+a server. Everything that only reads is available to everyone, so a player can ask
+what a plot is without being able to change it.
+
+## The three words that are not obvious
+
+These three appear across `plot resolve`, `plot setchunk` and `plot setlevel`, and
+none of them mean what a coordinate usually means.
+
+| Argument | It is **not** | It **is** | Example |
+|---|---|---|---|
+| `dx` | A world X coordinate | Chunks **east** from this plot's own corner, starting at 0 | On a 2x3 plot, `dx` is 0 or 1 |
+| `dz` | A world Z coordinate | Chunks **south** from this plot's own corner, starting at 0 | On a 2x3 plot, `dz` is 0, 1 or 2 |
+| `level` | A Y coordinate | A building level. `0` is the ground floor, `-1` is the first cellar, `2` is the second floor above ground | `-32` to `128` are accepted |
+
+A plot's corner is its lowest x and lowest z chunk, which is the corner nearest the
+origin for the building rows and the far corner for the infrastructure rows, since
+those grow west. `/lcdev workshop here` prints the corner so you never have to work
+it out.
+
+So the command that prompted this page:
+
+```
+/lcdev plot resolve 1 1 1
+```
+
+reads as **"on the plot I am standing on, show me the settings that apply to the
+chunk one east and one south of its corner, on the first floor above ground"**. It
+changes nothing. It answers the question "which of my four overlapping settings
+actually wins here".
+
+## How settings fold together
+
+A plot can say something once and have it apply everywhere, or say it again for one
+chunk or one level. Four scopes, and **the most specific wins**:
+
+```
+plot                        every chunk, every level
+  plot.levels[n]            every chunk, that level
+    chunks[dx,dz]           that chunk, every level
+      chunks[dx,dz].levels[n]   that chunk, that level
+```
+
+Each scope stores only what differs from the one above it, so the common case, every
+building in a 2x2 block sharing a floor count so the whole thing generates as one
+structure, is what you get by saying it once.
+
+| To say | Use |
+|---|---|
+| This building is 4 storeys | `/lcdev plot set floors 4` |
+| The north-east chunk of it is 6 | `/lcdev plot setchunk 1 0 floors 6` |
+| The ground floor everywhere uses a different palette | `/lcdev plot setlevel 0 palette part` |
+| Which of those applies to chunk 1,0 on the ground floor | `/lcdev plot resolve 1 0 0` |
+
+## The workshop
+
+### Getting there
+
+```
+/lcdev workshop build
+/lcdev workshop go
+```
+
+`build` paints the catalogue floors and is safe to run repeatedly: the same
+catalogue produces the same plots in the same colours, so it repaints rather than
+duplicating. `go` teleports you in.
+
+### Finding your way around
+
+`/lcdev workshop rows` lists every row that is laid out, grouped by family, each one
+a **clickable teleport** to its first plot. `/lcdev workshop here` describes the plot
+under your feet: its corner, which variation of its row it is, how many variations
+that row allows, and whether it compiles into a city style or the world style.
+
+### Adding plots
+
+There is nothing to add. **Every type of plot the format supports already has a
+row**, generated from the codec keys the target version declares, so a type you
+cannot find is a type Lost Cities does not have. What you add is *more plots of a
+type you already have*:
+
+```
+/lcdev workshop grow building/1x1 24
+/lcdev workshop grow multibuilding/4x6 6
+```
+
+Rows start at eight plots. Growing one lays out more and repaints, and an import
+grows whatever it needs by itself. Rows only ever get longer, because shortening one
+would move every plot after it and orphan whatever was built there.
+
+Two rows behave differently on purpose:
+
+| Row | Behaviour | Why |
+|---|---|---|
+| The three `monorail/` rows | Stay at one plot, and `grow` refuses | Their codec takes a single name, so a list there is a load error rather than a longer row |
+| `multibuilding/` above 3x3 | Declared with no plots until grown | Laying out every footprint up to 10x10 would paint several thousand chunks of floor for shapes most packs never use |
+
+### How large a multibuilding can be
+
+Ten chunks square, and that is Lost Cities' limit rather than the DevTool's. The
+world style tiles the world into squares of `areasize` chunks and places each
+multibuilding inside one, using `random(areasize - dimx + 1)`. A footprint wider
+than its area makes that bound zero or negative and **the mod throws**, so
+`areasize` is the ceiling. The shipped world style uses `10`, which is where the
+catalogue stops.
+
+[`multisettings` on the World Style page](../reference/worldstyle.md#multisettings)
+has the full table. Two of its keys are easy to misread: `minimum` and `maximum` are
+**how many** multibuildings are attempted per area, not how large one may be, so
+raising them puts more buildings in the world and does nothing about their size.
+
+An export whose largest footprint is wider than the default area widens `areasize`
+in the world style it writes. With the catalogue stopping at 10 that never triggers
+today, and it is there so a larger catalogue cannot quietly produce a pack that
+throws.
+
+## Settings on a plot
+
+`/lcdev plot keys` is the one to remember: it lists every setting **that plot**
+accepts with an explanation of each, and the list differs by plot. A street plot has
+no `factor`, because the codec behind it picks uniform random and has nowhere to put
+a weight. A monorail plot has no variation index worth setting. The same text is
+what tab completion shows and what is written as a comment into the settings file,
+so the three cannot drift apart.
+
+```
+/lcdev plot set name tower
+/lcdev plot set floors 3
+/lcdev plot set tops 4,6
+/lcdev plot set citystyles mycity,othercity
+/lcdev plot clear tops
+```
+
+A list value is comma separated. `/lcdev plot get` with no key prints everything the
+plot has; with a key it prints that one. `/lcdev plot file` gives you the path to the
+file, which is the truth and is safe to edit by hand.
+
+### Seeing where the compiler will cut
+
+```
+/lcdev plot show
+/lcdev plot hide
+```
+
+Levels are stacked, and the roof variations are stacked above them, which saves a
+great deal of room and hides where one thing ends and the next begins. `show` draws
+that in stained glass **on the walkway around the plot, never inside it**, so a
+preview can never overwrite what you built. `hide` removes it.
+
+### Marking a single block
+
+```
+/lcdev mark loot minecraft:chests/simple_dungeon
+```
+
+Attaches a palette key to the block you are looking at, so that one position becomes
+its own palette entry. Accepts `damaged`, `torch`, `variant`, `loot`, `mob` and
+`frompalette`.
+
+!!! warning "Marks do not survive a round trip yet"
+    An export writes them. An import does not read them back into settings, so a
+    marked block returns from `/lcdev import` as the plain block.
+
+## Compiling and opening
+
+```
+/lcdev export mypack
+/lcdev export mypack -f
+```
+
+Writes a complete datapack to `config/lostcitiesdevtool/exports/<name>/`, with the
+profile beside it rather than inside it, because a profile is config and not
+datapack. An existing export of the same name is an error unless you pass `-f`.
+
+Nothing is written until the whole pack has passed the same checks the mod runs on a
+datapack at load time, so a pack that would fail in a world fails here instead,
+where the message can name the plot.
+
+```
+/lcdev import lostcities:standard
+/lcdev import mypack:main keep
+```
+
+Pastes a loaded pack into the workshop. The pack has to be loaded with the world,
+which is what makes this work with nothing to point at: the mod's own content and
+every datapack in the world are equally importable.
+
+| Argument | Meaning |
+|---|---|
+| `<worldstyle>` | A world style name. A bare name is looked for under `lostcities:` first, then in any single pack that has it. `/lcdev import` with no argument lists what is loaded |
+| `keep` | Leave block conversions alone. Without it they run backwards, so a placeholder an export turned into a real block comes back as the placeholder |
+
+!!! note "What an import will not claim"
+    Street parts that no city style names are pasted so you can see the roads, and
+    marked `skip` so an export leaves them out. A pack falling back to an asset is
+    not a pack containing it, and writing them back out would copy Lost Cities' own
+    roads into your namespace.
+
+## Asking about characters and blocks
+
+```
+/lcdev report
+/lcdev char #
+/lcdev block minecraft:gold_block
+/lcdev in lostcities:building1 char #
+```
+
+`report` describes the chunk you are standing in: profile, world style, city style,
+building, floor and cellar counts, and the part used on each level. `char` and
+`block` look a palette up in both directions, after the merge, so the answer is what
+the world will actually place rather than what one file says.
+
+`in <asset>` asks the same question of one named asset instead of your surroundings,
+which is how you check a building you are not standing in.
+
+!!! tip "The asset comes before the character"
+    `/lcdev in <asset> char <c>`, not the other way round. The character argument is
+    greedy so that a character can be anything, including a space, which means it has
+    to be the last thing on the line.
+
+## Profile keys
+
+```
+/lcdev key cityChance
+```
+
+Prints the section the key belongs to, its type, its range, its default and what it
+does, read out of the mod's own config declarations. **The section matters**: a
+profile key written in the wrong section is not an error and is not reported, it is
+simply never read, and the setting silently does nothing. `cityChance` lives in
+`cities`, not in `lostcity`.
+
+## See also
+
+- [Testing and Debugging Commands](commands.md), for Lost Cities' own `/lostcities`
+- [Editing and Tooling](editing.md), for the in-world part editor
+- [Error Messages](../troubleshooting/errors.md)

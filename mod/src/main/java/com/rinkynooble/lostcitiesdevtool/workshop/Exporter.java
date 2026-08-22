@@ -47,15 +47,19 @@ public final class Exporter {
     /** The default ground level a profile uses, for the height warning. */
     private static final int DEFAULT_GROUND = 71;
 
-    /**
-     * What a world style rolls for a multibuilding unless it says otherwise.
+/**
+     * The area a multibuilding is placed inside, unless the world style says
+     * otherwise.
      *
-     * <p>{@code MultiSettings} defaults: a multibuilding is placed inside one area
-     * of {@code areasize} chunks square, and the generator picks a footprint no
-     * larger than {@code maximum}. So 5 is as big as one gets without the world
-     * style raising it, and 10 is as big as one can be at all.
+     * <p>The world is tiled into squares of {@code areasize} chunks and each square
+     * gets its own roll. Placement is {@code random(areasize - dimx + 1)}, so a
+     * footprint wider than the area makes that bound zero or negative and the mod
+     * throws: this is the real ceiling on how large a multibuilding can be.
+     *
+     * <p>{@code minimum} and {@code maximum} are <b>how many</b> multibuildings are
+     * attempted per area, not how large one may be. Raising them for a large
+     * footprint would put more buildings in the world and do nothing about its size.
      */
-    private static final int DEFAULT_MULTI_MAXIMUM = 5;
     private static final int DEFAULT_MULTI_AREASIZE = 10;
 
     public record Result(int plots, int parts, int buildings, int palettes,
@@ -632,20 +636,20 @@ public final class Exporter {
         }
         world.add("citystyles", list);
 
-        // A multibuilding bigger than the generator's default roll would never be
-        // placed, however correctly it was written. `multisettings.maximum` caps
-        // the size it will pick and defaults to 5, and `areasize` is the block of
-        // chunks one is placed inside, so a footprint has to fit in that too.
-        if (largestMulti > DEFAULT_MULTI_MAXIMUM) {
+        // A footprint wider than the placement area makes the mod throw rather
+        // than skip it, so a pack holding one has to widen the area. Every key in
+        // the block is required by the codec once any of it is written, so the
+        // defaults are written alongside rather than left to be inferred.
+        if (largestMulti > DEFAULT_MULTI_AREASIZE) {
             JsonObject multi = new JsonObject();
-            multi.addProperty("maximum", largestMulti);
-            if (largestMulti > DEFAULT_MULTI_AREASIZE) {
-                multi.addProperty("areasize", largestMulti);
-            }
+            multi.addProperty("areasize", largestMulti);
+            multi.addProperty("minimum", 1);
+            multi.addProperty("maximum", 5);
             world.add("multisettings", multi);
             warnings.add("The largest multibuilding here is " + largestMulti
-                    + " chunks, above the default roll of " + DEFAULT_MULTI_MAXIMUM
-                    + ", so the world style raises multisettings.maximum to match.");
+                    + " chunks across, wider than the default placement area of "
+                    + DEFAULT_MULTI_AREASIZE + ", so the world style widens it. A "
+                    + "footprint wider than its area throws during generation.");
         }
         if (!worldParts.isEmpty()) {
             JsonObject parts = new JsonObject();

@@ -12,6 +12,9 @@ and gives you a workshop dimension to build a pack in.
 It adds no blocks, items, mobs or structures to your world, and nothing it does
 changes world generation unless you switch on one of the two optional fixes.
 
+Every command, every argument and what each one means is documented in
+[The DevTool Commands](https://rinkydinkynooble.github.io/the-lost-cities-wiki/tooling/lcdev/).
+
 ## Requires
 
 | | |

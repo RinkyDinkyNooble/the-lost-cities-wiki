@@ -2,7 +2,6 @@ package com.rinkynooble.lostcitiesdevtool.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.rinkynooble.lostcitiesdevtool.chat.Chat;
 import com.rinkynooble.lostcitiesdevtool.workshop.Catalogue;
 import com.rinkynooble.lostcitiesdevtool.workshop.Layout;
@@ -10,6 +9,7 @@ import com.rinkynooble.lostcitiesdevtool.workshop.Workshop;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -46,7 +46,7 @@ public class WorkshopCommand {
                         .then(Commands.literal("grow")
                                 .requires(s -> s.hasPermission(2))
                                 .then(Commands.argument("row",
-                                                StringArgumentType.string())
+                                                ResourceLocationArgument.id())
                                         .suggests((c, b) -> SharedSuggestionProvider
                                                 .suggest(Catalogue.rows().stream()
                                                         .map(Catalogue.Row::id)
@@ -71,7 +71,9 @@ public class WorkshopCommand {
      */
     private static int grow(com.mojang.brigadier.context.CommandContext<CommandSourceStack> ctx) {
         CommandSourceStack source = ctx.getSource();
-        String id = StringArgumentType.getString(ctx, "row");
+        // A row id has a slash in it, which a quotable string argument will not
+        // take unquoted. A resource location will: every row id is a legal path.
+        String id = ResourceLocationArgument.getId(ctx, "row").getPath();
         int want = IntegerArgumentType.getInteger(ctx, "plots");
         Catalogue.Row row = Catalogue.row(id);
         if (row == null) {

@@ -27,9 +27,8 @@ most packs never use.
 
 Ten is as large as a multibuilding gets, and that is the mod's limit rather than
 this one's: a multibuilding is placed inside one area of `multisettings.areasize`
-chunks square, which defaults to 10. The generator will not roll one bigger than
-`multisettings.maximum`, which defaults to 5, so an export containing a larger one
-raises that in the world style for you.
+chunks square, which is 10 in the shipped world style, and a footprint wider than
+its area throws during generation rather than being skipped.
 
 ```
 /lcdev workshop build     lay the plots out

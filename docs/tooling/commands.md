@@ -61,7 +61,7 @@ Also console-only. Prints a 41×41-chunk ASCII map centered on you: `B` = city c
 server console only. [The Lost Cities - DevTool](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/releases/tag/1.0.1),
 a companion mod, answers the same questions in chat and adds the two the mod does not
 expose: which part was chosen on each level, and what a character resolves to after
-the palette merge. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
+the palette merge. [The DevTool Commands](lcdev.md) documents all of them. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
 ```
 /lcdev report
@@ -126,6 +126,7 @@ Force-places a registered [Building](../reference/building.md) at an exact posit
 
 ## See also
 
+- [The DevTool Commands](lcdev.md), every `/lcdev` command and argument
 - [Error Messages](../troubleshooting/errors.md) if a command or a chunk throws
 - [Profile Reference](../reference/profile.md)
 - [Building Reference](../reference/building.md) <!-- noclaim -->

@@ -370,6 +370,33 @@ try:
                        % (DIM, x, FLOOR_Y + 1, z))
                 print("$ /" + cmd)
                 print(con.command(cmd).rstrip())
+        # Growing a row, with the row id typed the way a person types it. A row id
+        # has a slash in it, and a quotable string argument stops at one, so this
+        # also holds the argument type in place.
+        print("\n" + "=" * 72)
+        print("growing a row that starts empty")
+        grown_row = "multibuilding/4x6"
+        before = sum(1 for p in plots if p["id"].startswith(grown_row + "/"))
+        reply = con.command("lcdev workshop grow %s 2" % grown_row)
+        print(reply.rstrip() or "(no output)")
+        if "Unknown or incomplete command" in reply or "<--[HERE]" in reply:
+            fail("`workshop grow %s 2` did not parse, so a row id has to be quoted"
+                 % grown_row)
+        after_plots = json.load(io.open(PLOTS, encoding="utf-8"))["plots"]
+        after = sum(1 for p in after_plots if p["id"].startswith(grown_row + "/"))
+        print("  %s plots: %d before, %d after" % (grown_row, before, after))
+        if before != 0:
+            fail("%s was expected to start with no plots laid out" % grown_row)
+        if after != 2:
+            fail("%s has %d plots after growing to 2" % (grown_row, after))
+
+        # A single-only row must refuse, whatever it is asked for.
+        refused = con.command("lcdev workshop grow monorail/both 4")
+        print("  monorail/both refused: %s"
+              % ("yes" if "cannot grow" in refused else "NO"))
+        if "cannot grow" not in refused:
+            fail("a monorail row grew, and its codec takes a single name")
+
         con.command("stop")
 finally:
     if proc is not None:
