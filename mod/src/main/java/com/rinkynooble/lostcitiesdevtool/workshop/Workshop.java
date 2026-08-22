@@ -133,6 +133,11 @@ public final class Workshop {
         }
         root.add("plots", array);
 
+        // The sizes an import grew, so the next build lays the same catalogue out.
+        JsonObject grown = new JsonObject();
+        Layout.grown().forEach(grown::addProperty);
+        root.add("grownRows", grown);
+
         Path dir = server.getWorldPath(LevelResource.ROOT).resolve(DIR);
         try {
             Files.createDirectories(dir);
@@ -149,6 +154,36 @@ public final class Workshop {
     }
 
     /** Absolute and normalised, because it is printed for someone to click and copy. */
+    /**
+     * Read back the row sizes a previous import grew.
+     *
+     * <p>Called before anything asks the layout where a plot is. Without it a build
+     * after a restart would lay the catalogue out at its default sizes and orphan
+     * every plot an import added.
+     */
+    public static void loadGrownRows(MinecraftServer server) {
+        Path path = registryPath(server);
+        if (!Files.isRegularFile(path)) {
+            return;
+        }
+        try {
+            JsonObject root = com.google.gson.JsonParser.parseString(
+                    Files.readString(path, StandardCharsets.UTF_8)).getAsJsonObject();
+            if (!root.has("grownRows")) {
+                return;
+            }
+            java.util.Map<String, Integer> sizes = new java.util.HashMap<>();
+            JsonObject grown = root.getAsJsonObject("grownRows");
+            for (String key : grown.keySet()) {
+                sizes.put(key, grown.get(key).getAsInt());
+            }
+            Layout.setGrown(sizes);
+        } catch (Exception e) {
+            LostCitiesDevTool.LOGGER.warn("could not read the grown rows: {}",
+                    e.toString());
+        }
+    }
+
     public static Path registryPath(MinecraftServer server) {
         return server.getWorldPath(LevelResource.ROOT).resolve(DIR).resolve(FILE)
                 .toAbsolutePath().normalize();

@@ -152,22 +152,27 @@ public final class Exporter {
 
         // A stack of levels, per chunk. A multi-chunk plot is one Building per chunk
         // plus a MultiBuilding naming them, which is what the format expects.
-        List<String> buildings = new ArrayList<>();
-        for (int dz = 0; dz < plot.height(); dz++) {
-            for (int dx = 0; dx < plot.width(); dx++) {
+        //
+        // The grid is `buildings[x][z]`: **the outer list is the X axis** and the
+        // inner list is Z. It is not laid out the way it looks, and a flat list or
+        // the axes the other way round produces a structure that loads and comes out
+        // transposed.
+        JsonArray grid = new JsonArray();
+        for (int dx = 0; dx < plot.width(); dx++) {
+            JsonArray column = new JsonArray();
+            for (int dz = 0; dz < plot.height(); dz++) {
                 String buildingName = plot.width() == 1 && plot.height() == 1
                         ? name : name + "_" + dx + "_" + dz;
-                buildings.add(namespace + ":" + buildingName);
+                column.add(namespace + ":" + buildingName);
                 emitBuilding(buildingName, plot, dx, dz, settings);
             }
+            grid.add(column);
         }
         if (plot.width() > 1 || plot.height() > 1) {
             JsonObject multi = new JsonObject();
             multi.addProperty("dimx", plot.width());
             multi.addProperty("dimz", plot.height());
-            JsonArray list = new JsonArray();
-            buildings.forEach(list::add);
-            multi.add("buildings", list);
+            multi.add("buildings", grid);
             assets.put("multibuildings/" + name, multi);
             record(row, plot, settings, name, name);
         } else {
@@ -183,17 +188,24 @@ public final class Exporter {
         int floors = Math.max(0, intOf(settings, "floors", 1));
         List<Integer> tops = ints(settings, "tops");
 
+        // A pack may leave the count to the profile, in which case the parts are a
+        // bag the generator draws from rather than a fixed stack. Writing bounds
+        // then would pin a building that was never meant to be pinned.
+        boolean pin = bool(settings, "pinFloors", true);
+
         JsonObject building = new JsonObject();
         building.addProperty("refpalette", namespace + ":main");
         // `filler` is required on every building, whether or not it has cellars, so
         // the export has to have one. Defaulting to the commonest character on the
         // ground floor makes the skirt look like the walls above it, which is what
         // somebody would have chosen by hand.
-        building.addProperty("minfloors", floors);
-        building.addProperty("maxfloors", floors);
-        building.addProperty("mincellars", cellars);
-        building.addProperty("maxcellars", cellars);
-        building.addProperty("overrideFloors", true);
+        if (pin) {
+            building.addProperty("minfloors", floors);
+            building.addProperty("maxfloors", floors);
+            building.addProperty("mincellars", cellars);
+            building.addProperty("maxcellars", cellars);
+            building.addProperty("overrideFloors", true);
+        }
 
         if (settings.has("rubble")) {
             building.addProperty("rubble", string(settings, "rubble", " "));
@@ -220,7 +232,9 @@ public final class Exporter {
             if (f == 0) {
                 commonest = drew;
             }
-            parts.add(ref(part, "floor", f));
+            // Unpinned, the entry carries `top: false` and no level: the parts are
+            // a bag the generator draws from, and `top` is a boolean, not a number.
+            parts.add(pin ? ref(part, "floor", f) : bodyRef(part));
             y += Boundaries.STRIDE;
         }
         // The tops are alternatives, all conditioned on being at the top, so the mod
@@ -248,6 +262,14 @@ public final class Exporter {
         building.add("parts", parts);
         assets.put("buildings/" + name, building);
         buildingCount++;
+    }
+
+    /** A part that may go on any non-top level. */
+    private JsonObject bodyRef(String part) {
+        JsonObject r = new JsonObject();
+        r.addProperty("part", namespace + ":" + part);
+        r.addProperty("top", false);
+        return r;
     }
 
     private JsonObject ref(String part, String key, int value) {

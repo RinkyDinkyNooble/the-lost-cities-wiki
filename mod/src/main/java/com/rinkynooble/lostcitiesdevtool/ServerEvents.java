@@ -1,6 +1,7 @@
 package com.rinkynooble.lostcitiesdevtool;
 
 import com.rinkynooble.lostcitiesdevtool.command.ExportCommand;
+import com.rinkynooble.lostcitiesdevtool.command.ImportCommand;
 import com.rinkynooble.lostcitiesdevtool.command.PlotCommand;
 import com.rinkynooble.lostcitiesdevtool.command.ReportCommand;
 import com.rinkynooble.lostcitiesdevtool.command.WorkshopCommand;
@@ -43,6 +44,7 @@ public class ServerEvents {
         PlotCommand.register(event.getDispatcher());
         PlotCommand.registerMark(event.getDispatcher());
         ExportCommand.register(event.getDispatcher());
+        ImportCommand.register(event.getDispatcher());
     }
 
     /**
@@ -55,6 +57,21 @@ public class ServerEvents {
      * <p>Operators only. On a shared server nobody else can act on it, and the profile
      * half of the list is settled before any player is in a position to change it.
      */
+    /**
+     * Read back the rows a previous import grew, before anything asks the layout
+     * where a plot is.
+     *
+     * <p>Without this a build after a restart would lay the catalogue out at its
+     * default sizes, and every plot an import added past those would be orphaned:
+     * still full of blocks, no longer part of the catalogue, and invisible to the
+     * export.
+     */
+    @SubscribeEvent
+    public static void onServerStarted(net.minecraftforge.event.server.ServerStartedEvent event) {
+        com.rinkynooble.lostcitiesdevtool.workshop.Workshop
+                .loadGrownRows(event.getServer());
+    }
+
     @SubscribeEvent
     public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
         if (!Config.on(Config.INSTANCE.warnOnJson5Override, true)) {

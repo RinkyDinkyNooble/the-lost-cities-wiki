@@ -5,7 +5,9 @@ import net.minecraft.world.level.block.Blocks;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Where every plot sits, and what colour its floor is.
@@ -102,7 +104,42 @@ public final class Layout {
         }
     }
 
+    /**
+     * Rows grown past their catalogue default, by row id.
+     *
+     * <p>An import brings whatever a pack holds, which is rarely the three plots a
+     * row starts with. The catalogue's number is a starting size, not a limit.
+     *
+     * <p>Held statically and written to the world by {@link Workshop}, because the
+     * layout has to come out the same on the next boot: shrinking a row back would
+     * orphan everything an import pasted into it.
+     */
+    private static final Map<String, Integer> GROWN = new HashMap<>();
+
     private Layout() {
+    }
+
+    /** How many plots a row holds, which is its default unless it has been grown. */
+    public static int plotsIn(Catalogue.Row row) {
+        // A row the codec allows only one of stays at one however much a pack holds.
+        // A list where the mod takes a string is a load error, not a bigger row.
+        if (row.kind() == Catalogue.Kind.SINGLE) {
+            return 1;
+        }
+        return Math.max(row.plots(), GROWN.getOrDefault(row.id(), 0));
+    }
+
+    public static void grow(String rowId, int plots) {
+        GROWN.merge(rowId, plots, Math::max);
+    }
+
+    public static Map<String, Integer> grown() {
+        return Map.copyOf(GROWN);
+    }
+
+    public static void setGrown(Map<String, Integer> sizes) {
+        GROWN.clear();
+        GROWN.putAll(sizes);
     }
 
     /**
@@ -125,7 +162,7 @@ public final class Layout {
                     continue;
                 }
                 int cz = southEdge - row.height() + 1;
-                for (int i = 0; i < row.plots(); i++) {
+                for (int i = 0; i < plotsIn(row); i++) {
                     int cx = area == Catalogue.Area.EAST
                             ? FIRST + i * (row.width() + GAP)
                             // Growing west, the plot's minimum corner is its far side.

@@ -111,6 +111,12 @@ public final class Settings {
             new Field("cellars", Type.INT, Applies.BUILDING, "0",
                     "Levels below ground. Note the profile's own maximum is a base "
                             + "and not a cap: the chunk's city level is added to it."),
+            new Field("pinFloors", Type.BOOL, Applies.BUILDING, "true",
+                    "Whether the export writes the floor and cellar counts into the "
+                            + "building. False leaves them out, so the profile "
+                            + "decides how tall it is and the parts become a bag the "
+                            + "generator draws from, which is how the mod's own "
+                            + "buildings are written."),
             new Field("tops", Type.INT_LIST, Applies.BUILDING, null,
                     "The height in blocks of each top variation, read upward from "
                             + "where the floors stop. They are alternatives, not a "
