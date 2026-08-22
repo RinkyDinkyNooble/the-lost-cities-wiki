@@ -47,6 +47,17 @@ public final class Exporter {
     /** The default ground level a profile uses, for the height warning. */
     private static final int DEFAULT_GROUND = 71;
 
+    /**
+     * What a world style rolls for a multibuilding unless it says otherwise.
+     *
+     * <p>{@code MultiSettings} defaults: a multibuilding is placed inside one area
+     * of {@code areasize} chunks square, and the generator picks a footprint no
+     * larger than {@code maximum}. So 5 is as big as one gets without the world
+     * style raising it, and 10 is as big as one can be at all.
+     */
+    private static final int DEFAULT_MULTI_MAXIMUM = 5;
+    private static final int DEFAULT_MULTI_AREASIZE = 10;
+
     public record Result(int plots, int parts, int buildings, int palettes,
                          List<String> warnings, List<Finding> findings, Path root) {
 
@@ -83,6 +94,8 @@ public final class Exporter {
 
     private int partCount;
     private int buildingCount;
+    /** The largest footprint any multibuilding in this pack has. */
+    private int largestMulti;
 
     private Exporter(MinecraftServer server, ServerLevel level, PaletteLedger ledger,
                      JsonObject core) {
@@ -152,12 +165,10 @@ public final class Exporter {
 
         if (!stacked) {
             // One part, read from the plot floor up.
-            int declared = intOf(settings, "height", 6);
-            int height = Math.max(Boundaries.MIN_HEIGHT, declared);
-            if (declared < Boundaries.MIN_HEIGHT) {
-                warnings.add(name + " has a height of " + declared + " and was read "
-                        + "as " + height + ". A part of one slice draws nothing.");
-            }
+            // Honoured as written. A part that is not a level of a building
+            // draws fine at a single slice, and every street shape the mod ships
+            // is exactly one: a road is one layer of blocks.
+            int height = Math.max(1, intOf(settings, "height", 6));
             String partName = name;
             // A flat plot is one part, so `building` and `part` mean the same
             // thing here: its own palette, carried in the file.
@@ -189,6 +200,8 @@ public final class Exporter {
         }
         if (plot.width() > 1 || plot.height() > 1) {
             JsonObject multi = new JsonObject();
+            largestMulti = Math.max(largestMulti,
+                    Math.max(plot.width(), plot.height()));
             multi.addProperty("dimx", plot.width());
             multi.addProperty("dimz", plot.height());
             multi.add("buildings", grid);
@@ -371,9 +384,9 @@ public final class Exporter {
      * <p>{@code slices} is one string per layer, and inside a layer the mod reads
      * {@code z * xsize + x}, so a row runs east and the row index runs south.
      *
-     * <p>Never one slice. A part of a single layer draws nothing at all, measured, so
-     * a height of one is silently raised to two rather than producing a part that
-     * loads and does nothing.
+     * <p>The height is whatever the caller asked for. A level of a building is
+     * never one slice, because one draws nothing there, but that is the building
+     * path's rule to apply: a street is one slice and has to stay one.
      */
     private char emitPart(String name, Layout.Plot plot, int dx, int dz,
                           int baseY, int height, JsonObject settings,
@@ -386,7 +399,7 @@ public final class Exporter {
 
         Map<Character, Integer> seen = new LinkedHashMap<>();
         JsonArray slices = new JsonArray();
-        for (int y = 0; y < Math.max(Boundaries.MIN_HEIGHT, height); y++) {
+        for (int y = 0; y < Math.max(1, height); y++) {
             JsonArray layer = new JsonArray();
             for (int z = 0; z < 16; z++) {
                 StringBuilder row = new StringBuilder(16);
@@ -618,6 +631,22 @@ public final class Exporter {
             list.add(e);
         }
         world.add("citystyles", list);
+
+        // A multibuilding bigger than the generator's default roll would never be
+        // placed, however correctly it was written. `multisettings.maximum` caps
+        // the size it will pick and defaults to 5, and `areasize` is the block of
+        // chunks one is placed inside, so a footprint has to fit in that too.
+        if (largestMulti > DEFAULT_MULTI_MAXIMUM) {
+            JsonObject multi = new JsonObject();
+            multi.addProperty("maximum", largestMulti);
+            if (largestMulti > DEFAULT_MULTI_AREASIZE) {
+                multi.addProperty("areasize", largestMulti);
+            }
+            world.add("multisettings", multi);
+            warnings.add("The largest multibuilding here is " + largestMulti
+                    + " chunks, above the default roll of " + DEFAULT_MULTI_MAXIMUM
+                    + ", so the world style raises multisettings.maximum to match.");
+        }
         if (!worldParts.isEmpty()) {
             JsonObject parts = new JsonObject();
             worldParts.forEach((fam, shapes) -> {

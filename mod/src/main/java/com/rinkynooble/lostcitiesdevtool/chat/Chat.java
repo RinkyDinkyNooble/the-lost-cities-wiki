@@ -9,6 +9,8 @@ import net.minecraft.network.chat.MutableComponent;
 
 import javax.annotation.Nullable;
 
+import java.util.List;
+
 /**
  * How this mod writes to chat.
  *
@@ -43,6 +45,36 @@ public final class Chat {
     private static final String BULLET = "· ";
 
     private Chat() {
+    }
+
+    // ------------------------------------------------------- lines, not sending
+
+    /**
+     * The same lines, handed back instead of sent.
+     *
+     * <p>Not everything that wants this layout has a command source. A message on
+     * world join has a player, and building it as one long string with newlines in
+     * it is what made that message wrap into unreadable thirds: the client breaks a
+     * literal wherever it runs out of room, so a line of a list stops being a line.
+     * One component per line is what keeps a list a list.
+     */
+    public static List<Component> headerLines(String text, String detail) {
+        return List.of(Component.literal(RULE).withStyle(ChatFormatting.DARK_GRAY),
+                Component.literal(text)
+                        .withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD)
+                        .append(Component.literal(detail.isEmpty() ? "" : "  " + detail)
+                                .withStyle(ChatFormatting.DARK_GRAY)));
+    }
+
+    /** One item of a list: a dim bullet and the text. */
+    public static Component itemLine(String text) {
+        return Component.literal(BULLET).withStyle(ChatFormatting.DARK_GRAY)
+                .append(Component.literal(text).withStyle(ChatFormatting.WHITE));
+    }
+
+    /** An aside, dim, for context rather than an answer. */
+    public static Component noteLine(String text) {
+        return Component.literal("  " + text).withStyle(ChatFormatting.DARK_GRAY);
     }
 
     // ------------------------------------------------------------------ sections
@@ -160,6 +192,35 @@ public final class Chat {
                                 Component.literal(canRun
                                         ? "Click to teleport here"
                                         : "Click to put the teleport in your chat box"))));
+        send(source, Component.literal(BULLET).withStyle(ChatFormatting.DARK_GRAY)
+                .append(Component.literal(key).withStyle(ChatFormatting.GRAY))
+                .append(Component.literal("  ").withStyle(ChatFormatting.DARK_GRAY))
+                .append(target));
+    }
+
+    /**
+     * A place in another dimension that offers to take you there.
+     *
+     * <p>The plain teleport goes to a coordinate in whatever dimension you are
+     * already standing in, which for a link to the workshop is the wrong place
+     * entirely and looks like the link is broken.
+     */
+    public static void position(CommandSourceStack source, String key, String label,
+                                String dimension, int x, int y, int z) {
+        String command = "/execute in " + dimension + " run tp @s "
+                + x + " " + y + " " + z;
+        boolean canRun = source.hasPermission(2);
+        Component target = Component.literal(label)
+                .withStyle(st -> st.withColor(ChatFormatting.WHITE)
+                        .withUnderlined(true)
+                        .withClickEvent(new ClickEvent(canRun
+                                ? ClickEvent.Action.RUN_COMMAND
+                                : ClickEvent.Action.SUGGEST_COMMAND, command))
+                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                Component.literal((canRun ? "Click to go to "
+                                        : "Click to put this in your chat box: ")
+                                        + x + " " + y + " " + z)
+                                        .withStyle(ChatFormatting.GRAY))));
         send(source, Component.literal(BULLET).withStyle(ChatFormatting.DARK_GRAY)
                 .append(Component.literal(key).withStyle(ChatFormatting.GRAY))
                 .append(Component.literal("  ").withStyle(ChatFormatting.DARK_GRAY))

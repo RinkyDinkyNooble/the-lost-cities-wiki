@@ -57,6 +57,22 @@ public final class Importer {
             Set.of("refpalette", "palette", "minfloors", "maxfloors", "mincellars",
                     "maxcellars", "overrideFloors", "filler", "rubble",
                     "preferslonely", "parts");
+    /**
+     * The part each street shape falls back to when a city style names none.
+     *
+     * <p>Read from {@code StreetParts}, whose defaults these are. They are what
+     * generation uses, so they are what an import has to find: the mod's own city
+     * styles name no street parts at all and still have streets.
+     */
+    private static final Map<String, String> STREET_DEFAULTS = Map.of(
+            "all", "street_all",
+            "bend", "street_bend",
+            "end", "street_end",
+            "full", "street_full",
+            "none", "street_none",
+            "straight", "street_straight",
+            "t", "street_t");
+
     private static final Set<String> MULTI_KEYS =
             Set.of("dimx", "dimz", "buildings");
 
@@ -91,6 +107,16 @@ public final class Importer {
     /** Style name -> its merged palette, built once. */
     private final Map<String, Map<Character, BlockState>> stylePalettes =
             new LinkedHashMap<>();
+
+    /**
+     * Assets a style falls back to rather than names.
+     *
+     * <p>Worth pasting, because it is what the pack generates and somebody opening
+     * it should see the roads. Not worth exporting, because the pack does not
+     * contain them: writing them back out would copy the mod's own street parts
+     * into somebody else's pack under their namespace.
+     */
+    private final Set<String> defaulted = new LinkedHashSet<>();
 
     /** For parts that belong to no city style: highways, railways, monorails. */
     private String outsideStyle = "outside";
@@ -158,6 +184,12 @@ public final class Importer {
         SettingsStore.save(server, Layout.CORE_ID, null, core);
 
         Workshop.build(level);
+        if (!importer.defaulted.isEmpty()) {
+            importer.warnings.add(importer.defaulted.size() + " street parts are not "
+                    + "named by any city style and were pasted from the defaults "
+                    + "generation uses. They are marked skip, because the pack falls "
+                    + "back to them rather than containing them.");
+        }
         return new Result(worldStyleName, importer.queued.values().stream()
                 .mapToInt(List::size).sum(), plots, importer.blocks,
                 importer.unpinned, Layout.grown(), importer.warnings);
@@ -264,20 +296,42 @@ public final class Importer {
             }
         }
 
+        // Street parts, named or not.
+        //
+        // A city style that says nothing about them still has them: `StreetParts`
+        // carries a default per shape, so `all` is `street_all` unless the style
+        // says otherwise. None of the mod's own city styles name any, which is why
+        // an import that only read what was written found no streets at all and
+        // left every street row empty.
         JsonObject street = object(style, "streetblocks");
         JsonObject streetParts = street == null ? null : object(street, "parts");
-        if (streetParts != null) {
-            for (String shape : streetParts.keySet()) {
-                String rowId = "street/" + shape;
-                if (Catalogue.row(rowId) == null) {
+        boolean saysNothing = streetParts == null || streetParts.keySet().isEmpty();
+        for (Map.Entry<String, String> shape : STREET_DEFAULTS.entrySet()) {
+            String rowId = "street/" + shape.getKey();
+            if (Catalogue.row(rowId) == null) {
+                continue;
+            }
+            // All seven defaults, or exactly what was named, never a mixture.
+            //
+            // A style that names some shapes and not others really does fall back
+            // for the rest, but falling back is generation behaviour and not
+            // something the pack contains. Filling the gaps here would copy the
+            // mod's own street parts into an export of somebody else's pack, which
+            // is inventing content rather than reading it.
+            List<String> use = saysNothing ? List.of(shape.getValue())
+                    : names(streetParts.get(shape.getKey()));
+            for (String part : use) {
+                // A default is only a default if the part is really there.
+                if (saysNothing && assets.get("parts", part) == null) {
                     continue;
                 }
-                for (String part : names(streetParts.get(shape))) {
-                    queue(rowId, part);
-                    styleOf.putIfAbsent(part, styleName);
-                    owners.computeIfAbsent(part, k -> new LinkedHashSet<>())
-                            .add(shortName);
+                if (saysNothing) {
+                    defaulted.add(part);
                 }
+                queue(rowId, part);
+                styleOf.putIfAbsent(part, styleName);
+                owners.computeIfAbsent(part, k -> new LinkedHashSet<>())
+                        .add(shortName);
             }
         }
     }
@@ -370,6 +424,11 @@ public final class Importer {
         clear(plot);
         JsonObject settings = new JsonObject();
         settings.addProperty("name", shortOf(name));
+        if (defaulted.contains(name)) {
+            // Shown, and left out of the export. The pack generates this without
+            // naming it, so an export that named it would be adding something.
+            settings.addProperty("skip", true);
+        }
         Set<String> styles = owners.get(name);
         if (styles != null && plot.row() != null && plot.row().cityStyleScoped()) {
             JsonArray list = new JsonArray();

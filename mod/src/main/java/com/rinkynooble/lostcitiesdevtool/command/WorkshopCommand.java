@@ -1,12 +1,15 @@
 package com.rinkynooble.lostcitiesdevtool.command;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.rinkynooble.lostcitiesdevtool.chat.Chat;
 import com.rinkynooble.lostcitiesdevtool.workshop.Catalogue;
 import com.rinkynooble.lostcitiesdevtool.workshop.Layout;
 import com.rinkynooble.lostcitiesdevtool.workshop.Workshop;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -39,7 +42,71 @@ public class WorkshopCommand {
                         .then(Commands.literal("rows")
                                 .executes(WorkshopCommand::rows))
                         .then(Commands.literal("here")
-                                .executes(WorkshopCommand::here))));
+                                .executes(WorkshopCommand::here))
+                        .then(Commands.literal("grow")
+                                .requires(s -> s.hasPermission(2))
+                                .then(Commands.argument("row",
+                                                StringArgumentType.string())
+                                        .suggests((c, b) -> SharedSuggestionProvider
+                                                .suggest(Catalogue.rows().stream()
+                                                        .map(Catalogue.Row::id)
+                                                        .toList(), b))
+                                        .then(Commands.argument("plots",
+                                                        IntegerArgumentType.integer(1, 512))
+                                                .executes(WorkshopCommand::grow))))));
+    }
+
+    // -------------------------------------------------------------------- grow
+
+    /**
+     * Lay out more plots in one row, or lay out a row that has none.
+     *
+     * <p>A row's number in the catalogue is where it starts, not what it holds. Every
+     * multi-building footprint up to the world style's area size exists as a row, and
+     * the large ones are declared with no plots because painting them all would be
+     * thousands of chunks of floor for shapes most packs never use.
+     *
+     * <p>Rows only ever get longer. Shrinking one would move every plot after it and
+     * orphan whatever was built there.
+     */
+    private static int grow(com.mojang.brigadier.context.CommandContext<CommandSourceStack> ctx) {
+        CommandSourceStack source = ctx.getSource();
+        String id = StringArgumentType.getString(ctx, "row");
+        int want = IntegerArgumentType.getInteger(ctx, "plots");
+        Catalogue.Row row = Catalogue.row(id);
+        if (row == null) {
+            Chat.fail(source, "No row named " + id, "catalogue.json",
+                    "/lcdev workshop rows lists every one");
+            return 0;
+        }
+        if (row.kind() == Catalogue.Kind.SINGLE) {
+            Chat.fail(source, row.id() + " holds one plot and cannot grow",
+                    row.family() + " " + row.key(),
+                    "Its codec takes a single name, so a list there is a load error "
+                            + "rather than a longer row");
+            return 0;
+        }
+        ServerLevel workshop = Workshop.level(source.getServer());
+        if (workshop == null) {
+            Chat.fail(source, "The workshop dimension is not loaded",
+                    String.valueOf(Workshop.DIMENSION.location()), null);
+            return 0;
+        }
+
+        int before = Layout.plotsIn(row);
+        Layout.grow(row.id(), want);
+        int after = Layout.plotsIn(row);
+        Workshop.Built built = Workshop.build(workshop);
+
+        Chat.header(source, "Grown", row.id());
+        Chat.kv(source, "plots", before + " to " + after);
+        if (after == before) {
+            Chat.note(source, "Already at least that long. Rows only get longer, "
+                    + "because shrinking one would move every plot after it.");
+        }
+        Chat.kv(source, "catalogue", built.plots() + " plots, "
+                + built.chunks() + " chunks");
+        return 1;
     }
 
     // ---------------------------------------------------------------------- go
@@ -143,6 +210,38 @@ public class WorkshopCommand {
         if (dead > 0) {
             Chat.warn(source, dead + " row" + (dead == 1 ? "" : "s")
                     + " parse and never generate unmodded. Stand on one for the detail.");
+        }
+
+        // Every row that is laid out, as somewhere to click. Walking a catalogue
+        // this size to find the fountains is a chore, and the coordinates are
+        // arithmetic nobody should be doing by hand.
+        Map<String, Layout.Plot> first = new LinkedHashMap<>();
+        for (Layout.Plot plot : Layout.plots()) {
+            if (plot.row() != null) {
+                first.putIfAbsent(plot.row().id(), plot);
+            }
+        }
+        String dimension = String.valueOf(Workshop.DIMENSION.location());
+        String family = null;
+        for (Catalogue.Row r : all) {
+            Layout.Plot plot = first.get(r.id());
+            if (plot == null) {
+                continue;
+            }
+            if (!r.family().equals(family)) {
+                family = r.family();
+                Chat.prose(source, family);
+            }
+            Chat.position(source, "  " + r.id(),
+                    Layout.plotsIn(r) + (Layout.plotsIn(r) == 1 ? " plot" : " plots"),
+                    dimension, plot.blockMinX() + 8, Layout.FLOOR_Y + 1,
+                    plot.blockMinZ() + 8);
+        }
+        int empty = (int) all.stream().filter(r -> Layout.plotsIn(r) == 0).count();
+        if (empty > 0) {
+            Chat.note(source, empty + " more rows are declared and not laid out, "
+                    + "mostly the larger multibuilding footprints. "
+                    + "/lcdev workshop grow <row> <plots> lays one out.");
         }
         return 1;
     }

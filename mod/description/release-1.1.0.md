@@ -32,16 +32,19 @@ changes world generation unless you switch on one of the two optional fixes.
 
 ## The workshop
 
-A dimension laid out as a catalogue: a plot for every shape a pack can hold, 45 rows
-of them, each chunk aligned and floor marked in its own colour.
+A dimension laid out as a catalogue: a plot for every shape a pack can hold, 138
+rows of them, each chunk aligned and floor marked in its own colour, including every
+multibuilding footprint up to the 10x10 that is as large as one can be. Rows start
+at eight plots and grow as far as you want.
 
 Build in the plots. Then `/lcdev export mypack` writes a complete datapack and the
 profile that goes with it. A pack made this way generated a city with **10,672 gold
 blocks** in it.
 
 It goes the other way too. `/lcdev import lostcities:standard` pastes Lost Cities'
-own pack into the workshop: **42 assets on 42 plots, 714,240 blocks**. Change one
-building and compile the whole thing back out.
+own pack into the workshop: **42 assets on 42 plots, 714,240 blocks**, streets
+included, even though nothing in that pack names a street part. Change one building
+and compile the whole thing back out.
 
 Every plot has a settings file beside your world, written with the meaning of each
 key in a comment above it, so a file you open six months later still says what it

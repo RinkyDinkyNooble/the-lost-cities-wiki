@@ -30,10 +30,18 @@ public final class Boundaries {
     public static final int STRIDE = 6;
 
     /**
-     * The shortest part that draws anything. Measured: a part of one slice places
-     * no blocks at all, so a height below this is raised rather than honoured, and
-     * everything that reasons about where a part ends has to agree about that or
-     * the preview draws its lines somewhere the compiler will not cut.
+     * The shortest level of a building that draws anything.
+     *
+     * <p>Measured: a part of one slice used as a level of a building places no
+     * blocks at all and the building's filler occupies the space instead. So a top
+     * shorter than this is raised rather than honoured, and everything that reasons
+     * about where a level ends has to agree about that, or the preview draws its
+     * lines somewhere the compiler will not cut.
+     *
+     * <p><b>Levels of a building only.</b> A part that is not stacked into one is
+     * fine at a single slice, and the mod's own street parts all are: a road is one
+     * layer of blocks and every street shape it ships is written that way. Raising
+     * those would rewrite somebody's road on the way through.
      */
     public static final int MIN_HEIGHT = 2;
 

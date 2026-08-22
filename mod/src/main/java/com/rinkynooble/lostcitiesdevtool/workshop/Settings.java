@@ -163,8 +163,10 @@ public final class Settings {
             // ------------------------------------------------------- flat shapes
             new Field("height", Type.INT, Applies.FLAT, "6",
                     "How many blocks tall this part is, read up from the plot floor. "
-                            + "Six is the level stride. A part of one slice draws "
-                            + "nothing at all, so one is never right.")
+                            + "Six is the level stride. One slice is fine here and is "
+                            + "what every street shape the mod ships uses, because a "
+                            + "road is one layer; it is only a level of a building "
+                            + "that draws nothing at a single slice.")
     );
 
     private Settings() {

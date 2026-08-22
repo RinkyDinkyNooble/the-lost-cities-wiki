@@ -161,8 +161,16 @@ public final class Layout {
                 if (row.area() != area) {
                     continue;
                 }
+                int count = plotsIn(row);
+                if (count == 0) {
+                    // Declared and not laid out. Every multi-building footprint up
+                    // to the area size exists, and painting the floor of all of
+                    // them would be several thousand chunks of shapes most packs
+                    // never use. It takes no room until somebody grows it.
+                    continue;
+                }
                 int cz = southEdge - row.height() + 1;
-                for (int i = 0; i < plotsIn(row); i++) {
+                for (int i = 0; i < count; i++) {
                     int cx = area == Catalogue.Area.EAST
                             ? FIRST + i * (row.width() + GAP)
                             // Growing west, the plot's minimum corner is its far side.

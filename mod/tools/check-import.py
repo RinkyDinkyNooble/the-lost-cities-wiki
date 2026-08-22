@@ -50,6 +50,7 @@ PLOTS = os.path.join(WORLD, "lostcitiesdevtool", "plots.json")
 SETTINGS = os.path.join(WORLD, "lostcitiesdevtool", "plots")
 EXPORTS = os.path.join(SERVER, "config", "lostcitiesdevtool", "exports")
 BASE = -63
+FLOOR_Y = -64
 
 failures = []
 
@@ -125,7 +126,7 @@ try:
     with Rcon(port=25575, password="lcwiki") as con:
         con.command("lcdev workshop build")
         print("=" * 72)
-        print(con.command("lcdev import \"lostcities:standard\"").rstrip())
+        print(con.command("lcdev import lostcities:standard").rstrip())
 
         plots = json.load(io.open(PLOTS, encoding="utf-8"))["plots"]
         by_id = {p["id"]: p for p in plots}
@@ -192,6 +193,33 @@ try:
             if placed < 500:
                 fail("only %d solid blocks pasted, so the palette did not resolve"
                      % placed)
+
+        # Every plot the import filled has to have a floor under it. A row that
+        # grew past its catalogue size is laid out by the same build that paints
+        # the floors, so a building standing on bare bedrock means the two went
+        # out of step.
+        print("\n" + "=" * 72)
+        print("floors under the plots the import filled")
+        missing = []
+        for rel in sorted(written):
+            p = by_id.get(rel)
+            if p is None:
+                continue
+            x, z = p["chunkX"] * 16, p["chunkZ"] * 16
+            con.command("execute in %s run forceload add %d %d %d %d"
+                        % (WORKSHOP, x, z, x + p["width"] * 16 - 1,
+                           z + p["height"] * 16 - 1))
+            reply = con.command("execute in %s if block %d %d %d minecraft:air"
+                                % (WORKSHOP, x, FLOOR_Y, z))
+            if "passed" in reply.lower():
+                missing.append(rel)
+        print("  plots checked: %d" % len(written))
+        print("  plots with no floor: %d" % len(missing))
+        for m in missing[:6]:
+            print("      " + m)
+        if missing:
+            fail("%d filled plot(s) have no floor painted under them"
+                 % len(missing))
 
         # The round trip that matters: what the import wrote must export again.
         print("\n" + "=" * 72)

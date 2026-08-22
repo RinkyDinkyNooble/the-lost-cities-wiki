@@ -1,7 +1,6 @@
 package com.rinkynooble.lostcitiesdevtool.command;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.rinkynooble.lostcitiesdevtool.chat.Chat;
 import com.rinkynooble.lostcitiesdevtool.workshop.Importer;
@@ -9,9 +8,12 @@ import com.rinkynooble.lostcitiesdevtool.workshop.Workshop;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -33,7 +35,8 @@ public class ImportCommand {
                 .then(Commands.literal("import")
                         .requires(s -> s.hasPermission(2))
                         .executes(ImportCommand::list)
-                        .then(Commands.argument("worldstyle", StringArgumentType.string())
+                        .then(Commands.argument("worldstyle",
+                                ResourceLocationArgument.id())
                                 .suggests((c, b) -> SharedSuggestionProvider.suggest(
                                         Importer.worldStyles(c.getSource().getServer()),
                                         b))
@@ -52,9 +55,48 @@ public class ImportCommand {
         return 1;
     }
 
+    /**
+     * The world style the typed name meant.
+     *
+     * <p>A resource location argument rather than a string, because a string
+     * argument stops at the colon: {@code lostcities:standard} was a parse error
+     * unless it was quoted, which is not a thing anybody should have to know.
+     *
+     * <p>The cost is that a bare name arrives here as {@code minecraft:} something,
+     * since that is the namespace a resource location defaults to. So a name with
+     * no namespace of its own is matched against what is loaded: the mod's own
+     * {@code lostcities:} first, which is the rule the format itself uses for a bare
+     * reference, then any single pack that has it.
+     */
+    private static String resolve(CommandSourceStack source, ResourceLocation typed) {
+        List<String> loaded = Importer.worldStyles(source.getServer());
+        String asked = typed.toString();
+        if (loaded.contains(asked)) {
+            return asked;
+        }
+        if ("minecraft".equals(typed.getNamespace())) {
+            String bare = typed.getPath();
+            String lostcities = "lostcities:" + bare;
+            if (loaded.contains(lostcities)) {
+                return lostcities;
+            }
+            List<String> matches = loaded.stream()
+                    .filter(n -> n.endsWith(":" + bare)).toList();
+            if (matches.size() == 1) {
+                return matches.get(0);
+            }
+            if (matches.size() > 1) {
+                Chat.warn(source, bare + " is in " + matches.size() + " packs: "
+                        + String.join(", ", matches) + ". Name the one you mean.");
+            }
+        }
+        return asked;
+    }
+
     private static int run(CommandContext<CommandSourceStack> ctx, boolean reverse) {
         CommandSourceStack source = ctx.getSource();
-        String name = StringArgumentType.getString(ctx, "worldstyle");
+        String name = resolve(source, ResourceLocationArgument
+                .getId(ctx, "worldstyle"));
         ServerLevel workshop = Workshop.level(source.getServer());
         if (workshop == null) {
             Chat.fail(source, "The workshop dimension is not loaded",

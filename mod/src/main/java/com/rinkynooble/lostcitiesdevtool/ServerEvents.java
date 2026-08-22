@@ -84,7 +84,11 @@ public class ServerEvents {
         if (!player.hasPermissions(2)) {
             return;
         }
-        player.sendSystemMessage(Component.literal(Json5Listener.describe(overrides))
-                .withStyle(ChatFormatting.GOLD));
+        // One message per line. Sent as a single literal with newlines in it, the
+        // client wrapped each entry into two or three pieces and the list stopped
+        // reading as a list.
+        for (Component line : Json5Listener.lines(overrides)) {
+            player.sendSystemMessage(line);
+        }
     }
 }

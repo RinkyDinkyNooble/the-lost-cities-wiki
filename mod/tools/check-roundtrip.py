@@ -486,7 +486,7 @@ try:
                         % (WORKSHOP, x, BASE, z, x2, BASE + tall - 1, z2))
 
         print("=" * 72)
-        reply = con.command('lcdev import "%s:main"' % NS).rstrip()
+        reply = con.command('lcdev import %s:main' % NS).rstrip()
         print(reply)
         if "no world style" in reply.lower():
             fail("the exported pack's world style did not load, so the pack the "
