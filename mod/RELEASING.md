@@ -34,27 +34,33 @@ unzip -l build/libs/lostcities_devtool-*.jar
 - [ ] No `mcjty/` entries
 - [ ] `META-INF/mods.toml`, `logo.png`, `LICENSE_lostcities_devtool.txt` present
 - [ ] `lostcities_devtool.mixins.json` and `.refmap.json` present
-- [ ] Size in the expected range, currently around 170 KB
+- [ ] Size in the expected range, currently around 300 KB
 - [ ] `unzip -p build/libs/*.jar META-INF/mods.toml | grep version` shows the new number
 
 ## 4. Test the jar you will ship
 
-Not a rebuild of it. Copy the exact file.
+Not a rebuild of it. Each check installs the jar from `build/libs`, boots a real
+server on the rig, and removes the jar afterwards, so run them against the file
+that is about to be uploaded and do not rebuild in between.
 
 ```bash
-cd ../research/server-1.20.1-7.4.12
-rm mods/lostcities_devtool-*.jar
-cp ../../mod/build/libs/lostcities_devtool-*.jar mods/
-
-python harness.py --pack <pack> --profile <profile> --probes probes/<file>.json
+cd ../..
+python mod/tools/check-workshop.py
+python mod/tools/check-export.py
+python mod/tools/check-import.py
+python mod/tools/check-roundtrip.py
 ```
 
-Minimum set, all must pass:
+All four end in `all checks passed`:
 
-- [ ] `j5-fighting`, 8/8, no failed chunks
-- [ ] `j5-pure-json`, 8/8, control that needs no mod
-- [ ] `wiki-test7` with `fixBelowPart` and `fixFullStreetShape` on, 28/28
-- [ ] No mixin failures: `grep -ci "mixin apply failed\|InvalidInjection" logs/debug.log` is 0
+- [ ] `check-workshop`, the dimension and the catalogue
+- [ ] `check-export`, the pack generates a city, gold block count non-zero
+- [ ] `check-import`, Lost Cities' own pack comes in on 42 plots
+- [ ] `check-roundtrip`, the two exports are byte identical and every plot holds
+      the blocks it held
+- [ ] No mixin failures in the rig's log:
+      `grep -ci "mixin apply failed\|InvalidInjection" testrig/servers/forge-1.20.1-47.4.10/logs/debug.log`
+      is 0
 
 ## 5. Write the two documents
 

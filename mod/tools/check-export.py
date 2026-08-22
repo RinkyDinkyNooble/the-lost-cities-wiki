@@ -20,6 +20,7 @@ right up until it does not load.
 The world is wiped first and the jar removed afterwards, so the rig's baseline stays
 what the wiki's published results were produced on.
 """
+import glob
 import io
 import json
 import os
@@ -35,7 +36,9 @@ sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 from rcon import Rcon  # noqa: E402
 
 SERVER = "testrig/servers/forge-1.20.1-47.4.10"
-JAR = "mod/build/libs/lostcities_devtool-1.20.1-1.0.1.jar"
+# Whichever jar the build produced. Naming it in full meant every version
+# bump silently broke all four checks at once.
+JAR = sorted(glob.glob("mod/build/libs/lostcities_devtool-*.jar"))[-1]
 JAVA = os.path.abspath("testrig/java/17/bin/java.exe")
 LOADER = "net/minecraftforge/forge/1.20.1-47.4.10"
 WORKSHOP = "lostcitiesdevtool:workshop"

@@ -8,10 +8,12 @@ import com.rinkynooble.lostcitiesdevtool.chat.ProfileKeys;
 import com.rinkynooble.lostcitiesdevtool.json5.Json5;
 import com.rinkynooble.lostcitiesdevtool.validate.AssetValidator;
 import com.rinkynooble.lostcitiesdevtool.validate.Finding;
+import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.packs.PackType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -835,7 +837,12 @@ public final class Exporter {
 
         JsonObject meta = new JsonObject();
         JsonObject pack = new JsonObject();
-        pack.addProperty("pack_format", 15);
+        // Asked of the running game rather than written down. 15 is right for
+        // 1.20.1 and wrong for every other version, and a datapack declaring the
+        // wrong one is refused with a message about the pack being for a newer or
+        // older game, which says nothing about the tool that wrote it.
+        pack.addProperty("pack_format", SharedConstants.getCurrentVersion()
+                .getPackVersion(PackType.SERVER_DATA));
         pack.addProperty("description", string(core, "description",
                 string(core, "packName", name)));
         meta.add("pack", pack);

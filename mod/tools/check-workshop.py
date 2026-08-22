@@ -33,6 +33,7 @@ walkway look unrelated, which is every plot in every row. The first version of t
 script had the same bug as the code it was checking, so it passed while the colouring
 was giving all 125 plots the same colour.
 """
+import glob
 import io
 import json
 import os
@@ -48,7 +49,9 @@ sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 from rcon import Rcon  # noqa: E402
 
 SERVER = "testrig/servers/forge-1.20.1-47.4.10"
-JAR = "mod/build/libs/lostcities_devtool-1.20.1-1.0.1.jar"
+# Whichever jar the build produced. Naming it in full meant every version
+# bump silently broke all four checks at once.
+JAR = sorted(glob.glob("mod/build/libs/lostcities_devtool-*.jar"))[-1]
 JAVA = os.path.abspath("testrig/java/17/bin/java.exe")
 LOADER = "net/minecraftforge/forge/1.20.1-47.4.10"
 DIM = "lostcitiesdevtool:workshop"
