@@ -3,7 +3,7 @@
 Every `/lcdev` command, what each argument means, and what it does to your world.
 
 !!! note "This page documents the companion mod, not Lost Cities"
-    `/lcdev` comes from [The Lost Cities - DevTool](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/releases/tag/mod-v1.2.0). Lost Cities' own commands are on [Testing and Debugging Commands](commands.md). Nothing here is a claim about Lost Cities' behaviour, so it carries no verification chips: it describes a tool this wiki ships.
+    `/lcdev` comes from [The Lost Cities - DevTool](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/releases/tag/mod-v1.3.0). Lost Cities' own commands are on [Testing and Debugging Commands](commands.md). Nothing here is a claim about Lost Cities' behaviour, so it carries no verification chips: it describes a tool this wiki ships.
 
 ## Everything at a glance
 
@@ -38,7 +38,7 @@ writes tens of thousands of blocks, and reads and writes files beside your world
 | `/lcdev plot hide` | Rub those markers out |
 | `/lcdev mark <key> <value>` | Attach a palette key to the block you are looking at |
 | `/lcdev export <name> [-f]` | Compile the workshop into a datapack |
-| `/lcdev import <worldstyle> [keep]` | Paste a loaded pack into the workshop |
+| `/lcdev import <worldstyle> [keep] [run]` | Paste a loaded pack into the workshop |
 
 ## On a server
 
@@ -267,6 +267,32 @@ every datapack in the world are equally importable.
 |---|---|
 | `<worldstyle>` | A world style name. A bare name is looked for under `lostcities:` first, then in any single pack that has it. `/lcdev import` with no argument lists what is loaded |
 | `keep` | Leave block conversions alone. Without it they run backwards, so a placeholder an export turned into a real block comes back as the placeholder |
+| `run` | Let pasted command blocks fire. Without it they arrive holding their command but unable to run |
+
+Both flags may be given together, in either order.
+
+### Blocks that carry NBT
+
+A palette entry may hold a `tag`, a raw NBT compound, and Lost Cities places the
+block already carrying it. That is the mechanism behind the command-block technique:
+the block arrives holding its command and, with `auto` set, runs where it lands and
+turns itself into whatever it was there to place. A pack built that way is mostly
+command blocks.
+
+An import carries the tag, and so does an export, so a command block keeps its
+command, a chest keeps its loot table and a spawner keeps its mob.
+
+**A pasted command block is left unable to fire unless you ask.** A workshop is not a
+world, and forty spawn commands going off while you are looking at a building is not
+useful. `run` pastes them live.
+
+### A building whose middle repeats
+
+A building may name several parts for the same level, and a band written as
+`range: "9,12"` twice is the pack asking the generator to pick between them on every
+level in that band. An import cannot roll dice, so it steps through the candidates by
+level. That shows what the building is made of, and does the same thing every time,
+so a pack always imports the same way.
 
 !!! note "What an import will not claim"
     Street parts that no city style names are pasted so you can see the roads, and

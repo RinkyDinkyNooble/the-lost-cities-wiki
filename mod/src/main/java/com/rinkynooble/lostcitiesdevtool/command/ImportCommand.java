@@ -40,9 +40,15 @@ public class ImportCommand {
                                 .suggests((c, b) -> SharedSuggestionProvider.suggest(
                                         Importer.worldStyles(c.getSource().getServer()),
                                         b))
-                                .executes(ctx -> run(ctx, true))
+                                .executes(ctx -> run(ctx, true, false))
+                                .then(Commands.literal("run")
+                                        .executes(ctx -> run(ctx, true, true))
+                                        .then(Commands.literal("keep")
+                                                .executes(ctx -> run(ctx, false, true))))
                                 .then(Commands.literal("keep")
-                                        .executes(ctx -> run(ctx, false))))));
+                                        .executes(ctx -> run(ctx, false, false))
+                                        .then(Commands.literal("run")
+                                                .executes(ctx -> run(ctx, false, true)))))));
     }
 
     private static int list(CommandContext<CommandSourceStack> ctx) {
@@ -93,7 +99,8 @@ public class ImportCommand {
         return asked;
     }
 
-    private static int run(CommandContext<CommandSourceStack> ctx, boolean reverse) {
+    private static int run(CommandContext<CommandSourceStack> ctx, boolean reverse,
+                           boolean autoRun) {
         CommandSourceStack source = ctx.getSource();
         String name = resolve(source, ResourceLocationArgument
                 .getId(ctx, "worldstyle"));
@@ -107,7 +114,7 @@ public class ImportCommand {
         long started = System.currentTimeMillis();
         Importer.Result result;
         try {
-            result = Importer.run(source.getServer(), workshop, name, reverse);
+            result = Importer.run(source.getServer(), workshop, name, reverse, autoRun);
         } catch (IOException e) {
             Chat.fail(source, "The import could not run", name,
                     String.valueOf(e.getMessage()));

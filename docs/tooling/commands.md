@@ -58,7 +58,7 @@ Also console-only. Prints a 41×41-chunk ASCII map centered on you: `B` = city c
 ## Reading the answer in chat, and asking about one file
 
 `/lostcities debug` is the richest diagnostic the mod ships, and it writes to the
-server console only. [The Lost Cities - DevTool](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/releases/tag/mod-v1.2.0),
+server console only. [The Lost Cities - DevTool](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/releases/tag/mod-v1.3.0),
 a companion mod, answers the same questions in chat and adds the two the mod does not
 expose: which part was chosen on each level, and what a character resolves to after
 the palette merge. [The DevTool Commands](lcdev.md) documents all of them. [code review](../examples/claim-tests.md#ref-2){.v .v-c}

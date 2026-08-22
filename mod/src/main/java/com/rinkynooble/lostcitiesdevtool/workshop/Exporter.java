@@ -4,6 +4,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mojang.serialization.JsonOps;
 import com.rinkynooble.lostcitiesdevtool.chat.ProfileKeys;
 import com.rinkynooble.lostcitiesdevtool.json5.Json5;
 import com.rinkynooble.lostcitiesdevtool.validate.AssetValidator;
@@ -11,10 +12,13 @@ import com.rinkynooble.lostcitiesdevtool.validate.Finding;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
@@ -47,7 +51,7 @@ public final class Exporter {
     /** The default ground level a profile uses, for the height warning. */
     private static final int DEFAULT_GROUND = 71;
 
-/**
+    /**
      * The area a multibuilding is placed inside, unless the world style says
      * otherwise.
      *
@@ -481,7 +485,41 @@ public final class Exporter {
         if (marks.has(at) && marks.get(at).isJsonObject()) {
             mark = marks.getAsJsonObject(at);
         }
+
+        // A block carrying NBT is a different cell from the same block without it.
+        // A command block is the clearest case: the block is nothing on its own and
+        // the command is the whole asset, so reading only the state would export a
+        // pack whose command blocks are empty.
+        JsonObject tag = tagAt(wx, wy, wz);
+        if (tag != null) {
+            mark = mark == null ? new JsonObject() : mark.deepCopy();
+            mark.add("tag", tag);
+        }
         return cell(converted, mark, wx + "," + wy + "," + wz, sink);
+    }
+
+    /**
+     * The NBT a block is carrying, as JSON, or null where it carries none.
+     *
+     * <p>The keys naming the block's own position are dropped. The game writes them
+     * when it saves a block entity, and they are meaningless in a palette, which
+     * describes a block wherever it lands rather than one at a coordinate.
+     */
+    @Nullable
+    private JsonObject tagAt(int x, int y, int z) {
+        BlockEntity entity = level.getBlockEntity(new BlockPos(x, y, z));
+        if (entity == null) {
+            return null;
+        }
+        CompoundTag nbt = entity.saveWithoutMetadata();
+        for (String key : List.of("x", "y", "z", "id")) {
+            nbt.remove(key);
+        }
+        if (nbt.isEmpty()) {
+            return null;
+        }
+        JsonElement json = NbtOps.INSTANCE.convertTo(JsonOps.INSTANCE, nbt);
+        return json.isJsonObject() ? json.getAsJsonObject() : null;
     }
 
     /**

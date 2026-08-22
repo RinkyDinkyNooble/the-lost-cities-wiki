@@ -39,7 +39,7 @@ unzip -l build/libs/lostcities_devtool-*.jar
 
 ## 4. Test the jar you will ship
 
-Test the exact file, not a rebuild of it. The four server checks install the jar
+Test the exact file, not a rebuild of it. The server checks install the jar
 from `build/libs` and remove it afterwards, so do not rebuild between running them
 and uploading.
 
@@ -53,10 +53,11 @@ python mod/tools/check-roundtrip.py
 python mod/tools/check-import-twice.py
 python mod/tools/check-suggest-speed.py
 python mod/tools/check-loud-output.py
+python mod/tools/check-import-fidelity.py
 ```
 
-The first needs no server and finishes in about a second. The other seven boot one
-each and take roughly ninety seconds apiece. All eight end in `all checks passed`:
+The first needs no server and finishes in about a second. The other eight boot one
+each and take roughly ninety seconds apiece. All nine end in `all checks passed`:
 
 - [ ] `check-validator`, every asset-check rule, and nothing thrown by a malformed
       file
@@ -70,6 +71,8 @@ each and take roughly ninety seconds apiece. All eight end in `all checks passed
 - [ ] `check-suggest-speed`, completion stays inside its budget and the cache
       notices a reload
 - [ ] `check-loud-output`, a lookup on a broken pack stays readable
+- [ ] `check-import-fidelity`, a shared band keeps its variety and a tagged block
+      keeps its NBT
 - [ ] No mixin failures in the rig's log:
       `grep -ci "mixin apply failed\|InvalidInjection" testrig/servers/forge-1.20.1-47.4.10/logs/debug.log`
       is 0

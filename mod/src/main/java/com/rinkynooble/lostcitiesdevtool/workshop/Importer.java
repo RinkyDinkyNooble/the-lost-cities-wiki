@@ -5,12 +5,18 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
+import com.mojang.serialization.JsonOps;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
@@ -38,6 +44,19 @@ import java.util.Set;
  * the pack has, because a list there is a load error rather than a bigger row.
  */
 public final class Importer {
+
+    /**
+     * What a palette character resolves to: a block, and the NBT it carries.
+     *
+     * <p>The NBT is what makes the command-block technique work. A palette entry may
+     * hold a `tag`, and Lost Cities places the block already carrying it, so a
+     * command block arrives with its command and, with `auto` set, runs where it
+     * lands and turns itself into whatever it was there to place. Pasting only the
+     * block state leaves an empty command block that does nothing, which is the same
+     * as losing the asset.
+     */
+    private record Cell(BlockState state, @Nullable CompoundTag tag) {
+    }
 
     /** How many alternatives of an unpinned building a plot shows at most. */
     private static final int MAX_SHOWN = 8;
@@ -86,6 +105,8 @@ public final class Importer {
     private final Assets assets;
     private final Map<String, String> reverse;
     private final PaletteLedger ledger;
+    /** Whether a pasted command block is left able to fire. */
+    private final boolean autoRun;
     private final List<String> warnings = new ArrayList<>();
 
     /** row id -> the asset names bound for it, in the order they were found. */
@@ -105,7 +126,7 @@ public final class Importer {
      */
     private final Map<String, String> styleOf = new LinkedHashMap<>();
     /** Style name -> its merged palette, built once. */
-    private final Map<String, Map<Character, BlockState>> stylePalettes =
+    private final Map<String, Map<Character, Cell>> stylePalettes =
             new LinkedHashMap<>();
 
     /**
@@ -132,12 +153,14 @@ public final class Importer {
     private int unpinned;
 
     private Importer(MinecraftServer server, ServerLevel level, Assets assets,
-                     Map<String, String> reverse, PaletteLedger ledger) {
+                     Map<String, String> reverse, PaletteLedger ledger,
+                     boolean autoRun) {
         this.server = server;
         this.level = level;
         this.assets = assets;
         this.reverse = reverse;
         this.ledger = ledger;
+        this.autoRun = autoRun;
     }
 
     // -------------------------------------------------------------------- entry
@@ -145,6 +168,12 @@ public final class Importer {
     public static Result run(MinecraftServer server, ServerLevel level,
                              String worldStyleName, boolean reverseConversions)
             throws IOException {
+        return run(server, level, worldStyleName, reverseConversions, false);
+    }
+
+    public static Result run(MinecraftServer server, ServerLevel level,
+                             String worldStyleName, boolean reverseConversions,
+                             boolean autoRun) throws IOException {
         Assets loaded = Assets.load(server);
         JsonObject world = loaded.get("worldstyles", worldStyleName);
         if (world == null) {
@@ -156,7 +185,8 @@ public final class Importer {
                 : Map.of();
 
         PaletteLedger ledger = PaletteLedger.load(server);
-        Importer importer = new Importer(server, level, loaded, reverse, ledger);
+        Importer importer = new Importer(server, level, loaded, reverse, ledger,
+                autoRun);
         importer.walk(world);
         importer.growRows();
         int plots = importer.paste();
@@ -649,7 +679,7 @@ public final class Importer {
         // character means nothing away from the palette it was written against.
         // Carrying the block instead is what lets an export of this write the
         // character its own palette uses for the same block.
-        Map<Character, BlockState> buildingPalette =
+        Map<Character, Cell> buildingPalette =
                 paletteFor(new JsonObject(), styleName, building);
         if (building.has("filler")) {
             settings.addProperty("filler", asBlock(
@@ -668,9 +698,20 @@ public final class Importer {
         for (int level = -cellars; level <= floors; level++) {
             // Unpinned, walk the bag rather than taking the same entry every time:
             // eight identical floors would hide the eight parts the pack holds.
-            JsonObject ref = !pinned && level >= 0 && !bag.isEmpty()
-                    ? bag.get(level % bag.size())
-                    : firstMatching(parts, level, floors);
+            JsonObject ref;
+            if (!pinned && level >= 0 && !bag.isEmpty()) {
+                ref = bag.get(level % bag.size());
+            } else if (level == floors) {
+                // The topmost level takes the first match rather than varying.
+                // Everything conditioned `top: true` matches here as well, and
+                // those are the roof alternatives the loop below stacks: varying
+                // the choice would spend a roof as the top level and reorder the
+                // rest, which is a different building from the one that was read.
+                List<JsonObject> matches = allMatching(parts, level, floors);
+                ref = matches.isEmpty() ? null : matches.get(0);
+            } else {
+                ref = matchFor(parts, level, floors);
+            }
             if (level == floors) {
                 topmost = ref;
             }
@@ -755,12 +796,68 @@ public final class Importer {
         return "global";
     }
 
+    /**
+     * A palette entry's raw NBT, as a tag.
+     *
+     * <p>Converted rather than parsed from text: the file holds JSON and the block
+     * wants NBT, and the two ops are convertible, so `{"auto": 1}` becomes the byte
+     * or int the game expects without a round trip through a string.
+     */
+    @Nullable
+    private CompoundTag tagOf(JsonObject entry) {
+        if (!entry.has("tag") || !entry.get("tag").isJsonObject()) {
+            return null;
+        }
+        try {
+            Tag converted = JsonOps.INSTANCE.convertTo(NbtOps.INSTANCE,
+                    entry.get("tag"));
+            return converted instanceof CompoundTag compound ? compound : null;
+        } catch (RuntimeException e) {
+            warnings.add("a palette entry's tag could not be read: " + e);
+            return null;
+        }
+    }
+
+    /**
+     * Give a placed block the NBT its palette entry carried.
+     *
+     * <p>Unless the import was asked to let them run, anything that would fire on
+     * its own is stilled first. A pack's command blocks are written with `auto` set
+     * so they run the moment they generate, and a workshop is not a world: pasting
+     * forty of them would have the plot spawning mobs and replacing its own blocks
+     * while somebody is trying to look at it. The command is still there, still
+     * exports, and `/lcdev import <style> run` pastes them live.
+     */
+    private void applyTag(BlockPos pos, CompoundTag tag) {
+        BlockEntity entity = level.getBlockEntity(pos);
+        if (entity == null) {
+            return;
+        }
+        CompoundTag full = tag.copy();
+        if (!autoRun) {
+            full.putByte("auto", (byte) 0);
+            full.putByte("powered", (byte) 0);
+        }
+        full.putInt("x", pos.getX());
+        full.putInt("y", pos.getY());
+        full.putInt("z", pos.getZ());
+        full.putString("id", String.valueOf(BlockEntityType.getKey(entity.getType())));
+        try {
+            entity.load(full);
+            entity.setChanged();
+        } catch (RuntimeException e) {
+            warnings.add("a block's tag would not load at " + pos.toShortString()
+                    + ": " + e);
+        }
+    }
+
     /** A palette character, carried out as the block it stands for. */
-    private String asBlock(String value, Map<Character, BlockState> palette) {
+    private String asBlock(String value, Map<Character, Cell> palette) {
         if (value.isEmpty()) {
             return value;
         }
-        BlockState state = palette.get(value.charAt(0));
+        Cell cell = palette.get(value.charAt(0));
+        BlockState state = cell == null ? null : cell.state();
         if (state == null) {
             warnings.add("the character '" + value + "' is used as a filler or "
                     + "rubble block and is in no palette, so it was kept as written");
@@ -769,9 +866,31 @@ public final class Importer {
         return PaletteLedger.describe(state);
     }
 
-    /** The first part reference that applies to a level, matching the mod's tests. */
+    /**
+     * One of the part references that apply to a level.
+     *
+     * <p>A building may name several parts for the same level, and a band written as
+     * {@code range: "9,12"} twice is exactly that: the pack telling the generator to
+     * pick between them on every level in the band. The generator rolls. An import
+     * cannot, and taking the first every time turned a band of four storeys into the
+     * same storey four times, which is what a tall building comes back looking like
+     * when its middle is wrong.
+     *
+     * <p>Stepping through the candidates by level shows what the building is made
+     * of, and does it the same way every time, so the same pack always imports the
+     * same.
+     */
     @Nullable
-    private JsonObject firstMatching(JsonArray parts, int level, int floors) {
+    private JsonObject matchFor(JsonArray parts, int level, int floors) {
+        List<JsonObject> matches = allMatching(parts, level, floors);
+        if (matches.isEmpty()) {
+            return null;
+        }
+        return matches.get(Math.floorMod(level, matches.size()));
+    }
+
+    private List<JsonObject> allMatching(JsonArray parts, int level, int floors) {
+        List<JsonObject> out = new ArrayList<>();
         for (JsonElement e : parts) {
             if (!e.isJsonObject()) {
                 continue;
@@ -799,9 +918,9 @@ public final class Importer {
                     continue;
                 }
             }
-            return ref;
+            out.add(ref);
         }
-        return null;
+        return out;
     }
 
     @Nullable
@@ -822,7 +941,7 @@ public final class Importer {
     private int pastePart(Layout.Plot plot, int dx, int dz, int baseY,
                           JsonObject part, String styleName,
                           @Nullable JsonObject building) {
-        Map<Character, BlockState> palette = paletteFor(part, styleName, building);
+        Map<Character, Cell> palette = paletteFor(part, styleName, building);
         JsonArray slices = part.has("slices") && part.get("slices").isJsonArray()
                 ? part.getAsJsonArray("slices") : new JsonArray();
         int x0 = plot.blockMinX() + dx * 16;
@@ -836,11 +955,14 @@ public final class Importer {
                 String row = z < rows.size() ? rows.get(z) : "";
                 for (int x = 0; x < 16; x++) {
                     char c = x < row.length() ? row.charAt(x) : ' ';
-                    BlockState state = palette.get(c);
+                    Cell cell = palette.get(c);
                     used.add(c);
                     pos.set(x0 + x, baseY + y, z0 + z);
-                    level.setBlock(pos, state == null
-                            ? Blocks.AIR.defaultBlockState() : state, 2);
+                    level.setBlock(pos, cell == null
+                            ? Blocks.AIR.defaultBlockState() : cell.state(), 2);
+                    if (cell != null && cell.tag() != null) {
+                        applyTag(pos, cell.tag());
+                    }
                     blocks++;
                 }
             }
@@ -855,9 +977,11 @@ public final class Importer {
         // style defines would claim a few hundred of them on behalf of blocks
         // nothing in the workshop is built out of.
         for (char c : used) {
-            BlockState state = palette.get(c);
-            if (state != null && !state.isAir()) {
-                ledger.reserve(PaletteLedger.describe(state), c);
+            Cell cell = palette.get(c);
+            if (cell != null && !cell.state().isAir() && cell.tag() == null) {
+                // Only plain cells. A block carrying NBT is a different cell from
+                // the same block without it, and the ledger is keyed by the pair.
+                ledger.reserve(PaletteLedger.describe(cell.state()), c);
             }
         }
         return slices.size();
@@ -876,10 +1000,10 @@ public final class Importer {
      * would have made rather than an average of them, which is the same compromise
      * pasting anything random into a fixed place makes.
      */
-    private Map<Character, BlockState> paletteFor(JsonObject part, String styleName,
+    private Map<Character, Cell> paletteFor(JsonObject part, String styleName,
                                                   @Nullable JsonObject building) {
-        Map<Character, BlockState> out = new HashMap<>(stylePalette(styleName));
-        out.put(' ', Blocks.AIR.defaultBlockState());
+        Map<Character, Cell> out = new HashMap<>(stylePalette(styleName));
+        out.put(' ', new Cell(Blocks.AIR.defaultBlockState(), null));
         if (building != null) {
             if (building.has("refpalette")) {
                 JsonObject named = assets.get("palettes",
@@ -905,12 +1029,12 @@ public final class Importer {
         return out;
     }
 
-    private Map<Character, BlockState> stylePalette(String styleName) {
-        Map<Character, BlockState> have = stylePalettes.get(styleName);
+    private Map<Character, Cell> stylePalette(String styleName) {
+        Map<Character, Cell> have = stylePalettes.get(styleName);
         if (have != null) {
             return have;
         }
-        Map<Character, BlockState> out = new HashMap<>();
+        Map<Character, Cell> out = new HashMap<>();
         JsonObject style = assets.get("styles", styleName);
         if (style == null) {
             warnings.add("style " + styleName + " is referenced and not loaded, so "
@@ -935,7 +1059,7 @@ public final class Importer {
         return out;
     }
 
-    private void readPalette(JsonObject palette, Map<Character, BlockState> into) {
+    private void readPalette(JsonObject palette, Map<Character, Cell> into) {
         for (JsonElement e : array(palette, "palette")) {
             if (!e.isJsonObject()) {
                 continue;
@@ -949,16 +1073,19 @@ public final class Importer {
                 continue;
             }
             BlockState state = representative(entry);
+            CompoundTag tag = tagOf(entry);
             if (state == null && entry.has("frompalette")) {
                 // An alias copies another character's resolved value, and resolves
-                // once when the palettes merge rather than per placement.
+                // once when the palettes merge rather than per placement. Its own
+                // `tag` stays its own: an alias borrows the block, not the NBT.
                 String from = entry.get("frompalette").getAsString();
                 if (!from.isEmpty()) {
-                    state = into.get(from.charAt(0));
+                    Cell borrowed = into.get(from.charAt(0));
+                    state = borrowed == null ? null : borrowed.state();
                 }
             }
             if (state != null) {
-                into.put(ch.charAt(0), state);
+                into.put(ch.charAt(0), new Cell(state, tag));
             }
         }
     }
