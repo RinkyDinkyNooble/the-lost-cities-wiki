@@ -35,9 +35,9 @@ it. In single player, one install covers both.
 ## The workshop
 
 A dimension laid out as a catalogue, with a plot for every shape a pack can hold:
-138 rows, each on chunk boundaries and floor marked in its own colour, including
-every multibuilding footprint up to the 10x10 that is as wide as one can be. Rows
-start at eight plots and grow as far as you want.
+138 rows, including every multibuilding footprint up to the 10x10 that is as wide as
+one can be. Each plot sits on chunk boundaries and is floor marked in its own colour.
+Rows start at eight plots and grow as far as you want.
 
 Build in the plots. Then `/lcdev export mypack` writes a complete datapack and the
 profile that goes with it. A pack made this way generated a city with **10,672 gold
@@ -89,11 +89,11 @@ was used on each level. `/lcdev key` says what a profile key means and which sec
 it belongs to. `/lcdev char` and `/lcdev block` look characters and blocks up in
 both directions.
 
-Tab completion no longer reads every loaded file on every keystroke. On a server
-holding 911 Lost Cities assets that cost 99 ms a character, which is close to two
-seconds to type one name; it is 0.1 ms now. Lookups that match hundreds of assets
-print the first dozen and count the rest, rather than answering with a reply too
-large to carry.
+Tab completion does not read every loaded file on every keystroke. On a server
+holding 911 Lost Cities assets that cost 99 ms a character, close to two seconds to
+type one name; it is 0.1 ms now. Lookups that match hundreds of assets print the
+first dozen and count the rest, rather than answering with a reply too large to
+carry.
 
 Sphere worlds no longer crash on a broken file. Measured on the same pack and seed:
 21 crashes before, none after, with all 338 errors logged instead.

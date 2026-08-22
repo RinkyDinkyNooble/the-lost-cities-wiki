@@ -16,8 +16,8 @@ same storey four times. On a nine floor building with two alternates for its mid
 that is most of the building arriving wrong.
 
 It steps through the candidates by level now, so the plot shows what the building is
-actually made of. It does it the same way every time, so the same pack always
-imports the same.
+made of, and it steps the same way every time, so the same pack always imports the
+same.
 
 ## Command blocks keep their commands
 
@@ -30,13 +30,13 @@ The import pasted the block and dropped the tag, so what arrived was an empty
 command block that did nothing. It carries the tag now, and so does an export, which
 means chests keep their loot tables and spawners keep their mobs as well.
 
-By default a pasted command block is left unable to fire. A workshop is not a world,
-and forty spawn commands going off while you are trying to look at a building is not
-useful. The command is still there and still exports.
+By default the import leaves a pasted command block unable to fire. A workshop is
+not a world, and forty spawn commands going off while you are trying to look at a
+building is not useful. The command is still there and still exports.
 
 ```
 /lcdev import mypack:main run
 ```
 
-`run` pastes them live, so they fire and resolve into whatever they place. `keep` and
-`run` can be given together, in either order.
+`run` pastes them live, so they fire and resolve into whatever they place. You can
+give `keep` and `run` together, in either order.
