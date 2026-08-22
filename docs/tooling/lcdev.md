@@ -3,7 +3,7 @@
 Every `/lcdev` command, what each argument means, and what it does to your world.
 
 !!! note "This page documents the companion mod, not Lost Cities"
-    `/lcdev` comes from [The Lost Cities - DevTool](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/releases/tag/1.0.1). Lost Cities' own commands are on [Testing and Debugging Commands](commands.md). Nothing here is a claim about Lost Cities' behaviour, so it carries no verification chips: it describes a tool this wiki ships.
+    `/lcdev` comes from [The Lost Cities - DevTool](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/releases/tag/mod-v1.1.0). Lost Cities' own commands are on [Testing and Debugging Commands](commands.md). Nothing here is a claim about Lost Cities' behaviour, so it carries no verification chips: it describes a tool this wiki ships.
 
 ## Everything at a glance
 

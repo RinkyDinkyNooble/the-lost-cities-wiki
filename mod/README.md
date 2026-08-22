@@ -271,6 +271,35 @@ The order is the forward cycle's own, read from `LostCitySetup.toggleProfile`:
 
 Client only, changes no generation, on by default.
 
+## The workshop
+
+A dimension the mod adds, laid out as a catalogue: one plot for every shape a pack
+can hold, generated from the codec keys the target version declares. 138 rows,
+chunk aligned, each floor marked in its own colour, including every multibuilding
+footprint up to the 10x10 that `multisettings.areasize` allows.
+
+```
+/lcdev workshop build     lay the catalogue out
+/lcdev workshop go        travel there
+/lcdev export mypack      compile it into a datapack and a profile
+/lcdev import <style>     paste a loaded pack back in to edit it
+```
+
+Both directions are held against each other by `mod/tools/check-roundtrip.py`:
+export, import, export again has to be byte for byte the same pack, and every plot
+has to hold the blocks it held before the export. That gate is what stops the two
+halves drifting apart, since either one alone can look correct while disagreeing
+with the other.
+
+Each plot carries a settings file under `<world>/lostcitiesdevtool/plots/`, written
+as JSON5 with the schema's own help text as a comment above each key. The same text
+is what tab completion shows, so a settings file, the command that writes it and the
+documentation cannot disagree.
+
+Every `/lcdev` command requires permission level 2. The full reference, including
+what `dx`, `dz` and `level` mean, is
+[The DevTool Commands](https://rinkydinkynooble.github.io/the-lost-cities-wiki/tooling/lcdev/).
+
 ## Commands
 
 ### `/lcdev in <asset> char <c>` and `/lcdev in <asset> block <id>`

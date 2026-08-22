@@ -133,7 +133,7 @@ every version this wiki covers. [code review](../examples/claim-tests.md#key-1){
 
     **Read the earliest errors in the file.** The recent ones are the least useful. <!-- noclaim -->
 
-    [The Lost Cities - DevTool](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/releases/tag/1.0.1)
+    [The Lost Cities - DevTool](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/releases/tag/mod-v1.1.0)
     exists mostly because of this paragraph. It names the building and its chunk at
     the throw, where both are still known, so the volume stops mattering. <!-- noclaim -->
 

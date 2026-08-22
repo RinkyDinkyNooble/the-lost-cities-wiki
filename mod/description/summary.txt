@@ -1,1 +1,1 @@
-Write Lost Cities datapacks with comments and .json5. Mistakes are caught at load time with a line number and small bugs have optional fixes. KubeJS compatible.
+Build Lost Cities packs in game, or open one you already have. Write your files with comments and .json5, and have mistakes caught at load time with a line number. Small bugs have optional fixes. KubeJS compatible.

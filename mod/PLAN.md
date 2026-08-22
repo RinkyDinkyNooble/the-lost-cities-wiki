@@ -101,6 +101,19 @@ rig will have been extended for the mod anyway.
 **Tier 4 whenever convenient.** It is isolated from everything else and needs a
 client rather than the headless rig, so it does not block any other item.
 
+### Tier 5: the workshop, shipped in 1.1.0
+
+Authoring rather than diagnosis. It writes files and blocks in its own dimension and
+changes nothing about how Lost Cities generates.
+
+| # | Item | Notes |
+|---|---|---|
+| 5.1 | The workshop dimension and the plot catalogue | Generated from the codec keys the target version declares, so the catalogue is the format rather than a guess at it |
+| 5.2 | Per-plot settings, as JSON5 with the schema's help written in | One source for the file, tab completion and the documentation |
+| 5.3 | `/lcdev export`, the compiler | Writes a datapack and the profile beside it, and refuses rather than writing a pack that would not load |
+| 5.4 | `/lcdev import`, the reverse | Reads the JSON the resource manager holds, not the runtime objects, which have lost what the file said |
+| 5.5 | The round-trip gate | Export, import, export again, byte identical, and every plot holding the blocks it held |
+
 ## Acceptance tests
 
 Each feature is proved on the existing rig unless noted.
@@ -118,6 +131,11 @@ Each feature is proved on the existing rig unless noted.
 | 3.2 | A street pack marking only `full` produces marked chunks, which it currently never does. |
 | 4.2 | By hand, with a client. Right-click the profile button: it should step to the entry before the current one, with the disabled state sitting between the last profile and the first. The rig can only show no regression, which it does: 8 of 8 on the fighting pack and no mixin failures. |
 | 4.x | By hand, with a client. |
+| 5.1 to 5.2 | `mod/tools/check-workshop.py`: the dimension exists, no two touching plots share a floor colour, a row grows on request, a single-only row refuses, and the three settings scopes resolve in the documented order. |
+| 5.3 | `mod/tools/check-export.py`: the written pack, installed as a datapack, generates a city. 10,672 gold blocks from the building the workshop held. |
+| 5.4 | `mod/tools/check-import.py`: Lost Cities' own pack imports onto 42 plots, 714,240 blocks, and every filled plot has a floor under it. |
+| 5.5 | `mod/tools/check-roundtrip.py`: 51 files byte identical across export, import, export, and 13 plots block identical, compared in the world by `execute if blocks`. |
+| all | `mod/tools/check-validator.py`: every asset-check rule, in a plain JVM in under a second. 25 rule cases, and 29 malformed ones asserting only that nothing throws. |
 
 ## Version support
 

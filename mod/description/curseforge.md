@@ -24,8 +24,41 @@ It can:
 - Show you exactly which building, part, and floor Lost Cities is using
 - Help you look up palette characters and blocks
 - Keep certain Lost Cities world types from crashing when generation encounters an error
+- Let you build a whole pack in game, and open a pack you already have
 
 It does **not** add blocks, items, mobs, structures, or anything else to your world.
+
+<h2>Build a pack by building it</h2>
+
+New in 1.1.0. DevTool adds a workshop dimension with a plot for every shape a pack
+can hold: streets, highways, railways, monorails, parks, fountains, bridges, stairs,
+fronts, rail dungeons, buildings, and every multibuilding size up to 10x10.
+
+    /lcdev workshop build
+    /lcdev workshop go
+
+Build in the plots with whatever you normally build with, then compile the lot:
+
+    /lcdev export mypack
+
+That writes a complete datapack and the profile that goes with it, ready to drop
+into a world.
+
+It works in reverse as well. Point it at a pack that is already loaded and it pastes
+that pack into the workshop so you can walk around it and edit it:
+
+    /lcdev import lostcities:standard
+
+Lost Cities' own pack comes in as 42 assets across 42 plots. Change one building and
+compile the whole thing back out.
+
+Every plot has a settings file next to your world, and each key has its meaning
+written in a comment above it, so a file you open in six months still tells you what
+it does. Floor and cellar counts, roof variations, spawn weights, which city style
+it belongs to, and more.
+
+<b>All DevTool commands need operator permission</b>, since they teleport between
+dimensions and write files beside your world.
 
 <h2>Use comments in your files</h2>
 
@@ -140,7 +173,7 @@ Some Lost Cities world types can crash the server when a chunk fails to generate
 DevTool prevents those errors from crashing the server. This is on by default, and can
 be turned off.
 
-The broken chunk still fails to generate — **the underlying problem is not hidden or changed**. Instead, the error is recorded and generation continues.
+The broken chunk still fails to generate, and the underlying problem is not hidden or changed. The error is recorded and generation continues.
 
 This is available for `spheres`, `cavernspheres`, and `space`.
 

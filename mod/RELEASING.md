@@ -110,7 +110,9 @@ User pushes. Never push.
 - [ ] CurseForge: The Lost Cities set as a **required dependency** in the dependency
       field, not only in the description text
 - [ ] Update the release link in `docs/tooling/commands.md`,
-      `docs/troubleshooting/known-issues.md` and `docs/troubleshooting/errors.md`
+      `docs/tooling/lcdev.md`, `docs/troubleshooting/known-issues.md` and
+      `docs/troubleshooting/errors.md`. All four point at a tag, so they 404 between
+      the docs being pushed and the release existing: create the release first
 
 Not Modrinth. Its content rules restrict work made with AI assistance, including
 icons.
