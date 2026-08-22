@@ -419,14 +419,24 @@ CI build the mod, and removes the manual step from a fresh clone.
 ## Testing
 
 Acceptance tests run on the wiki's headless server rig, which boots a real server,
-force loads a grid and reads the world back over RCON.
+force loads a grid and reads the world back over RCON. Each one wipes the world
+first and removes the jar afterwards, so the rig's baseline stays what the wiki's
+published results were produced on.
+
+| Check | What has to hold |
+|---|---|
+| `mod/tools/check-workshop.py` | The dimension exists, the catalogue lays out without two touching plots sharing a colour, and every plot's settings file round trips through `/lcdev plot` |
+| `mod/tools/check-export.py` | The compiler writes a pack, and that pack, installed as a datapack, generates a city with the workshop's blocks in it |
+| `mod/tools/check-import.py` | Lost Cities' own pack imports: 42 assets onto 42 plots, and what lands has the settings to export again |
+| `mod/tools/check-roundtrip.py` | Export, import, export again is **byte for byte the same pack**, and every plot holds the blocks it held before the export |
 
 ```bash
-cd ../research/server-1.20.1-7.4.12
-python harness.py --pack ../../docs/examples/wiki-test8 --profile wteight \
-    --probes probes/wt8ruins.json \
-    --profile-patch '{"lostcity":{"landscapeType":"spheres","ruinChance":1.0}}'
+python mod/tools/check-roundtrip.py
 ```
+
+The round trip is the one that stops the two halves drifting apart. The other three
+can each pass while the exporter and the importer disagree about the format, because
+both were written from the same reading of it.
 
 Every feature in [PLAN.md](PLAN.md) names the test that proves it.
 

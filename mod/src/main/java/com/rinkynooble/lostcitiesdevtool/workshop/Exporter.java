@@ -13,7 +13,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.Property;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -208,7 +207,8 @@ public final class Exporter {
         }
 
         if (settings.has("rubble")) {
-            building.addProperty("rubble", string(settings, "rubble", " "));
+            building.addProperty("rubble", paletteValue(
+                    string(settings, "rubble", " "), name + " rubble"));
         }
         if (settings.has("preferslonely")) {
             building.addProperty("preferslonely",
@@ -253,7 +253,8 @@ public final class Exporter {
         warnIfTooTall(name, cellars, floors, tops);
 
         building.addProperty("filler", settings.has("filler")
-                ? string(settings, "filler", String.valueOf(commonest))
+                ? paletteValue(string(settings, "filler", String.valueOf(commonest)),
+                        name + " filler")
                 : String.valueOf(commonest));
         if (commonest == PaletteLedger.AIR && cellars > 0) {
             warnings.add(name + " has cellars and nothing solid on its ground floor, "
@@ -340,7 +341,7 @@ public final class Exporter {
             // is the closest thing the format has.
             return PaletteLedger.AIR;
         }
-        String block = describe(state);
+        String block = PaletteLedger.describe(state);
         String converted = conversions.has(block)
                 ? conversions.get(block).getAsString()
                 : conversions.has(idOf(state))
@@ -351,17 +352,28 @@ public final class Exporter {
         if (marks.has(at) && marks.get(at).isJsonObject()) {
             mark = marks.getAsJsonObject(at);
         }
-        String key = converted + (mark == null ? "" : " " + mark);
+        return cell(converted, mark, wx + "," + wy + "," + wz);
+    }
+
+    /**
+     * The character for one cell, recording the palette entry where it is new.
+     *
+     * <p>A cell is a block together with whatever was marked on it, because a
+     * palette entry is that pair: the same block with a loot table and without one
+     * are two entries and two characters.
+     */
+    private char cell(String block, @Nullable JsonObject mark, String where) {
+        String key = block + (mark == null ? "" : " " + mark);
         char c = ledger.characterFor(key);
         if (c == 0) {
-            warnings.add("Ran out of palette characters at " + wx + "," + wy + ","
-                    + wz + ". The pool holds " + ledger.capacity() + ".");
+            warnings.add("Ran out of palette characters at " + where
+                    + ". The pool holds " + ledger.capacity() + ".");
             return PaletteLedger.AIR;
         }
         if (!cells.containsKey(key)) {
             JsonObject entry = new JsonObject();
             entry.addProperty("char", String.valueOf(c));
-            entry.addProperty("block", converted);
+            entry.addProperty("block", block);
             if (mark != null) {
                 for (String k : mark.keySet()) {
                     entry.add(k, mark.get(k));
@@ -370,6 +382,23 @@ public final class Exporter {
             cells.put(key, entry);
         }
         return c;
+    }
+
+    /**
+     * A settings value that names a palette character, resolved.
+     *
+     * <p>{@code filler} and {@code rubble} are characters in the building's palette,
+     * and a character only means anything next to the palette it was written for. A
+     * block id is therefore the value that survives being carried anywhere: it is
+     * looked up here, gets a palette entry if the build did not already use that
+     * block, and comes out as this pack's own character. A single character is taken
+     * as written, for anyone who knows which one they want.
+     */
+    private String paletteValue(String value, String where) {
+        if (value.length() <= 1) {
+            return value;
+        }
+        return String.valueOf(cell(value, null, where));
     }
 
     /** Where this plot's name goes: a selector, a street shape, or the world style. */
@@ -423,12 +452,20 @@ public final class Exporter {
     // ------------------------------------------------------------- the top level
 
     private void buildStyles() {
-        JsonArray palette = new JsonArray();
         JsonObject air = new JsonObject();
         air.addProperty("char", String.valueOf(PaletteLedger.AIR));
         air.addProperty("block", "minecraft:air");
-        palette.add(air);
-        cells.values().forEach(palette::add);
+
+        // By character, not by the order the plots happened to be read in. The order
+        // a palette is written in changes nothing about what it means, so letting it
+        // depend on which plot came first would make two exports of the same
+        // workshop differ over nothing, and the round trip cannot tell that kind of
+        // difference from a real one.
+        List<JsonObject> sorted = new ArrayList<>(cells.values());
+        sorted.add(air);
+        sorted.sort((a, b) -> Character.compare(charOf(a), charOf(b)));
+        JsonArray palette = new JsonArray();
+        sorted.forEach(palette::add);
         JsonObject paletteAsset = new JsonObject();
         paletteAsset.add("palette", palette);
         assets.put("palettes/main", paletteAsset);
@@ -451,16 +488,32 @@ public final class Exporter {
 
         Set<String> styles = new LinkedHashSet<>(selectors.keySet());
         styles.addAll(streets.keySet());
+        // What a city style inherits is the author's decision, because selectors
+        // accumulate: inheriting citystyle_common adds the mod's eight buildings,
+        // twelve multibuildings, parks, bridges and stairs to whatever the workshop
+        // holds, and there is no way to write a style that takes the plumbing and
+        // leaves the buildings. Standalone writes the plumbing out instead.
+        String inherit = string(core, "inherit", "citystyle_common");
+        boolean standalone = inherit.isBlank() || "none".equalsIgnoreCase(inherit);
+
         for (String style : styles) {
             JsonObject city = new JsonObject();
-            city.addProperty("inherit", "citystyle_common");
+            if (!standalone) {
+                city.addProperty("inherit", inherit);
+            }
             city.addProperty("style", namespace + ":main");
+
+            JsonObject street = standalone ? streetBlocks() : new JsonObject();
             if (streets.containsKey(style)) {
                 JsonObject parts = new JsonObject();
                 streets.get(style).forEach(parts::add);
-                JsonObject street = new JsonObject();
                 street.add("parts", parts);
+            }
+            if (!street.keySet().isEmpty()) {
                 city.add("streetblocks", street);
+            }
+            if (standalone) {
+                blockGroups(city);
             }
             if (selectors.containsKey(style)) {
                 JsonObject sel = new JsonObject();
@@ -490,6 +543,48 @@ public final class Exporter {
             world.add("parts", parts);
         }
         assets.put("worldstyles/" + string(core, "worldStyle", "main"), world);
+    }
+
+    /**
+     * The blocks a city style needs that are not parts of anything.
+     *
+     * <p>The characters are the ones the shipped city styles use, and they resolve
+     * because this pack's Style still lists the shipped palettes underneath its own.
+     * A standalone style that left these out would generate a road with no kerb and
+     * a park with no ground.
+     */
+    private JsonObject streetBlocks() {
+        JsonObject out = new JsonObject();
+        out.addProperty("border", "y");
+        out.addProperty("wall", "w");
+        out.addProperty("street", "S");
+        out.addProperty("streetbase", "b");
+        out.addProperty("streetvariant", "B");
+        out.addProperty("width", 8);
+        return out;
+    }
+
+    private void blockGroups(JsonObject city) {
+        JsonArray tags = new JsonArray();
+        tags.add("rubble");
+        city.add("stuff_tags", tags);
+        city.add("parkblocks", pairs("elevation", "x"));
+        city.add("corridorblocks", pairs("roof", "x", "glass", "+"));
+        city.add("railblocks", pairs("railmain", "y"));
+        city.add("sphereblocks", pairs("glass", "Z", "border", "9", "inner", "b"));
+    }
+
+    private static JsonObject pairs(String... keyThenValue) {
+        JsonObject out = new JsonObject();
+        for (int i = 0; i + 1 < keyThenValue.length; i += 2) {
+            out.addProperty(keyThenValue[i], keyThenValue[i + 1]);
+        }
+        return out;
+    }
+
+    private static char charOf(JsonObject entry) {
+        String c = entry.has("char") ? entry.get("char").getAsString() : "";
+        return c.isEmpty() ? PaletteLedger.AIR : c.charAt(0);
     }
 
     private JsonArray group(String palette) {
@@ -595,31 +690,6 @@ public final class Exporter {
     }
 
     // ----------------------------------------------------------------- plumbing
-
-    /** A block state as Lost Cities writes one: id, then properties in brackets. */
-    private static String describe(BlockState state) {
-        String id = idOf(state);
-        if (state.getValues().isEmpty()) {
-            return id;
-        }
-        StringBuilder out = new StringBuilder(id).append('[');
-        boolean first = true;
-        for (Map.Entry<Property<?>, Comparable<?>> e : state.getValues().entrySet()) {
-            if (!first) {
-                out.append(',');
-            }
-            first = false;
-            out.append(e.getKey().getName()).append('=')
-                    .append(value(e.getKey(), e.getValue()));
-        }
-        return out.append(']').toString();
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T extends Comparable<T>> String value(Property<?> property,
-                                                          Comparable<?> value) {
-        return ((Property<T>) property).getName((T) value);
-    }
 
     private static String idOf(BlockState state) {
         return String.valueOf(BuiltInRegistries.BLOCK.getKey(state.getBlock()));

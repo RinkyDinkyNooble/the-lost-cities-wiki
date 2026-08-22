@@ -25,7 +25,7 @@ import java.util.Locale;
  */
 public final class Settings {
 
-    public enum Type { STRING, CHAR, INT, FLOAT, BOOL, STRING_LIST, INT_LIST }
+    public enum Type { STRING, INT, FLOAT, BOOL, STRING_LIST, INT_LIST }
 
     /** Which plots a field belongs to. */
     public enum Applies {
@@ -65,6 +65,17 @@ public final class Settings {
                     "The name of the world style this pack emits. A profile points "
                             + "at exactly one, and it is the join between config and "
                             + "datapack."),
+            new Field("inherit", Type.STRING, Applies.CORE, "citystyle_common",
+                    "The city style every style this pack writes inherits from. "
+                            + "Selectors accumulate rather than replace, so "
+                            + "citystyle_common adds the mod's own buildings, parks "
+                            + "and bridges to yours instead of standing aside for "
+                            + "them, and there is no way to take its plumbing and "
+                            + "leave its buildings. none inherits nothing and writes "
+                            + "the street, park, corridor, rail and sphere blocks "
+                            + "directly, which gives cities built only out of the "
+                            + "workshop and leaves every kind you did not build "
+                            + "empty."),
             new Field("format", Type.STRING, Applies.CORE, "json",
                     "json or json5. json5 keeps comments and trailing commas, and "
                             + "needs this mod to load."),
@@ -122,12 +133,17 @@ public final class Settings {
                             + "where the floors stop. They are alternatives, not a "
                             + "stack: the mod picks one. Free height, because "
                             + "nothing is placed above a top."),
-            new Field("filler", Type.CHAR, Applies.BUILDING, null,
-                    "The palette character for the skirt around cellars. Resolved "
-                            + "in the building's palette, not the part's."),
-            new Field("rubble", Type.CHAR, Applies.BUILDING, null,
-                    "The palette character the ruin pass uses. Same palette as "
-                            + "filler."),
+            new Field("filler", Type.STRING, Applies.BUILDING, null,
+                    "What the skirt around cellars is made of. A block id gets a "
+                            + "palette entry of its own and comes back as whatever "
+                            + "character this pack gave that block, which is what "
+                            + "survives being imported somewhere else. A single "
+                            + "character is written through untouched, and is "
+                            + "resolved in the building's palette, not the part's."),
+            new Field("rubble", Type.STRING, Applies.BUILDING, null,
+                    "What the ruin pass fills with. A block id or a single "
+                            + "character, read the same way filler is, in the same "
+                            + "palette."),
             new Field("preferslonely", Type.FLOAT, Applies.BUILDING, null,
                     "The chance this type suppresses a building in each neighbouring "
                             + "chunk. Measured: 1.0 thins a city hard and does not "
@@ -190,14 +206,6 @@ public final class Settings {
         try {
             return switch (field.type()) {
                 case STRING -> new JsonPrimitive(t);
-                case CHAR -> {
-                    if (t.isEmpty()) {
-                        throw new IllegalArgumentException("a character, not nothing");
-                    }
-                    // The mod keeps the first UTF-16 unit of any character key, so
-                    // taking more than one here would quietly lose the rest.
-                    yield new JsonPrimitive(String.valueOf(t.charAt(0)));
-                }
                 case INT -> new JsonPrimitive(Integer.parseInt(t));
                 case FLOAT -> new JsonPrimitive(Float.parseFloat(t));
                 case BOOL -> {
@@ -242,6 +250,7 @@ public final class Settings {
     public static List<String> suggestions(Field field) {
         return switch (field.name()) {
             case "format" -> List.of("json", "json5");
+            case "inherit" -> List.of("citystyle_common", "none");
             case "palette" -> List.of("part", "building", "global");
             default -> field.type() == Type.BOOL
                     ? List.of("true", "false")

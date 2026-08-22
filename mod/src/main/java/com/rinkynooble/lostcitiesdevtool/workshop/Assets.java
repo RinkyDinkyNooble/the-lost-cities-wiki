@@ -36,6 +36,9 @@ public final class Assets {
     private static final String ROOT = "lostcities/";
 
     private final Map<String, Map<String, JsonObject>> byFolder = new LinkedHashMap<>();
+    /** The same keys, holding which loaded pack each asset was read out of. */
+    private final Map<String, Map<String, String>> sourceByFolder =
+            new LinkedHashMap<>();
 
     private Assets() {
     }
@@ -62,8 +65,11 @@ public final class Assets {
             name = name.substring(0, name.lastIndexOf('.'));
             JsonObject json = read(e.getValue(), id);
             if (json != null) {
+                String key = id.getNamespace() + ":" + name;
                 out.byFolder.computeIfAbsent(folder, k -> new HashMap<>())
-                        .put(id.getNamespace() + ":" + name, json);
+                        .put(key, json);
+                out.sourceByFolder.computeIfAbsent(folder, k -> new HashMap<>())
+                        .put(key, e.getValue().sourcePackId());
             }
         }
         return out;
@@ -93,7 +99,27 @@ public final class Assets {
         if (all == null || name == null) {
             return null;
         }
-        return all.get(name.contains(":") ? name : "lostcities:" + name);
+        return all.get(qualify(name));
+    }
+
+    /**
+     * Which loaded pack an asset came out of.
+     *
+     * <p>The pack knows things the assets do not: what it is called, and what its
+     * author wrote in its description. Neither is in any file under
+     * {@code lostcities/}, so an import that did not ask would lose them.
+     */
+    @Nullable
+    public String source(String folder, String name) {
+        Map<String, String> all = sourceByFolder.get(folder);
+        if (all == null || name == null) {
+            return null;
+        }
+        return all.get(qualify(name));
+    }
+
+    private static String qualify(String name) {
+        return name.contains(":") ? name : "lostcities:" + name;
     }
 
     public Map<String, JsonObject> folder(String folder) {

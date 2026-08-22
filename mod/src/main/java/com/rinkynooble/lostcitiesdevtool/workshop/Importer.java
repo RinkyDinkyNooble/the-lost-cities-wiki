@@ -9,6 +9,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -50,6 +51,7 @@ public final class Importer {
     private final ServerLevel level;
     private final Assets assets;
     private final Map<String, String> reverse;
+    private final PaletteLedger ledger;
     private final List<String> warnings = new ArrayList<>();
 
     /** row id -> the asset names bound for it, in the order they were found. */
@@ -58,7 +60,15 @@ public final class Importer {
     private final Map<String, Set<String>> owners = new LinkedHashMap<>();
     /** asset name -> the selector entry it came from, for factor and distances. */
     private final Map<String, JsonObject> entries = new LinkedHashMap<>();
-    /** asset name -> the Style whose palettes its characters resolve through. */
+    /**
+     * asset name -> the Style whose palettes its characters resolve through.
+     *
+     * <p>The first city style to claim it, matching the plot it was given, which the
+     * first claim also decides. A building two city styles share resolves through
+     * one of them either way, and taking the last would resolve it through a style
+     * that need not define all its characters: six of the mod's own buildings have a
+     * filler the desert style has no entry for.
+     */
     private final Map<String, String> styleOf = new LinkedHashMap<>();
     /** Style name -> its merged palette, built once. */
     private final Map<String, Map<Character, BlockState>> stylePalettes =
@@ -67,15 +77,20 @@ public final class Importer {
     /** For parts that belong to no city style: highways, railways, monorails. */
     private String outsideStyle = "outside";
 
+    /** What the pack's city styles inherit, taken from the first one walked. */
+    @Nullable
+    private String inherit;
+
     private int blocks;
     private int unpinned;
 
     private Importer(MinecraftServer server, ServerLevel level, Assets assets,
-                     Map<String, String> reverse) {
+                     Map<String, String> reverse, PaletteLedger ledger) {
         this.server = server;
         this.level = level;
         this.assets = assets;
         this.reverse = reverse;
+        this.ledger = ledger;
     }
 
     // -------------------------------------------------------------------- entry
@@ -93,14 +108,47 @@ public final class Importer {
                 ? reverseTable(SettingsStore.load(server, Layout.CORE_ID))
                 : Map.of();
 
-        Importer importer = new Importer(server, level, loaded, reverse);
+        PaletteLedger ledger = PaletteLedger.load(server);
+        Importer importer = new Importer(server, level, loaded, reverse, ledger);
         importer.walk(world);
         importer.growRows();
         int plots = importer.paste();
+        ledger.save(server);
+
+        // The world style the pack was read from is the one an export of it should
+        // write. The namespace is deliberately left alone: adopting the namespace of
+        // whatever was imported would have an export of the mod's own pack write
+        // over `lostcities`, shadowing the assets it was read from.
+        JsonObject core = SettingsStore.load(server, Layout.CORE_ID);
+        core.addProperty("worldStyle", shortOf(worldStyleName));
+        if (importer.inherit != null) {
+            core.addProperty("inherit", importer.inherit);
+        }
+        // What the pack calls itself lives in pack.mcmeta, which is not one of the
+        // assets and is not under lostcities/ at all. It comes from the pack the
+        // world style was read out of, or an import would quietly rename somebody's
+        // pack after whatever the next export happened to be called.
+        String description = describePack(server,
+                loaded.source("worldstyles", worldStyleName));
+        if (description != null && !description.isBlank()) {
+            core.addProperty("description", description);
+        }
+        SettingsStore.save(server, Layout.CORE_ID, null, core);
+
         Workshop.build(level);
         return new Result(worldStyleName, importer.queued.values().stream()
                 .mapToInt(List::size).sum(), plots, importer.blocks,
                 importer.unpinned, Layout.grown(), importer.warnings);
+    }
+
+    @Nullable
+    private static String describePack(MinecraftServer server,
+                                       @Nullable String packId) {
+        if (packId == null) {
+            return null;
+        }
+        Pack pack = server.getPackRepository().getPack(packId);
+        return pack == null ? null : pack.getDescription().getString();
     }
 
     /** Every world style the server has loaded, for tab completion. */
@@ -154,6 +202,14 @@ public final class Importer {
         }
         String shortName = name.contains(":") ? name.substring(name.indexOf(':') + 1)
                 : name;
+        // What it inherits, from the file rather than from the resolved style, which
+        // has spent the key by the time it comes back. An export of this has to make
+        // the same choice or it would either lose the plumbing or gain a catalogue.
+        if (inherit == null) {
+            JsonObject raw = assets.get("citystyles", name);
+            inherit = raw != null && raw.has("inherit")
+                    ? raw.get("inherit").getAsString() : "none";
+        }
         // Where this style's characters come from. A part in the mod's own pack
         // carries no palette of its own at all: every character it draws is defined
         // in the Style the city style names, and a part read without it is a grid of
@@ -179,7 +235,7 @@ public final class Importer {
                     }
                     queue(target, value);
                     entries.put(value, entry);
-                    styleOf.put(value, styleName);
+                    styleOf.putIfAbsent(value, styleName);
                     owners.computeIfAbsent(value, k -> new LinkedHashSet<>())
                             .add(shortName);
                 }
@@ -196,7 +252,7 @@ public final class Importer {
                 }
                 for (String part : names(streetParts.get(shape))) {
                     queue(rowId, part);
-                    styleOf.put(part, styleName);
+                    styleOf.putIfAbsent(part, styleName);
                     owners.computeIfAbsent(part, k -> new LinkedHashSet<>())
                             .add(shortName);
                 }
@@ -289,6 +345,7 @@ public final class Importer {
     }
 
     private void pasteOne(Layout.Plot plot, String name) throws IOException {
+        clear(plot);
         JsonObject settings = new JsonObject();
         settings.addProperty("name", shortOf(name));
         Set<String> styles = owners.get(name);
@@ -328,6 +385,37 @@ public final class Importer {
     }
 
     /**
+     * Empty a plot before pasting into it.
+     *
+     * <p>Only as high as the settings already there describe, which is exactly as
+     * high as an export would have read. Anything above that was never part of the
+     * asset and is not this import's to remove; anything below it is the previous
+     * occupant, and leaving a taller one standing would put its top back into the
+     * next export as though the new pack had asked for it.
+     */
+    private void clear(Layout.Plot plot) throws IOException {
+        JsonObject old = SettingsStore.load(server, plot.id());
+        if (old.keySet().isEmpty()) {
+            return;
+        }
+        List<Boundaries.Line> lines = Boundaries.of(old);
+        int top = Math.max(lines.get(lines.size() - 1).y(),
+                Boundaries.BASE + intOf(old, "height", 0));
+        BlockState air = Blocks.AIR.defaultBlockState();
+        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+        for (int y = Boundaries.BASE; y < top; y++) {
+            for (int x = plot.blockMinX(); x <= plot.blockMaxX(); x++) {
+                for (int z = plot.blockMinZ(); z <= plot.blockMaxZ(); z++) {
+                    pos.set(x, y, z);
+                    if (!level.getBlockState(pos).isAir()) {
+                        level.setBlock(pos, air, 2);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * A multibuilding, chunk by chunk.
      *
      * <p>The grid is {@code buildings[x][z]}: <b>the outer list is the X axis</b> and
@@ -343,18 +431,63 @@ public final class Importer {
             return;
         }
         JsonArray columns = grid.getAsJsonArray();
-        int first = 0;
+        JsonObject base = null;
+        JsonObject chunks = new JsonObject();
         for (int dx = 0; dx < plot.width() && dx < columns.size(); dx++) {
             JsonElement column = columns.get(dx);
             List<String> down = names(column);
             for (int dz = 0; dz < plot.height() && dz < down.size(); dz++) {
                 JsonObject b = assets.get("buildings", down.get(dz));
-                if (b != null) {
-                    pasteBuilding(plot, dx, dz, b,
-                            first++ == 0 ? settings : new JsonObject(), styleName);
+                if (b == null) {
+                    continue;
+                }
+                JsonObject one = new JsonObject();
+                pasteBuilding(plot, dx, dz, b, one, styleName);
+                // The first chunk's settings are the plot's, and every chunk after
+                // it records only what it does not share. The corner buildings of a
+                // block are usually the same height as the middle ones, so the
+                // common case writes nothing, and a corner that differs still comes
+                // back out as the building it was rather than as a copy of its
+                // neighbour.
+                if (base == null) {
+                    base = one;
+                    one.entrySet().forEach(e -> settings.add(e.getKey(),
+                            e.getValue()));
+                    continue;
+                }
+                JsonObject diff = differences(base, one);
+                if (!diff.keySet().isEmpty()) {
+                    chunks.add(dx + "," + dz, diff);
                 }
             }
         }
+        if (!chunks.keySet().isEmpty()) {
+            settings.add("chunks", chunks);
+        }
+    }
+
+    /**
+     * What one chunk's building says that the plot's does not.
+     *
+     * <p>A key the plot has and this chunk does not is a difference the settings
+     * cannot state: a scope adds and overrides, and has no way to say "not here". It
+     * is reported rather than silently exported as though the chunk agreed.
+     */
+    private JsonObject differences(JsonObject base, JsonObject one) {
+        JsonObject out = new JsonObject();
+        for (String key : one.keySet()) {
+            if (!one.get(key).equals(base.get(key))) {
+                out.add(key, one.get(key));
+            }
+        }
+        for (String key : base.keySet()) {
+            if (!one.has(key)) {
+                warnings.add("a chunk of a multibuilding sets no " + key
+                        + " where the plot does, which a settings scope cannot say, "
+                        + "so it will export with the plot's");
+            }
+        }
+        return out;
     }
 
     /**
@@ -394,16 +527,25 @@ public final class Importer {
         if (!pinned) {
             unpinned++;
         }
+        // `filler` and `rubble` are characters in the building's palette, and a
+        // character means nothing away from the palette it was written against.
+        // Carrying the block instead is what lets an export of this write the
+        // character its own palette uses for the same block.
+        Map<Character, BlockState> buildingPalette =
+                paletteFor(new JsonObject(), styleName, building);
         if (building.has("filler")) {
-            settings.addProperty("filler", building.get("filler").getAsString());
+            settings.addProperty("filler", asBlock(
+                    building.get("filler").getAsString(), buildingPalette));
         }
         if (building.has("rubble")) {
-            settings.addProperty("rubble", building.get("rubble").getAsString());
+            settings.addProperty("rubble", asBlock(
+                    building.get("rubble").getAsString(), buildingPalette));
         }
         if (building.has("preferslonely")) {
             settings.add("preferslonely", building.get("preferslonely"));
         }
 
+        JsonObject topmost = null;
         int y = Boundaries.BASE;
         for (int level = -cellars; level <= floors; level++) {
             // Unpinned, walk the bag rather than taking the same entry every time:
@@ -411,6 +553,9 @@ public final class Importer {
             JsonObject ref = !pinned && level >= 0 && !bag.isEmpty()
                     ? bag.get(level % bag.size())
                     : firstMatching(parts, level, floors);
+            if (level == floors) {
+                topmost = ref;
+            }
             if (ref != null) {
                 JsonObject part = assets.get("parts",
                         ref.get("part").getAsString());
@@ -425,19 +570,18 @@ public final class Importer {
         // alternative roof. They stack in the plot, which is how the workshop shows
         // alternatives, and their heights go into the settings so the export can cut
         // them apart again.
+        //
+        // Which one to leave out is the one the topmost level actually drew, not the
+        // first in the list. A pack whose levels are numbered draws its top level
+        // from a `floor` entry and every `top` entry is a spare roof, so skipping the
+        // first on principle loses a roof on every trip through here.
         JsonArray tops = new JsonArray();
-        boolean firstTop = true;
         for (JsonElement e : parts) {
             if (!e.isJsonObject()) {
                 continue;
             }
             JsonObject ref = e.getAsJsonObject();
-            if (!bool(ref, "top", false)) {
-                continue;
-            }
-            if (firstTop) {
-                // The first `top` entry was already drawn as the topmost level.
-                firstTop = false;
+            if (!bool(ref, "top", false) || ref == topmost) {
                 continue;
             }
             JsonObject part = assets.get("parts", ref.get("part").getAsString());
@@ -451,6 +595,20 @@ public final class Importer {
         if (!tops.isEmpty()) {
             settings.add("tops", tops);
         }
+    }
+
+    /** A palette character, carried out as the block it stands for. */
+    private String asBlock(String value, Map<Character, BlockState> palette) {
+        if (value.isEmpty()) {
+            return value;
+        }
+        BlockState state = palette.get(value.charAt(0));
+        if (state == null) {
+            warnings.add("the character '" + value + "' is used as a filler or "
+                    + "rubble block and is in no palette, so it was kept as written");
+            return value;
+        }
+        return PaletteLedger.describe(state);
     }
 
     /** The first part reference that applies to a level, matching the mod's tests. */
@@ -512,6 +670,7 @@ public final class Importer {
         int x0 = plot.blockMinX() + dx * 16;
         int z0 = plot.blockMinZ() + dz * 16;
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+        Set<Character> used = new LinkedHashSet<>();
 
         for (int y = 0; y < slices.size(); y++) {
             List<String> rows = rowsOf(slices.get(y));
@@ -520,11 +679,27 @@ public final class Importer {
                 for (int x = 0; x < 16; x++) {
                     char c = x < row.length() ? row.charAt(x) : ' ';
                     BlockState state = palette.get(c);
+                    used.add(c);
                     pos.set(x0 + x, baseY + y, z0 + z);
                     level.setBlock(pos, state == null
                             ? Blocks.AIR.defaultBlockState() : state, 2);
                     blocks++;
                 }
+            }
+        }
+
+        // Keep the lettering the pack came with. An export of what was just imported
+        // is then the file that was imported, which is the only way the two halves
+        // can be held to each other; and a pack somebody wrote by hand comes back
+        // out with the characters they chose rather than re-lettered into Greek.
+        //
+        // Only the characters this part draws with. Reserving every character the
+        // style defines would claim a few hundred of them on behalf of blocks
+        // nothing in the workshop is built out of.
+        for (char c : used) {
+            BlockState state = palette.get(c);
+            if (state != null && !state.isAir()) {
+                ledger.reserve(PaletteLedger.describe(state), c);
             }
         }
         return slices.size();

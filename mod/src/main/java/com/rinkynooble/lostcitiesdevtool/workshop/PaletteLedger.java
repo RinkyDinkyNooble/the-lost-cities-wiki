@@ -3,7 +3,10 @@ package com.rinkynooble.lostcitiesdevtool.workshop;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.storage.LevelResource;
 
 import java.io.IOException;
@@ -94,6 +97,66 @@ public final class PaletteLedger {
         char c = pool.get(next++);
         assigned.put(cellKey, c);
         return c;
+    }
+
+    /**
+     * Take a character somebody else already chose for a cell.
+     *
+     * <p>An import reads a pack that has already lettered itself. Keeping that
+     * lettering is what makes an export of what was imported the same file that was
+     * imported, and it is also the more useful result on its own: a pack written by
+     * hand comes back out with the characters its author picked rather than
+     * re-lettered into Greek.
+     *
+     * <p>It is not from the pool, so it takes no pool character away. A character
+     * already standing for a different cell is refused rather than overwritten,
+     * because two cells sharing one character is a palette that draws the wrong
+     * block, and the caller falls back to the pool.
+     *
+     * @return true when the ledger now holds this character for this cell
+     */
+    public boolean reserve(String cellKey, char c) {
+        Character have = assigned.get(cellKey);
+        if (have != null) {
+            return have == c;
+        }
+        if (c == AIR || assigned.containsValue(c)) {
+            return false;
+        }
+        assigned.put(cellKey, c);
+        return true;
+    }
+
+    /**
+     * A block state as Lost Cities writes one: the id, then its properties.
+     *
+     * <p>Here rather than in the exporter because the importer has to produce the
+     * same text for the same block. A cell key that differs by a space or by
+     * property order is a different cell, and the two halves would letter the same
+     * world differently.
+     */
+    public static String describe(BlockState state) {
+        String id = String.valueOf(BuiltInRegistries.BLOCK.getKey(state.getBlock()));
+        if (state.getValues().isEmpty()) {
+            return id;
+        }
+        StringBuilder out = new StringBuilder(id).append('[');
+        boolean first = true;
+        for (Map.Entry<Property<?>, Comparable<?>> e : state.getValues().entrySet()) {
+            if (!first) {
+                out.append(',');
+            }
+            first = false;
+            out.append(e.getKey().getName()).append('=')
+                    .append(value(e.getKey(), e.getValue()));
+        }
+        return out.append(']').toString();
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T extends Comparable<T>> String value(Property<?> property,
+                                                          Comparable<?> held) {
+        return ((Property<T>) property).getName((T) held);
     }
 
     public int size() {
