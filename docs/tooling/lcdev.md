@@ -25,6 +25,7 @@ writes tens of thousands of blocks, and reads and writes files beside your world
 | `/lcdev workshop here` | Which plot you are standing on and what it compiles into |
 | `/lcdev workshop build` | Lay the catalogue out, or repaint it |
 | `/lcdev workshop grow <row> <plots>` | Make a row longer, or lay out one that is empty |
+| `/lcdev workshop clear [confirm [anyway]]` | Empty every plot, after a backup |
 | `/lcdev plot get [key]` | What this plot's settings say |
 | `/lcdev plot keys` | Every setting this plot accepts, and what each does |
 | `/lcdev plot file` | Where this plot's settings file is, click to copy |
@@ -164,6 +165,32 @@ An export whose largest footprint is wider than the default area widens `areasiz
 in the world style it writes. With the catalogue stopping at 10 that never triggers
 today, and it is there so a larger catalogue cannot quietly produce a pack that
 throws.
+
+### Starting again
+
+An import fills the plots its pack needs and leaves every other plot alone, because
+somebody may have built on those by hand. That has a consequence worth knowing:
+**importing a second city on top of a first leaves the first one's plots where they
+were**, so the workshop holds both and an export writes both into one pack. The
+import counts those plots and says so.
+
+```
+/lcdev workshop clear
+```
+
+On its own this reports what emptying would cost, in plots and blocks, and changes
+nothing. Adding `confirm` writes a full backup pack to
+`config/lostcitiesdevtool/backups/<timestamp>/` and then empties every plot.
+
+The backup is a real pack, so `/lcdev import` puts it back once it is installed as a
+datapack. If the backup cannot be written, the wipe stops rather than going ahead
+without one; `clear confirm anyway` is the way past that, and it is two words deep
+on purpose.
+
+Two things survive a wipe. The **core settings**, because the namespace and pack name
+are yours rather than any imported city's, and the **palette ledger**, so the next
+export letters the same blocks the same way instead of producing a whole-file diff.
+Rows an import grew go back to their catalogue size.
 
 ## Settings on a plot
 

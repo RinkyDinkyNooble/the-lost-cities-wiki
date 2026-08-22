@@ -114,11 +114,22 @@ public final class Exporter {
 
     public static Result run(MinecraftServer server, ServerLevel level, String name,
                              boolean force) throws IOException {
+        return run(server, level, name, force, exportsRoot(server).resolve(name));
+    }
+
+    /**
+     * The same compile, written wherever the caller says.
+     *
+     * <p>A wipe takes a copy first, and that copy has to be a real pack rather than
+     * a folder of blocks nothing can read: whatever it saves has to be something
+     * `/lcdev import` will take back.
+     */
+    public static Result run(MinecraftServer server, ServerLevel level, String name,
+                             boolean force, Path root) throws IOException {
         JsonObject core = SettingsStore.load(server, Layout.CORE_ID);
         PaletteLedger ledger = PaletteLedger.load(server);
         Exporter exporter = new Exporter(server, level, ledger, core);
 
-        Path root = exportsRoot(server).resolve(name);
         if (Files.exists(root) && !force) {
             throw new IOException("an export named " + name + " is already there. "
                     + "Pass -f to overwrite it");
@@ -139,6 +150,12 @@ public final class Exporter {
 
     public static Path exportsRoot(MinecraftServer server) {
         return Path.of("config", "lostcitiesdevtool", "exports")
+                .toAbsolutePath().normalize();
+    }
+
+    /** Where a wipe puts the copy it takes before destroying anything. */
+    public static Path backupsRoot(MinecraftServer server) {
+        return Path.of("config", "lostcitiesdevtool", "backups")
                 .toAbsolutePath().normalize();
     }
 

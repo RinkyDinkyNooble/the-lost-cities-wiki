@@ -65,6 +65,13 @@ one arbitrary floor of it.
 You no longer have to quote a namespaced name. `lostcities:standard` used to stop at
 the colon and report trailing data, with nothing to say that quotes would fix it.
 
+Importing a second city on top of a first leaves the first one's plots where they
+were, since an import only fills what its own pack needs. The import counts them and
+says so, and `/lcdev workshop clear` empties the workshop when you want to start
+again. On its own it reports what that would cost and changes nothing; with
+`confirm` it writes a full backup pack first, which `/lcdev import` can put straight
+back.
+
 ## Settings that explain themselves
 
 Every plot has a settings file beside your world, written as JSON5 with the meaning

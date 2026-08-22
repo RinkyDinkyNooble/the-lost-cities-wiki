@@ -458,6 +458,7 @@ published results were produced on.
 | `mod/tools/check-workshop.py` | The dimension exists, the catalogue lays out without two touching plots sharing a colour, and every plot's settings file round trips through `/lcdev plot` |
 | `mod/tools/check-export.py` | The compiler writes a pack, and that pack, installed as a datapack, generates a city with the workshop's blocks in it |
 | `mod/tools/check-import.py` | Lost Cities' own pack imports: 42 assets onto 42 plots, and what lands has the settings to export again |
+| `mod/tools/check-import-twice.py` | Importing a second city reports the first one's plots rather than hiding them, an unconfirmed clear removes nothing, and a confirmed one backs up before it empties |
 | `mod/tools/check-roundtrip.py` | Export, import, export again is **byte for byte the same pack**, and every plot holds the blocks it held before the export. Over every row class, both orientations of a multibuilding, block states with properties, both non-default palette placements, json5 output, the raw escape hatch, and two plots asking for one asset name |
 
 ```bash

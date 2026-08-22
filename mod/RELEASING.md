@@ -50,10 +50,11 @@ python mod/tools/check-workshop.py
 python mod/tools/check-export.py
 python mod/tools/check-import.py
 python mod/tools/check-roundtrip.py
+python mod/tools/check-import-twice.py
 ```
 
-The first needs no server and finishes in about a second. The other four boot one
-each and take roughly ninety seconds apiece. All five end in `all checks passed`:
+The first needs no server and finishes in about a second. The other five boot one
+each and take roughly ninety seconds apiece. All six end in `all checks passed`:
 
 - [ ] `check-validator`, every asset-check rule, and nothing thrown by a malformed
       file
@@ -62,6 +63,8 @@ each and take roughly ninety seconds apiece. All five end in `all checks passed`
 - [ ] `check-import`, Lost Cities' own pack comes in on 42 plots
 - [ ] `check-roundtrip`, the two exports are byte identical and every plot holds
       the blocks it held
+- [ ] `check-import-twice`, a second import does not hide the first city, and a
+      wipe backs up before it empties
 - [ ] No mixin failures in the rig's log:
       `grep -ci "mixin apply failed\|InvalidInjection" testrig/servers/forge-1.20.1-47.4.10/logs/debug.log`
       is 0

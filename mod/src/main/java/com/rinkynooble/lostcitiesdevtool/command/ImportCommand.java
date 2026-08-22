@@ -154,6 +154,13 @@ public class ImportCommand {
         for (String warning : result.warnings()) {
             Chat.warn(source, warning);
         }
+        if (result.leftover() > 0) {
+            Chat.warn(source, result.leftover() + " plots this import did not touch "
+                    + "already hold something, and an export writes them out too.");
+            Chat.note(source, "That is usually a city imported earlier. "
+                    + "/lcdev workshop clear empties the workshop, and takes a "
+                    + "backup before it does.");
+        }
         Chat.note(source, "Every plot filled has settings that would export it back.");
         return 1;
     }

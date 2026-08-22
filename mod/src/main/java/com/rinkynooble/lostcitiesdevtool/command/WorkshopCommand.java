@@ -5,6 +5,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.rinkynooble.lostcitiesdevtool.chat.Chat;
 import com.rinkynooble.lostcitiesdevtool.workshop.Catalogue;
 import com.rinkynooble.lostcitiesdevtool.workshop.Layout;
+import com.rinkynooble.lostcitiesdevtool.workshop.Wipe;
 import com.rinkynooble.lostcitiesdevtool.workshop.Workshop;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -15,6 +16,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.Blocks;
 
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +51,12 @@ public class WorkshopCommand {
                                 .executes(WorkshopCommand::rows))
                         .then(Commands.literal("here")
                                 .executes(WorkshopCommand::here))
+                        .then(Commands.literal("clear")
+                                .executes(ctx -> clear(ctx, false, false))
+                                .then(Commands.literal("confirm")
+                                        .executes(ctx -> clear(ctx, true, false))
+                                        .then(Commands.literal("anyway")
+                                                .executes(ctx -> clear(ctx, true, true)))))
                         .then(Commands.literal("grow")
                                 .requires(s -> s.hasPermission(2))
                                 .then(Commands.argument("row",
@@ -60,6 +68,90 @@ public class WorkshopCommand {
                                         .then(Commands.argument("plots",
                                                         IntegerArgumentType.integer(1, 512))
                                                 .executes(WorkshopCommand::grow))))));
+    }
+
+    // ------------------------------------------------------------------- clear
+
+    /**
+     * Empty every plot, once somebody has said so twice.
+     *
+     * <p>An import leaves alone the plots its pack does not need, so importing a
+     * second city on top of a first keeps the first one's plots and an export then
+     * writes both into one pack. This is how you start again.
+     *
+     * <p>Bare, it reports and changes nothing. Confirmed, it writes a backup pack
+     * first and stops if that backup cannot be written, because the alternative is
+     * destroying work with nothing to restore from. {@code anyway} is the way past
+     * that, and it is two words deep for a reason.
+     */
+    private static int clear(com.mojang.brigadier.context.CommandContext<CommandSourceStack> ctx,
+                             boolean confirmed, boolean skipBackup) {
+        CommandSourceStack source = ctx.getSource();
+        ServerLevel workshop = Workshop.level(source.getServer());
+        if (workshop == null) {
+            Chat.fail(source, "The workshop dimension is not loaded",
+                    String.valueOf(Workshop.DIMENSION.location()), null);
+            return 0;
+        }
+
+        Wipe.Survey survey;
+        try {
+            survey = Wipe.survey(source.getServer(), workshop);
+        } catch (IOException e) {
+            Chat.fail(source, "The plots could not be read", null, e.getMessage());
+            return 0;
+        }
+
+        if (survey.isEmpty()) {
+            Chat.header(source, "Workshop", "already empty");
+            Chat.note(source, "No plot holds settings, so there is nothing to clear.");
+            return 1;
+        }
+
+        if (!confirmed) {
+            Chat.header(source, "This would empty the workshop");
+            Chat.kv(source, "plots", String.valueOf(survey.plots()));
+            Chat.kv(source, "blocks", String.valueOf(survey.blocks()));
+            Chat.prose(source, "A backup pack is written first, so nothing is lost "
+                    + "that an import could not put back.");
+            Chat.note(source, "The pack's own settings and the palette ledger are "
+                    + "kept. Rows an import grew go back to their catalogue size.");
+            Chat.note(source, "Run /lcdev workshop clear confirm to go ahead.");
+            return 1;
+        }
+
+        String saved = null;
+        if (!skipBackup) {
+            try {
+                saved = String.valueOf(Wipe.backup(source.getServer(), workshop));
+            } catch (IOException e) {
+                Chat.fail(source, "Nothing was cleared", "the backup failed",
+                        e.getMessage());
+                Chat.note(source, "Every block is still where it was. Fix what the "
+                        + "export objected to, or run /lcdev workshop clear confirm "
+                        + "anyway to clear without a backup.");
+                return 0;
+            }
+        }
+
+        int emptied;
+        try {
+            emptied = Wipe.run(source.getServer(), workshop);
+        } catch (IOException e) {
+            Chat.fail(source, "The workshop could not be cleared", null,
+                    e.getMessage());
+            return 0;
+        }
+
+        Chat.header(source, "Cleared", emptied + (emptied == 1 ? " plot" : " plots"));
+        if (saved != null) {
+            Chat.path(source, "backup", saved);
+            Chat.note(source, "/lcdev import puts it back, once it is installed as a "
+                    + "datapack.");
+        } else {
+            Chat.warn(source, "No backup was taken. That was the `anyway`.");
+        }
+        return 1;
     }
 
     // -------------------------------------------------------------------- grow

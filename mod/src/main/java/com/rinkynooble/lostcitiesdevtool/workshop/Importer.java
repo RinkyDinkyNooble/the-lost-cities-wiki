@@ -77,7 +77,7 @@ public final class Importer {
             Set.of("dimx", "dimz", "buildings");
 
     public record Result(String worldStyle, int assets, int plots, int blocks,
-                         int unpinned, Map<String, Integer> grown,
+                         int unpinned, int leftover, Map<String, Integer> grown,
                          List<String> warnings) {
     }
 
@@ -124,6 +124,9 @@ public final class Importer {
     /** What the pack's city styles inherit, taken from the first one walked. */
     @Nullable
     private String inherit;
+
+    /** Plot ids this run wrote to, so the rest can be counted afterwards. */
+    private final Set<String> filled = new LinkedHashSet<>();
 
     private int blocks;
     private int unpinned;
@@ -190,9 +193,24 @@ public final class Importer {
                     + "generation uses. They are marked skip, because the pack falls "
                     + "back to them rather than containing them.");
         }
+        // Plots this import did not touch, but something else already filled.
+        // Leaving them alone is deliberate: an import has no business deleting what
+        // somebody built by hand. Saying nothing about them is not, because the next
+        // export writes them into the pack alongside what was just imported, and two
+        // cities arrive as one.
+        int leftover = 0;
+        for (Layout.Plot plot : Layout.plots()) {
+            if (plot.row() == null || importer.filled.contains(plot.id())) {
+                continue;
+            }
+            if (!SettingsStore.load(server, plot.id()).keySet().isEmpty()) {
+                leftover++;
+            }
+        }
+
         return new Result(worldStyleName, importer.queued.values().stream()
                 .mapToInt(List::size).sum(), plots, importer.blocks,
-                importer.unpinned, Layout.grown(), importer.warnings);
+                importer.unpinned, leftover, Layout.grown(), importer.warnings);
     }
 
     @Nullable
@@ -414,6 +432,7 @@ public final class Importer {
                     continue;
                 }
                 pasteOne(plot, names.get(i));
+                filled.add(plot.id());
                 used++;
             }
         }
