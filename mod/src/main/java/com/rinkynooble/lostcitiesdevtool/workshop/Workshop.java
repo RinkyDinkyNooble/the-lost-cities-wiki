@@ -162,6 +162,11 @@ public final class Workshop {
      * every plot an import added.
      */
     public static void loadGrownRows(MinecraftServer server) {
+        // Cleared first, on every path. The sizes are held statically and a single
+        // player session starts a fresh server per world, so a world opened after
+        // one with grown rows would otherwise inherit them and lay out plots its
+        // own registry has never heard of.
+        Layout.setGrown(java.util.Map.of());
         Path path = registryPath(server);
         if (!Files.isRegularFile(path)) {
             return;

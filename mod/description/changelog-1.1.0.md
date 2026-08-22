@@ -103,6 +103,19 @@ repeated.
   This one is worth knowing about: it does not fail. The file loads, the building
   generates, and it is empty, because every character in it resolves to nothing.
 
+## On a server
+
+Every `/lcdev` command needs permission level 2, which is `op` on a server and
+cheats enabled in single player. It is a tool for building a pack rather than a
+feature for players: it teleports between dimensions, writes tens of thousands of
+blocks, and reads and writes files beside your world.
+
+A client does not need the mod installed to join a server that has it. Command
+output goes to whoever ran the command rather than to every operator, so two people
+can work without filling each other's chat. The settings are files written per
+command with no locking, so two people editing the *same* plot at the same moment
+will have the last write win; different plots are fine.
+
 ## Chat output
 
 Command output is laid out properly now: a heading, aligned key and value pairs,

@@ -54,21 +54,25 @@ public class ReportCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("lcdev")
                 .then(Commands.literal("report")
+                        .requires(s -> s.hasPermission(2))
                         .executes(ctx -> report(ctx, null)))
                 // Not about this chunk, or any chunk. What a profile key means,
                 // straight out of the mod's own config comments, so nobody has to
                 // leave the game to look one up.
                 .then(Commands.literal("key")
+                        .requires(s -> s.hasPermission(2))
                         .then(Commands.argument("name", StringArgumentType.word())
                                 .suggests((c, b) -> SharedSuggestionProvider.suggest(
                                         ProfileKeys.all().keySet(), b))
                                 .executes(ctx -> describeKey(ctx,
                                         StringArgumentType.getString(ctx, "name")))))
                 .then(Commands.literal("char")
+                        .requires(s -> s.hasPermission(2))
                         .then(Commands.argument("character", StringArgumentType.greedyString())
                                 .executes(ctx -> report(ctx,
                                         StringArgumentType.getString(ctx, "character")))))
                 .then(Commands.literal("block")
+                        .requires(s -> s.hasPermission(2))
                         .then(Commands.argument("id", StringArgumentType.greedyString())
                                 .executes(ctx -> whichCharacters(ctx,
                                         StringArgumentType.getString(ctx, "id")))))
@@ -77,6 +81,7 @@ public class ReportCommand {
                 // anything after it swallows what follows, which is how 'report block
                 // minecraft:gold_block' once became a request for the character 'b'.
                 .then(Commands.literal("in")
+                        .requires(s -> s.hasPermission(2))
                         .then(Commands.argument("asset", ResourceLocationArgument.id())
                                 .suggests(ReportCommand::suggestAssets)
                                 .then(Commands.literal("char")

@@ -8,16 +8,17 @@ status: in-progress
 
 # Editing & Tooling
 
-!!! info "The external converter section is still coming"
-    The in-game editor below is fully traced and documented. A write-up of the schematic-to-JSON converter workflow lands here once that tool is ready to share.
+!!! info "There is now a fourth route"
+    [The Lost Cities - DevTool](lcdev.md) adds a workshop dimension: build in it, run one command, and it writes a whole datapack. It goes the other way too, pasting a loaded pack back into the world to edit. It is covered on [The DevTool Commands](lcdev.md) rather than here, because none of it is Lost Cities behaviour. <!-- noclaim -->
 
-Three ways to author parts, in rough order of how much hand-editing each involves: <!-- noclaim -->
+Four ways to author parts, in rough order of how much hand-editing each involves: <!-- noclaim -->
 
 | Approach | Good for | Cost <!-- noclaim --> |
 |---|---|---|
 | **Write JSON by hand** | small parts, quick edits, anything scripted | tedious past a few layers |
 | **In-game edit mode** | shaping a part in place and seeing it immediately | needs a dedicated world, session is fragile |
 | **Build normally, then convert** | large or detailed structures, reusing existing builds | needs an external tool |
+| **[The DevTool's workshop](lcdev.md)** | a whole pack at once, and opening a pack you already have | a second mod, and it targets one Lost Cities version at a time |
 
 Whichever you use, **keep the JSON as your source of truth.** Every in-game path exports to JSON eventually, and the export is lossy in one specific way documented below. <!-- noclaim -->
 
@@ -87,12 +88,14 @@ The output is not a drop-in file: you still need to move `exportedpart` into `da
 ## Building normally, then converting
 
 !!! warning "The mod cannot read a schematic, a structure block file, or an `.nbt`"
-    There is no import command and no import path. The mod reads part JSON and nothing else. If you have a build you want to turn into a part, you have exactly two routes:
+    There is no import command and no import path. The mod reads part JSON and nothing else. If you have a build you want to turn into a part, nothing you do can involve handing Lost Cities the file: [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
     1. **`/lostcities exportpart`**, which reads the blocks already in the world and writes part JSON for you. This is the only conversion the mod itself performs, and it needs a world created with `editMode: true`. It is covered above.
     2. **An external converter**, which reads your schematic and writes the JSON. Nothing about that path involves the mod. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
     A file named `.schem`, `.nbt` or `.litematic` will never be loaded by Lost Cities, whatever folder you put it in. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
+
+There is a third route that is also not the mod: [the DevTool's workshop](lcdev.md) reads the blocks in its own dimension and writes the parts, the buildings, the palettes and the world style around them, as files Lost Cities then loads normally. <!-- noclaim -->
 
 The workflow most large builds end up using: build the structure in creative with WorldEdit or similar, export a schematic, and convert that schematic into part JSON with an external tool. <!-- noclaim -->
 

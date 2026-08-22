@@ -34,7 +34,13 @@ public class WorkshopCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("lcdev")
                 .then(Commands.literal("workshop")
+                        .requires(s -> s.hasPermission(2))
                         .then(Commands.literal("go")
+                                // Level 2 because it moves a player between
+                                // dimensions. On any server that is not a creative
+                                // build server, a teleport nobody is opped for is an
+                                // escape from whatever they were standing next to.
+                                .requires(s -> s.hasPermission(2))
                                 .executes(WorkshopCommand::go))
                         .then(Commands.literal("build")
                                 .requires(s -> s.hasPermission(2))

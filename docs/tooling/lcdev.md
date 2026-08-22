@@ -7,36 +7,51 @@ Every `/lcdev` command, what each argument means, and what it does to your world
 
 ## Everything at a glance
 
-| Command | Needs op? | What it is for |
-|---|---|---|
-| `/lcdev report` | No | What the generator chose for the chunk you are standing in |
-| `/lcdev key <name>` | No | What a profile key means, its section, type, range and default |
-| `/lcdev char <character>` | No | What a palette character resolves to here |
-| `/lcdev block <id>` | No | Which characters produce a given block here |
-| `/lcdev in <asset> char <character>` | No | The same lookup inside one named asset |
-| `/lcdev in <asset> block <id>` | No | The same, in reverse, inside one named asset |
-| `/lcdev workshop go` | No | Teleport to the workshop dimension |
-| `/lcdev workshop rows` | No | Every catalogue row, each one a place to click |
-| `/lcdev workshop here` | No | Which plot you are standing on and what it compiles into |
-| `/lcdev workshop build` | **Level 2** | Lay the catalogue out, or repaint it |
-| `/lcdev workshop grow <row> <plots>` | **Level 2** | Make a row longer, or lay out one that is empty |
-| `/lcdev plot get [key]` | No | What this plot's settings say |
-| `/lcdev plot keys` | No | Every setting this plot accepts, and what each does |
-| `/lcdev plot file` | No | Where this plot's settings file is, click to copy |
-| `/lcdev plot resolve <dx> <dz> <level>` | No | The settings that apply to one chunk on one level |
-| `/lcdev plot set <key> <value>` | **Level 2** | Set a value for the whole plot |
-| `/lcdev plot setchunk <dx> <dz> <key> <value>` | **Level 2** | Set it for one chunk of the plot |
-| `/lcdev plot setlevel <level> <key> <value>` | **Level 2** | Set it for one level of the plot |
-| `/lcdev plot clear <key>` | **Level 2** | Remove a key from this plot |
-| `/lcdev plot show` | **Level 2** | Draw where each level starts, on the walkway |
-| `/lcdev plot hide` | **Level 2** | Rub those markers out |
-| `/lcdev mark <key> <value>` | **Level 2** | Attach a palette key to the block you are looking at |
-| `/lcdev export <name> [-f]` | **Level 2** | Compile the workshop into a datapack |
-| `/lcdev import <worldstyle> [keep]` | **Level 2** | Paste a loaded pack into the workshop |
+**Every `/lcdev` command needs permission level 2.** That is the operator level, which
+a single-player world gets with cheats enabled and a server gives with `op`. It is a
+tool for building a pack, not a feature for players: it teleports between dimensions,
+writes tens of thousands of blocks, and reads and writes files beside your world.
 
-Level 2 is the operator level a single-player world gets with cheats on, or `op` on
-a server. Everything that only reads is available to everyone, so a player can ask
-what a plot is without being able to change it.
+| Command | What it is for |
+|---|---|
+| `/lcdev report` | What the generator chose for the chunk you are standing in |
+| `/lcdev key <name>` | What a profile key means, its section, type, range and default |
+| `/lcdev char <character>` | What a palette character resolves to here |
+| `/lcdev block <id>` | Which characters produce a given block here |
+| `/lcdev in <asset> char <character>` | The same lookup inside one named asset |
+| `/lcdev in <asset> block <id>` | The same, in reverse, inside one named asset |
+| `/lcdev workshop go` | Teleport to the workshop dimension |
+| `/lcdev workshop rows` | Every catalogue row, each one a place to click |
+| `/lcdev workshop here` | Which plot you are standing on and what it compiles into |
+| `/lcdev workshop build` | Lay the catalogue out, or repaint it |
+| `/lcdev workshop grow <row> <plots>` | Make a row longer, or lay out one that is empty |
+| `/lcdev plot get [key]` | What this plot's settings say |
+| `/lcdev plot keys` | Every setting this plot accepts, and what each does |
+| `/lcdev plot file` | Where this plot's settings file is, click to copy |
+| `/lcdev plot resolve <dx> <dz> <level>` | The settings that apply to one chunk on one level |
+| `/lcdev plot set <key> <value>` | Set a value for the whole plot |
+| `/lcdev plot setchunk <dx> <dz> <key> <value>` | Set it for one chunk of the plot |
+| `/lcdev plot setlevel <level> <key> <value>` | Set it for one level of the plot |
+| `/lcdev plot clear <key>` | Remove a key from this plot |
+| `/lcdev plot show` | Draw where each level starts, on the walkway |
+| `/lcdev plot hide` | Rub those markers out |
+| `/lcdev mark <key> <value>` | Attach a palette key to the block you are looking at |
+| `/lcdev export <name> [-f]` | Compile the workshop into a datapack |
+| `/lcdev import <worldstyle> [keep]` | Paste a loaded pack into the workshop |
+
+## On a server
+
+Safe to use, with three things worth knowing.
+
+| | |
+|---|---|
+| **A client does not need the mod** | The mod declares `IGNORE_ALL_VERSION`, so a vanilla client can join a server running it. Only the Lost Cities menu fixes are client-side, and those are guarded to the client, so a dedicated server never loads them |
+| **Output goes to whoever asked** | Command replies are not broadcast to other operators, so two people can work without filling each other's chat |
+| **Two people editing one plot** | The settings are files, written per command with no locking, so the last write wins. Different plots are fine; the same plot at the same moment is not |
+
+`build`, `export` and `import` do their work in one go on the server thread, so a
+large catalogue is a visible pause rather than a hang. The workshop is one shared
+dimension like any other, so two people building in it see each other's work.
 
 ## The three words that are not obvious
 

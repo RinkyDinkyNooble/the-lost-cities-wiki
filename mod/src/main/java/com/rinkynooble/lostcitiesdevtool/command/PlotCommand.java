@@ -38,6 +38,7 @@ public class PlotCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("lcdev")
                 .then(Commands.literal("plot")
+                        .requires(s -> s.hasPermission(2))
                         .then(Commands.literal("get")
                                 .executes(ctx -> get(ctx, null))
                                 .then(Commands.argument("key", StringArgumentType.word())
