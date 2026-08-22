@@ -36,6 +36,8 @@ public final class Assets {
     private static final String ROOT = "lostcities/";
 
     private final Map<String, Map<String, JsonObject>> byFolder = new LinkedHashMap<>();
+    /** The same keys, holding the extension each asset was written under. */
+    private final Map<String, Map<String, String>> extByFolder = new LinkedHashMap<>();
     /** The same keys, holding which loaded pack each asset was read out of. */
     private final Map<String, Map<String, String>> sourceByFolder =
             new LinkedHashMap<>();
@@ -70,6 +72,8 @@ public final class Assets {
                         .put(key, json);
                 out.sourceByFolder.computeIfAbsent(folder, k -> new HashMap<>())
                         .put(key, e.getValue().sourcePackId());
+                out.extByFolder.computeIfAbsent(folder, k -> new HashMap<>())
+                        .put(key, path.substring(path.lastIndexOf('.')));
             }
         }
         return out;
@@ -112,6 +116,22 @@ public final class Assets {
     @Nullable
     public String source(String folder, String name) {
         Map<String, String> all = sourceByFolder.get(folder);
+        if (all == null || name == null) {
+            return null;
+        }
+        return all.get(qualify(name));
+    }
+
+    /**
+     * The extension an asset was written under.
+     *
+     * <p>{@code .json5} is a decision its author made, and one only this mod can
+     * read. An export of what was imported writes json unless it is told, which
+     * would quietly rename every file in somebody's pack.
+     */
+    @Nullable
+    public String extension(String folder, String name) {
+        Map<String, String> all = extByFolder.get(folder);
         if (all == null || name == null) {
             return null;
         }

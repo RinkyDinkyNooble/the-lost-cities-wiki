@@ -36,13 +36,85 @@ public final class AssetValidator {
                                          String rawText) {
         List<Finding> out = new ArrayList<>();
         switch (kind) {
-            case "buildings" -> checkBuilding(out, file, json, rawText);
+            case "buildings" -> {
+                checkBuilding(out, file, json, rawText);
+                checkInlinePalette(out, file, json, rawText);
+            }
             case "palettes" -> checkPalette(out, file, json, rawText);
-            case "parts" -> checkPart(out, file, json, rawText);
+            case "parts" -> {
+                checkPart(out, file, json, rawText);
+                checkInlinePalette(out, file, json, rawText);
+            }
+            case "worldstyles" -> checkWorldStyle(out, file, json, rawText);
             default -> {
             }
         }
         return out;
+    }
+
+    /**
+     * An inline palette is an object holding a list, not a list.
+     *
+     * <p>{@code "palette": {"palette": [...]}}, the same shape a palette asset has,
+     * which is how the mod's own {@code building7} and {@code park_trees} are
+     * written. A bare list decodes as no palette at all rather than as an error, so
+     * the asset keeps its characters and resolves none of them, and what it draws is
+     * air. Nothing reports it: the file loads, the building generates, and it is
+     * empty.
+     */
+    private static void checkInlinePalette(List<Finding> out, String file,
+                                           JsonObject json, String raw) {
+        JsonElement inline = json.get("palette");
+        if (inline == null || inline.isJsonObject()) {
+            return;
+        }
+        out.add(Finding.error(file, lineOf(raw, "palette"),
+                "'palette' is " + (inline.isJsonArray() ? "a list" : "a value")
+                        + ", and it takes an object holding one",
+                "Write it as \"palette\": {\"palette\": [ ... ]}, the same shape a "
+                        + "palette asset has. A bare list is read as no palette, so "
+                        + "every character here resolves to nothing and the asset "
+                        + "draws air, with nothing logged to say why"));
+    }
+
+    // -------------------------------------------------------------- worldstyles
+
+    /**
+     * The three monorail keys take a plain string, and the other families do not.
+     *
+     * <p>{@code MonorailParts} declares {@code both}, {@code vertical} and
+     * {@code station} as {@code Codec.STRING}. Highways and railways go through
+     * {@code Tools.listOrStringList}, which takes either. So a list under a
+     * monorail key is not a longer row, it is a value the codec cannot read at all,
+     * and the world style carrying it does not decode.
+     *
+     * <p>Worth checking here because nothing else does. A tool reading the file back
+     * as JSON sees a list and carries on; only the codec minds, and by the time it
+     * minds the file is gone.
+     */
+    private static void checkWorldStyle(List<Finding> out, String file,
+                                        JsonObject json, String raw) {
+        JsonElement parts = json.get("parts");
+        if (parts == null || !parts.isJsonObject()) {
+            return;
+        }
+        JsonElement monorails = parts.getAsJsonObject().get("monorails");
+        if (monorails == null || !monorails.isJsonObject()) {
+            return;
+        }
+        JsonObject o = monorails.getAsJsonObject();
+        for (String key : List.of("both", "vertical", "station")) {
+            JsonElement value = o.get(key);
+            if (value != null && !value.isJsonPrimitive()) {
+                out.add(Finding.error(file, lineOf(raw, key),
+                        "'" + key + "' is " + (value.isJsonArray() ? "a list"
+                                : "an object") + ", and it takes one part name",
+                        "The monorail keys are plain strings, unlike the highway and "
+                                + "railway keys beside them, which accept either a "
+                                + "name or a list of them. A world style with a list "
+                                + "here does not decode, so nothing in it loads"));
+            }
+        }
     }
 
     // ---------------------------------------------------------------- buildings

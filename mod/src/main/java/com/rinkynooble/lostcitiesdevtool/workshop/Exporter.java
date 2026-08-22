@@ -5,6 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.rinkynooble.lostcitiesdevtool.chat.ProfileKeys;
+import com.rinkynooble.lostcitiesdevtool.json5.Json5;
 import com.rinkynooble.lostcitiesdevtool.validate.AssetValidator;
 import com.rinkynooble.lostcitiesdevtool.validate.Finding;
 import net.minecraft.core.BlockPos;
@@ -70,6 +71,13 @@ public final class Exporter {
     private final Map<String, Map<String, JsonArray>> streets = new TreeMap<>();
     /** world style family -> shape -> part names. */
     private final Map<String, Map<String, JsonArray>> worldParts = new TreeMap<>();
+    /** {@code family/shape} for the keys whose codec takes one name, not a list. */
+    private final Set<String> singleValued = new LinkedHashSet<>();
+
+    /** asset key -> the plot that claimed it, so a second claim can name the first. */
+    private final Map<String, String> claimedBy = new LinkedHashMap<>();
+    /** Faults found while compiling, which the file-by-file rules cannot see. */
+    private final List<Finding> faults = new ArrayList<>();
 
     private int partCount;
     private int buildingCount;
@@ -142,9 +150,19 @@ public final class Exporter {
 
         if (!stacked) {
             // One part, read from the plot floor up.
-            int height = Math.max(2, intOf(settings, "height", 6));
+            int declared = intOf(settings, "height", 6);
+            int height = Math.max(Boundaries.MIN_HEIGHT, declared);
+            if (declared < Boundaries.MIN_HEIGHT) {
+                warnings.add(name + " has a height of " + declared + " and was read "
+                        + "as " + height + ". A part of one slice draws nothing.");
+            }
             String partName = name;
-            emitPart(partName, plot, 0, 0, Boundaries.BASE, height, settings);
+            // A flat plot is one part, so `building` and `part` mean the same
+            // thing here: its own palette, carried in the file.
+            emitPart(partName, plot, 0, 0, Boundaries.BASE, height, settings,
+                    sinkFor(settings, "global".equals(placement(settings))
+                            ? null : new LinkedHashMap<>()));
+            applyRaw("parts/" + partName, settings);
             record(row, plot, settings, name, partName);
             return;
         }
@@ -172,10 +190,39 @@ public final class Exporter {
             multi.addProperty("dimx", plot.width());
             multi.addProperty("dimz", plot.height());
             multi.add("buildings", grid);
-            assets.put("multibuildings/" + name, multi);
+            putAsset("multibuildings/" + name, multi, plot);
+            applyRaw("multibuildings/" + name, settings);
             record(row, plot, settings, name, name);
         } else {
+            applyRaw("buildings/" + name, settings);
             record(row, plot, settings, name, name);
+        }
+    }
+
+    /**
+     * Merge a plot's {@code raw} object into the asset it produced.
+     *
+     * <p>The escape hatch, and the settings file tells its reader in as many words
+     * that this is what happens to it. The format has keys the schema here does not
+     * cover, {@code parts2}, {@code variants}, {@code scattered} and the conditions
+     * beyond a level index among them, and without this the only way to reach one is
+     * to edit the export by hand after every run.
+     *
+     * <p>Written last and over the top, so it can correct the compiler as well as
+     * add to it. That is the point of an escape hatch: the person using it has read
+     * further than the tool has.
+     */
+    private void applyRaw(String assetKey, JsonObject settings) {
+        if (!settings.has("raw") || !settings.get("raw").isJsonObject()) {
+            return;
+        }
+        JsonObject target = assets.get(assetKey);
+        if (target == null) {
+            return;
+        }
+        JsonObject raw = settings.getAsJsonObject("raw");
+        for (String key : raw.keySet()) {
+            target.add(key, raw.get(key));
         }
     }
 
@@ -191,9 +238,33 @@ public final class Exporter {
         // bag the generator draws from rather than a fixed stack. Writing bounds
         // then would pin a building that was never meant to be pinned.
         boolean pin = bool(settings, "pinFloors", true);
+        if (!pin && tops.isEmpty()) {
+            // An unpinned building's floors are all conditioned `top: false`, so
+            // without a roof the topmost level of every height it could be rolled
+            // at matches nothing at all. The mod's own are written the same way and
+            // every one of them has roofs: building1 has nine floors and five.
+            faults.add(Finding.error(plot.id(), 0,
+                    name + " has pinFloors false and no tops",
+                    "An unpinned building's floors all carry `top: false`, so with "
+                            + "no roof the top of it matches no part at whatever "
+                            + "height the profile rolls. Set `tops`, or set "
+                            + "`pinFloors true` and let the plot fix its own height"));
+        }
+
+        // Where this building's characters go. `building` gives the whole thing
+        // one palette of its own; `part` gives each of its parts one and leaves the
+        // building pointing at the shared palette, because `filler` and `rubble` are
+        // resolved in the building's palette and not in any part's.
+        String placement = placement(settings);
+        boolean perBuilding = "building".equals(placement);
+        boolean perPart = "part".equals(placement);
+        Map<String, JsonObject> buildingSink =
+                perBuilding ? new LinkedHashMap<>() : cells;
 
         JsonObject building = new JsonObject();
-        building.addProperty("refpalette", namespace + ":main");
+        if (!perBuilding) {
+            building.addProperty("refpalette", namespace + ":main");
+        }
         // `filler` is required on every building, whether or not it has cellars, so
         // the export has to have one. Defaulting to the commonest character on the
         // ground floor makes the skirt look like the walls above it, which is what
@@ -208,7 +279,7 @@ public final class Exporter {
 
         if (settings.has("rubble")) {
             building.addProperty("rubble", paletteValue(
-                    string(settings, "rubble", " "), name + " rubble"));
+                    string(settings, "rubble", " "), name + " rubble", buildingSink));
         }
         if (settings.has("preferslonely")) {
             building.addProperty("preferslonely",
@@ -221,14 +292,16 @@ public final class Exporter {
         for (int c = cellars; c >= 1; c--) {
             String part = name + "_c" + c;
             emitPart(part, plot, dx, dz, y, Boundaries.STRIDE,
-                    Settings.resolve(plotSettings, dx, dz, -c));
+                    Settings.resolve(plotSettings, dx, dz, -c),
+                    perPart ? new LinkedHashMap<>() : buildingSink);
             parts.add(ref(part, "floor", -c));
             y += Boundaries.STRIDE;
         }
         for (int f = 0; f <= floors; f++) {
             String part = name + "_f" + f;
             char drew = emitPart(part, plot, dx, dz, y, Boundaries.STRIDE,
-                    Settings.resolve(plotSettings, dx, dz, f));
+                    Settings.resolve(plotSettings, dx, dz, f),
+                    perPart ? new LinkedHashMap<>() : buildingSink);
             if (f == 0) {
                 commonest = drew;
             }
@@ -238,12 +311,19 @@ public final class Exporter {
             y += Boundaries.STRIDE;
         }
         // The tops are alternatives, all conditioned on being at the top, so the mod
-        // picks one. Their heights are free because nothing is placed above a top.
+        // picks one. Their heights are free above the minimum, because nothing is
+        // placed above a top.
         for (int t = 0; t < tops.size(); t++) {
-            int height = Math.max(2, tops.get(t));
+            int height = Math.max(Boundaries.MIN_HEIGHT, tops.get(t));
+            if (tops.get(t) < Boundaries.MIN_HEIGHT) {
+                warnings.add(name + " top " + (t + 1) + " is set to " + tops.get(t)
+                        + " and was read as " + height + ". A part of one slice "
+                        + "draws nothing at all, so it is the shortest a top can be.");
+            }
             String part = name + "_t" + (t + 1);
             emitPart(part, plot, dx, dz, y, height,
-                    Settings.resolve(plotSettings, dx, dz, floors + 1 + t));
+                    Settings.resolve(plotSettings, dx, dz, floors + 1 + t),
+                    perPart ? new LinkedHashMap<>() : buildingSink);
             JsonObject r = new JsonObject();
             r.addProperty("part", namespace + ":" + part);
             r.addProperty("top", true);
@@ -254,14 +334,17 @@ public final class Exporter {
 
         building.addProperty("filler", settings.has("filler")
                 ? paletteValue(string(settings, "filler", String.valueOf(commonest)),
-                        name + " filler")
+                        name + " filler", buildingSink)
                 : String.valueOf(commonest));
         if (commonest == PaletteLedger.AIR && cellars > 0) {
             warnings.add(name + " has cellars and nothing solid on its ground floor, "
                     + "so its filler skirt is air. Set filler on the plot.");
         }
+        if (perBuilding) {
+            building.add("palette", palette(buildingSink, false));
+        }
         building.add("parts", parts);
-        assets.put("buildings/" + name, building);
+        putAsset("buildings/" + name, building, plot);
         buildingCount++;
     }
 
@@ -291,7 +374,8 @@ public final class Exporter {
      * loads and does nothing.
      */
     private char emitPart(String name, Layout.Plot plot, int dx, int dz,
-                          int baseY, int height, JsonObject settings) {
+                          int baseY, int height, JsonObject settings,
+                          Map<String, JsonObject> sink) {
         int x0 = plot.blockMinX() + dx * 16;
         int z0 = plot.blockMinZ() + dz * 16;
         JsonObject marks = settings.has("marks") && settings.get("marks").isJsonObject()
@@ -300,13 +384,14 @@ public final class Exporter {
 
         Map<Character, Integer> seen = new LinkedHashMap<>();
         JsonArray slices = new JsonArray();
-        for (int y = 0; y < Math.max(2, height); y++) {
+        for (int y = 0; y < Math.max(Boundaries.MIN_HEIGHT, height); y++) {
             JsonArray layer = new JsonArray();
             for (int z = 0; z < 16; z++) {
                 StringBuilder row = new StringBuilder(16);
                 for (int x = 0; x < 16; x++) {
                     char c = characterAt(x0 + x, baseY + y, z0 + z,
-                            dx * 16 + x, baseY + y, dz * 16 + z, marks, conversions);
+                            dx * 16 + x, baseY + y, dz * 16 + z, marks, conversions,
+                            sink);
                     row.append(c);
                     if (c != PaletteLedger.AIR) {
                         seen.merge(c, 1, Integer::sum);
@@ -320,9 +405,16 @@ public final class Exporter {
         JsonObject part = new JsonObject();
         part.addProperty("xsize", 16);
         part.addProperty("zsize", 16);
-        part.addProperty("refpalette", namespace + ":main");
+        // Where this part's characters were put decides how it reaches them. A part
+        // with its own palette is readable on its own; one pointing at the pack's
+        // shared palette is smaller and changes with it.
+        if (sink == cells) {
+            part.addProperty("refpalette", namespace + ":main");
+        } else if (sink != null) {
+            part.add("palette", palette(sink, false));
+        }
         part.add("slices", slices);
-        assets.put("parts/" + name, part);
+        putAsset("parts/" + name, part, plot);
         partCount++;
         return seen.entrySet().stream()
                 .max(Map.Entry.comparingByValue())
@@ -332,7 +424,8 @@ public final class Exporter {
 
     /** The character for one block, assigning one where the cell is new. */
     private char characterAt(int wx, int wy, int wz, int lx, int ly, int lz,
-                             JsonObject marks, JsonObject conversions) {
+                             JsonObject marks, JsonObject conversions,
+                             Map<String, JsonObject> sink) {
         // ly is the world height the mark was recorded against, not the layer index.
         BlockState state = level.getBlockState(new BlockPos(wx, wy, wz));
         if (state.isAir() || state.is(Blocks.STRUCTURE_VOID)) {
@@ -352,7 +445,7 @@ public final class Exporter {
         if (marks.has(at) && marks.get(at).isJsonObject()) {
             mark = marks.getAsJsonObject(at);
         }
-        return cell(converted, mark, wx + "," + wy + "," + wz);
+        return cell(converted, mark, wx + "," + wy + "," + wz, sink);
     }
 
     /**
@@ -362,7 +455,8 @@ public final class Exporter {
      * palette entry is that pair: the same block with a loot table and without one
      * are two entries and two characters.
      */
-    private char cell(String block, @Nullable JsonObject mark, String where) {
+    private char cell(String block, @Nullable JsonObject mark, String where,
+                      Map<String, JsonObject> sink) {
         String key = block + (mark == null ? "" : " " + mark);
         char c = ledger.characterFor(key);
         if (c == 0) {
@@ -370,7 +464,7 @@ public final class Exporter {
                     + ". The pool holds " + ledger.capacity() + ".");
             return PaletteLedger.AIR;
         }
-        if (!cells.containsKey(key)) {
+        if (!sink.containsKey(key)) {
             JsonObject entry = new JsonObject();
             entry.addProperty("char", String.valueOf(c));
             entry.addProperty("block", block);
@@ -379,7 +473,7 @@ public final class Exporter {
                     entry.add(k, mark.get(k));
                 }
             }
-            cells.put(key, entry);
+            sink.put(key, entry);
         }
         return c;
     }
@@ -394,11 +488,12 @@ public final class Exporter {
      * block, and comes out as this pack's own character. A single character is taken
      * as written, for anyone who knows which one they want.
      */
-    private String paletteValue(String value, String where) {
+    private String paletteValue(String value, String where,
+                                Map<String, JsonObject> sink) {
         if (value.length() <= 1) {
             return value;
         }
-        return String.valueOf(cell(value, null, where));
+        return String.valueOf(cell(value, null, where, sink));
     }
 
     /** Where this plot's name goes: a selector, a street shape, or the world style. */
@@ -406,9 +501,13 @@ public final class Exporter {
                         String assetName, String partName) {
         String full = namespace + ":" + assetName;
         if (!row.cityStyleScoped()) {
-            worldParts.computeIfAbsent(family(row), k -> new TreeMap<>())
+            String fam = family(row);
+            worldParts.computeIfAbsent(fam, k -> new TreeMap<>())
                     .computeIfAbsent(row.key(), k -> new JsonArray())
                     .add(namespace + ":" + partName);
+            if (row.kind() == Catalogue.Kind.SINGLE) {
+                singleValued.add(fam + "/" + row.key());
+            }
             return;
         }
         List<String> styles = strings(settings, "citystyles");
@@ -452,23 +551,7 @@ public final class Exporter {
     // ------------------------------------------------------------- the top level
 
     private void buildStyles() {
-        JsonObject air = new JsonObject();
-        air.addProperty("char", String.valueOf(PaletteLedger.AIR));
-        air.addProperty("block", "minecraft:air");
-
-        // By character, not by the order the plots happened to be read in. The order
-        // a palette is written in changes nothing about what it means, so letting it
-        // depend on which plot came first would make two exports of the same
-        // workshop differ over nothing, and the round trip cannot tell that kind of
-        // difference from a real one.
-        List<JsonObject> sorted = new ArrayList<>(cells.values());
-        sorted.add(air);
-        sorted.sort((a, b) -> Character.compare(charOf(a), charOf(b)));
-        JsonArray palette = new JsonArray();
-        sorted.forEach(palette::add);
-        JsonObject paletteAsset = new JsonObject();
-        paletteAsset.add("palette", palette);
-        assets.put("palettes/main", paletteAsset);
+        assets.put("palettes/main", palette(cells, true));
 
         // The mod's own palettes first so the shipped parts a city style inherits
         // still resolve, and this pack's last so its characters win. The pack's
@@ -537,7 +620,23 @@ public final class Exporter {
             JsonObject parts = new JsonObject();
             worldParts.forEach((fam, shapes) -> {
                 JsonObject o = new JsonObject();
-                shapes.forEach(o::add);
+                shapes.forEach((key, names) -> {
+                    // The monorail keys take one name. Their codec is a plain
+                    // string, unlike the highway and railway keys beside them,
+                    // which accept either, so a list here is not a longer row: it
+                    // is a world style that does not decode and takes everything
+                    // else in the file down with it.
+                    if (singleValued.contains(fam + "/" + key)) {
+                        if (names.size() > 1) {
+                            warnings.add(fam + " " + key + " holds one part only, "
+                                    + "so " + (names.size() - 1) + " of the "
+                                    + names.size() + " built were left out.");
+                        }
+                        o.addProperty(key, names.get(0).getAsString());
+                    } else {
+                        o.add(key, names);
+                    }
+                });
                 parts.add(fam, o);
             });
             world.add("parts", parts);
@@ -582,6 +681,90 @@ public final class Exporter {
         return out;
     }
 
+    /**
+     * Record an asset, and refuse to let two plots write the same file.
+     *
+     * <p>An asset is named by its plot's {@code name} setting, and nothing stops two
+     * plots choosing the same one. Without this the second simply replaced the
+     * first: the pack came out a file short, the city style listed the surviving
+     * name twice, and the plot whose work had gone still looked finished in the
+     * workshop. Every part of that is silent, which is what makes it worth an error
+     * rather than a warning.
+     */
+    private void putAsset(String key, JsonObject value, Layout.Plot plot) {
+        String first = claimedBy.get(key);
+        if (first != null && !first.equals(plot.id())) {
+            faults.add(Finding.error(key + ".json", 0,
+                    plot.id() + " and " + first + " both compile to " + key,
+                    "Two plots cannot write one file. Give one of them a different "
+                            + "`name`, or the second would replace the first and "
+                            + "everything built on it would be missing from the pack "
+                            + "with nothing to say so"));
+            return;
+        }
+        claimedBy.put(key, plot.id());
+        assets.put(key, value);
+    }
+
+    /**
+     * Where a plot asked its characters to be written.
+     *
+     * <p>{@code global} is the default because it is what a pack usually wants: one
+     * place to change a block, one entry per cell however many parts use it, and the
+     * ledger keeping the characters steady between exports. {@code part} and
+     * {@code building} are for assets meant to be readable, or liftable, on their
+     * own.
+     */
+    private static String placement(JsonObject settings) {
+        String value = string(settings, "palette", "global");
+        return switch (value) {
+            case "part", "building", "global" -> value;
+            default -> "global";
+        };
+    }
+
+    /**
+     * A sink, or the shared one.
+     *
+     * <p>Null means the shared map, which is also the signal {@link #emitPart} reads
+     * to decide between a {@code refpalette} and a palette written in the file.
+     */
+    private Map<String, JsonObject> sinkFor(JsonObject settings,
+                                            @Nullable Map<String, JsonObject> own) {
+        return own == null ? cells : own;
+    }
+
+    /**
+     * Palette entries as the format wants them, in character order.
+     *
+     * <p>The order says nothing, so letting it depend on which plot was read first
+     * would make two exports of one workshop differ over nothing, and a round trip
+     * cannot tell that kind of difference from a real one.
+     *
+     * @param withAir the shared palette carries the air entry; a part's own does
+     *                not need to, because air is the one character never assigned
+     */
+    private static JsonObject palette(Map<String, JsonObject> from,
+                                      boolean withAir) {
+        List<JsonObject> sorted = new ArrayList<>(from.values());
+        if (withAir) {
+            JsonObject air = new JsonObject();
+            air.addProperty("char", String.valueOf(PaletteLedger.AIR));
+            air.addProperty("block", "minecraft:air");
+            sorted.add(air);
+        }
+        sorted.sort((a, b) -> Character.compare(charOf(a), charOf(b)));
+        JsonArray entries = new JsonArray();
+        sorted.forEach(entries::add);
+        // An object wrapping the list, whether it stands alone as a palette asset
+        // or sits inside a part. The mod's own building7 and park_trees are written
+        // this way, and a bare list is read as no palette at all: every character
+        // in the asset then resolves to nothing and it draws air.
+        JsonObject out = new JsonObject();
+        out.add("palette", entries);
+        return out;
+    }
+
     private static char charOf(JsonObject entry) {
         String c = entry.has("char") ? entry.get("char").getAsString() : "";
         return c.isEmpty() ? PaletteLedger.AIR : c.charAt(0);
@@ -600,7 +783,7 @@ public final class Exporter {
 
     /** The same rules the mod runs on a datapack at load time, before writing. */
     private List<Finding> check() {
-        List<Finding> out = new ArrayList<>();
+        List<Finding> out = new ArrayList<>(faults);
         for (Map.Entry<String, JsonObject> e : assets.entrySet()) {
             String kind = e.getKey().substring(0, e.getKey().indexOf('/'));
             String text = json(e.getValue());
@@ -631,9 +814,21 @@ public final class Exporter {
         if (Files.exists(root)) {
             deleteTree(root);
         }
+        // json5 is the mod's own extension for these files, and a pack using it
+        // needs this mod present to load at all. Plain JSON is valid JSON5, so what
+        // is written is the same text under a different name; the extension is the
+        // part that decides which loader reads it.
+        String format = string(core, "format", "json");
+        boolean json5 = "json5".equalsIgnoreCase(format);
+        if (!json5 && !"json".equalsIgnoreCase(format)) {
+            warnings.add(format + " is not a format this writes. Use json or json5. "
+                    + "Written as json.");
+        }
+        String ext = json5 ? Json5.EXT_JSON5 : Json5.EXT_JSON;
+
         Path data = root.resolve("data").resolve(namespace).resolve("lostcities");
         for (Map.Entry<String, JsonObject> e : assets.entrySet()) {
-            Path file = data.resolve(e.getKey() + ".json");
+            Path file = data.resolve(e.getKey() + ext);
             Files.createDirectories(file.getParent());
             Files.writeString(file, json(e.getValue()), StandardCharsets.UTF_8);
         }

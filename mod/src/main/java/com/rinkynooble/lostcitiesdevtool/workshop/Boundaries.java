@@ -29,6 +29,14 @@ public final class Boundaries {
     /** The stride between levels. Not the height of a part, which is free. */
     public static final int STRIDE = 6;
 
+    /**
+     * The shortest part that draws anything. Measured: a part of one slice places
+     * no blocks at all, so a height below this is raised rather than honoured, and
+     * everything that reasons about where a part ends has to agree about that or
+     * the preview draws its lines somewhere the compiler will not cut.
+     */
+    public static final int MIN_HEIGHT = 2;
+
     /** One boundary line: the height it sits at, and what it separates. */
     public record Line(int y, String label, Kind kind) {
     }
@@ -67,7 +75,7 @@ public final class Boundaries {
         for (int t = 0; t < tops.size(); t++) {
             out.add(new Line(y, "top " + (t + 1) + ", " + tops.get(t) + " tall",
                     Kind.TOP));
-            y += Math.max(1, tops.get(t));
+            y += Math.max(MIN_HEIGHT, tops.get(t));
         }
         // The line above the last thing, so the top of the build is visible too.
         out.add(new Line(y, tops.isEmpty() ? "above the top floor" : "above the tops",

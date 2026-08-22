@@ -42,6 +42,24 @@ public final class Importer {
     /** How many alternatives of an unpinned building a plot shows at most. */
     private static final int MAX_SHOWN = 8;
 
+    /**
+     * What each kind of asset is made of, as far as the settings schema goes.
+     *
+     * <p>Anything outside these is something the schema has no field for. The format
+     * has a good deal of it, {@code parts2}, {@code variants}, {@code scattered} and
+     * the conditions past a level index among them, and an import that only kept
+     * what it understood would delete the rest on the way through: the pack would
+     * come back looking complete and quietly do less.
+     */
+    private static final Set<String> PART_KEYS =
+            Set.of("xsize", "zsize", "refpalette", "palette", "slices");
+    private static final Set<String> BUILDING_KEYS =
+            Set.of("refpalette", "palette", "minfloors", "maxfloors", "mincellars",
+                    "maxcellars", "overrideFloors", "filler", "rubble",
+                    "preferslonely", "parts");
+    private static final Set<String> MULTI_KEYS =
+            Set.of("dimx", "dimz", "buildings");
+
     public record Result(String worldStyle, int assets, int plots, int blocks,
                          int unpinned, Map<String, Integer> grown,
                          List<String> warnings) {
@@ -128,6 +146,10 @@ public final class Importer {
         // assets and is not under lostcities/ at all. It comes from the pack the
         // world style was read out of, or an import would quietly rename somebody's
         // pack after whatever the next export happened to be called.
+        String ext = loaded.extension("worldstyles", worldStyleName);
+        if (ext != null) {
+            core.addProperty("format", ".json5".equals(ext) ? "json5" : "json");
+        }
         String description = describePack(server,
                 loaded.source("worldstyles", worldStyleName));
         if (description != null && !description.isBlank()) {
@@ -369,8 +391,10 @@ public final class Importer {
         JsonObject multi = assets.get("multibuildings", name);
         if (multi != null) {
             pasteMulti(plot, multi, settings, styleName);
+            carryRaw(settings, multi, MULTI_KEYS);
         } else if (building != null) {
             pasteBuilding(plot, 0, 0, building, settings, styleName);
+            carryRaw(settings, building, BUILDING_KEYS);
         } else {
             JsonObject part = assets.get("parts", name);
             if (part == null) {
@@ -380,6 +404,8 @@ public final class Importer {
             }
             int height = pastePart(plot, 0, 0, Boundaries.BASE, part, styleName, null);
             settings.addProperty("height", height);
+            settings.addProperty("palette", placementOf(part, null));
+            carryRaw(settings, part, PART_KEYS);
         }
         SettingsStore.save(server, plot.id(), plot.row(), settings);
     }
@@ -524,6 +550,20 @@ public final class Importer {
         settings.addProperty("floors", floors);
         settings.addProperty("cellars", cellars);
         settings.addProperty("pinFloors", pinned);
+        // Where the characters were found is where an export of this should put
+        // them back. Read from the first part, because they all agree: the setting
+        // that produced them is one per plot.
+        JsonObject firstPart = null;
+        for (JsonElement e : parts) {
+            if (e.isJsonObject() && e.getAsJsonObject().has("part")) {
+                firstPart = assets.get("parts",
+                        e.getAsJsonObject().get("part").getAsString());
+                if (firstPart != null) {
+                    break;
+                }
+            }
+        }
+        settings.addProperty("palette", placementOf(firstPart, building));
         if (!pinned) {
             unpinned++;
         }
@@ -595,6 +635,46 @@ public final class Importer {
         if (!tops.isEmpty()) {
             settings.add("tops", tops);
         }
+    }
+
+    /**
+     * Keep the keys the schema has no field for, so an export gives them back.
+     *
+     * <p>They go to the same escape hatch somebody writing by hand would reach for,
+     * which is what the exporter merges into the asset last.
+     *
+     * <p>Only the plot's own asset. The buildings inside a multibuilding are not
+     * reached, because the escape hatch is per plot and the export applies it to the
+     * multibuilding rather than to each of its chunks.
+     */
+    private void carryRaw(JsonObject settings, JsonObject asset, Set<String> known) {
+        JsonObject raw = new JsonObject();
+        for (String key : asset.keySet()) {
+            if (!known.contains(key)) {
+                raw.add(key, asset.get(key));
+            }
+        }
+        if (!raw.keySet().isEmpty()) {
+            settings.add("raw", raw);
+        }
+    }
+
+    /**
+     * Where a loaded asset keeps its characters.
+     *
+     * <p>An asset carrying a palette of its own was written that way on purpose, and
+     * an export of it should write it the same way. A {@code refpalette}, or nothing
+     * at all, means the characters live somewhere shared.
+     */
+    private static String placementOf(@Nullable JsonObject part,
+                                      @Nullable JsonObject building) {
+        if (building != null && building.has("palette")) {
+            return "building";
+        }
+        if (part != null && part.has("palette")) {
+            return "part";
+        }
+        return "global";
     }
 
     /** A palette character, carried out as the block it stands for. */

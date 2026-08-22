@@ -77,8 +77,13 @@ public final class Settings {
                             + "workshop and leaves every kind you did not build "
                             + "empty."),
             new Field("format", Type.STRING, Applies.CORE, "json",
-                    "json or json5. json5 keeps comments and trailing commas, and "
-                            + "needs this mod to load."),
+                    "The extension the assets are written under. json is read by "
+                            + "Lost Cities on its own. json5 is read only where "
+                            + "this mod is installed, and is the extension to use "
+                            + "for a pack meant to be edited afterwards, since "
+                            + "json5 allows the comments and trailing commas that "
+                            + "json rejects. What is written is the same text "
+                            + "either way."),
 
             // --------------------------------------------------------- every plot
             new Field("name", Type.STRING, Applies.SHAPE, null,
@@ -87,10 +92,16 @@ public final class Settings {
             new Field("skip", Type.BOOL, Applies.SHAPE, "false",
                     "Leave this plot out of the export entirely, without deleting "
                             + "what is built on it."),
-            new Field("palette", Type.STRING, Applies.SHAPE, "part",
-                    "Where this plot's palette goes. part gives every part its own, "
-                            + "building gives the whole building one, global puts "
-                            + "everything in the pack's shared palette."),
+            new Field("palette", Type.STRING, Applies.SHAPE, "global",
+                    "Where this plot's characters are written. global puts them in "
+                            + "the pack's shared palette and points the assets at "
+                            + "it, so one entry covers every part using that block "
+                            + "and changing it changes them all. part writes each "
+                            + "part's own characters into the part, and building "
+                            + "writes the whole building's into the building: both "
+                            + "make the file readable on its own and repeat an "
+                            + "entry wherever a block is reused. A flat plot is one "
+                            + "part, so part and building mean the same there."),
 
             // ------------------------------------------------------- city styles
             new Field("citystyles", Type.STRING_LIST, Applies.CITY_SCOPED, null,
