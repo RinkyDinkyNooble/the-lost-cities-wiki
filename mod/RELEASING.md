@@ -39,20 +39,24 @@ unzip -l build/libs/lostcities_devtool-*.jar
 
 ## 4. Test the jar you will ship
 
-Not a rebuild of it. Each check installs the jar from `build/libs`, boots a real
-server on the rig, and removes the jar afterwards, so run them against the file
-that is about to be uploaded and do not rebuild in between.
+Test the exact file, not a rebuild of it. The four server checks install the jar
+from `build/libs` and remove it afterwards, so do not rebuild between running them
+and uploading.
 
 ```bash
 cd ../..
+python mod/tools/check-validator.py
 python mod/tools/check-workshop.py
 python mod/tools/check-export.py
 python mod/tools/check-import.py
 python mod/tools/check-roundtrip.py
 ```
 
-All four end in `all checks passed`:
+The first needs no server and finishes in about a second. The other four boot one
+each and take roughly ninety seconds apiece. All five end in `all checks passed`:
 
+- [ ] `check-validator`, every asset-check rule, and nothing thrown by a malformed
+      file
 - [ ] `check-workshop`, the dimension and the catalogue
 - [ ] `check-export`, the pack generates a city, gold block count non-zero
 - [ ] `check-import`, Lost Cities' own pack comes in on 42 plots
@@ -101,7 +105,9 @@ git commit
 git tag mod-v<version>
 ```
 
-User pushes. Never push.
+The commit and the tag stay local at this point. Publishing is step 8, and the order
+there matters: the wiki links to the release by tag, so pushing the docs before the
+release exists leaves four broken links on the live site.
 
 ## 8. Publish
 

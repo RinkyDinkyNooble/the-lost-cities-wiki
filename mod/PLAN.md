@@ -20,7 +20,7 @@ Three rules follow, and they decide the whole ordering below.
 |---|---|
 | A feature that changes what generates is **off by default** | A world generated with the mod must be reproducible without it. Anything that alters block placement is opt-in. |
 | A feature that only changes diagnostics is **on by default** | Better messages cannot corrupt anything, and the reason to install the mod is to see faults sooner. |
-| Every feature has an acceptance test on the existing rig | `research/server-1.20.1-7.4.12/harness.py` already boots a headless server, force loads a grid and reads the world back. Each feature below names what proves it works. |
+| Every feature has an acceptance test on the existing rig | `testrig/` boots a headless server, force loads a grid and reads the world back, and `mod/tools/check-*.py` drives it per feature. Each feature below names what proves it works. |
 
 ## Feature inventory
 
@@ -79,6 +79,19 @@ Each changes what generates, so each is opt-in and separately switchable.
 | 4.3 | **Dropped.** ~~Show non-selectable profiles~~ | The premise did not survive being traced. `toggleProfile` filters on `isPublic()` alone and nothing tests the characters of a name, so there is no class of profile that loads and is wrongly hidden. What `isPublic()` hides is hidden on purpose: the sphere-outside profiles, which are meant to be referenced rather than chosen. The two real causes found in its place, the first-dot name split and the `IOException` handler that returns rather than continues, are recorded in `research/test-backlog.md` and are faults in reading profiles, not in offering them. |
 | 4.4 | **Done.** **Customize no longer crashes** | `LostCitySetup.reset()` nulls the profile list when a world is left, `toggleProfile()` rebuilds it lazily, and `customize()` does not. Pressing Customize after having played a world throws and closes the game. |
 
+### Tier 5: the workshop, shipped in 1.1.0
+
+Authoring rather than diagnosis. It writes files and blocks in its own dimension and
+changes nothing about how Lost Cities generates.
+
+| # | Item | Notes |
+|---|---|---|
+| 5.1 | The workshop dimension and the plot catalogue | Generated from the codec keys the target version declares, so the catalogue is the format rather than a guess at it |
+| 5.2 | Per-plot settings, as JSON5 with the schema's help written in | One source for the file, tab completion and the documentation |
+| 5.3 | `/lcdev export`, the compiler | Writes a datapack and the profile beside it, and refuses rather than writing a pack that would not load |
+| 5.4 | `/lcdev import`, the reverse | Reads the JSON the resource manager holds, not the runtime objects, which have lost what the file said |
+| 5.5 | The round-trip gate | Export, import, export again, byte identical, and every plot holding the blocks it held |
+
 ## Build order, and why
 
 **1.1 first.** It is the smallest feature in the plan, roughly one mixin and a
@@ -101,18 +114,11 @@ rig will have been extended for the mod anyway.
 **Tier 4 whenever convenient.** It is isolated from everything else and needs a
 client rather than the headless rig, so it does not block any other item.
 
-### Tier 5: the workshop, shipped in 1.1.0
-
-Authoring rather than diagnosis. It writes files and blocks in its own dimension and
-changes nothing about how Lost Cities generates.
-
-| # | Item | Notes |
-|---|---|---|
-| 5.1 | The workshop dimension and the plot catalogue | Generated from the codec keys the target version declares, so the catalogue is the format rather than a guess at it |
-| 5.2 | Per-plot settings, as JSON5 with the schema's help written in | One source for the file, tab completion and the documentation |
-| 5.3 | `/lcdev export`, the compiler | Writes a datapack and the profile beside it, and refuses rather than writing a pack that would not load |
-| 5.4 | `/lcdev import`, the reverse | Reads the JSON the resource manager holds, not the runtime objects, which have lost what the file said |
-| 5.5 | The round-trip gate | Export, import, export again, byte identical, and every plot holding the blocks it held |
+**Tier 5 after 1.0.1 shipped.** It is much larger than anything above it and depends
+on the whole of Tier 1 and Tier 2 being in place: it writes assets, so it wants the
+load-time checks to refuse a bad one, and it writes them as JSON5, so it wants that
+reader to already exist. It was built in six phases behind its own round-trip gate
+rather than in one pass.
 
 ## Acceptance tests
 
@@ -186,5 +192,6 @@ gallery images.
 Modrinth is not a target. Its content rules restrict work made with AI assistance,
 including icons, and this project does not qualify.
 
-Set The Lost Cities as a **required dependency** in CurseForge's dependency field
-rather than only in the description text. That field is what a launcher reads.
+CurseForge carries the Lost Cities requirement in its dependency field, not only in
+the description text, because the field is what a launcher reads when it resolves a
+pack.
