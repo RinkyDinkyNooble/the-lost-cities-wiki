@@ -3,7 +3,7 @@
 Every `/lcdev` command, what each argument means, and what it does to your world.
 
 !!! note "This page documents the companion mod, not Lost Cities"
-    `/lcdev` comes from [The Lost Cities - DevTool](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/releases/tag/mod-v1.1.0). Lost Cities' own commands are on [Testing and Debugging Commands](commands.md). Nothing here is a claim about Lost Cities' behaviour, so it carries no verification chips: it describes a tool this wiki ships.
+    `/lcdev` comes from [The Lost Cities - DevTool](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/releases/tag/mod-v1.2.0). Lost Cities' own commands are on [Testing and Debugging Commands](commands.md). Nothing here is a claim about Lost Cities' behaviour, so it carries no verification chips: it describes a tool this wiki ships.
 
 ## Everything at a glance
 
@@ -288,6 +288,11 @@ building, floor and cellar counts, and the part used on each level. `char` and
 `block` look a palette up in both directions, after the merge, so the answer is what
 the world will actually place rather than what one file says.
 
+`char` and `block` search every asset the server has loaded, so on a modpack they
+can match a great many. They print the first twelve and count the rest, and name up
+to five assets that could not be built before counting those too. `in <asset>` is
+how you ask about one of them on its own.
+
 `in <asset>` asks the same question of one named asset instead of your surroundings,
 which is how you check a building you are not standing in.
 
@@ -295,6 +300,18 @@ which is how you check a building you are not standing in.
     `/lcdev in <asset> char <c>`, not the other way round. The character argument is
     greedy so that a character can be anything, including a space, which means it has
     to be the last thing on the line.
+
+## Why completion is fast on a big pack
+
+Completing an asset or a world style name means listing what is loaded, and a client
+asks for that after every character typed. Doing the listing per keystroke on a
+server holding 911 Lost Cities assets cost 99 ms each time, which is close to two
+seconds to type one name.
+
+The listing is read once per datapack load and reused, so the same completion costs
+a fraction of a millisecond. It is tied to the load rather than to a timer, so
+editing a file and running `/reload` rebuilds it and completion sees the change
+immediately.
 
 ## Profile keys
 

@@ -9,6 +9,9 @@ import com.rinkynooble.lostcitiesdevtool.json5.Json5;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
+
+import java.lang.ref.WeakReference;
 
 import javax.annotation.Nullable;
 import java.io.InputStream;
@@ -42,12 +45,51 @@ public final class Assets {
     private final Map<String, Map<String, String>> sourceByFolder =
             new LinkedHashMap<>();
 
+    /**
+     * The manager the cache was built from, weakly, and what was built.
+     *
+     * <p>Static because there is one server per process and the resource manager it
+     * hands out is the thing that changes. Every caller is on the server thread:
+     * commands run there, and so does the packet that asks for suggestions.
+     */
+    private static WeakReference<ResourceManager> cachedFor = new WeakReference<>(null);
+    @Nullable
+    private static Assets cached;
+
     private Assets() {
     }
 
+    /**
+     * Every loaded asset, read once per datapack load.
+     *
+     * <p><b>Cached, because tab completion asks per keystroke.</b> Completing
+     * {@code /lcdev import <name>} calls this for every character typed and again
+     * for every backspace, and reading it afresh means opening and parsing every
+     * Lost Cities file the server has. Measured on a server holding 911 of them,
+     * that was 99 ms a keystroke, so typing one name cost close to two seconds of
+     * server time.
+     *
+     * <p>The cache is keyed on the resource manager itself rather than on an event.
+     * Minecraft builds a new one for every datapack load, so an edit is picked up by
+     * the identity check without anything having to remember to invalidate, and a
+     * stale read is not possible. The reference to the manager is weak so that
+     * holding the cache cannot keep a discarded one alive.
+     */
     public static Assets load(MinecraftServer server) {
+        ResourceManager manager = server.getResourceManager();
+        Assets have = cached;
+        if (have != null && cachedFor.get() == manager) {
+            return have;
+        }
+        Assets built = read(manager);
+        cached = built;
+        cachedFor = new WeakReference<>(manager);
+        return built;
+    }
+
+    private static Assets read(ResourceManager manager) {
         Assets out = new Assets();
-        Map<ResourceLocation, Resource> found = server.getResourceManager()
+        Map<ResourceLocation, Resource> found = manager
                 .listResources(ROOT.substring(0, ROOT.length() - 1),
                         id -> id.getPath().endsWith(Json5.EXT_JSON)
                                 || id.getPath().endsWith(Json5.EXT_JSON5));

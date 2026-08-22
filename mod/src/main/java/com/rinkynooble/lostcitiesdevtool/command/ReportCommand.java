@@ -51,6 +51,12 @@ import java.util.Set;
  */
 public class ReportCommand {
 
+    /** How many matches a search prints before it stops and counts the rest. */
+    private static final int MAX_LISTED = 12;
+
+    /** How many unbuildable assets are named. The rest are a count and a log line. */
+    private static final int MAX_UNREADABLE = 5;
+
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("lcdev")
                 .then(Commands.literal("report")
@@ -415,8 +421,11 @@ public class ReportCommand {
                 continue;
             }
             found++;
-            line(source, asset.label(), describeBlocks(blocks));
+            if (found <= MAX_LISTED) {
+                line(source, asset.label(), describeBlocks(blocks));
+            }
         }
+        andMore(source, found, "asset", "assets");
         if (found == 0) {
             line(source, "defined in", "no palette, part or building in this world's "
                     + "assets. Check the character is the one written, and that the "
@@ -432,6 +441,9 @@ public class ReportCommand {
         for (PaletteLookup.Source asset : scan.sources()) {
             for (Character c : PaletteLookup.charsFor(asset, blockId)) {
                 found++;
+                if (found > MAX_LISTED) {
+                    continue;
+                }
                 int weight = PaletteLookup.weight(asset, c);
                 line(source, asset.label(),
                         String.format("'%c'  U+%04X, %s", c, (int) c,
@@ -439,6 +451,7 @@ public class ReportCommand {
                                             : "one of " + weight + " in a weighted list"));
             }
         }
+        andMore(source, found, "match", "matches");
         if (found == 0) {
             line(source, "produced by", "no character in any palette, part or building. "
                     + "The block may come from terrain, from the ruin or explosion pass, "
@@ -484,8 +497,37 @@ public class ReportCommand {
         }
         line(source, "incomplete", bad.size() + (bad.size() == 1 ? " asset" : " assets")
                 + " could not be built and were not searched");
+        int shown = 0;
         for (PaletteLookup.Unreadable u : bad) {
+            if (++shown > MAX_UNREADABLE) {
+                break;
+            }
             line(source, "  " + u.kind() + " " + u.id(), u.reason());
+        }
+        if (bad.size() > MAX_UNREADABLE) {
+            // No claim about a log here. Nothing writes these anywhere: an asset
+            // that will not build is found by this scan and reported by it, and a
+            // dangling reference between two files is not something the load-time
+            // check can see, because it decides one file at a time.
+            line(source, "  and", (bad.size() - MAX_UNREADABLE) + " more");
+        }
+    }
+
+    /**
+     * How many were left out, when a search matched more than it will print.
+     *
+     * <p>These commands search every asset the server has loaded, which on one pack
+     * is a handful of lines and on a modpack is hundreds. An answer that scrolls the
+     * chat away is not an answer, and the reply has a size limit besides: measured
+     * on a server holding 600 assets that could not be built, the listing was cut
+     * off mid-word by the transport carrying it.
+     */
+    private static void andMore(CommandSourceStack source, int found,
+                                String one, String many) {
+        int rest = found - MAX_LISTED;
+        if (rest > 0) {
+            line(source, "and", rest + " more " + (rest == 1 ? one : many)
+                    + ". /lcdev in <asset> asks about one of them on its own");
         }
     }
 

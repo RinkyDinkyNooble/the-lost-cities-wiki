@@ -51,10 +51,12 @@ python mod/tools/check-export.py
 python mod/tools/check-import.py
 python mod/tools/check-roundtrip.py
 python mod/tools/check-import-twice.py
+python mod/tools/check-suggest-speed.py
+python mod/tools/check-loud-output.py
 ```
 
-The first needs no server and finishes in about a second. The other five boot one
-each and take roughly ninety seconds apiece. All six end in `all checks passed`:
+The first needs no server and finishes in about a second. The other seven boot one
+each and take roughly ninety seconds apiece. All eight end in `all checks passed`:
 
 - [ ] `check-validator`, every asset-check rule, and nothing thrown by a malformed
       file
@@ -65,6 +67,9 @@ each and take roughly ninety seconds apiece. All six end in `all checks passed`:
       the blocks it held
 - [ ] `check-import-twice`, a second import does not hide the first city, and a
       wipe backs up before it empties
+- [ ] `check-suggest-speed`, completion stays inside its budget and the cache
+      notices a reload
+- [ ] `check-loud-output`, a lookup on a broken pack stays readable
 - [ ] No mixin failures in the rig's log:
       `grep -ci "mixin apply failed\|InvalidInjection" testrig/servers/forge-1.20.1-47.4.10/logs/debug.log`
       is 0
