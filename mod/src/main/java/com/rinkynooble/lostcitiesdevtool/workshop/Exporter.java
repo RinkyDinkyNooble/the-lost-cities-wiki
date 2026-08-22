@@ -822,8 +822,19 @@ public final class Exporter {
         for (Map.Entry<String, JsonObject> e : assets.entrySet()) {
             String kind = e.getKey().substring(0, e.getKey().indexOf('/'));
             String text = json(e.getValue());
-            out.addAll(AssetValidator.validate(e.getKey() + ".json", kind,
-                    e.getValue(), text));
+            try {
+                out.addAll(AssetValidator.validate(e.getKey() + ".json", kind,
+                        e.getValue(), text));
+            } catch (RuntimeException ex) {
+                // The rules are written to tolerate any shape, and `raw` lets a
+                // plot put any shape into an asset, so the two have to be held
+                // apart: a rule that trips over one is a fault in the rule, and
+                // reporting it as one beats ending the export in a stack trace.
+                out.add(Finding.warn(e.getKey() + ".json", 0,
+                        "this asset could not be checked: " + ex,
+                        "It is written either way. The check itself failed, which "
+                                + "is a fault in this mod rather than in the pack"));
+            }
         }
         return out;
     }

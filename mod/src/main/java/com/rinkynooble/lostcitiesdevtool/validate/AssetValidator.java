@@ -4,6 +4,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import javax.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -156,7 +158,13 @@ public final class AssetValidator {
                 }
             }
             if (ref.has("range")) {
-                String value = ref.get("range").getAsString();
+                String value = strOr(ref, "range");
+                if (value == null) {
+                    out.add(Finding.error(file, lineOf(raw, "range"),
+                            "'range' is not text", "It is two integers in a string, "
+                                    + "as in \"0,2\""));
+                    continue;
+                }
                 if (parseRange(value) == null) {
                     out.add(Finding.error(file, lineOf(raw, "range"),
                             "range \"" + value + "\" does not parse as two integers",
@@ -254,17 +262,21 @@ public final class AssetValidator {
         if (ref.has("cellar") && (level < 0) != ref.get("cellar").getAsBoolean()) {
             return false;
         }
-        if (ref.has("floor") && level != ref.get("floor").getAsInt()) {
+        if (ref.has("floor") && level != intOr(ref, "floor", Integer.MIN_VALUE)) {
             return false;
         }
         if (ref.has("range")) {
-            int[] bounds = parseRange(ref.get("range").getAsString());
+            int[] bounds = parseRange(strOr(ref, "range"));
             return bounds != null && level >= bounds[0] && level <= bounds[1];
         }
         return true;
     }
 
-    private static int[] parseRange(String text) {
+    @Nullable
+    private static int[] parseRange(@Nullable String text) {
+        if (text == null) {
+            return null;
+        }
         String[] pieces = text.split(",");
         if (pieces.length < 2) {
             return null;
@@ -288,7 +300,7 @@ public final class AssetValidator {
                 continue;
             }
             JsonObject entry = e.getAsJsonObject();
-            String c = entry.has("char") ? entry.get("char").getAsString() : null;
+            String c = strOr(entry, "char");
             if (c == null || c.isEmpty()) {
                 out.add(Finding.error(file, lineOf(raw, "char"), "palette entry with no 'char'",
                         "An empty 'char' throws at load with a string index out of range"));
@@ -308,8 +320,9 @@ public final class AssetValidator {
             }
 
             for (String k : List.of("loot", "mob")) {
-                if (entry.has(k) && entry.get(k).getAsString().contains("/")) {
-                    String v = entry.get(k).getAsString();
+                String kv = strOr(entry, k);
+                if (kv != null && kv.contains("/")) {
+                    String v = kv;
                     out.add(Finding.error(file, lineOf(raw, k),
                             "'" + k + "': \"" + v + "\" looks like an ID, but '" + k
                                     + "' names a Condition",
@@ -325,7 +338,9 @@ public final class AssetValidator {
             if (entry.has("blocks") && entry.get("blocks").isJsonArray()) {
                 for (JsonElement b : entry.getAsJsonArray("blocks")) {
                     if (b.isJsonObject()) {
-                        checkBlockId(out, file, raw, quoted(c), b.getAsJsonObject());
+                        if (b.isJsonObject()) {
+                            checkBlockId(out, file, raw, quoted(c), b.getAsJsonObject());
+                        }
                     }
                 }
                 checkWeightedList(out, file, raw, quoted(c), entry.getAsJsonArray("blocks"));
@@ -379,11 +394,15 @@ public final class AssetValidator {
         int total = 0;
         int running = 0;
         for (int i = 0; i < blocks.size(); i++) {
+            if (!blocks.get(i).isJsonObject()) {
+                continue;
+            }
             JsonObject b = blocks.get(i).getAsJsonObject();
-            int weight = b.has("random") ? b.get("random").getAsInt() : 0;
+            int weight = intOr(b, "random", 0);
             if (running >= 128) {
-                out.add(Finding.error(file, lineOf(raw, b.has("block")
-                                ? b.get("block").getAsString() : "random"),
+                String where = strOr(b, "block");
+                out.add(Finding.error(file, lineOf(raw, where == null
+                                ? "random" : where),
                         "char " + label + " entry " + i + " is unreachable, 128 slots "
                                 + "already filled",
                         "The list fills 128 slots in order. Put the large catch-all entry "
@@ -414,6 +433,13 @@ public final class AssetValidator {
             out.add(Finding.error(file, lineOf(raw, "metadata"), "key is 'meta', not 'metadata'",
                     "'metadata' parses into nothing and is never read"));
         }
+        if (!json.get("slices").isJsonArray()) {
+            out.add(Finding.error(file, lineOf(raw, "slices"),
+                    "'slices' is not a list of layers",
+                    "Each layer is a list of rows, and a row is a string of "
+                            + "palette characters"));
+            return;
+        }
         JsonArray slices = json.getAsJsonArray("slices");
         int expected = xsize * zsize;
         for (int y = 0; y < slices.size(); y++) {
@@ -423,7 +449,10 @@ public final class AssetValidator {
             JsonArray layer = slices.get(y).getAsJsonArray();
             int units = 0;
             for (JsonElement row : layer) {
-                units += row.getAsString().length();
+                String text = scalar(row);
+                if (text != null) {
+                    units += text.length();
+                }
             }
             if (units == expected) {
                 continue;
@@ -446,13 +475,42 @@ public final class AssetValidator {
     }
 
     private static String firstRow(JsonArray layer) {
-        return layer.isEmpty() ? "slices" : layer.get(0).getAsString();
+        String first = layer.isEmpty() ? null : scalar(layer.get(0));
+        return first == null ? "slices" : first;
     }
 
     // ------------------------------------------------------------------- helpers
 
+    /**
+     * A number, or the fallback when the key is missing <b>or holds something
+     * else</b>.
+     *
+     * <p>Every accessor here tolerates the wrong type on purpose. This runs as a
+     * datapack load listener over files people edit by hand, so a string where a
+     * number belongs is not an exceptional case, it is the ordinary one. Asking Gson
+     * for the wrong type throws, the listener catches it, and the file is reported as
+     * "could not check" with none of its other faults found: the checker gives up
+     * exactly on the files most likely to be broken.
+     */
     private static int intOr(JsonObject json, String key, int fallback) {
-        return json.has(key) ? json.get(key).getAsInt() : fallback;
+        JsonElement e = json.get(key);
+        if (e == null || !e.isJsonPrimitive() || !e.getAsJsonPrimitive().isNumber()) {
+            return fallback;
+        }
+        return e.getAsInt();
+    }
+
+    /** Text, or null when the key is missing or holds an object or a list. */
+    @Nullable
+    private static String strOr(JsonObject json, String key) {
+        JsonElement e = json.get(key);
+        return e != null && e.isJsonPrimitive() ? e.getAsString() : null;
+    }
+
+    /** Text of any element, or null where it is not a scalar. */
+    @Nullable
+    private static String scalar(JsonElement e) {
+        return e != null && e.isJsonPrimitive() ? e.getAsString() : null;
     }
 
     private static String quoted(String s) {

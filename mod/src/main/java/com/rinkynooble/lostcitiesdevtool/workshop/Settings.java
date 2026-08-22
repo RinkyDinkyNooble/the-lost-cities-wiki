@@ -220,7 +220,22 @@ public final class Settings {
             return switch (field.type()) {
                 case STRING -> new JsonPrimitive(t);
                 case INT -> new JsonPrimitive(Integer.parseInt(t));
-                case FLOAT -> new JsonPrimitive(Float.parseFloat(t));
+                case FLOAT -> {
+                    float f = Float.parseFloat(t);
+                    // Float.parseFloat takes "NaN" and overflows quietly to
+                    // Infinity: a float stops at about 3.4e38, so `1e99` is a
+                    // plausible typo rather than a silly value. Gson then writes
+                    // the word Infinity into the file, which reads back because
+                    // its parser is lenient and which no strict JSON reader will
+                    // take, so the pack that carries it into a datapack does not
+                    // load and nothing between here and there says why.
+                    if (!Float.isFinite(f)) {
+                        throw new IllegalArgumentException(
+                                "a number a float can hold, which stops at about "
+                                        + "3.4e38. " + t + " reads as " + f);
+                    }
+                    yield new JsonPrimitive(f);
+                }
                 case BOOL -> {
                     if (!t.equalsIgnoreCase("true") && !t.equalsIgnoreCase("false")) {
                         throw new IllegalArgumentException("true or false");
