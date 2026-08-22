@@ -182,6 +182,11 @@ On its own this reports what emptying would cost, in plots and blocks, and chang
 nothing. Adding `confirm` writes a full backup pack to
 `config/lostcitiesdevtool/backups/<timestamp>/` and then empties every plot.
 
+What counts as a plot worth emptying is what is standing on it, read from the world
+rather than from its settings file. A plot holding blocks and no settings is still
+cleared, and a build taller than its settings describe is cleared to the top of the
+build rather than to the top of the asset.
+
 The backup is a real pack, so `/lcdev import` puts it back once it is installed as a
 datapack. If the backup cannot be written, the wipe stops rather than going ahead
 without one; `clear confirm anyway` is the way past that, and it is two words deep
@@ -212,6 +217,13 @@ so the three cannot drift apart.
 A list value is comma separated. `/lcdev plot get` with no key prints everything the
 plot has; with a key it prints that one. `/lcdev plot file` gives you the path to the
 file, which is the truth and is safe to edit by hand.
+
+`name` is the one setting every plot has, because it names every file that plot
+compiles into. **Two plots cannot share it**, and an export says so rather than
+letting the second quietly replace the first. An import keeps the namespace off the
+name, so `mypack:tower` becomes `tower`, unless two packs both call something
+`tower`: then both keep their namespace, as `mypack_tower` and `otherpack_tower`,
+and the import says which ones it had to rename.
 
 ### Seeing where the compiler will cut
 

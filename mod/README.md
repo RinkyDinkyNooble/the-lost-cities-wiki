@@ -462,6 +462,7 @@ published results were produced on.
 | `mod/tools/check-suggest-speed.py` | A suggestion provider stays inside a 50 ms budget with 911 assets loaded, and the cache behind it notices a `/reload` |
 | `mod/tools/check-loud-output.py` | A lookup that matches everything answers in a few lines rather than hundreds |
 | `mod/tools/check-import-twice.py` | Importing a second city reports the first one's plots rather than hiding them, an unconfirmed clear removes nothing, and a confirmed one backs up before it empties |
+| `mod/tools/check-clear.py` | A confirmed clear leaves no block standing, including above what the settings describe, and two packs that call a building the same thing do not stop the backup |
 | `mod/tools/check-roundtrip.py` | Export, import, export again is **byte for byte the same pack**, and every plot holds the blocks it held before the export. Over every row class, both orientations of a multibuilding, block states with properties, both non-default palette placements, json5 output, the raw escape hatch, and two plots asking for one asset name |
 
 ```bash

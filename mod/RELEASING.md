@@ -54,10 +54,11 @@ python mod/tools/check-import-twice.py
 python mod/tools/check-suggest-speed.py
 python mod/tools/check-loud-output.py
 python mod/tools/check-import-fidelity.py
+python mod/tools/check-clear.py
 ```
 
-The first needs no server and finishes in about a second. The other eight boot one
-each and take roughly ninety seconds apiece. All nine end in `all checks passed`:
+The first needs no server and finishes in about a second. The other nine boot one
+each and take roughly ninety seconds apiece. All ten end in `all checks passed`:
 
 - [ ] `check-validator`, every asset-check rule, and nothing thrown by a malformed
       file
@@ -73,6 +74,8 @@ each and take roughly ninety seconds apiece. All nine end in `all checks passed`
 - [ ] `check-loud-output`, a lookup on a broken pack stays readable
 - [ ] `check-import-fidelity`, a shared band keeps its variety and a tagged block
       keeps its NBT
+- [ ] `check-clear`, a confirmed clear leaves nothing standing and a shared short
+      name does not block the backup
 - [ ] No mixin failures in the rig's log:
       `grep -ci "mixin apply failed\|InvalidInjection" testrig/servers/forge-1.20.1-47.4.10/logs/debug.log`
       is 0

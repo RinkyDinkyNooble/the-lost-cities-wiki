@@ -180,7 +180,15 @@ public final class Assets {
         return all.get(qualify(name));
     }
 
-    private static String qualify(String name) {
+    /**
+     * A name in the one form everything else can compare.
+     *
+     * <p>Selectors are written both ways, and the same building reached as
+     * {@code tower} and as {@code lostcities:tower} is one asset. Anything keying a
+     * map on a reference has to put it through here first or it holds the same
+     * asset twice under two spellings.
+     */
+    public static String qualify(String name) {
         return name.contains(":") ? name : "lostcities:" + name;
     }
 

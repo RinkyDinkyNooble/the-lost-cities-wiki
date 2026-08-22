@@ -95,6 +95,13 @@ public final class Exporter {
     /** {@code family/shape} for the keys whose codec takes one name, not a list. */
     private final Set<String> singleValued = new LinkedHashSet<>();
 
+    /**
+     * plot id -> the name its assets are written under.
+     *
+     * <p>Normally just its `name` setting. It differs only where two plots were
+     * given one name and this is a backup, which may not refuse.
+     */
+    private final Map<String, String> plotNames = new LinkedHashMap<>();
     /** asset key -> the plot that claimed it, so a second claim can name the first. */
     private final Map<String, String> claimedBy = new LinkedHashMap<>();
     /** Faults found while compiling, which the file-by-file rules cannot see. */
@@ -105,8 +112,12 @@ public final class Exporter {
     /** The largest footprint any multibuilding in this pack has. */
     private int largestMulti;
 
+    /** Whether this is the copy a wipe takes, which has to be written whatever. */
+    private final boolean backup;
+
     private Exporter(MinecraftServer server, ServerLevel level, PaletteLedger ledger,
-                     JsonObject core) {
+                     JsonObject core, boolean backup) {
+        this.backup = backup;
         this.server = server;
         this.level = level;
         this.ledger = ledger;
@@ -130,9 +141,23 @@ public final class Exporter {
      */
     public static Result run(MinecraftServer server, ServerLevel level, String name,
                              boolean force, Path root) throws IOException {
+        return run(server, level, name, force, root, false);
+    }
+
+    /**
+     * The same compile again, told whether it is a backup.
+     *
+     * <p>A backup is what makes a wipe safe, so it is the one export that may not
+     * refuse to be written. Two plots given one name is a real fault and stops an
+     * export somebody asked for; stopping the copy taken to protect them would
+     * leave no way to empty a workshop at all.
+     */
+    public static Result run(MinecraftServer server, ServerLevel level, String name,
+                             boolean force, Path root, boolean backup)
+            throws IOException {
         JsonObject core = SettingsStore.load(server, Layout.CORE_ID);
         PaletteLedger ledger = PaletteLedger.load(server);
-        Exporter exporter = new Exporter(server, level, ledger, core);
+        Exporter exporter = new Exporter(server, level, ledger, core, backup);
 
         if (Files.exists(root) && !force) {
             throw new IOException("an export named " + name + " is already there. "
@@ -166,6 +191,7 @@ public final class Exporter {
     // ------------------------------------------------------------------ compile
 
     private int compile() throws IOException {
+        namePlots();
         int done = 0;
         for (Layout.Plot plot : Layout.plots()) {
             if (plot.row() == null) {
@@ -182,9 +208,71 @@ public final class Exporter {
         return done;
     }
 
+    /**
+     * The name every plot's assets are written under, settled before any is written.
+     *
+     * <p>Two plots given one name collide, and the collision is worth refusing an
+     * export over: the second would replace the first and the plot whose work had
+     * gone would still look finished in the workshop. {@link #putAsset} raises that.
+     *
+     * <p>A backup cannot afford to refuse, so there the clashing plots are given
+     * names that differ instead. Renaming here rather than at the point of writing
+     * is what keeps the backup a real pack: a building and the parts it references
+     * are all named from this, so they stay pointing at each other.
+     */
+    private void namePlots() throws IOException {
+        Map<String, List<String>> byName = new LinkedHashMap<>();
+        for (Layout.Plot plot : Layout.plots()) {
+            if (plot.row() == null) {
+                continue;
+            }
+            JsonObject settings = SettingsStore.load(server, plot.id());
+            if (settings.keySet().isEmpty() || bool(settings, "skip", false)) {
+                continue;
+            }
+            byName.computeIfAbsent(
+                    string(settings, "name", plot.id().replace('/', '_')),
+                    k -> new ArrayList<>()).add(plot.id());
+        }
+        Set<String> taken = new LinkedHashSet<>();
+        for (Map.Entry<String, List<String>> e : byName.entrySet()) {
+            if (e.getValue().size() == 1) {
+                plotNames.put(e.getValue().get(0), e.getKey());
+                taken.add(e.getKey());
+            }
+        }
+        for (Map.Entry<String, List<String>> e : byName.entrySet()) {
+            List<String> clash = e.getValue();
+            if (clash.size() == 1) {
+                continue;
+            }
+            if (!backup) {
+                // Left sharing the name, so putAsset reports it the way it always
+                // has, naming both plots.
+                clash.forEach(id -> plotNames.put(id, e.getKey()));
+                continue;
+            }
+            List<String> renamed = new ArrayList<>();
+            for (String id : clash) {
+                String base = e.getKey() + "_" + id.replace('/', '_');
+                String pick = base;
+                for (int n = 2; !taken.add(pick); n++) {
+                    pick = base + "_" + n;
+                }
+                plotNames.put(id, pick);
+                renamed.add(pick);
+            }
+            warnings.add(clash.size() + " plots are all named " + e.getKey()
+                    + ", which one pack cannot hold. This copy names them "
+                    + String.join(" and ", renamed)
+                    + " so that none of them is lost.");
+        }
+    }
+
     private void compilePlot(Layout.Plot plot, JsonObject settings) {
         Catalogue.Row row = plot.row();
-        String name = string(settings, "name", plot.id().replace('/', '_'));
+        String name = plotNames.getOrDefault(plot.id(),
+                string(settings, "name", plot.id().replace('/', '_')));
         boolean stacked = "buildings".equals(row.key())
                 || "multibuildings".equals(row.key());
 

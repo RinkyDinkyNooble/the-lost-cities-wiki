@@ -104,7 +104,8 @@ public class WorkshopCommand {
 
         if (survey.isEmpty()) {
             Chat.header(source, "Workshop", "already empty");
-            Chat.note(source, "No plot holds settings, so there is nothing to clear.");
+            Chat.note(source, "No plot holds settings or blocks, so there is "
+                    + "nothing to clear.");
             return 1;
         }
 

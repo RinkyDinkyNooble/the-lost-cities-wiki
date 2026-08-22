@@ -23,6 +23,7 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -111,6 +112,8 @@ public final class Importer {
 
     /** row id -> the asset names bound for it, in the order they were found. */
     private final Map<String, List<String>> queued = new LinkedHashMap<>();
+    /** asset name -> the name its plot and every file it produces are called. */
+    private final Map<String, String> exportNames = new LinkedHashMap<>();
     /** asset name -> the city styles that referenced it. */
     private final Map<String, Set<String>> owners = new LinkedHashMap<>();
     /** asset name -> the selector entry it came from, for factor and distances. */
@@ -189,6 +192,7 @@ public final class Importer {
                 autoRun);
         importer.walk(world);
         importer.growRows();
+        importer.nameAssets();
         int plots = importer.paste();
         ledger.save(server);
 
@@ -330,7 +334,11 @@ public final class Importer {
                         continue;
                     }
                     JsonObject entry = e.getAsJsonObject();
-                    String value = entry.get("value").getAsString();
+                    // Qualified before anything keys a map on it. A style may name
+                    // the same building as `tower` in one entry and
+                    // `lostcities:tower` in another, and two spellings of one asset
+                    // queue twice, take two plots, and then claim one file.
+                    String value = Assets.qualify(entry.get("value").getAsString());
                     String target = rowId != null ? rowId : multiRow(value);
                     if (target == null || Catalogue.row(target) == null) {
                         continue;
@@ -368,7 +376,8 @@ public final class Importer {
             // is inventing content rather than reading it.
             List<String> use = saysNothing ? List.of(shape.getValue())
                     : names(streetParts.get(shape.getKey()));
-            for (String part : use) {
+            for (String written : use) {
+                String part = Assets.qualify(written);
                 // A default is only a default if the part is really there.
                 if (saysNothing && assets.get("parts", part) == null) {
                     continue;
@@ -414,7 +423,7 @@ public final class Importer {
                 continue;
             }
             for (String part : names(shapes.get(shape))) {
-                queue(rowId, part);
+                queue(rowId, Assets.qualify(part));
             }
         }
     }
@@ -423,6 +432,57 @@ public final class Importer {
         List<String> list = queued.computeIfAbsent(rowId, k -> new ArrayList<>());
         if (!list.contains(name)) {
             list.add(name);
+        }
+    }
+
+    /**
+     * One export name per asset, unique across the pack.
+     *
+     * <p>A plot is named after its asset with the namespace cut off, because that is
+     * what somebody opening the settings file expects to read and what the pack
+     * called it. Two authors both reaching for {@code tower} is ordinary in a
+     * modpack, and the short names then collide: both plots compile to one file, the
+     * export refuses, and because a backup is an export the workshop cannot be
+     * emptied either.
+     *
+     * <p>So the namespace goes back on, for exactly the names that need it. Anything
+     * unique keeps the short name it would always have had, which matters because
+     * these names end up in every file of the exported pack.
+     */
+    private void nameAssets() {
+        Map<String, List<String>> byShort = new LinkedHashMap<>();
+        for (List<String> names : queued.values()) {
+            for (String full : names) {
+                byShort.computeIfAbsent(shortOf(full), k -> new ArrayList<>())
+                        .add(full);
+            }
+        }
+        Set<String> taken = new HashSet<>();
+        for (Map.Entry<String, List<String>> e : byShort.entrySet()) {
+            if (e.getValue().size() == 1) {
+                exportNames.put(e.getValue().get(0), e.getKey());
+                taken.add(e.getKey());
+            }
+        }
+        for (Map.Entry<String, List<String>> e : byShort.entrySet()) {
+            List<String> clash = e.getValue();
+            if (clash.size() == 1) {
+                continue;
+            }
+            List<String> renamed = new ArrayList<>();
+            for (String full : clash) {
+                String base = namespaceOf(full) + "_" + e.getKey();
+                String pick = base;
+                for (int n = 2; !taken.add(pick); n++) {
+                    pick = base + "_" + n;
+                }
+                exportNames.put(full, pick);
+                renamed.add(pick);
+            }
+            warnings.add(clash.size() + " assets are called " + e.getKey()
+                    + " in different namespaces, so their plots were named "
+                    + String.join(" and ", renamed)
+                    + ". One file cannot hold two of them.");
         }
     }
 
@@ -472,7 +532,8 @@ public final class Importer {
     private void pasteOne(Layout.Plot plot, String name) throws IOException {
         clear(plot);
         JsonObject settings = new JsonObject();
-        settings.addProperty("name", shortOf(name));
+        settings.addProperty("name",
+                exportNames.getOrDefault(name, shortOf(name)));
         if (defaulted.contains(name)) {
             // Shown, and left out of the export. The pack generates this without
             // naming it, so an export that named it would be adding something.
@@ -529,12 +590,15 @@ public final class Importer {
      */
     private void clear(Layout.Plot plot) throws IOException {
         JsonObject old = SettingsStore.load(server, plot.id());
-        if (old.keySet().isEmpty()) {
-            return;
+        // What is standing there, not what the last settings claimed was. A plot
+        // may hold blocks and no settings at all, and pasting into one without
+        // clearing it first builds the new asset inside the old one.
+        int top = Wipe.highestIn(level, plot) + 1;
+        if (!old.keySet().isEmpty()) {
+            List<Boundaries.Line> lines = Boundaries.of(old);
+            top = Math.max(top, Math.max(lines.get(lines.size() - 1).y(),
+                    Boundaries.BASE + intOf(old, "height", 0)));
         }
-        List<Boundaries.Line> lines = Boundaries.of(old);
-        int top = Math.max(lines.get(lines.size() - 1).y(),
-                Boundaries.BASE + intOf(old, "height", 0));
         BlockState air = Blocks.AIR.defaultBlockState();
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
         for (int y = Boundaries.BASE; y < top; y++) {
@@ -1170,6 +1234,11 @@ public final class Importer {
 
     private static String shortOf(String name) {
         return name.contains(":") ? name.substring(name.indexOf(':') + 1) : name;
+    }
+
+    private static String namespaceOf(String name) {
+        return name.contains(":") ? name.substring(0, name.indexOf(':'))
+                : "lostcities";
     }
 
     private static JsonArray array(JsonObject o, String key) {
