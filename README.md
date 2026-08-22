@@ -25,6 +25,14 @@ wiki found. It reports which building caused a generation error, checks datapack
 as they load and names the file and line, and accepts comments and `.json5` in Lost
 Cities assets. It adds nothing to the world.
 
+It also builds packs. A workshop dimension lays out a plot for every shape a pack can
+hold, `/lcdev export` compiles what you built into a datapack and the profile beside
+it, and `/lcdev import` pastes a pack you already have back into the world to edit.
+Both directions are held to each other: export, import and export again has to produce
+the same pack byte for byte, and every plot has to hold the blocks it held. Every
+command is documented on
+[The DevTool Commands](https://rinkydinkynooble.github.io/the-lost-cities-wiki/tooling/lcdev/).
+
 Two optional fixes, both off by default, correct bugs traced here: `belowpart` reading
 the wrong part, and the `full` street shape never being selected.
 
