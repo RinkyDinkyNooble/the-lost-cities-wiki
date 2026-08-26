@@ -468,6 +468,7 @@ published results were produced on.
 | `mod/tools/check-part-reuse.py` | Levels of one building that drew the same blocks share a part file, and the building keeps one entry per level |
 | `mod/tools/check-tag-export.py` | A chest built in the workshop exports carrying its inventory, `tagkeys` decides which keys reach the pack, and `notags` drops all of them without dropping the blocks |
 | `mod/tools/check-conversions.py` | A placeholder block converts differently per plot, per chunk and per level, the narrower scope winning and adding to the wider rather than replacing it |
+| `mod/tools/check-sync.py` | A settings file written outside the game is read without syncing, and `workshop sync` lays out the plot one names that the catalogue does not have, reports a key no plot uses, and changes nothing when there is nothing to do |
 | `mod/tools/check-clear.py` | A confirmed clear leaves no block standing, including above what the settings describe, and two packs that call a building the same thing do not stop the backup |
 | `mod/tools/check-roundtrip.py` | Export, import, export again is **byte for byte the same pack**, and every plot holds the blocks it held before the export. Over every row class, both orientations of a multibuilding, block states with properties, both non-default palette placements, json5 output, the raw escape hatch, and two plots asking for one asset name |
 

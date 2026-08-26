@@ -61,11 +61,12 @@ python mod/tools/check-clear.py
 python mod/tools/check-part-reuse.py
 python mod/tools/check-tag-export.py
 python mod/tools/check-conversions.py
+python mod/tools/check-sync.py
 ```
 
 The first three need no server and finish in about a second each. The other
-thirteen boot one apiece and take roughly ninety seconds. Run them one at a time:
-two servers cannot share the rig. All sixteen end in `all checks passed`:
+fourteen boot one apiece and take roughly ninety seconds. Run them one at a time:
+two servers cannot share the rig. All seventeen end in `all checks passed`:
 
 - [ ] `check-validator`, every asset-check rule, and nothing thrown by a malformed
       file
@@ -89,6 +90,7 @@ two servers cannot share the rig. All sixteen end in `all checks passed`:
 - [ ] `check-tag-export`, tagkeys reaches the export and notags turns it off
 - [ ] `check-conversions`, a narrower scope wins and adds to the wider
 - [ ] `check-export-plot`, one plot exports as a fragment with no world style
+- [ ] `check-sync`, a file naming a plot the catalogue lacks is found and laid out
 - [ ] No mixin failures in the rig's log:
       `grep -ci "mixin apply failed\|InvalidInjection" testrig/servers/forge-1.20.1-47.4.10/logs/debug.log`
       is 0

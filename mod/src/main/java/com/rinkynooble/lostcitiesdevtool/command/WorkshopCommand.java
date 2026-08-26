@@ -2,9 +2,11 @@ package com.rinkynooble.lostcitiesdevtool.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.context.CommandContext;
 import com.rinkynooble.lostcitiesdevtool.chat.Chat;
 import com.rinkynooble.lostcitiesdevtool.workshop.Catalogue;
 import com.rinkynooble.lostcitiesdevtool.workshop.Layout;
+import com.rinkynooble.lostcitiesdevtool.workshop.Sync;
 import com.rinkynooble.lostcitiesdevtool.workshop.Wipe;
 import com.rinkynooble.lostcitiesdevtool.workshop.Workshop;
 import net.minecraft.commands.CommandSourceStack;
@@ -51,6 +53,8 @@ public class WorkshopCommand {
                                 .executes(WorkshopCommand::rows))
                         .then(Commands.literal("here")
                                 .executes(WorkshopCommand::here))
+                        .then(Commands.literal("sync")
+                                .executes(WorkshopCommand::sync))
                         .then(Commands.literal("clear")
                                 .executes(ctx -> clear(ctx, false, false))
                                 .then(Commands.literal("confirm")
@@ -84,7 +88,7 @@ public class WorkshopCommand {
      * destroying work with nothing to restore from. {@code anyway} is the way past
      * that, and it is two words deep for a reason.
      */
-    private static int clear(com.mojang.brigadier.context.CommandContext<CommandSourceStack> ctx,
+    private static int clear(CommandContext<CommandSourceStack> ctx,
                              boolean confirmed, boolean skipBackup) {
         CommandSourceStack source = ctx.getSource();
         ServerLevel workshop = Workshop.level(source.getServer());
@@ -151,6 +155,50 @@ public class WorkshopCommand {
                     + "datapack.");
         } else {
             Chat.warn(source, "No backup was taken. That was the `anyway`.");
+        }
+        return 1;
+    }
+
+    // -------------------------------------------------------------------- sync
+
+    /**
+     * Make the catalogue agree with the settings files on disk.
+     *
+     * <p>Values need no syncing: every command reads the file when it is asked, so
+     * a number changed in an editor is already in effect. What this is for is a
+     * file describing a plot the catalogue does not lay out, which nothing else
+     * looks for and which an export therefore writes a pack without.
+     */
+    private static int sync(CommandContext<CommandSourceStack> ctx) {
+        CommandSourceStack source = ctx.getSource();
+        ServerLevel workshop = Workshop.level(source.getServer());
+        if (workshop == null) {
+            Chat.fail(source, "The workshop dimension is not loaded",
+                    String.valueOf(Workshop.DIMENSION.location()), null);
+            return 0;
+        }
+        Sync.Report report;
+        try {
+            report = Sync.run(source.getServer(), workshop);
+        } catch (IOException e) {
+            Chat.fail(source, "The settings files could not be read", null,
+                    String.valueOf(e.getMessage()));
+            return 0;
+        }
+
+        Chat.header(source, "Synced", report.files()
+                + (report.files() == 1 ? " file" : " files"));
+        Chat.kv(source, "plots the catalogue already had",
+                String.valueOf(report.plots()));
+        for (Map.Entry<String, Integer> e : report.grown().entrySet()) {
+            Chat.kv(source, "grew " + e.getKey(), e.getValue() + " plots");
+        }
+        for (Sync.Note note : report.notes()) {
+            Chat.warn(source, note.plotId() + " " + note.what());
+        }
+        if (report.quiet()) {
+            Chat.note(source, "Nothing needed changing. Values are read from the "
+                    + "file every time, so an edit is in effect without this.");
         }
         return 1;
     }
