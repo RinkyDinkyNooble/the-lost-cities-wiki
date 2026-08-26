@@ -459,6 +459,7 @@ published results were produced on.
 | `mod/tools/check-tags.py` | A keep-list drops what it does not name and a drop-list keeps what it does not name, over sixteen cases. No server, about a second |
 | `mod/tools/check-workshop.py` | The dimension exists, the catalogue lays out without two touching plots sharing a colour, and every plot's settings file round trips through `/lcdev plot` |
 | `mod/tools/check-export.py` | The compiler writes a pack, and that pack, installed as a datapack, generates a city with the workshop's blocks in it |
+| `mod/tools/check-export-plot.py` | `export <name> plot` writes the plot you stand on and its palette, leaves the neighbouring plot out, writes nothing that claims to be a world, and takes its flags in either order |
 | `mod/tools/check-import.py` | Lost Cities' own pack imports: 42 assets onto 42 plots, and what lands has the settings to export again |
 | `mod/tools/check-import-fidelity.py` | A band naming two parts comes in showing both, and a palette `tag` reaches the block |
 | `mod/tools/check-suggest-speed.py` | A suggestion provider stays inside a 50 ms budget with 911 assets loaded, and the cache behind it notices a `/reload` |

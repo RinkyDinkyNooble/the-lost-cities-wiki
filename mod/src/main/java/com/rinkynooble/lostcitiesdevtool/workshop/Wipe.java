@@ -117,10 +117,10 @@ public final class Wipe {
                         .ofPattern("yyyy-MM-dd-HHmmss"));
         Path root = Exporter.backupsRoot(server).resolve(stamp);
         Files.createDirectories(root.getParent());
-        // Tags are kept whatever the last export was told, because a backup exists
-        // to put things back exactly as they were.
-        Exporter.Result result =
-                Exporter.run(server, level, stamp, true, root, true, false);
+        // Whole and tagged whatever the last export was told, because a backup
+        // exists to put things back exactly as they were.
+        Exporter.Result result = Exporter.run(server, level, stamp,
+                Exporter.Options.backupTo(root));
         if (result.failed()) {
             throw new IOException("the backup could not be written: "
                     + result.findings().get(0).message());

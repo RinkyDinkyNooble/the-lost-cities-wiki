@@ -130,10 +130,15 @@ public final class Exporter {
     /** Whether the NBT a block carries is left out of the pack entirely. */
     private final boolean noTags;
 
+    /** One plot id, or null for the whole workshop. */
+    @Nullable
+    private final String only;
+
     private Exporter(MinecraftServer server, ServerLevel level, PaletteLedger ledger,
-                     JsonObject core, boolean backup, boolean noTags) {
-        this.backup = backup;
-        this.noTags = noTags;
+                     JsonObject core, Options options) {
+        this.backup = options.backup();
+        this.noTags = options.noTags();
+        this.only = options.only();
         this.server = server;
         this.level = level;
         this.ledger = ledger;
@@ -143,47 +148,41 @@ public final class Exporter {
 
     // -------------------------------------------------------------------- entry
 
-    public static Result run(MinecraftServer server, ServerLevel level, String name,
-                             boolean force) throws IOException {
-        return run(server, level, name, force, exportsRoot(server).resolve(name));
-    }
-
-    /** The same, with the NBT a block carries left out. */
-    public static Result run(MinecraftServer server, ServerLevel level, String name,
-                             boolean force, boolean noTags) throws IOException {
-        return run(server, level, name, force, exportsRoot(server).resolve(name),
-                false, noTags);
-    }
-
     /**
-     * The same compile, written wherever the caller says.
+     * What one export was asked to do.
      *
-     * <p>A wipe takes a copy first, and that copy has to be a real pack rather than
-     * a folder of blocks nothing can read: whatever it saves has to be something
-     * `/lcdev import` will take back.
+     * <p>Five things that always travel together, and did so as a growing list of
+     * overloads until the fifth arrived.
+     *
+     * @param force  overwrite an export already at that path
+     * @param noTags leave the NBT a block carries out of the pack
+     * @param only   a single plot id, or null for the whole workshop
+     * @param backup this is the copy a wipe takes, which may not refuse to write
+     * @param root   where to write, or null for the usual exports folder
      */
-    public static Result run(MinecraftServer server, ServerLevel level, String name,
-                             boolean force, Path root) throws IOException {
-        return run(server, level, name, force, root, false, false);
+    public record Options(boolean force, boolean noTags, @Nullable String only,
+                          boolean backup, @Nullable Path root) {
+
+        public static Options of(boolean force, boolean noTags,
+                                 @Nullable String only) {
+            return new Options(force, noTags, only, false, null);
+        }
+
+        /** The copy a wipe takes: forced, tagged, whole, and written where it says. */
+        public static Options backupTo(Path root) {
+            return new Options(true, false, null, true, root);
+        }
     }
 
-    /**
-     * The same compile again, told whether it is a backup.
-     *
-     * <p>A backup is what makes a wipe safe, so it is the one export that may not
-     * refuse to be written. Two plots given one name is a real fault and stops an
-     * export somebody asked for; stopping the copy taken to protect them would
-     * leave no way to empty a workshop at all.
-     */
     public static Result run(MinecraftServer server, ServerLevel level, String name,
-                             boolean force, Path root, boolean backup,
-                             boolean noTags) throws IOException {
+                             Options options) throws IOException {
+        Path root = options.root() != null ? options.root()
+                : exportsRoot(server).resolve(name);
         JsonObject core = SettingsStore.load(server, Layout.CORE_ID);
         PaletteLedger ledger = PaletteLedger.load(server);
-        Exporter exporter = new Exporter(server, level, ledger, core, backup,
-                noTags);
+        Exporter exporter = new Exporter(server, level, ledger, core, options);
 
-        if (Files.exists(root) && !force) {
+        if (Files.exists(root) && !options.force()) {
             throw new IOException("an export named " + name + " is already there. "
                     + "Pass -f to overwrite it");
         }
@@ -191,15 +190,16 @@ public final class Exporter {
         int plots = exporter.compile();
         List<Finding> findings = exporter.check();
         if (findings.stream().anyMatch(f -> f.severity() == Finding.Severity.ERROR)) {
-            return new Result(plots, exporter.partCount, exporter.buildingCount,
-                    exporter.cells.isEmpty() ? 0 : 1, exporter.reusedParts,
-                    exporter.warnings, findings, root);
+            return exporter.result(plots, findings, root);
         }
         exporter.write(root, name);
         ledger.save(server);
-        return new Result(plots, exporter.partCount, exporter.buildingCount,
-                exporter.cells.isEmpty() ? 0 : 1, exporter.reusedParts,
-                exporter.warnings, findings, root);
+        return exporter.result(plots, findings, root);
+    }
+
+    private Result result(int plots, List<Finding> findings, Path root) {
+        return new Result(plots, partCount, buildingCount,
+                cells.isEmpty() ? 0 : 1, reusedParts, warnings, findings, root);
     }
 
     public static Path exportsRoot(MinecraftServer server) {
@@ -221,7 +221,7 @@ public final class Exporter {
         // twice to do it is waste.
         Map<String, JsonObject> settingsById = new LinkedHashMap<>();
         for (Layout.Plot plot : Layout.plots()) {
-            if (plot.row() == null) {
+            if (plot.row() == null || (only != null && !only.equals(plot.id()))) {
                 continue;
             }
             JsonObject settings = SettingsStore.load(server, plot.id());
@@ -839,6 +839,15 @@ public final class Exporter {
 
     private void buildStyles() {
         assets.put("palettes/main", palette(cells, true));
+
+        // One plot is a fragment, not a pack: its assets and the characters they
+        // resolve through, and nothing that claims to be a world. A city style
+        // listing one building, or a world style built on it, would be installable
+        // and would generate a world made of that building alone, which is not what
+        // anybody exporting a single plot is asking for.
+        if (only != null) {
+            return;
+        }
 
         // The mod's own palettes first so the shipped parts a city style inherits
         // still resolve, and this pack's last so its characters win. The pack's
