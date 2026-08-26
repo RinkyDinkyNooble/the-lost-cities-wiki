@@ -71,6 +71,11 @@ public class ExportCommand {
         Chat.header(source, "Exported", name);
         Chat.kv(source, "plots read", String.valueOf(result.plots()));
         Chat.kv(source, "parts", String.valueOf(result.parts()));
+        if (result.reused() > 0) {
+            // Levels of a building that drew the same blocks and now share one file
+            // rather than each getting an identical copy of it.
+            Chat.kv(source, "levels sharing a part", String.valueOf(result.reused()));
+        }
         Chat.kv(source, "buildings", String.valueOf(result.buildings()));
         Chat.kv(source, "took", took + " ms");
         Chat.path(source, "written to", result.root().toString());

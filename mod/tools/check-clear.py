@@ -285,5 +285,6 @@ if failures:
     for f in failures:
         print("  " + f)
     raise SystemExit(1)
-print("PASSED: a confirmed clear leaves nothing standing, and two packs sharing a "
+print("a confirmed clear leaves nothing standing, and two packs sharing a "
       "short name do not stop it")
+print("all checks passed")

@@ -6,7 +6,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.Heightmap;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -61,7 +60,7 @@ public final class Wipe {
                 continue;
             }
             JsonObject settings = SettingsStore.load(server, plot.id());
-            long solid = solidIn(level, plot, ceiling(level, plot, settings));
+            long solid = solidIn(level, plot, Boundaries.topOf(level, plot, settings));
             // Settings or blocks, either on its own. A plot whose settings were
             // deleted while its blocks stayed is exactly the state this has to be
             // able to see, because it is the state a wipe used to leave behind.
@@ -94,7 +93,7 @@ public final class Wipe {
             }
             JsonObject settings = SettingsStore.load(server, plot.id());
             boolean had = !settings.keySet().isEmpty();
-            int removed = clear(level, plot, ceiling(level, plot, settings));
+            int removed = clear(level, plot, Boundaries.topOf(level, plot, settings));
             if (!had && removed == 0) {
                 continue;
             }
@@ -126,48 +125,7 @@ public final class Wipe {
         return root;
     }
 
-    /**
-     * The highest block standing on a plot, or one below the floor for none.
-     *
-     * <p>Read from the world, because only the world knows. The settings say how
-     * tall the asset is, and nothing makes what is actually standing there agree
-     * with them: a hand-built roof, a taller building a previous import left, or a
-     * plot whose settings were deleted while its blocks stayed.
-     *
-     * <p>Answered from the chunk's surface heightmap, so a plot costs one lookup a
-     * column rather than a read of every block in it.
-     */
-    public static int highestIn(ServerLevel level, Layout.Plot plot) {
-        int highest = Boundaries.BASE - 1;
-        for (int x = plot.blockMinX(); x <= plot.blockMaxX(); x++) {
-            for (int z = plot.blockMinZ(); z <= plot.blockMaxZ(); z++) {
-                highest = Math.max(highest,
-                        level.getHeight(Heightmap.Types.WORLD_SURFACE, x, z) - 1);
-            }
-        }
-        return Math.min(highest, level.getMaxBuildHeight() - 1);
-    }
-
-    /**
-     * How far up a plot is worth reading, exclusive.
-     *
-     * <p>Whichever is higher: what is standing there, or what the settings describe.
-     * Trusting the settings alone is what left the tops of buildings floating over
-     * cleared plots with nothing pointing at them; ignoring them would read nothing
-     * on a plot whose asset is declared and not yet built.
-     */
-    private static int ceiling(ServerLevel level, Layout.Plot plot,
-                               JsonObject settings) {
-        int top = highestIn(level, plot) + 1;
-        if (settings.keySet().isEmpty()) {
-            return top;
-        }
-        List<Boundaries.Line> lines = Boundaries.of(settings);
-        int height = settings.has("height") ? intOf(settings, "height") : 0;
-        return Math.max(top, Math.max(lines.get(lines.size() - 1).y(),
-                Boundaries.BASE + height));
-    }
-
+    /** Solid blocks standing on one plot, from its floor up to {@code top}. */
     private static long solidIn(ServerLevel level, Layout.Plot plot, int top) {
         long count = 0;
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
@@ -201,13 +159,5 @@ public final class Wipe {
             }
         }
         return removed;
-    }
-
-    private static int intOf(JsonObject o, String key) {
-        try {
-            return o.get(key).getAsInt();
-        } catch (RuntimeException e) {
-            return 0;
-        }
     }
 }

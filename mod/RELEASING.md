@@ -47,6 +47,7 @@ and uploading.
 cd ../..
 python mod/tools/check-validator.py
 python mod/tools/check-workshop.py
+python mod/tools/check-layout.py
 python mod/tools/check-export.py
 python mod/tools/check-import.py
 python mod/tools/check-roundtrip.py
@@ -55,10 +56,12 @@ python mod/tools/check-suggest-speed.py
 python mod/tools/check-loud-output.py
 python mod/tools/check-import-fidelity.py
 python mod/tools/check-clear.py
+python mod/tools/check-part-reuse.py
 ```
 
-The first needs no server and finishes in about a second. The other nine boot one
-each and take roughly ninety seconds apiece. All ten end in `all checks passed`:
+The first two need no server and finish in about a second each. The other ten
+boot one apiece and take roughly ninety seconds. Run them one at a time: two
+servers cannot share the rig. All twelve end in `all checks passed`:
 
 - [ ] `check-validator`, every asset-check rule, and nothing thrown by a malformed
       file
@@ -76,6 +79,8 @@ each and take roughly ninety seconds apiece. All ten end in `all checks passed`:
       keeps its NBT
 - [ ] `check-clear`, a confirmed clear leaves nothing standing and a shared short
       name does not block the backup
+- [ ] `check-layout`, growing a row moves nothing that already existed
+- [ ] `check-part-reuse`, identical levels share one part file
 - [ ] No mixin failures in the rig's log:
       `grep -ci "mixin apply failed\|InvalidInjection" testrig/servers/forge-1.20.1-47.4.10/logs/debug.log`
       is 0

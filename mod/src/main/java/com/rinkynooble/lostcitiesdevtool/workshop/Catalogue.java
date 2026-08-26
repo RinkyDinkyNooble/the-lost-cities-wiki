@@ -3,7 +3,8 @@ package com.rinkynooble.lostcitiesdevtool.workshop;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.rinkynooble.lostcitiesdevtool.LostCitiesDevTool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.io.InputStream;
@@ -79,6 +80,15 @@ public final class Catalogue {
     private static List<Row> rows;
     private static String version = "unknown";
 
+    /**
+     * Its own logger rather than the mod entry point's.
+     *
+     * <p>The catalogue is data loading and nothing else. Reaching through
+     * {@code LostCitiesDevTool} for a logger dragged Forge onto the classpath of a
+     * class that needs Gson, which put the layout out of reach of a plain JVM test.
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger("lostcitiesdevtool");
+
     private Catalogue() {
     }
 
@@ -107,7 +117,7 @@ public final class Catalogue {
     private static List<Row> load() {
         try (InputStream in = Catalogue.class.getResourceAsStream(PATH)) {
             if (in == null) {
-                LostCitiesDevTool.LOGGER.error("no {} on the classpath", PATH);
+                LOGGER.error("no {} on the classpath", PATH);
                 return Collections.emptyList();
             }
             JsonObject root = JsonParser.parseReader(
@@ -132,7 +142,7 @@ public final class Catalogue {
             }
             return Collections.unmodifiableList(out);
         } catch (Exception e) {
-            LostCitiesDevTool.LOGGER.error("could not read {}: {}", PATH, e.toString());
+            LOGGER.error("could not read {}: {}", PATH, e.toString());
             return Collections.emptyList();
         }
     }

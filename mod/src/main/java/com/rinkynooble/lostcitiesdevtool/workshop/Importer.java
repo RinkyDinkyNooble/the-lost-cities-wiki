@@ -590,15 +590,10 @@ public final class Importer {
      */
     private void clear(Layout.Plot plot) throws IOException {
         JsonObject old = SettingsStore.load(server, plot.id());
-        // What is standing there, not what the last settings claimed was. A plot
+        // What is standing there, not only what the last settings claimed. A plot
         // may hold blocks and no settings at all, and pasting into one without
         // clearing it first builds the new asset inside the old one.
-        int top = Wipe.highestIn(level, plot) + 1;
-        if (!old.keySet().isEmpty()) {
-            List<Boundaries.Line> lines = Boundaries.of(old);
-            top = Math.max(top, Math.max(lines.get(lines.size() - 1).y(),
-                    Boundaries.BASE + intOf(old, "height", 0)));
-        }
+        int top = Boundaries.topOf(level, plot, old);
         BlockState air = Blocks.AIR.defaultBlockState();
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
         for (int y = Boundaries.BASE; y < top; y++) {

@@ -455,6 +455,7 @@ published results were produced on.
 | Check | What has to hold |
 |---|---|
 | `mod/tools/check-validator.py` | Every asset-check rule says the right thing, says nothing about a sound asset, and never throws on a malformed one. No server, under a second |
+| `mod/tools/check-layout.py` | Growing a row moves no plot that already existed, no two plots overlap, and no floor is repainted under a build. No server, about a second |
 | `mod/tools/check-workshop.py` | The dimension exists, the catalogue lays out without two touching plots sharing a colour, and every plot's settings file round trips through `/lcdev plot` |
 | `mod/tools/check-export.py` | The compiler writes a pack, and that pack, installed as a datapack, generates a city with the workshop's blocks in it |
 | `mod/tools/check-import.py` | Lost Cities' own pack imports: 42 assets onto 42 plots, and what lands has the settings to export again |
@@ -462,6 +463,7 @@ published results were produced on.
 | `mod/tools/check-suggest-speed.py` | A suggestion provider stays inside a 50 ms budget with 911 assets loaded, and the cache behind it notices a `/reload` |
 | `mod/tools/check-loud-output.py` | A lookup that matches everything answers in a few lines rather than hundreds |
 | `mod/tools/check-import-twice.py` | Importing a second city reports the first one's plots rather than hiding them, an unconfirmed clear removes nothing, and a confirmed one backs up before it empties |
+| `mod/tools/check-part-reuse.py` | Levels of one building that drew the same blocks share a part file, and the building keeps one entry per level |
 | `mod/tools/check-clear.py` | A confirmed clear leaves no block standing, including above what the settings describe, and two packs that call a building the same thing do not stop the backup |
 | `mod/tools/check-roundtrip.py` | Export, import, export again is **byte for byte the same pack**, and every plot holds the blocks it held before the export. Over every row class, both orientations of a multibuilding, block states with properties, both non-default palette placements, json5 output, the raw escape hatch, and two plots asking for one asset name |
 

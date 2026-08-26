@@ -67,7 +67,8 @@ public final class Exporter {
     private static final int DEFAULT_MULTI_AREASIZE = 10;
 
     public record Result(int plots, int parts, int buildings, int palettes,
-                         List<String> warnings, List<Finding> findings, Path root) {
+                         int reused, List<String> warnings, List<Finding> findings,
+                         Path root) {
 
         public boolean failed() {
             return findings.stream()
@@ -106,6 +107,17 @@ public final class Exporter {
     private final Map<String, String> claimedBy = new LinkedHashMap<>();
     /** Faults found while compiling, which the file-by-file rules cannot see. */
     private final List<Finding> faults = new ArrayList<>();
+    /**
+     * Part body -> the name it was written under, for one building at a time.
+     *
+     * <p>Cleared per building. Two levels of one building that draw the same blocks
+     * become one file referenced twice; two different buildings that happen to match
+     * keep their own, because a pack where one building's levels point into another
+     * is harder to read and to edit than one with a duplicate file in it.
+     */
+    private final Map<String, String> partsByBody = new LinkedHashMap<>();
+    /** How many levels pointed at a part that was already written. */
+    private int reusedParts;
 
     private int partCount;
     private int buildingCount;
@@ -168,13 +180,14 @@ public final class Exporter {
         List<Finding> findings = exporter.check();
         if (findings.stream().anyMatch(f -> f.severity() == Finding.Severity.ERROR)) {
             return new Result(plots, exporter.partCount, exporter.buildingCount,
-                    exporter.cells.isEmpty() ? 0 : 1, exporter.warnings, findings,
-                    root);
+                    exporter.cells.isEmpty() ? 0 : 1, exporter.reusedParts,
+                    exporter.warnings, findings, root);
         }
         exporter.write(root, name);
         ledger.save(server);
         return new Result(plots, exporter.partCount, exporter.buildingCount,
-                exporter.cells.isEmpty() ? 0 : 1, exporter.warnings, findings, root);
+                exporter.cells.isEmpty() ? 0 : 1, exporter.reusedParts,
+                exporter.warnings, findings, root);
     }
 
     public static Path exportsRoot(MinecraftServer server) {
@@ -285,6 +298,7 @@ public final class Exporter {
             String partName = name;
             // A flat plot is one part, so `building` and `part` mean the same
             // thing here: its own palette, carried in the file.
+            partsByBody.clear();
             emitPart(partName, plot, 0, 0, Boundaries.BASE, height, settings,
                     sinkFor(settings, "global".equals(placement(settings))
                             ? null : new LinkedHashMap<>()));
@@ -357,6 +371,7 @@ public final class Exporter {
     /** One building: its levels, each a part, with the conditions that pick them. */
     private void emitBuilding(String name, Layout.Plot plot, int dx, int dz,
                               JsonObject plotSettings) {
+        partsByBody.clear();
         JsonObject settings = Settings.resolve(plotSettings, dx, dz, 0);
         int cellars = Math.max(0, intOf(settings, "cellars", 0));
         int floors = Math.max(0, intOf(settings, "floors", 1));
@@ -418,20 +433,19 @@ public final class Exporter {
         char commonest = PaletteLedger.AIR;
         int y = Boundaries.BASE;
         for (int c = cellars; c >= 1; c--) {
-            String part = name + "_c" + c;
-            emitPart(part, plot, dx, dz, y, Boundaries.STRIDE,
-                    Settings.resolve(plotSettings, dx, dz, -c),
+            Emitted got = emitPart(name + "_c" + c, plot, dx, dz, y,
+                    Boundaries.STRIDE, Settings.resolve(plotSettings, dx, dz, -c),
                     perPart ? new LinkedHashMap<>() : buildingSink);
-            parts.add(ref(part, "floor", -c));
+            parts.add(ref(got.name(), "floor", -c));
             y += Boundaries.STRIDE;
         }
         for (int f = 0; f <= floors; f++) {
-            String part = name + "_f" + f;
-            char drew = emitPart(part, plot, dx, dz, y, Boundaries.STRIDE,
-                    Settings.resolve(plotSettings, dx, dz, f),
+            Emitted got = emitPart(name + "_f" + f, plot, dx, dz, y,
+                    Boundaries.STRIDE, Settings.resolve(plotSettings, dx, dz, f),
                     perPart ? new LinkedHashMap<>() : buildingSink);
+            String part = got.name();
             if (f == 0) {
-                commonest = drew;
+                commonest = got.commonest();
             }
             // Unpinned, the entry carries `top: false` and no level: the parts are
             // a bag the generator draws from, and `top` is a boolean, not a number.
@@ -448,12 +462,11 @@ public final class Exporter {
                         + " and was read as " + height + ". A part of one slice "
                         + "draws nothing at all, so it is the shortest a top can be.");
             }
-            String part = name + "_t" + (t + 1);
-            emitPart(part, plot, dx, dz, y, height,
+            Emitted got = emitPart(name + "_t" + (t + 1), plot, dx, dz, y, height,
                     Settings.resolve(plotSettings, dx, dz, floors + 1 + t),
                     perPart ? new LinkedHashMap<>() : buildingSink);
             JsonObject r = new JsonObject();
-            r.addProperty("part", namespace + ":" + part);
+            r.addProperty("part", namespace + ":" + got.name());
             r.addProperty("top", true);
             parts.add(r);
             y += height;
@@ -492,6 +505,15 @@ public final class Exporter {
     }
 
     /**
+     * One emitted part: the name a level should reference, and its commonest block.
+     *
+     * <p>The name is not always the one asked for. A level whose blocks match one
+     * already written this building points at that one instead.
+     */
+    private record Emitted(String name, char commonest) {
+    }
+
+    /**
      * Read one part out of the world.
      *
      * <p>{@code slices} is one string per layer, and inside a layer the mod reads
@@ -500,10 +522,13 @@ public final class Exporter {
      * <p>The height is whatever the caller asked for. A level of a building is
      * never one slice, because one draws nothing there, but that is the building
      * path's rule to apply: a street is one slice and has to stay one.
+     *
+     * <p>Returns the name to reference rather than always the name asked for, since
+     * a level matching one already written this building shares its file.
      */
-    private char emitPart(String name, Layout.Plot plot, int dx, int dz,
-                          int baseY, int height, JsonObject settings,
-                          Map<String, JsonObject> sink) {
+    private Emitted emitPart(String name, Layout.Plot plot, int dx, int dz,
+                             int baseY, int height, JsonObject settings,
+                             Map<String, JsonObject> sink) {
         int x0 = plot.blockMinX() + dx * 16;
         int z0 = plot.blockMinZ() + dz * 16;
         JsonObject marks = settings.has("marks") && settings.get("marks").isJsonObject()
@@ -542,12 +567,30 @@ public final class Exporter {
             part.add("palette", palette(sink, false));
         }
         part.add("slices", slices);
-        putAsset("parts/" + name, part, plot);
-        partCount++;
-        return seen.entrySet().stream()
+        char commonest = seen.entrySet().stream()
                 .max(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey)
                 .orElse(PaletteLedger.AIR);
+
+        // A building whose floors are all the same is one part used many times, not
+        // many identical parts. Writing a file per level is what the workshop reads,
+        // because the export reads blocks per level and a level nobody built cannot
+        // be read back, but shipping nine copies of one floor is redundancy in
+        // somebody else's pack.
+        //
+        // Scoped to one building deliberately. Collapsing across buildings would
+        // make one building's levels reference another's part, which is legal and
+        // makes the pack harder to read and to edit by hand.
+        String body = part.toString();
+        String already = partsByBody.get(body);
+        if (already != null) {
+            reusedParts++;
+            return new Emitted(already, commonest);
+        }
+        partsByBody.put(body, name);
+        putAsset("parts/" + name, part, plot);
+        partCount++;
+        return new Emitted(name, commonest);
     }
 
     /** The character for one block, assigning one where the cell is new. */

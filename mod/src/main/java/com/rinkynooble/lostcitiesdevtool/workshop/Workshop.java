@@ -11,6 +11,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.LevelResource;
 
@@ -66,6 +68,31 @@ public final class Workshop {
      * Re-running is safe and idempotent: the same catalogue produces the same plots
      * in the same colours, so this repaints rather than duplicating.
      */
+    /**
+     * The floor colours, in the order {@link Layout} assigns them.
+     *
+     * <p>Here rather than in {@code Layout} because this is what paints. Keeping
+     * Minecraft's types out of the layout is what lets the geometry be exercised
+     * without booting a server.
+     */
+    private static final Block[] COLOURS = {
+            Blocks.WHITE_GLAZED_TERRACOTTA, Blocks.ORANGE_GLAZED_TERRACOTTA,
+            Blocks.MAGENTA_GLAZED_TERRACOTTA, Blocks.LIGHT_BLUE_GLAZED_TERRACOTTA,
+            Blocks.YELLOW_GLAZED_TERRACOTTA, Blocks.LIME_GLAZED_TERRACOTTA,
+            Blocks.PINK_GLAZED_TERRACOTTA, Blocks.GRAY_GLAZED_TERRACOTTA,
+            Blocks.LIGHT_GRAY_GLAZED_TERRACOTTA, Blocks.CYAN_GLAZED_TERRACOTTA,
+            Blocks.PURPLE_GLAZED_TERRACOTTA, Blocks.BLUE_GLAZED_TERRACOTTA,
+            Blocks.BROWN_GLAZED_TERRACOTTA, Blocks.GREEN_GLAZED_TERRACOTTA,
+            Blocks.RED_GLAZED_TERRACOTTA, Blocks.BLACK_GLAZED_TERRACOTTA,
+    };
+
+    /** What a plot's floor is made of. The front desk is not one of the shapes. */
+    public static Block floorOf(Layout.Plot plot) {
+        int colour = plot.floorColour();
+        return colour < 0 ? Blocks.CHISELED_STONE_BRICKS
+                : COLOURS[Math.floorMod(colour, COLOURS.length)];
+    }
+
     public static Built build(ServerLevel level) {
         List<Layout.Plot> plots = Layout.plots();
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
@@ -73,7 +100,7 @@ public final class Workshop {
         long blocks = 0;
 
         for (Layout.Plot plot : plots) {
-            BlockState floor = plot.floor().defaultBlockState();
+            BlockState floor = floorOf(plot).defaultBlockState();
             for (int x = plot.blockMinX(); x <= plot.blockMaxX(); x++) {
                 for (int z = plot.blockMinZ(); z <= plot.blockMaxZ(); z++) {
                     pos.set(x, Layout.FLOOR_Y, z);
@@ -118,7 +145,7 @@ public final class Workshop {
             o.addProperty("height", p.height());
             o.addProperty("floor", String.valueOf(
                     net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(
-                            p.floor())));
+                            floorOf(p))));
             if (p.row() != null) {
                 o.addProperty("row", p.row().id());
                 o.addProperty("family", p.row().family());

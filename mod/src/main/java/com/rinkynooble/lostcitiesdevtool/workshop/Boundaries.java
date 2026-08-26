@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.Heightmap;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -89,6 +90,49 @@ public final class Boundaries {
         out.add(new Line(y, tops.isEmpty() ? "above the top floor" : "above the tops",
                 Kind.TOP));
         return out;
+    }
+
+    /**
+     * The highest block standing on a plot, or one below the floor for none.
+     *
+     * <p>Read from the world, because only the world knows. Answered from the
+     * chunk's surface heightmap, so a plot costs one lookup a column rather than a
+     * read of every block in it.
+     */
+    public static int highestIn(ServerLevel level, Layout.Plot plot) {
+        int highest = BASE - 1;
+        for (int x = plot.blockMinX(); x <= plot.blockMaxX(); x++) {
+            for (int z = plot.blockMinZ(); z <= plot.blockMaxZ(); z++) {
+                highest = Math.max(highest,
+                        level.getHeight(Heightmap.Types.WORLD_SURFACE, x, z) - 1);
+            }
+        }
+        return Math.min(highest, level.getMaxBuildHeight() - 1);
+    }
+
+    /**
+     * How far up a plot is worth reading or clearing, exclusive.
+     *
+     * <p>Whichever is higher: what is standing there, or what the settings describe.
+     *
+     * <p><b>Both halves, always.</b> Trusting the settings alone is what left the
+     * tops of buildings floating over cleared plots, because nothing makes what is
+     * actually built agree with what the settings claim. Trusting the world alone
+     * would read nothing on a plot whose asset is declared and not yet built.
+     *
+     * <p>This lived in three places and was wrong in all three the same way, which
+     * is why it is one place now.
+     */
+    public static int topOf(ServerLevel level, Layout.Plot plot,
+                            JsonObject settings) {
+        int top = highestIn(level, plot) + 1;
+        if (settings.keySet().isEmpty()) {
+            return top;
+        }
+        List<Line> lines = of(settings);
+        int height = intOf(settings, "height", 0);
+        return Math.max(top, Math.max(lines.get(lines.size() - 1).y(),
+                BASE + height));
     }
 
     /** Draw them. Returns how many blocks were placed. */

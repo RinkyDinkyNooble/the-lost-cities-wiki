@@ -1,8 +1,5 @@
 package com.rinkynooble.lostcitiesdevtool.workshop;
 
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,20 +36,17 @@ public final class Layout {
     public static final String CORE_ID = "core";
 
     /**
-     * Floor colours. Sixteen, so a catalogue this size never has to repeat one near
-     * itself. They carry no meaning: the only rule is that no two plots you can see
-     * at once look alike.
+     * How many floor colours the pool holds.
+     *
+     * <p>Sixteen, so a catalogue this size never has to repeat one near itself. They
+     * carry no meaning: the only rule is that no two plots you can see at once look
+     * alike.
+     *
+     * <p>The blocks themselves live in {@link Workshop}, which is what paints. This
+     * class works out geometry and which colour index each plot takes, and holds no
+     * Minecraft type at all, so the layout can be exercised without a server.
      */
-    private static final Block[] COLOURS = {
-            Blocks.WHITE_GLAZED_TERRACOTTA, Blocks.ORANGE_GLAZED_TERRACOTTA,
-            Blocks.MAGENTA_GLAZED_TERRACOTTA, Blocks.LIGHT_BLUE_GLAZED_TERRACOTTA,
-            Blocks.YELLOW_GLAZED_TERRACOTTA, Blocks.LIME_GLAZED_TERRACOTTA,
-            Blocks.PINK_GLAZED_TERRACOTTA, Blocks.GRAY_GLAZED_TERRACOTTA,
-            Blocks.LIGHT_GRAY_GLAZED_TERRACOTTA, Blocks.CYAN_GLAZED_TERRACOTTA,
-            Blocks.PURPLE_GLAZED_TERRACOTTA, Blocks.BLUE_GLAZED_TERRACOTTA,
-            Blocks.BROWN_GLAZED_TERRACOTTA, Blocks.GREEN_GLAZED_TERRACOTTA,
-            Blocks.RED_GLAZED_TERRACOTTA, Blocks.BLACK_GLAZED_TERRACOTTA,
-    };
+    public static final int COLOUR_COUNT = 16;
 
     /**
      * One plot.
@@ -81,12 +75,15 @@ public final class Layout {
             return cz * 16 + height * 16 - 1;
         }
 
-        public Block floor() {
-            // The front desk is not one of the shapes, so it takes no colour from
-            // the pool. Stone bricks read as "not a plot" at a glance.
-            return CORE_ID.equals(id)
-                    ? Blocks.CHISELED_STONE_BRICKS
-                    : COLOURS[Math.floorMod(colour, COLOURS.length)];
+        /**
+         * Which floor colour this plot takes, or -1 for the front desk.
+         *
+         * <p>The front desk is not one of the shapes, so it takes no colour from the
+         * pool and {@link Workshop} paints it as something that reads as "not a
+         * plot" at a glance.
+         */
+        public int floorColour() {
+            return CORE_ID.equals(id) ? -1 : Math.floorMod(colour, COLOUR_COUNT);
         }
 
         public boolean contains(int blockX, int blockZ) {
@@ -162,13 +159,20 @@ public final class Layout {
                     continue;
                 }
                 int count = plotsIn(row);
-                if (count == 0) {
-                    // Declared and not laid out. Every multi-building footprint up
-                    // to the area size exists, and painting the floor of all of
-                    // them would be several thousand chunks of shapes most packs
-                    // never use. It takes no room until somebody grows it.
-                    continue;
-                }
+                // A row keeps its band whether or not it holds plots.
+                //
+                // Skipping an empty row saved address space and cost stability: a
+                // plot's position is written into the world the moment anything is
+                // pasted onto it and never written down again, so a row that starts
+                // taking room pushes every row after it north, and every build on
+                // those is stranded at coordinates that now belong to a different
+                // plot. An import grows every row its pack needs, and a pack with
+                // fifteen multi-building footprints grows fifteen rows at once.
+                //
+                // Reserving the band costs nothing that matters. Nothing is painted
+                // for a row with no plots, so the world is no bigger; only the
+                // coordinates are, and `/lcdev workshop rows` is how anyone travels
+                // here anyway.
                 int cz = southEdge - row.height() + 1;
                 for (int i = 0; i < count; i++) {
                     int cx = area == Catalogue.Area.EAST
@@ -198,19 +202,19 @@ public final class Layout {
     private static List<Plot> colour(List<Plot> plots) {
         List<Plot> out = new ArrayList<>(plots.size());
         for (Plot plot : plots) {
-            boolean[] taken = new boolean[COLOURS.length];
+            boolean[] taken = new boolean[COLOUR_COUNT];
             for (Plot done : out) {
                 if (touches(plot, done)) {
-                    taken[Math.floorMod(done.colour(), COLOURS.length)] = true;
+                    taken[Math.floorMod(done.colour(), COLOUR_COUNT)] = true;
                 }
             }
             int pick = 0;
-            while (pick < COLOURS.length && taken[pick]) {
+            while (pick < COLOUR_COUNT && taken[pick]) {
                 pick++;
             }
             out.add(new Plot(plot.id(), plot.cx(), plot.cz(), plot.width(),
                     plot.height(), plot.row(), plot.index(),
-                    pick == COLOURS.length ? 0 : pick));
+                    pick == COLOUR_COUNT ? 0 : pick));
         }
         return out;
     }
