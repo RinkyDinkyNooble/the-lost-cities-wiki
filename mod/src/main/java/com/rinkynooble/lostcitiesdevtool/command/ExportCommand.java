@@ -30,12 +30,21 @@ public class ExportCommand {
                 .then(Commands.literal("export")
                         .requires(s -> s.hasPermission(2))
                         .then(Commands.argument("name", StringArgumentType.word())
-                                .executes(ctx -> export(ctx, false))
+                                .executes(ctx -> export(ctx, false, false))
+                                // Both orders, because there is no reason to make
+                                // somebody remember which flag comes first.
                                 .then(Commands.literal("-f")
-                                        .executes(ctx -> export(ctx, true))))));
+                                        .executes(ctx -> export(ctx, true, false))
+                                        .then(Commands.literal("notags").executes(
+                                                ctx -> export(ctx, true, true))))
+                                .then(Commands.literal("notags")
+                                        .executes(ctx -> export(ctx, false, true))
+                                        .then(Commands.literal("-f").executes(
+                                                ctx -> export(ctx, true, true)))))));
     }
 
-    private static int export(CommandContext<CommandSourceStack> ctx, boolean force) {
+    private static int export(CommandContext<CommandSourceStack> ctx, boolean force,
+                              boolean noTags) {
         CommandSourceStack source = ctx.getSource();
         String name = StringArgumentType.getString(ctx, "name");
         ServerLevel workshop = Workshop.level(source.getServer());
@@ -48,7 +57,7 @@ public class ExportCommand {
         long started = System.currentTimeMillis();
         Exporter.Result result;
         try {
-            result = Exporter.run(source.getServer(), workshop, name, force);
+            result = Exporter.run(source.getServer(), workshop, name, force, noTags);
         } catch (IOException e) {
             Chat.fail(source, "The export could not run", name,
                     String.valueOf(e.getMessage()));

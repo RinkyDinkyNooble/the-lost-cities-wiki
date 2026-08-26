@@ -33,6 +33,13 @@ public final class Settings {
         SHAPE,
         /** The front desk at the origin. */
         CORE,
+        /**
+         * The front desk and every catalogue plot alike.
+         *
+         * <p>For a setting the pack states once and a plot overrides where it has
+         * reason to, rather than one that belongs to one or the other.
+         */
+        ANY,
         /** Plots that become a Building or a MultiBuilding. */
         BUILDING,
         /** Plots whose entry carries a `factor`, so every ObjectSelector row. */
@@ -92,6 +99,18 @@ public final class Settings {
             new Field("skip", Type.BOOL, Applies.SHAPE, "false",
                     "Leave this plot out of the export entirely, without deleting "
                             + "what is built on it."),
+            new Field("tagkeys", Type.STRING_LIST, Applies.ANY, null,
+                    "Which of a block's NBT reaches the pack. An export reads what "
+                            + "a block entity is carrying, because for some blocks "
+                            + "that is the whole asset: a command block without its "
+                            + "command is nothing. It also reads what you never "
+                            + "meant to ship, like the items in a chest you opened "
+                            + "while building. Naming keys plainly keeps only those; "
+                            + "prefixing one with ! drops it and keeps the rest; a "
+                            + "dot reaches inside, as in Base.Color. Set on the "
+                            + "front desk it is the pack's rule, and a plot naming "
+                            + "the same key again overrides it. Unset, everything "
+                            + "the block carries is kept."),
             new Field("palette", Type.STRING, Applies.SHAPE, "global",
                     "Where this plot's characters are written. global puts them in "
                             + "the pack's shared palette and points the assets at "
@@ -185,11 +204,11 @@ public final class Settings {
 
     private static boolean applies(Field f, @Nullable Catalogue.Row row) {
         if (row == null) {
-            return f.applies() == Applies.CORE;
+            return f.applies() == Applies.CORE || f.applies() == Applies.ANY;
         }
         return switch (f.applies()) {
             case CORE -> false;
-            case SHAPE -> true;
+            case SHAPE, ANY -> true;
             case CITY_SCOPED -> row.cityStyleScoped();
             case WEIGHTED -> row.kind() == Catalogue.Kind.SELECTOR;
             // A building plot is one whose asset stacks parts by level. Every east

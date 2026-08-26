@@ -127,9 +127,13 @@ public final class Exporter {
     /** Whether this is the copy a wipe takes, which has to be written whatever. */
     private final boolean backup;
 
+    /** Whether the NBT a block carries is left out of the pack entirely. */
+    private final boolean noTags;
+
     private Exporter(MinecraftServer server, ServerLevel level, PaletteLedger ledger,
-                     JsonObject core, boolean backup) {
+                     JsonObject core, boolean backup, boolean noTags) {
         this.backup = backup;
+        this.noTags = noTags;
         this.server = server;
         this.level = level;
         this.ledger = ledger;
@@ -144,6 +148,13 @@ public final class Exporter {
         return run(server, level, name, force, exportsRoot(server).resolve(name));
     }
 
+    /** The same, with the NBT a block carries left out. */
+    public static Result run(MinecraftServer server, ServerLevel level, String name,
+                             boolean force, boolean noTags) throws IOException {
+        return run(server, level, name, force, exportsRoot(server).resolve(name),
+                false, noTags);
+    }
+
     /**
      * The same compile, written wherever the caller says.
      *
@@ -153,7 +164,7 @@ public final class Exporter {
      */
     public static Result run(MinecraftServer server, ServerLevel level, String name,
                              boolean force, Path root) throws IOException {
-        return run(server, level, name, force, root, false);
+        return run(server, level, name, force, root, false, false);
     }
 
     /**
@@ -165,11 +176,12 @@ public final class Exporter {
      * leave no way to empty a workshop at all.
      */
     public static Result run(MinecraftServer server, ServerLevel level, String name,
-                             boolean force, Path root, boolean backup)
-            throws IOException {
+                             boolean force, Path root, boolean backup,
+                             boolean noTags) throws IOException {
         JsonObject core = SettingsStore.load(server, Layout.CORE_ID);
         PaletteLedger ledger = PaletteLedger.load(server);
-        Exporter exporter = new Exporter(server, level, ledger, core, backup);
+        Exporter exporter = new Exporter(server, level, ledger, core, backup,
+                noTags);
 
         if (Files.exists(root) && !force) {
             throw new IOException("an export named " + name + " is already there. "
@@ -510,6 +522,39 @@ public final class Exporter {
     }
 
     /**
+     * What one plot's settings say about reading a block.
+     *
+     * <p>Three things that always travel together because they come from the same
+     * settings and are all consulted for every position read: what was marked on a
+     * single block, the placeholder table, and which of a block's NBT belongs in the
+     * pack.
+     */
+    private record Rules(JsonObject marks, JsonObject conversions, TagFilter tags) {
+    }
+
+    /**
+     * The rules for one plot.
+     *
+     * <p>{@code tagkeys} is read from the pack's core settings first and then the
+     * plot's, so a plot can take back a key the pack dropped or drop one it kept.
+     * That is the opposite way round from {@link #merged}, which lets the core win,
+     * because a filter is a policy a plot has good reason to make an exception to.
+     */
+    private Rules rulesFor(JsonObject settings) {
+        JsonObject marks = settings.has("marks") && settings.get("marks").isJsonObject()
+                ? settings.getAsJsonObject("marks") : new JsonObject();
+        JsonArray paths = new JsonArray();
+        if (core.has(TagFilter.KEY) && core.get(TagFilter.KEY).isJsonArray()) {
+            paths.addAll(core.getAsJsonArray(TagFilter.KEY));
+        }
+        if (settings != core && settings.has(TagFilter.KEY)
+                && settings.get(TagFilter.KEY).isJsonArray()) {
+            paths.addAll(settings.getAsJsonArray(TagFilter.KEY));
+        }
+        return new Rules(marks, merged("conversions", settings), TagFilter.of(paths));
+    }
+
+    /**
      * One emitted part: the name a level should reference, and its commonest block.
      *
      * <p>The name is not always the one asked for. A level whose blocks match one
@@ -536,9 +581,7 @@ public final class Exporter {
                              Map<String, JsonObject> sink) {
         int x0 = plot.blockMinX() + dx * 16;
         int z0 = plot.blockMinZ() + dz * 16;
-        JsonObject marks = settings.has("marks") && settings.get("marks").isJsonObject()
-                ? settings.getAsJsonObject("marks") : new JsonObject();
-        JsonObject conversions = merged("conversions", settings);
+        Rules rules = rulesFor(settings);
 
         Map<Character, Integer> seen = new LinkedHashMap<>();
         JsonArray slices = new JsonArray();
@@ -548,8 +591,7 @@ public final class Exporter {
                 StringBuilder row = new StringBuilder(16);
                 for (int x = 0; x < 16; x++) {
                     char c = characterAt(x0 + x, baseY + y, z0 + z,
-                            dx * 16 + x, baseY + y, dz * 16 + z, marks, conversions,
-                            sink);
+                            dx * 16 + x, baseY + y, dz * 16 + z, rules, sink);
                     row.append(c);
                     if (c != PaletteLedger.AIR) {
                         seen.merge(c, 1, Integer::sum);
@@ -600,8 +642,9 @@ public final class Exporter {
 
     /** The character for one block, assigning one where the cell is new. */
     private char characterAt(int wx, int wy, int wz, int lx, int ly, int lz,
-                             JsonObject marks, JsonObject conversions,
-                             Map<String, JsonObject> sink) {
+                             Rules rules, Map<String, JsonObject> sink) {
+        JsonObject marks = rules.marks();
+        JsonObject conversions = rules.conversions();
         // ly is the world height the mark was recorded against, not the layer index.
         BlockState state = level.getBlockState(new BlockPos(wx, wy, wz));
         if (state.isAir() || state.is(Blocks.STRUCTURE_VOID)) {
@@ -626,7 +669,7 @@ public final class Exporter {
         // A command block is the clearest case: the block is nothing on its own and
         // the command is the whole asset, so reading only the state would export a
         // pack whose command blocks are empty.
-        JsonObject tag = tagAt(wx, wy, wz);
+        JsonObject tag = noTags ? null : rules.tags().apply(tagAt(wx, wy, wz));
         if (tag != null) {
             mark = mark == null ? new JsonObject() : mark.deepCopy();
             mark.add("tag", tag);
