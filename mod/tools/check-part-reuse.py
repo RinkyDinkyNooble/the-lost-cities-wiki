@@ -174,7 +174,11 @@ try:
         if not building:
             fail("no building file was written for the all-identical building")
         else:
-            body = json.loads(io.open(building[0], encoding="utf-8").read())
+            try:
+                body = json.loads(io.open(building[0], encoding="utf-8").read())
+            except ValueError:
+                raise SystemExit("%s is not plain JSON, which this check assumes"
+                                 % os.path.relpath(building[0]))
             refs = body.get("parts", [])
             print("\n  levels in the building's parts list: %d" % len(refs))
             print("  distinct parts they name: %d"

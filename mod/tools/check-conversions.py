@@ -13,7 +13,8 @@ export swaps it.
 Pack-wide already worked. What did not, and what this checks:
 
   * a plot's table overrides the pack's, rather than the pack's winning
-  * a chunk's and a level's table override the plot's
+  * a chunk's and a level's table override the plot's, and a chunk's own level is
+    narrower still
   * a narrower scope adds to the wider one rather than replacing it whole, so a
     chunk wanting one more mapping does not have to restate the plot's
 
@@ -95,7 +96,12 @@ def blocks_in(export):
     out = set()
     for path in glob.glob(os.path.join(EXPORTS, export, "data", "*", "lostcities",
                                        "**", "*.json*"), recursive=True):
-        body = json.loads(io.open(path, encoding="utf-8").read())
+        text = io.open(path, encoding="utf-8").read()
+        try:
+            body = json.loads(text)
+        except ValueError:
+            raise SystemExit("%s is not plain JSON, which this check assumes"
+                             % os.path.relpath(path))
         palette = body.get("palette")
         if isinstance(palette, dict):
             palette = palette.get("palette")
@@ -205,6 +211,40 @@ try:
                ["minecraft:gold_block", "minecraft:white_wool",
                 "minecraft:black_wool"],
                "level adds emerald, keeps the plot's iron")
+        print("\n" + "=" * 72)
+        print("5. a chunk's table overrides the plot's")
+        # dx,dz is 0,0 for a one chunk plot, which is still the chunk scope: it is
+        # the branch with the null guard and the nested read, and none of the cases
+        # above touch it.
+        write_settings("building/1x1/0", dict(
+            base,
+            conversions={"minecraft:white_wool": "minecraft:iron_block"},
+            chunks={"0,0": {"conversions":
+                            {"minecraft:white_wool": "minecraft:copper_block"}}}))
+        con.command("lcdev export c5")
+        expect("c5", ["minecraft:copper_block"],
+               ["minecraft:iron_block", "minecraft:gold_block",
+                "minecraft:white_wool"],
+               "chunk says copper")
+
+        print("\n" + "=" * 72)
+        print("6. a chunk's level is narrower still")
+        write_settings("building/1x1/0", dict(
+            base,
+            conversions={"minecraft:white_wool": "minecraft:iron_block"},
+            chunks={"0,0": {
+                "conversions": {"minecraft:white_wool": "minecraft:copper_block"},
+                "levels": {"2": {"conversions":
+                                 {"minecraft:white_wool": "minecraft:lapis_block"}}},
+            }}))
+        con.command("lcdev export c6")
+        # Level 2 is lapis and the other levels stay copper, so the deepest scope
+        # wins without winning everywhere.
+        expect("c6", ["minecraft:lapis_block", "minecraft:copper_block"],
+               ["minecraft:iron_block", "minecraft:gold_block",
+                "minecraft:white_wool"],
+               "chunk level 2 says lapis, the rest copper")
+
 finally:
     try:
         with Rcon(port=25575, password="lcwiki") as con:

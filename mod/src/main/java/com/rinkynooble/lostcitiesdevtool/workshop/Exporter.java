@@ -316,7 +316,7 @@ public final class Exporter {
             // A flat plot is one part, so `building` and `part` mean the same
             // thing here: its own palette, carried in the file.
             partsByBody.clear();
-            emitPart(partName, plot, 0, 0, Boundaries.BASE, height, settings,
+            emitPart(partName, plot, 0, 0, Boundaries.BASE, height,
                     rulesFor(settings, settings, 0, 0, 0),
                     sinkFor(settings, "global".equals(placement(settings))
                             ? null : new LinkedHashMap<>()));
@@ -453,8 +453,7 @@ public final class Exporter {
         for (int c = cellars; c >= 1; c--) {
             JsonObject atLevel = Settings.resolve(plotSettings, dx, dz, -c);
             Emitted got = emitPart(name + "_c" + c, plot, dx, dz, y,
-                    Boundaries.STRIDE, atLevel,
-                    rulesFor(plotSettings, atLevel, dx, dz, -c),
+                    Boundaries.STRIDE, rulesFor(plotSettings, atLevel, dx, dz, -c),
                     perPart ? new LinkedHashMap<>() : buildingSink);
             parts.add(ref(got.name(), "floor", -c));
             y += Boundaries.STRIDE;
@@ -462,8 +461,7 @@ public final class Exporter {
         for (int f = 0; f <= floors; f++) {
             JsonObject atLevel = Settings.resolve(plotSettings, dx, dz, f);
             Emitted got = emitPart(name + "_f" + f, plot, dx, dz, y,
-                    Boundaries.STRIDE, atLevel,
-                    rulesFor(plotSettings, atLevel, dx, dz, f),
+                    Boundaries.STRIDE, rulesFor(plotSettings, atLevel, dx, dz, f),
                     perPart ? new LinkedHashMap<>() : buildingSink);
             String part = got.name();
             if (f == 0) {
@@ -484,10 +482,10 @@ public final class Exporter {
                         + " and was read as " + height + ". A part of one slice "
                         + "draws nothing at all, so it is the shortest a top can be.");
             }
-            int top = floors + 1 + t;
-            JsonObject atLevel = Settings.resolve(plotSettings, dx, dz, top);
+            int levelOfTop = floors + 1 + t;
+            JsonObject atLevel = Settings.resolve(plotSettings, dx, dz, levelOfTop);
             Emitted got = emitPart(name + "_t" + (t + 1), plot, dx, dz, y, height,
-                    atLevel, rulesFor(plotSettings, atLevel, dx, dz, top),
+                    rulesFor(plotSettings, atLevel, dx, dz, levelOfTop),
                     perPart ? new LinkedHashMap<>() : buildingSink);
             JsonObject r = new JsonObject();
             r.addProperty("part", namespace + ":" + got.name());
@@ -600,8 +598,8 @@ public final class Exporter {
      * a level matching one already written this building shares its file.
      */
     private Emitted emitPart(String name, Layout.Plot plot, int dx, int dz,
-                             int baseY, int height, JsonObject settings,
-                             Rules rules, Map<String, JsonObject> sink) {
+                             int baseY, int height, Rules rules,
+                             Map<String, JsonObject> sink) {
         int x0 = plot.blockMinX() + dx * 16;
         int z0 = plot.blockMinZ() + dz * 16;
 

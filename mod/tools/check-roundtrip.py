@@ -343,10 +343,22 @@ before = tree(os.path.join(stash, PACK))
 
 
 def asset(files, kind, name):
+    """One asset out of an export, whichever extension it was written under.
+
+    This check sets `format json5` on purpose, so the files it reads back really
+    can be json5. That works today only because the exporter's json5 output is
+    still plain JSON content with a different extension; the moment it emits a
+    comment or a trailing comma, a bare json.loads here would die.
+    """
     for ext in (".json", ".json5"):
         key = "data/%s/lostcities/%s/%s%s" % (NS, kind, name, ext)
         if key in files:
-            return json.loads(files[key])
+            try:
+                return json.loads(files[key])
+            except ValueError:
+                raise SystemExit("%s could not be parsed as JSON. If the exporter "
+                                 "now writes real json5, this check needs a json5 "
+                                 "reader rather than a tolerant one" % key)
     return None
 
 
