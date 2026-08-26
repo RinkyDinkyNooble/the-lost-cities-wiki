@@ -317,6 +317,7 @@ public final class Exporter {
             // thing here: its own palette, carried in the file.
             partsByBody.clear();
             emitPart(partName, plot, 0, 0, Boundaries.BASE, height, settings,
+                    rulesFor(settings, settings, 0, 0, 0),
                     sinkFor(settings, "global".equals(placement(settings))
                             ? null : new LinkedHashMap<>()));
             applyRaw("parts/" + partName, settings);
@@ -450,15 +451,19 @@ public final class Exporter {
         char commonest = PaletteLedger.AIR;
         int y = Boundaries.BASE;
         for (int c = cellars; c >= 1; c--) {
+            JsonObject atLevel = Settings.resolve(plotSettings, dx, dz, -c);
             Emitted got = emitPart(name + "_c" + c, plot, dx, dz, y,
-                    Boundaries.STRIDE, Settings.resolve(plotSettings, dx, dz, -c),
+                    Boundaries.STRIDE, atLevel,
+                    rulesFor(plotSettings, atLevel, dx, dz, -c),
                     perPart ? new LinkedHashMap<>() : buildingSink);
             parts.add(ref(got.name(), "floor", -c));
             y += Boundaries.STRIDE;
         }
         for (int f = 0; f <= floors; f++) {
+            JsonObject atLevel = Settings.resolve(plotSettings, dx, dz, f);
             Emitted got = emitPart(name + "_f" + f, plot, dx, dz, y,
-                    Boundaries.STRIDE, Settings.resolve(plotSettings, dx, dz, f),
+                    Boundaries.STRIDE, atLevel,
+                    rulesFor(plotSettings, atLevel, dx, dz, f),
                     perPart ? new LinkedHashMap<>() : buildingSink);
             String part = got.name();
             if (f == 0) {
@@ -479,8 +484,10 @@ public final class Exporter {
                         + " and was read as " + height + ". A part of one slice "
                         + "draws nothing at all, so it is the shortest a top can be.");
             }
+            int top = floors + 1 + t;
+            JsonObject atLevel = Settings.resolve(plotSettings, dx, dz, top);
             Emitted got = emitPart(name + "_t" + (t + 1), plot, dx, dz, y, height,
-                    Settings.resolve(plotSettings, dx, dz, floors + 1 + t),
+                    atLevel, rulesFor(plotSettings, atLevel, dx, dz, top),
                     perPart ? new LinkedHashMap<>() : buildingSink);
             JsonObject r = new JsonObject();
             r.addProperty("part", namespace + ":" + got.name());
@@ -533,25 +540,41 @@ public final class Exporter {
     }
 
     /**
-     * The rules for one plot.
+     * The rules for one level of one plot.
      *
-     * <p>{@code tagkeys} is read from the pack's core settings first and then the
-     * plot's, so a plot can take back a key the pack dropped or drop one it kept.
-     * That is the opposite way round from {@link #merged}, which lets the core win,
-     * because a filter is a policy a plot has good reason to make an exception to.
+     * <p>Built where the scope is still known, because two of the three depend on
+     * it. Passing already-flattened settings would have thrown the chunk and level
+     * away before the tables could be layered across them.
+     *
+     * <p><b>The narrower scope wins, and the pack is the base.</b> That is the
+     * opposite way round from {@link #merged}, which lets the core override a plot.
+     * A pack-wide table nothing can override is not a default, it is a law, and the
+     * whole point of scoping a conversion is that one plot can say otherwise.
      */
-    private Rules rulesFor(JsonObject settings) {
-        JsonObject marks = settings.has("marks") && settings.get("marks").isJsonObject()
-                ? settings.getAsJsonObject("marks") : new JsonObject();
+    private Rules rulesFor(JsonObject plotSettings, JsonObject resolved,
+                           int dx, int dz, int level) {
+        JsonObject marks = resolved.has("marks") && resolved.get("marks").isJsonObject()
+                ? resolved.getAsJsonObject("marks") : new JsonObject();
+
+        JsonObject conversions = new JsonObject();
+        if (core.has("conversions") && core.get("conversions").isJsonObject()) {
+            core.getAsJsonObject("conversions").entrySet()
+                    .forEach(e -> conversions.add(e.getKey(), e.getValue()));
+        }
+        Settings.layered(plotSettings, dx, dz, level, "conversions").entrySet()
+                .forEach(e -> conversions.add(e.getKey(), e.getValue()));
+
         JsonArray paths = new JsonArray();
         if (core.has(TagFilter.KEY) && core.get(TagFilter.KEY).isJsonArray()) {
             paths.addAll(core.getAsJsonArray(TagFilter.KEY));
         }
-        if (settings != core && settings.has(TagFilter.KEY)
-                && settings.get(TagFilter.KEY).isJsonArray()) {
-            paths.addAll(settings.getAsJsonArray(TagFilter.KEY));
+        // A list, so the resolved value rather than a layered one. Concatenating a
+        // plot's list with its chunk's would make `!Items` at one scope and `Items`
+        // at another fight in an order nobody can see; replacing reads as written.
+        if (resolved.has(TagFilter.KEY) && resolved.get(TagFilter.KEY).isJsonArray()) {
+            paths.addAll(resolved.getAsJsonArray(TagFilter.KEY));
         }
-        return new Rules(marks, merged("conversions", settings), TagFilter.of(paths));
+        return new Rules(marks, conversions, TagFilter.of(paths));
     }
 
     /**
@@ -578,10 +601,9 @@ public final class Exporter {
      */
     private Emitted emitPart(String name, Layout.Plot plot, int dx, int dz,
                              int baseY, int height, JsonObject settings,
-                             Map<String, JsonObject> sink) {
+                             Rules rules, Map<String, JsonObject> sink) {
         int x0 = plot.blockMinX() + dx * 16;
         int z0 = plot.blockMinZ() + dz * 16;
-        Rules rules = rulesFor(settings);
 
         Map<Character, Integer> seen = new LinkedHashMap<>();
         JsonArray slices = new JsonArray();

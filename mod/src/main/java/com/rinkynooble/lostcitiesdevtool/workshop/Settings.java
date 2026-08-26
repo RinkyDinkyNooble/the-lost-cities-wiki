@@ -333,6 +333,47 @@ public final class Settings {
         return out;
     }
 
+    /**
+     * An object-valued key, layered across the scopes rather than replaced.
+     *
+     * <p>{@link #resolve} replaces a value outright, which is right for a number or
+     * a name: a chunk saying {@code floors: 3} means three, not three added to
+     * whatever the plot said. It is wrong for a table. A chunk that wants one more
+     * conversion than the plot has should not have to restate the plot's whole list
+     * to get it.
+     *
+     * <p>So entries are added, narrowest last: the plot's, then the level's, then
+     * the chunk's, then that chunk's level. Naming the same entry twice means the
+     * narrower scope wins, which is the only reading that makes a scope worth having.
+     */
+    public static JsonObject layered(JsonObject plot, int dx, int dz, int level,
+                                     String key) {
+        JsonObject out = new JsonObject();
+        addAll(out, objectOf(plot, key));
+        addAll(out, objectOf(nested(plot, "levels", String.valueOf(level)), key));
+        JsonObject chunk = nested(plot, "chunks", dx + "," + dz);
+        addAll(out, objectOf(chunk, key));
+        if (chunk != null) {
+            addAll(out, objectOf(nested(chunk, "levels", String.valueOf(level)),
+                    key));
+        }
+        return out;
+    }
+
+    @Nullable
+    private static JsonObject objectOf(@Nullable JsonObject from, String key) {
+        if (from == null || !from.has(key) || !from.get(key).isJsonObject()) {
+            return null;
+        }
+        return from.getAsJsonObject(key);
+    }
+
+    private static void addAll(JsonObject target, @Nullable JsonObject source) {
+        if (source != null) {
+            source.entrySet().forEach(e -> target.add(e.getKey(), e.getValue()));
+        }
+    }
+
     /** The plot's own values, without the scope containers. */
     public static JsonObject shallow(JsonObject plot) {
         JsonObject out = new JsonObject();
