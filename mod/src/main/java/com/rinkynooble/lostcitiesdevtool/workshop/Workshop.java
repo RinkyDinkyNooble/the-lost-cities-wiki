@@ -86,6 +86,18 @@ public final class Workshop {
             Blocks.RED_GLAZED_TERRACOTTA, Blocks.BLACK_GLAZED_TERRACOTTA,
     };
 
+    static {
+        // Layout hands out colour indices and this holds the blocks they mean, so
+        // the two counts have to agree and nothing else would notice if they did
+        // not. One short and two touching plots quietly paint the same colour; one
+        // long and the extra is never reachable, which puts the adjacency search
+        // back to reusing a colour a neighbour already has.
+        if (COLOURS.length != Layout.COLOUR_COUNT) {
+            throw new IllegalStateException("Workshop has " + COLOURS.length
+                    + " floor colours and Layout hands out " + Layout.COLOUR_COUNT);
+        }
+    }
+
     /** What a plot's floor is made of. The front desk is not one of the shapes. */
     public static Block floorOf(Layout.Plot plot) {
         int colour = plot.floorColour();

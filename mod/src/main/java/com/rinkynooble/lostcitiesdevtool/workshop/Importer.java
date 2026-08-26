@@ -450,22 +450,26 @@ public final class Importer {
      * these names end up in every file of the exported pack.
      */
     private void nameAssets() {
-        Map<String, List<String>> byShort = new LinkedHashMap<>();
+        // Distinct assets, not distinct references. `queue` dedupes within a row,
+        // so one part named for two street shapes is queued twice and would look
+        // like two assets fighting over a name. It is one asset, it keeps its short
+        // name, and nothing is warned about.
+        Map<String, Set<String>> byShort = new LinkedHashMap<>();
         for (List<String> names : queued.values()) {
             for (String full : names) {
-                byShort.computeIfAbsent(shortOf(full), k -> new ArrayList<>())
+                byShort.computeIfAbsent(shortOf(full), k -> new LinkedHashSet<>())
                         .add(full);
             }
         }
         Set<String> taken = new HashSet<>();
-        for (Map.Entry<String, List<String>> e : byShort.entrySet()) {
+        for (Map.Entry<String, Set<String>> e : byShort.entrySet()) {
             if (e.getValue().size() == 1) {
-                exportNames.put(e.getValue().get(0), e.getKey());
+                exportNames.put(e.getValue().iterator().next(), e.getKey());
                 taken.add(e.getKey());
             }
         }
-        for (Map.Entry<String, List<String>> e : byShort.entrySet()) {
-            List<String> clash = e.getValue();
+        for (Map.Entry<String, Set<String>> e : byShort.entrySet()) {
+            Set<String> clash = e.getValue();
             if (clash.size() == 1) {
                 continue;
             }

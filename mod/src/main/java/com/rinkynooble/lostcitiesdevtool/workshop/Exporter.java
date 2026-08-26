@@ -204,14 +204,26 @@ public final class Exporter {
     // ------------------------------------------------------------------ compile
 
     private int compile() throws IOException {
-        namePlots();
-        int done = 0;
+        // Read once, here. Naming has to see every plot before any is written, and
+        // compiling then walks the same plots again; parsing each settings file
+        // twice to do it is waste.
+        Map<String, JsonObject> settingsById = new LinkedHashMap<>();
         for (Layout.Plot plot : Layout.plots()) {
             if (plot.row() == null) {
                 continue;
             }
             JsonObject settings = SettingsStore.load(server, plot.id());
             if (settings.keySet().isEmpty() || bool(settings, "skip", false)) {
+                continue;
+            }
+            settingsById.put(plot.id(), settings);
+        }
+
+        namePlots(settingsById);
+        int done = 0;
+        for (Layout.Plot plot : Layout.plots()) {
+            JsonObject settings = settingsById.get(plot.id());
+            if (settings == null) {
                 continue;
             }
             compilePlot(plot, settings);
@@ -233,19 +245,12 @@ public final class Exporter {
      * is what keeps the backup a real pack: a building and the parts it references
      * are all named from this, so they stay pointing at each other.
      */
-    private void namePlots() throws IOException {
+    private void namePlots(Map<String, JsonObject> settingsById) {
         Map<String, List<String>> byName = new LinkedHashMap<>();
-        for (Layout.Plot plot : Layout.plots()) {
-            if (plot.row() == null) {
-                continue;
-            }
-            JsonObject settings = SettingsStore.load(server, plot.id());
-            if (settings.keySet().isEmpty() || bool(settings, "skip", false)) {
-                continue;
-            }
+        for (Map.Entry<String, JsonObject> e : settingsById.entrySet()) {
             byName.computeIfAbsent(
-                    string(settings, "name", plot.id().replace('/', '_')),
-                    k -> new ArrayList<>()).add(plot.id());
+                    string(e.getValue(), "name", e.getKey().replace('/', '_')),
+                    k -> new ArrayList<>()).add(e.getKey());
         }
         Set<String> taken = new LinkedHashSet<>();
         for (Map.Entry<String, List<String>> e : byName.entrySet()) {

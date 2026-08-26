@@ -122,8 +122,6 @@ try:
             con.command("execute in %s run fill %d %d %d %d %d %d "
                         "minecraft:gold_block hollow"
                         % (WORKSHOP, x, y, z, x + 15, y + STRIDE - 1, z + 15))
-        con.command("execute in %s run data modify block 0 0 0 x set value 0"
-                    % WORKSHOP)
 
         print("building/1x1/1: the same, with floor 2 in iron instead")
         x2, z2 = mixed["chunkX"] * 16, mixed["chunkZ"] * 16
@@ -134,10 +132,9 @@ try:
                         % (WORKSHOP, x2, y, z2, x2 + 15, y + STRIDE - 1, z2 + 15,
                            block))
 
-        for pid in ("building/1x1/0", "building/1x1/1"):
-            con.command("execute in %s run lcdev plot set floors %d" % (WORKSHOP,
-                                                                       FLOORS))
-        # plot set works on the plot you stand in, so go there for each.
+        # `plot set` works on the plot the caller stands in, so every one of these
+        # has to be positioned. Without that they land on whatever plot the command
+        # source is at, which over RCON is 0,0 and therefore the core settings.
         for pid, p in (("building/1x1/0", same), ("building/1x1/1", mixed)):
             con.command("execute in %s positioned %d 10 %d run lcdev plot set floors "
                         "%d" % (WORKSHOP, p["chunkX"] * 16 + 8,
