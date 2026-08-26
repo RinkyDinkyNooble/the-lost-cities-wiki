@@ -16,7 +16,8 @@ Four things, in one boot:
     what "read the NBT" means and a furnished building is a real thing to want
   * `tagkeys` naming keys plainly keeps only those, so the same chest can ship its
     name and leave its contents behind
-  * `!` drops a key and keeps the rest
+  * `!` drops a key and keeps the rest, which is only separable from the case above
+    because the chest carries a third key neither of them names the same way
   * `/lcdev export <name> notags` writes a pack with no tag anywhere
 
 The chest is the case worth testing rather than a command block: a command block's
@@ -84,7 +85,14 @@ def entries(export):
     out = []
     for path in glob.glob(os.path.join(EXPORTS, export, "data", "*", "lostcities",
                                        "**", "*.json*"), recursive=True):
-        body = json.loads(io.open(path, encoding="utf-8").read())
+        text = io.open(path, encoding="utf-8").read()
+        try:
+            body = json.loads(text)
+        except ValueError:
+            # A json5 pack is not what this fixture writes, and guessing at one
+            # here would hide a real change in what the export produces.
+            raise SystemExit("%s is not plain JSON, which this check assumes"
+                             % os.path.relpath(path))
         palette = body.get("palette")
         if isinstance(palette, dict):
             palette = palette.get("palette")
@@ -128,9 +136,14 @@ try:
         print("a park plot with a floor and one furnished, named chest")
         con.command("execute in %s run fill %d %d %d %d %d %d minecraft:stone"
                     % (WORKSHOP, x, BASE, z, x + 15, BASE, z + 15))
+        # Three keys on purpose. With only CustomName and Items, keeping CustomName
+        # and dropping Items give the same answer, and the check could not tell an
+        # export that honoured `!` from one that ignored it and treated every entry
+        # as a keep-list. Lock is the third, and it is what separates them.
         con.command(
             'execute in %s run setblock %d %d %d minecraft:chest{CustomName:'
-            '\'{"text":"crate"}\',Items:[{Slot:0b,id:"minecraft:diamond",Count:7b}]}'
+            '\'{"text":"crate"}\',Lock:"opensesame",'
+            'Items:[{Slot:0b,id:"minecraft:diamond",Count:7b}]}'
             % (WORKSHOP, x + 4, BASE, z + 4))
         con.command("execute in %s positioned %d 10 %d run lcdev plot set name yard"
                     % (WORKSHOP, x + 8, z + 8))
@@ -144,10 +157,9 @@ try:
             fail("the chest exported with no tag at all, so nothing below this "
                  "check is testing what it claims")
         else:
-            if "Items" not in tag:
-                fail("the chest's inventory was not exported by default")
-            if "CustomName" not in tag:
-                fail("the chest's name was not exported by default")
+            for key in ("Items", "CustomName", "Lock"):
+                if key not in tag:
+                    fail("the chest's %s was not exported by default" % key)
 
         print("\n" + "=" * 72)
         print("2. tagkeys naming keys plainly keeps only those")
@@ -159,8 +171,13 @@ try:
         if tag is None:
             fail("keeping CustomName dropped the whole tag")
         else:
-            if "Items" in tag:
-                fail("a keep-list naming CustomName still exported Items")
+            # Lock is the one that separates this from the next case: a keep-list
+            # naming CustomName has to lose it, and a drop-list naming Items has to
+            # keep it.
+            for key in ("Items", "Lock"):
+                if key in tag:
+                    fail("a keep-list naming only CustomName still exported %s"
+                         % key)
             if "CustomName" not in tag:
                 fail("a keep-list naming CustomName did not export CustomName")
 
@@ -176,8 +193,9 @@ try:
         else:
             if "Items" in tag:
                 fail("!Items still exported Items")
-            if "CustomName" not in tag:
-                fail("!Items also lost CustomName, which it did not name")
+            for key in ("CustomName", "Lock"):
+                if key not in tag:
+                    fail("!Items also lost %s, which it did not name" % key)
 
         print("\n" + "=" * 72)
         print("4. notags writes a pack with no tag anywhere")

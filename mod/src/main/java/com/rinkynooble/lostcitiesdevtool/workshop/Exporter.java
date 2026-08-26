@@ -713,8 +713,22 @@ public final class Exporter {
         String key = block + (mark == null ? "" : " " + mark);
         char c = ledger.characterFor(key);
         if (c == 0) {
-            warnings.add("Ran out of palette characters at " + where
-                    + ". The pool holds " + ledger.capacity() + ".");
+            // An error rather than a warning, because the alternative was writing
+            // the block out as air. That ships a pack with holes in its buildings
+            // and says so in one line among the other warnings, which is the
+            // quietest way this compiler could lose somebody's work.
+            //
+            // Reached more easily than it looks. A tag is part of a cell's key, so
+            // filtering re-keys every tagged block: exporting once plainly and once
+            // with `notags` claims two of the pool's characters for each of them,
+            // and the ledger never gives one back.
+            faults.add(Finding.error("palette", 0,
+                    "ran out of palette characters at " + where,
+                    "The pool holds " + ledger.capacity() + " and the ledger keeps "
+                            + "every character it has ever handed out, so re-exporting "
+                            + "with different `tagkeys` or `notags` claims more. "
+                            + "Delete lostcitiesdevtool/palette-ledger.json beside "
+                            + "the world to start the lettering over"));
             return PaletteLedger.AIR;
         }
         if (!sink.containsKey(key)) {
