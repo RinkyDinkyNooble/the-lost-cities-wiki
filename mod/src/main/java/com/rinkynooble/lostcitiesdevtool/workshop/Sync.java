@@ -142,6 +142,18 @@ public final class Sync {
                         + "a load error rather than a bigger row"));
                 continue;
             }
+            // The command that grows a row by hand is capped, and this is the
+            // same growing reached from a file name instead. A stray
+            // `building/1x1/99999.json5` would otherwise lay out a hundred
+            // thousand plots and paint every floor, on the server thread, because
+            // of a typo.
+            if (e.getValue() > Layout.MAX_PLOTS_IN_ROW) {
+                notes.add(new Note(e.getKey(), "would have to hold " + e.getValue()
+                        + " plots to reach a file naming one, and "
+                        + Layout.MAX_PLOTS_IN_ROW + " is the most a row lays out. "
+                        + "The row was left alone."));
+                continue;
+            }
             Layout.grow(e.getKey(), e.getValue());
             grown.put(e.getKey(), e.getValue());
         }

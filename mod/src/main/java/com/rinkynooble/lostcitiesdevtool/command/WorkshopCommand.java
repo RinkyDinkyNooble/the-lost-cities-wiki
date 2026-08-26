@@ -70,7 +70,7 @@ public class WorkshopCommand {
                                                         .map(Catalogue.Row::id)
                                                         .toList(), b))
                                         .then(Commands.argument("plots",
-                                                        IntegerArgumentType.integer(1, 512))
+                                                        IntegerArgumentType.integer(1, Layout.MAX_PLOTS_IN_ROW))
                                                 .executes(WorkshopCommand::grow))))));
     }
 

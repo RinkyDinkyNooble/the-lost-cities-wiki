@@ -180,7 +180,7 @@ try:
         write_settings("building/1x1/1", {"name": "typo", "floor": 3})
         said = con.command("lcdev workshop sync").rstrip()
         print("  " + said.replace("\n", " ")[-200:])
-        if "floor" not in said:
+        if "does not use: floor" not in said:
             fail("sync said nothing about a key no plot uses")
 
         print("\n" + "=" * 72)
@@ -193,7 +193,48 @@ try:
                  "does not have")
 
         print("\n" + "=" * 72)
-        print("6. with nothing to do, sync says so and changes nothing")
+        print("6. a row that holds one plot however many files name it")
+        # A monorail takes a plain string, so a list there is a load error rather
+        # than a bigger row. Documented, and until now never exercised.
+        write_settings("monorail/both/3", {"name": "extra"})
+        said = con.command("lcdev workshop sync").rstrip()
+        print("  " + said.replace("\n", " ")[-190:])
+        if "monorail/both" not in said:
+            fail("sync said nothing about a file naming a plot in a row that only "
+                 "ever holds one")
+        if plot_count("monorail/both") != 1:
+            fail("the monorail row grew to %d plots, and a list where the mod takes "
+                 "a string is a load error" % plot_count("monorail/both"))
+        os.remove(os.path.join(SETTINGS, "monorail", "both", "3.json5"))
+
+        print("\n" + "=" * 72)
+        print("7. a row is not grown without limit by a file name")
+        # Reachable by a typo, and the cost is real: the row is laid out and every
+        # floor painted, on the server thread.
+        write_settings("building/1x1/99999", {"name": "absurd"})
+        wide = plot_count("building/1x1")
+        said = con.command("lcdev workshop sync").rstrip()
+        print("  " + said.replace("\n", " ")[-220:])
+        now = plot_count("building/1x1")
+        print("  plots the row lays out: %d (was %d)" % (now, wide))
+        if now != wide:
+            fail("the row grew to %d plots for one file naming plot 99999" % now)
+        if "512" not in said:
+            fail("sync grew nothing and did not say why")
+        os.remove(os.path.join(SETTINGS, "building", "1x1", "99999.json5"))
+
+        print("\n" + "=" * 72)
+        print("8. a file that cannot be parsed is named rather than thrown over")
+        bad = os.path.join(SETTINGS, "building", "1x1", "2.json5")
+        io.open(bad, "w", encoding="utf-8", newline="\n").write("{ this is not json")
+        said = con.command("lcdev workshop sync").rstrip()
+        print("  " + said.replace("\n", " ")[-190:])
+        if "could not be read" not in said:
+            fail("an unparseable settings file was not reported")
+        os.remove(bad)
+
+        print("\n" + "=" * 72)
+        print("9. with nothing to do, sync says so and changes nothing")
         os.remove(os.path.join(SETTINGS, "nosuchrow", "0.json5"))
         write_settings("building/1x1/1", {"name": "typo", "floors": 3})
         steady = plot_count("building/1x1")

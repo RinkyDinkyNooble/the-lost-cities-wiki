@@ -126,6 +126,16 @@ public final class Layout {
         return Math.max(row.plots(), GROWN.getOrDefault(row.id(), 0));
     }
 
+    /**
+     * The most plots one row will lay out.
+     *
+     * <p>A ceiling rather than a limit anyone should reach: the largest pack read so
+     * far grows a row to a few dozen. It is here because growing is reachable from a
+     * file name, and a row asked for a hundred thousand plots would lay out and paint
+     * every one of them on the server thread.
+     */
+    public static final int MAX_PLOTS_IN_ROW = 512;
+
     public static void grow(String rowId, int plots) {
         GROWN.merge(rowId, plots, Math::max);
     }
