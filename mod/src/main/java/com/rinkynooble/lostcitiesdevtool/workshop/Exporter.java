@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 /**
  * The compiler: what is built in the workshop, turned into a Lost Cities datapack.
@@ -66,9 +67,14 @@ public final class Exporter {
      */
     private static final int DEFAULT_MULTI_AREASIZE = 10;
 
+    /**
+     * @param licences how many namespaces' statements the pack carries, which is
+     *                 not how many it was compiled from: a namespace that stated
+     *                 nothing contributes nothing to carry
+     */
     public record Result(int plots, int parts, int buildings, int palettes,
-                         int reused, List<String> warnings, List<Finding> findings,
-                         Path root) {
+                         int reused, int licences, List<String> warnings,
+                         List<Finding> findings, Path root) {
 
         public boolean failed() {
             return findings.stream()
@@ -129,6 +135,17 @@ public final class Exporter {
 
     /** Whether the NBT a block carries is left out of the pack entirely. */
     private final boolean noTags;
+
+    /**
+     * The namespaces the plots being written came from, sorted.
+     *
+     * <p>Sorted because two exports of one workshop must not differ over nothing.
+     * The same reason the palette is written in character order.
+     */
+    private final Set<String> sources = new TreeSet<>();
+
+    /** How many statements the pack ended up carrying. */
+    private int carried;
 
     /** One plot id, or null for the whole workshop. */
     @Nullable
@@ -199,7 +216,8 @@ public final class Exporter {
 
     private Result result(int plots, List<Finding> findings, Path root) {
         return new Result(plots, partCount, buildingCount,
-                cells.isEmpty() ? 0 : 1, reusedParts, warnings, findings, root);
+                cells.isEmpty() ? 0 : 1, reusedParts, carried, warnings, findings,
+                root);
     }
 
     public static Path exportsRoot(MinecraftServer server) {
@@ -229,6 +247,14 @@ public final class Exporter {
                 continue;
             }
             settingsById.put(plot.id(), settings);
+            // Only the plots actually being written. Exporting one plot out of a
+            // workshop filled from three packs has to carry that plot's author's
+            // terms and not the other two, or the fragment states something about
+            // somebody's work that is not true of it.
+            String from = string(settings, "source", "");
+            if (!from.isEmpty()) {
+                sources.add(from);
+            }
         }
 
         namePlots(settingsById);
@@ -1154,6 +1180,19 @@ public final class Exporter {
             Path file = data.resolve(e.getKey() + ext);
             Files.createDirectories(file.getParent());
             Files.writeString(file, json(e.getValue()), StandardCharsets.UTF_8);
+        }
+
+        // What the authors of the imported assets said about them, carried rather
+        // than dropped. A pack compiled out of somebody else's content and shipped
+        // with no statement is the failure this exists to prevent.
+        Map<String, String> statements =
+                Licence.carriedFrom(Attribution.kept(server, sources));
+        carried = statements.size();
+        String notice = Licence.notice(statements);
+        if (notice != null) {
+            Files.createDirectories(data);
+            Files.writeString(data.resolve(Licence.FILE), notice,
+                    StandardCharsets.UTF_8);
         }
 
         JsonObject meta = new JsonObject();

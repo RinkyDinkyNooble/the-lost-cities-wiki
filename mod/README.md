@@ -457,6 +457,7 @@ published results were produced on.
 | `mod/tools/check-validator.py` | Every asset-check rule says the right thing, says nothing about a sound asset, and never throws on a malformed one. No server, under a second |
 | `mod/tools/check-layout.py` | Growing a row moves no plot that already existed, no two plots overlap, and no floor is repainted under a build. No server, about a second |
 | `mod/tools/check-tags.py` | A keep-list drops what it does not name and a drop-list keeps what it does not name, over sixteen cases. No server, about a second |
+| `mod/tools/check-licence-text.py` | A licence is cut to three lines with its blank lines and centring stripped, a paragraph-long one is cut to the chat width, and a pack carrying another pack's statement passes it through rather than wrapping it again. No server, about a second |
 | `mod/tools/check-workshop.py` | The dimension exists, the catalogue lays out without two touching plots sharing a colour, and every plot's settings file round trips through `/lcdev plot` |
 | `mod/tools/check-export.py` | The compiler writes a pack, and that pack, installed as a datapack, generates a city with the workshop's blocks in it |
 | `mod/tools/check-export-plot.py` | `export <name> plot` writes the plot you stand on and its palette, leaves the neighbouring plot out, writes nothing that claims to be a world, and takes its flags in either order |
@@ -469,6 +470,7 @@ published results were produced on.
 | `mod/tools/check-tag-export.py` | A chest built in the workshop exports carrying its inventory, `tagkeys` decides which keys reach the pack, and `notags` drops all of them without dropping the blocks |
 | `mod/tools/check-conversions.py` | A placeholder block converts differently per plot, per chunk and per level, the narrower scope winning and adding to the wider rather than replacing it |
 | `mod/tools/check-sync.py` | A settings file written outside the game is read without syncing, and `workshop sync` lays out the plot one names that the catalogue does not have, reports a key no plot uses, and changes nothing when there is nothing to do |
+| `mod/tools/check-licence.py` | A licence at `data/<namespace>/lostcities/license.txt` and one at the uppercase root of a folder pack are both found, an oversized one is capped at 64 KB, a namespace stating nothing is reported as nothing found rather than as all rights reserved, and an export carries what was found while `export plot` carries only that plot's |
 | `mod/tools/check-clear.py` | A confirmed clear leaves no block standing, including above what the settings describe, and two packs that call a building the same thing do not stop the backup |
 | `mod/tools/check-roundtrip.py` | Export, import, export again is **byte for byte the same pack**, and every plot holds the blocks it held before the export. Over every row class, both orientations of a multibuilding, block states with properties, both non-default palette placements, json5 output, the raw escape hatch, and two plots asking for one asset name |
 

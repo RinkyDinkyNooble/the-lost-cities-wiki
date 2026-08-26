@@ -29,6 +29,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * The other direction: a loaded pack, pasted into the workshop.
@@ -96,9 +97,15 @@ public final class Importer {
     private static final Set<String> MULTI_KEYS =
             Set.of("dimx", "dimz", "buildings");
 
+    /**
+     * @param licences   what each namespace the import took assets from states
+     * @param unlicensed namespaces that state nothing this could find, which is
+     *                   weak evidence rather than a determination
+     */
     public record Result(String worldStyle, int assets, int plots, int blocks,
                          int unpinned, int leftover, Map<String, Integer> grown,
-                         List<String> warnings) {
+                         List<String> warnings, List<Attribution.Stated> licences,
+                         List<String> unlicensed) {
     }
 
     private final MinecraftServer server;
@@ -242,9 +249,38 @@ public final class Importer {
             }
         }
 
+        // What the authors of what was just taken in said about it. Looked for once
+        // the walk is done, so it covers the namespaces the import actually read
+        // assets out of rather than every namespace the server has loaded.
+        List<Attribution.Stated> licences = new ArrayList<>();
+        List<String> unlicensed = new ArrayList<>();
+        for (String namespace : importer.namespaces()) {
+            Attribution.Found found = Attribution.find(server, namespace);
+            Attribution.keep(server, namespace, found);
+            if (found == null) {
+                unlicensed.add(namespace);
+            } else {
+                licences.add(new Attribution.Stated(namespace,
+                        Licence.summarise(found.text(), found.truncated()),
+                        found.where()));
+            }
+        }
+
         return new Result(worldStyleName, importer.queued.values().stream()
                 .mapToInt(List::size).sum(), plots, importer.blocks,
-                importer.unpinned, leftover, Layout.grown(), importer.warnings);
+                importer.unpinned, leftover, Layout.grown(), importer.warnings,
+                licences, unlicensed);
+    }
+
+    /** Every namespace this import took an asset out of, in a fixed order. */
+    private Set<String> namespaces() {
+        Set<String> out = new TreeSet<>();
+        for (List<String> names : queued.values()) {
+            for (String full : names) {
+                out.add(namespaceOf(full));
+            }
+        }
+        return out;
     }
 
     @Nullable
@@ -538,6 +574,10 @@ public final class Importer {
         JsonObject settings = new JsonObject();
         settings.addProperty("name",
                 exportNames.getOrDefault(name, shortOf(name)));
+        // Where the asset came from, so an export of this plot alone carries that
+        // author's terms and nobody else's. A plot built by hand has no source and
+        // the export claims nothing about it.
+        settings.addProperty("source", namespaceOf(name));
         if (defaulted.contains(name)) {
             // Shown, and left out of the export. The pack generates this without
             // naming it, so an export that named it would be adding something.

@@ -49,6 +49,7 @@ python mod/tools/check-validator.py
 python mod/tools/check-workshop.py
 python mod/tools/check-layout.py
 python mod/tools/check-tags.py
+python mod/tools/check-licence-text.py
 python mod/tools/check-export.py
 python mod/tools/check-export-plot.py
 python mod/tools/check-import.py
@@ -62,11 +63,12 @@ python mod/tools/check-part-reuse.py
 python mod/tools/check-tag-export.py
 python mod/tools/check-conversions.py
 python mod/tools/check-sync.py
+python mod/tools/check-licence.py
 ```
 
-The first three need no server and finish in about a second each. The other
-fourteen boot one apiece and take roughly ninety seconds. Run them one at a time:
-two servers cannot share the rig. All seventeen end in `all checks passed`:
+The first four need no server and finish in about a second each. The other
+fifteen boot one apiece and take roughly ninety seconds. Run them one at a time:
+two servers cannot share the rig. All nineteen end in `all checks passed`:
 
 - [ ] `check-validator`, every asset-check rule, and nothing thrown by a malformed
       file
@@ -91,6 +93,10 @@ two servers cannot share the rig. All seventeen end in `all checks passed`:
 - [ ] `check-conversions`, a narrower scope wins and adds to the wider
 - [ ] `check-export-plot`, one plot exports as a fragment with no world style
 - [ ] `check-sync`, a file naming a plot the catalogue lacks is found and laid out
+- [ ] `check-licence-text`, a licence is cut to three lines and carrying a notice
+      does not wrap it again
+- [ ] `check-licence`, a pack's terms are found at both places looked, an oversized
+      one is capped, and an export carries what was found
 - [ ] No mixin failures in the rig's log:
       `grep -ci "mixin apply failed\|InvalidInjection" testrig/servers/forge-1.20.1-47.4.10/logs/debug.log`
       is 0

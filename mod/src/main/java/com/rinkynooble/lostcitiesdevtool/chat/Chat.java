@@ -256,6 +256,17 @@ public final class Chat {
         send(source, Component.literal(text).withStyle(ChatFormatting.WHITE));
     }
 
+    /**
+     * A line of somebody else's text, reproduced.
+     *
+     * <p>Indented like a note and not dimmed like one. A note is this mod talking
+     * quietly; this is a file being quoted, and dimming it would say the content
+     * matters less than the label above it.
+     */
+    public static void quote(CommandSourceStack source, String text) {
+        send(source, Component.literal("  " + text).withStyle(ChatFormatting.WHITE));
+    }
+
     /** An aside. Dim, because it is context rather than an answer. */
     public static void note(CommandSourceStack source, String text) {
         send(source, Component.literal("  " + text).withStyle(ChatFormatting.DARK_GRAY));

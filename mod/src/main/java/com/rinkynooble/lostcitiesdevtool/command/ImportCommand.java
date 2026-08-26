@@ -3,7 +3,9 @@ package com.rinkynooble.lostcitiesdevtool.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.rinkynooble.lostcitiesdevtool.chat.Chat;
+import com.rinkynooble.lostcitiesdevtool.workshop.Attribution;
 import com.rinkynooble.lostcitiesdevtool.workshop.Importer;
+import com.rinkynooble.lostcitiesdevtool.workshop.Licence;
 import com.rinkynooble.lostcitiesdevtool.workshop.Workshop;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -158,6 +160,7 @@ public class ImportCommand {
                     + "plot shows what they can be made of, and pinFloors is false so "
                     + "the export will not invent a count.");
         }
+        licences(source, result);
         for (String warning : result.warnings()) {
             Chat.warn(source, warning);
         }
@@ -170,5 +173,56 @@ public class ImportCommand {
         }
         Chat.note(source, "Every plot filled has settings that would export it back.");
         return 1;
+    }
+
+    /**
+     * What the authors of what was just taken in said about it.
+     *
+     * <p>One block per namespace that states something, because a namespace is one
+     * author's asset set. Namespaces that state nothing share a single block: a
+     * pack inheriting from the mod's own content brings {@code lostcities} along
+     * with it every time, and a screenful of separate notices about it is how a
+     * message stops being read.
+     */
+    private static void licences(CommandSourceStack source, Importer.Result result) {
+        for (Attribution.Stated stated : result.licences()) {
+            Chat.header(source, "Licence", stated.namespace());
+            List<String> shown = stated.summary().shown();
+            Chat.kv(source, "states", shown.isEmpty() ? "" : shown.get(0));
+            for (int i = 1; i < shown.size(); i++) {
+                Chat.quote(source, shown.get(i));
+            }
+            if (stated.summary().more() > 0) {
+                // Counted rather than elided. "19 more lines" says whether this is
+                // a permissive licence or the whole GPL; an ellipsis says neither.
+                int more = stated.summary().more();
+                Chat.kv(source, "and", more + (more == 1 ? " more line"
+                        : " more lines")
+                        + (stated.summary().truncated()
+                        ? ", in the first 64 KB of a longer file" : ""));
+            }
+            Chat.path(source, "file", stated.where());
+        }
+        List<String> none = result.unlicensed();
+        if (none.isEmpty()) {
+            return;
+        }
+        Chat.header(source, "Licence", "none found");
+        Chat.kv(source, "namespaces", String.join(", ", none));
+        // Both places, named. If somebody does have a licence and it is not being
+        // found, this line is the only thing that tells them why.
+        Chat.kv(source, "looked", none.size() == 1
+                ? Licence.pathIn(none.get(0))
+                : "data/<namespace>/" + Licence.PATH);
+        Chat.quote(source, "and the pack root");
+        // Not "all rights reserved" as a finding, and not the word illegal. A
+        // missing file is weak evidence: plenty of packs state their terms on a
+        // project page and ship nothing. A determination about somebody's work
+        // printed by a tool is one that can be wrong with their name on it.
+        Chat.prose(source, "Copyright is automatic, so nothing being stated is not "
+                + "the same as nothing being reserved. Treat it as all rights "
+                + "reserved unless the author says otherwise, which they may have "
+                + "done on their project page rather than in the files. Ask before "
+                + "redistributing.");
     }
 }

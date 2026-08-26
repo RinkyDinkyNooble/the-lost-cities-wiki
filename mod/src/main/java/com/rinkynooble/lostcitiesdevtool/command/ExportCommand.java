@@ -133,6 +133,12 @@ public class ExportCommand {
             Chat.kv(source, "levels sharing a part", String.valueOf(result.reused()));
         }
         Chat.kv(source, "buildings", String.valueOf(result.buildings()));
+        if (result.licences() > 0) {
+            // Said out loud, because a pack shipping somebody else's terms is a
+            // thing the person shipping it should know it does.
+            Chat.kv(source, "licences carried", result.licences()
+                    + ", in lostcities/license.txt");
+        }
         Chat.kv(source, "took", took + " ms");
         Chat.path(source, "written to", result.root().toString());
 

@@ -12,6 +12,7 @@
     "ConditionContextAccessor",
     "ConditionContextMixin",
     "FileToIdConverterMixin",
+    "PathPackResourcesAccessor",
     "LostCityFeatureMixin",
     "ProfileSetupMixin",
     "LostCitySphereFeatureMixin",

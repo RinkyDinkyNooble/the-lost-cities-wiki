@@ -99,6 +99,13 @@ public final class Settings {
             new Field("skip", Type.BOOL, Applies.SHAPE, "false",
                     "Leave this plot out of the export entirely, without deleting "
                             + "what is built on it."),
+            new Field("source", Type.STRING, Applies.SHAPE, null,
+                    "The datapack namespace this plot's asset was imported from. "
+                            + "Written by the import and read by nothing else but "
+                            + "the export, which carries that namespace's licence "
+                            + "statement into the pack it writes. A plot built by "
+                            + "hand has none, and clearing it here stops the export "
+                            + "saying the content came from there."),
             new Field("tagkeys", Type.STRING_LIST, Applies.ANY, null,
                     "Which of a block's NBT reaches the pack. An export reads what "
                             + "a block entity is carrying, because for some blocks "
