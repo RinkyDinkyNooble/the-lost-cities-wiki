@@ -64,11 +64,12 @@ python mod/tools/check-tag-export.py
 python mod/tools/check-conversions.py
 python mod/tools/check-sync.py
 python mod/tools/check-licence.py
+python mod/tools/check-cmd-report.py
 ```
 
 The first four need no server and finish in about a second each. The other
-fifteen boot one apiece and take roughly ninety seconds. Run them one at a time:
-two servers cannot share the rig. All nineteen end in `all checks passed`:
+sixteen boot one apiece and take roughly ninety seconds. Run them one at a time:
+two servers cannot share the rig. All twenty end in `all checks passed`:
 
 - [ ] `check-validator`, every asset-check rule, and nothing thrown by a malformed
       file
@@ -97,6 +98,8 @@ two servers cannot share the rig. All nineteen end in `all checks passed`:
       does not wrap it again
 - [ ] `check-licence`, a pack's terms are found at both places looked, an oversized
       one is capped, and an export carries what was found
+- [ ] `check-cmd-report`, the reading commands answer about a generated city and
+      name where each answer came from
 - [ ] No mixin failures in the rig's log:
       `grep -ci "mixin apply failed\|InvalidInjection" testrig/servers/forge-1.20.1-47.4.10/logs/debug.log`
       is 0
