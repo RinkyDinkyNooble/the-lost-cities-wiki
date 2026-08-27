@@ -65,11 +65,15 @@ python mod/tools/check-conversions.py
 python mod/tools/check-sync.py
 python mod/tools/check-licence.py
 python mod/tools/check-cmd-report.py
+python mod/tools/check-cmd-plot.py
+python mod/tools/check-cmd-mark.py
+python mod/tools/check-cmd-workshop.py
+python mod/tools/check-cmd-io.py
 ```
 
 The first four need no server and finish in about a second each. The other
-sixteen boot one apiece and take roughly ninety seconds. Run them one at a time:
-two servers cannot share the rig. All twenty end in `all checks passed`:
+twenty boot one apiece and take roughly ninety seconds. Run them one at a time:
+two servers cannot share the rig. All twenty four end in `all checks passed`:
 
 - [ ] `check-validator`, every asset-check rule, and nothing thrown by a malformed
       file
@@ -100,6 +104,14 @@ two servers cannot share the rig. All twenty end in `all checks passed`:
       one is capped, and an export carries what was found
 - [ ] `check-cmd-report`, the reading commands answer about a generated city and
       name where each answer came from
+- [ ] `check-cmd-plot`, a plot offers the keys its row class really has, the four
+      scopes fold most specific first, and every refusal says what would work
+- [ ] `check-cmd-mark`, all six marks reach the pack on the entry for the position
+      they were placed at
+- [ ] `check-cmd-workshop`, the catalogue describes itself, refuses what its codecs
+      cannot take, and lays out the same way twice
+- [ ] `check-cmd-io`, a pasted command block arrives disarmed unless `run` asks for
+      it, and an export will not quietly replace one
 - [ ] No mixin failures in the rig's log:
       `grep -ci "mixin apply failed\|InvalidInjection" testrig/servers/forge-1.20.1-47.4.10/logs/debug.log`
       is 0
