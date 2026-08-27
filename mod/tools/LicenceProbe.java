@@ -149,10 +149,19 @@ public class LicenceProbe {
         System.out.println("\ntext this mod did not write");
 
         // The two rules overlap, so the name would run from index 6 to index 5.
-        String overlapping = Licence.MARKER + "\n===== =====\n";
+        String overlapping = Licence.MARKER + "\n===== =====\nTerms, Someone.\n";
+        Map<String, String> crafted = new LinkedHashMap<>();
+        crafted.put("victim", overlapping);
         try {
             check("an overlapping rule line is not a heading",
                     Licence.blocksOf(overlapping).isEmpty(), true);
+            // Followed through to what actually matters. Stopping at the parser
+            // would pass while a pack holding that line shipped no statement at
+            // all, which is the same silent loss the headless case is here for.
+            check("and the statement is still carried",
+                    Licence.carriedFrom(crafted).keySet().toString(), "[victim]");
+            check("and still reaches the pack",
+                    Licence.notice(crafted).contains("Terms, Someone."), true);
         } catch (RuntimeException e) {
             failures++;
             System.out.println("  FAIL blocksOf threw on an overlapping rule: " + e);

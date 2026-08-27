@@ -254,8 +254,14 @@ public final class Importer {
         // assets out of rather than every namespace the server has loaded.
         List<Attribution.Stated> licences = new ArrayList<>();
         List<String> unlicensed = new ArrayList<>();
-        for (String namespace : importer.namespaces()) {
-            Attribution.Found found = Attribution.find(server, namespace);
+        // Asked for all of them in one call. The root of a pack is the second place
+        // looked and finding which packs supply a namespace means asking every
+        // loaded one, so asking per namespace repeated that walk per namespace.
+        Set<String> namespaces = importer.namespaces();
+        Map<String, Attribution.Found> stated = Attribution.findAll(server,
+                namespaces);
+        for (String namespace : namespaces) {
+            Attribution.Found found = stated.get(namespace);
             try {
                 Attribution.keep(server, namespace, found);
             } catch (IOException e) {
@@ -264,7 +270,7 @@ public final class Importer {
                 // and re-running is what somebody told that would do next.
                 importer.warnings.add("the licence " + namespace + " states could "
                         + "not be copied into the world, so an export will not "
-                        + "carry it: " + e.getMessage());
+                        + "carry it: " + String.valueOf(e.getMessage()));
             }
             if (found == null) {
                 unlicensed.add(namespace);

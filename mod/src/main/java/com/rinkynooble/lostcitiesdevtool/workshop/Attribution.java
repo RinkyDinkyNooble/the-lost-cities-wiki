@@ -15,7 +15,6 @@ import net.minecraft.world.level.storage.LevelResource;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.ref.WeakReference;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -29,7 +28,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -81,17 +79,6 @@ public final class Attribution {
     /** The same names in the casings an author is likely to have used. */
     private static final Set<String> SPELLINGS = spellings();
 
-    /**
-     * Which packs supply which namespace, and the manager that was read to find out.
-     *
-     * <p>Weakly held so keeping the answer cannot keep a discarded manager alive.
-     * Every caller is on the server thread, the same as {@link Assets}.
-     */
-    private static WeakReference<ResourceManager> providersFor =
-            new WeakReference<>(null);
-    @Nullable
-    private static Map<String, List<PackResources>> byNamespace;
-
     /** What a namespace states, and where it says it. */
     public record Found(String namespace, String text, String where,
                         boolean truncated) {
@@ -115,9 +102,49 @@ public final class Attribution {
      */
     @Nullable
     public static Found find(MinecraftServer server, String namespace) {
+        return findAll(server, List.of(namespace)).get(namespace);
+    }
+
+    /**
+     * What each of these namespaces states, keyed by namespace.
+     *
+     * <p>Namespaces that state nothing are absent rather than mapped to null, so a
+     * caller telling the two apart reads the key set.
+     *
+     * <p><b>Asked for all of them at once on purpose.</b> The pack root is the
+     * second place looked, and finding which packs supply a namespace means asking
+     * every loaded pack, which lists its {@code data/} folder on each call. Once per
+     * namespace on an instance holding hundreds of packs was hundreds of directory
+     * listings apiece for an answer that cannot change while one import runs.
+     *
+     * <p>The map of packs is a local and dies with the call. Holding it in a static
+     * the way {@link Assets} holds parsed JSON would be holding {@link PackResources}
+     * instead, and those belong to a resource manager that a {@code /reload}
+     * replaces and closes: the cache would go on referencing the closed ones until
+     * something happened to call this again.
+     */
+    public static Map<String, Found> findAll(MinecraftServer server,
+                                             Collection<String> namespaces) {
         ResourceManager manager = server.getResourceManager();
-        Found primary = fromData(manager, namespace);
-        return primary != null ? primary : fromRoot(manager, namespace);
+        Map<String, Found> out = new LinkedHashMap<>();
+        Map<String, List<PackResources>> providers = null;
+        for (String namespace : namespaces) {
+            Found primary = fromData(manager, namespace);
+            if (primary != null) {
+                out.put(namespace, primary);
+                continue;
+            }
+            // Built on the first namespace that needs it, and not at all where every
+            // one of them states its terms in the place they are meant to.
+            if (providers == null) {
+                providers = providers(manager);
+            }
+            Found root = fromRoot(providers, namespace);
+            if (root != null) {
+                out.put(namespace, root);
+            }
+        }
+        return out;
     }
 
     @Nullable
@@ -138,10 +165,11 @@ public final class Attribution {
     }
 
     @Nullable
-    private static Found fromRoot(ResourceManager manager, String namespace) {
+    private static Found fromRoot(Map<String, List<PackResources>> providers,
+                                  String namespace) {
         Found found = null;
         try {
-            for (PackResources pack : packsFor(manager, namespace)) {
+            for (PackResources pack : providers.getOrDefault(namespace, List.of())) {
                 Found here = rootOf(pack, namespace);
                 // The last pack providing the namespace wins, which is the order
                 // everything else about a namespace already resolves in.
@@ -156,36 +184,21 @@ public final class Attribution {
         return found;
     }
 
-    /**
-     * The loaded packs supplying a namespace, in load order.
-     *
-     * <p>Built once per resource manager rather than once per namespace.
-     * {@code getNamespaces} lists a pack's {@code data/} folder on every call, and
-     * an import asks about several namespaces on an instance that can hold hundreds
-     * of packs, which was hundreds of directory listings apiece for an answer that
-     * cannot change while one import runs.
-     *
-     * <p>Keyed on the manager itself, the way {@link Assets} keys its own cache: a
-     * datapack load builds a new one, so a reload is picked up without anything
-     * having to remember to invalidate.
-     */
-    private static List<PackResources> packsFor(ResourceManager manager,
-                                                String namespace) {
-        Map<String, List<PackResources>> have = byNamespace;
-        if (have == null || providersFor.get() != manager) {
-            Map<String, List<PackResources>> built = new LinkedHashMap<>();
-            try (Stream<PackResources> packs = manager.listPacks()) {
-                for (PackResources pack : packs.toList()) {
-                    for (String ns : pack.getNamespaces(PackType.SERVER_DATA)) {
-                        built.computeIfAbsent(ns, k -> new ArrayList<>()).add(pack);
-                    }
+    /** Which loaded packs supply which namespace, in load order. */
+    private static Map<String, List<PackResources>> providers(
+            ResourceManager manager) {
+        Map<String, List<PackResources>> out = new LinkedHashMap<>();
+        try (Stream<PackResources> packs = manager.listPacks()) {
+            for (PackResources pack : packs.toList()) {
+                for (String ns : pack.getNamespaces(PackType.SERVER_DATA)) {
+                    out.computeIfAbsent(ns, k -> new ArrayList<>()).add(pack);
                 }
             }
-            have = built;
-            byNamespace = built;
-            providersFor = new WeakReference<>(manager);
+        } catch (RuntimeException e) {
+            LostCitiesDevTool.LOGGER.warn("could not list the loaded packs: {}",
+                    e.toString());
         }
-        return have.getOrDefault(namespace, List.of());
+        return out;
     }
 
     @Nullable
@@ -360,25 +373,44 @@ public final class Attribution {
     /**
      * Drop every kept statement, for a workshop being emptied.
      *
-     * <p>Regular files only. A wipe calls this after it has already emptied every
-     * plot and before it repaints, so anything thrown here leaves the workshop
-     * half done and reports the whole clear as failed. A folder somebody put in
-     * here is not worth that: {@code deleteIfExists} on a non-empty directory
-     * throws, and this has no business deleting one either way.
+     * <p><b>Cannot fail the wipe.</b> A wipe calls this after it has emptied every
+     * plot, deleted their settings and reset the grown rows, and before it repaints.
+     * Anything thrown from here leaves that half done and reports the whole clear as
+     * failed, which is a bad trade for a bookkeeping file: a locked file, a
+     * read-only folder or a directory somebody put in here would each do it. What is
+     * left behind instead is inert, since an export carries a statement only for a
+     * namespace some plot still names, and a wipe has just removed every plot.
+     *
+     * <p>Regular files only, for the same reason and because this has no business
+     * deleting a folder somebody made.
+     *
+     * @return how many were removed, for anything that wants to say so
      */
-    public static void forget(MinecraftServer server) throws IOException {
+    public static int forget(MinecraftServer server) {
         Path root = root(server);
         if (!Files.isDirectory(root)) {
-            return;
+            return 0;
         }
         List<Path> files;
         try (Stream<Path> listing = Files.list(root)) {
-            files = listing.filter(Files::isRegularFile)
-                    .collect(Collectors.toCollection(ArrayList::new));
+            files = listing.filter(Files::isRegularFile).toList();
+        } catch (IOException | RuntimeException e) {
+            LostCitiesDevTool.LOGGER.warn("could not list the kept licences: {}",
+                    e.toString());
+            return 0;
         }
+        int removed = 0;
         for (Path file : files) {
-            Files.deleteIfExists(file);
+            try {
+                if (Files.deleteIfExists(file)) {
+                    removed++;
+                }
+            } catch (IOException | RuntimeException e) {
+                LostCitiesDevTool.LOGGER.warn("could not drop the kept licence {}: "
+                        + "{}", file.getFileName(), e.toString());
+            }
         }
+        return removed;
     }
 
     /**

@@ -40,11 +40,12 @@ SRC = os.path.join(REPO, "mod", "src", "main", "java")
 OUT = os.path.join(REPO, "mod", "build", "licence-probe")
 RES = os.path.join(REPO, "mod", "src", "main", "resources")
 
-SOURCES = [
-    os.path.join(SRC, "com", "rinkynooble", "lostcitiesdevtool", "workshop",
-                 "Licence.java"),
-    os.path.join(TOOLS, "LicenceProbe.java"),
-]
+LICENCE = os.path.join(SRC, "com", "rinkynooble", "lostcitiesdevtool", "workshop",
+                       "Licence.java")
+CHAT = os.path.join(SRC, "com", "rinkynooble", "lostcitiesdevtool", "chat",
+                    "Chat.java")
+
+SOURCES = [LICENCE, os.path.join(TOOLS, "LicenceProbe.java")]
 
 
 def jdk(tool):
@@ -120,9 +121,8 @@ def constant(path, name):
 # ninety second server boot. The copy is the cheaper of the two, and this is what
 # stops it going stale, since nothing in the compiler can.
 print("\nthe copied width")
-width = constant(os.path.join(SRC, "com", "rinkynooble", "lostcitiesdevtool",
-                              "chat", "Chat.java"), "WIDTH")
-cap = constant(SOURCES[0], "MAX_LINE")
+width = constant(CHAT, "WIDTH")
+cap = constant(LICENCE, "MAX_LINE")
 print("  Chat.WIDTH %d, Licence.MAX_LINE %d" % (width, cap))
 if width != cap:
     print("  FAIL a licence line is cut to %d where the chat box holds %d, so a "
