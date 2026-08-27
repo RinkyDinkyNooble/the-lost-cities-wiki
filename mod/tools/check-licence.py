@@ -382,6 +382,55 @@ try:
         if "data/licsolo/lostcities/license.txt" not in said:
             fail("with one namespace to name, the message showed a template "
                  "instead of the path that namespace would use")
+
+        print("\n" + "=" * 72)
+        print("8. a kept licence that cannot be deleted does not fail the wipe")
+        # A wipe drops the kept statements after it has emptied every plot,
+        # deleted their settings and reset the grown rows, and before it repaints.
+        # Anything thrown there leaves the workshop half done and reports the
+        # whole clear as failed. Windows refuses to delete a file another process
+        # holds open, so holding one is the trigger, and it is the trigger a
+        # locked file or a read-only folder would produce on a real machine.
+        kept = sorted(glob.glob(os.path.join(KEPT, "*.txt")))
+        print("  kept: %s" % [os.path.basename(k) for k in kept])
+        if not kept:
+            fail("nothing is kept, so this case cannot hold one open and is not "
+                 "testing what it claims")
+        else:
+            # Windows refuses to delete a file another process holds open, so an
+            # open handle is the trigger a locked file or a read-only folder
+            # would produce on a real machine.
+            held = io.open(kept[0], "r", encoding="utf-8")
+            try:
+                done = con.command("lcdev workshop clear confirm").rstrip()
+                print("  " + done.replace("\n", " ")[-300:])
+                # Proof the trigger fired, taken while the handle is still open.
+                # If the delete succeeded anyway then the platform did not refuse
+                # it, nothing was thrown, and everything below passes without
+                # having tested anything.
+                blocked = os.path.isfile(kept[0])
+            finally:
+                held.close()
+            print("  the held file survived the wipe: %s" % blocked)
+            if not blocked:
+                fail("the held file was deleted anyway, so nothing refused the "
+                     "delete and this case proves nothing about a wipe that "
+                     "meets one that cannot be dropped")
+            if "could not be cleared" in done:
+                fail("a kept licence that could not be deleted failed the whole "
+                     "wipe, after every plot had already been emptied")
+            if "Cleared" not in done:
+                fail("the clear did not report clearing anything: %s"
+                     % done.replace("\n", " ")[-160:])
+            # Asserted through the interface rather than through the folder. What
+            # somebody clearing the workshop cares about is that the plots are
+            # gone, and the workshop saying so is how they see it.
+            again = con.command("lcdev workshop clear").rstrip()
+            print("  " + again.replace("\n", " ")[-200:])
+            if "already empty" not in again:
+                fail("the workshop does not report itself empty after a clear "
+                     "that ran with a kept licence held open, so the wipe "
+                     "stopped part way through")
 finally:
     try:
         with Rcon(port=25575, password="lcwiki") as con:

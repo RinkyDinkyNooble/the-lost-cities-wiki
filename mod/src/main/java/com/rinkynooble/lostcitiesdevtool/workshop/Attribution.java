@@ -94,22 +94,12 @@ public final class Attribution {
     // ------------------------------------------------------------------ finding
 
     /**
-     * What a namespace states, or null where it states nothing.
+     * What each of these namespaces states, keyed by namespace. One absent from the
+     * result states nothing.
      *
-     * <p>Null is weak evidence and is not a determination: plenty of packs state
+     * <p>Absent is weak evidence and is not a determination: plenty of packs state
      * their terms on a project page and ship no file. Whatever reports this has to
      * say what was looked for rather than what the absence means.
-     */
-    @Nullable
-    public static Found find(MinecraftServer server, String namespace) {
-        return findAll(server, List.of(namespace)).get(namespace);
-    }
-
-    /**
-     * What each of these namespaces states, keyed by namespace.
-     *
-     * <p>Namespaces that state nothing are absent rather than mapped to null, so a
-     * caller telling the two apart reads the key set.
      *
      * <p><b>Asked for all of them at once on purpose.</b> The pack root is the
      * second place looked, and finding which packs supply a namespace means asking
@@ -184,21 +174,47 @@ public final class Attribution {
         return found;
     }
 
-    /** Which loaded packs supply which namespace, in load order. */
+    /**
+     * Which loaded packs supply which namespace, in load order.
+     *
+     * <p><b>One pack that will not answer costs only itself.</b> This walks whatever
+     * a modpack has loaded, and a {@link PackResources} that is not one of
+     * Minecraft's own is free to throw: the vanilla two swallow their own IO errors
+     * and a delegating or virtual one need not. Letting that out of the loop would
+     * abandon every pack after it and quietly turn the root fallback off for the
+     * whole import, reporting namespaces that do state terms as stating nothing.
+     */
     private static Map<String, List<PackResources>> providers(
             ResourceManager manager) {
         Map<String, List<PackResources>> out = new LinkedHashMap<>();
+        List<PackResources> loaded;
         try (Stream<PackResources> packs = manager.listPacks()) {
-            for (PackResources pack : packs.toList()) {
-                for (String ns : pack.getNamespaces(PackType.SERVER_DATA)) {
-                    out.computeIfAbsent(ns, k -> new ArrayList<>()).add(pack);
-                }
-            }
+            loaded = packs.toList();
         } catch (RuntimeException e) {
             LostCitiesDevTool.LOGGER.warn("could not list the loaded packs: {}",
                     e.toString());
+            return out;
+        }
+        for (PackResources pack : loaded) {
+            try {
+                for (String ns : pack.getNamespaces(PackType.SERVER_DATA)) {
+                    out.computeIfAbsent(ns, k -> new ArrayList<>()).add(pack);
+                }
+            } catch (RuntimeException e) {
+                LostCitiesDevTool.LOGGER.warn("pack {} would not say which "
+                        + "namespaces it holds: {}", packId(pack), e.toString());
+            }
         }
         return out;
+    }
+
+    /** A pack's id, for a message, where asking the pack anything may be broken. */
+    private static String packId(PackResources pack) {
+        try {
+            return pack.packId();
+        } catch (RuntimeException e) {
+            return pack.getClass().getSimpleName();
+        }
     }
 
     @Nullable
@@ -383,13 +399,11 @@ public final class Attribution {
      *
      * <p>Regular files only, for the same reason and because this has no business
      * deleting a folder somebody made.
-     *
-     * @return how many were removed, for anything that wants to say so
      */
-    public static int forget(MinecraftServer server) {
+    public static void forget(MinecraftServer server) {
         Path root = root(server);
         if (!Files.isDirectory(root)) {
-            return 0;
+            return;
         }
         List<Path> files;
         try (Stream<Path> listing = Files.list(root)) {
@@ -397,20 +411,16 @@ public final class Attribution {
         } catch (IOException | RuntimeException e) {
             LostCitiesDevTool.LOGGER.warn("could not list the kept licences: {}",
                     e.toString());
-            return 0;
+            return;
         }
-        int removed = 0;
         for (Path file : files) {
             try {
-                if (Files.deleteIfExists(file)) {
-                    removed++;
-                }
+                Files.deleteIfExists(file);
             } catch (IOException | RuntimeException e) {
                 LostCitiesDevTool.LOGGER.warn("could not drop the kept licence {}: "
                         + "{}", file.getFileName(), e.toString());
             }
         }
-        return removed;
     }
 
     /**
