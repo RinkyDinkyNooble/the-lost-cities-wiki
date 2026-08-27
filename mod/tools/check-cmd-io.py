@@ -139,11 +139,26 @@ def write_pack(root):
 
 
 def auto_at(con, x, y, z):
-    """The `auto` byte on a pasted command block, or None."""
+    """The `auto` byte on a pasted command block, or None if there is not one.
+
+    The reply is checked for being block data before a number is taken out of it.
+    Scraping the last digits of whatever came back would read a coordinate out of
+    an error message, and a trailing 0 would then pass the disarmed case while
+    there was no command block at that position at all.
+    """
     said = con.command("execute in %s run data get block %d %d %d auto"
-                       % (WORKSHOP, x, y, z))
-    found = re.search(r"([0-9]+)b?\s*$", said.strip())
+                       % (WORKSHOP, x, y, z)).strip()
+    if "has the following block data" not in said:
+        return None
+    found = re.search(r"data:\s*([0-9]+)b?\s*$", said)
     return int(found.group(1)) if found else None
+
+
+def is_command_block(con, x, y, z):
+    """Whether the block there is a command block carrying the pack's command."""
+    said = con.command("execute in %s run data get block %d %d %d Command"
+                       % (WORKSHOP, x, y, z))
+    return "imported" in said
 
 
 dest = os.path.join(SERVER, "mods", os.path.basename(JAR))
@@ -185,11 +200,16 @@ try:
         print("\n" + "=" * 72)
         print("3. by default a pasted command block arrives disarmed")
         con.command("lcdev import %s:main" % NS)
+        placed = is_command_block(con, x, BASE, z)
         armed = auto_at(con, x, BASE, z)
+        print("  a command block carrying the pack's command is there: %s" % placed)
         print("  auto on the pasted command block: %s" % armed)
+        if not placed:
+            fail("no command block carrying the pack's command was pasted, so "
+                 "neither this case nor the next is testing what it claims")
         if armed is None:
-            fail("no command block was pasted, so neither this case nor the next "
-                 "is testing what it claims")
+            fail("the block there did not answer with block data, so the value "
+                 "below is not the auto byte of anything")
         elif armed != 0:
             fail("a command block imported from somebody else's pack arrived with "
                  "auto=%s. It fires where it lands, so importing a pack off the "

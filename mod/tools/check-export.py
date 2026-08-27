@@ -93,6 +93,17 @@ def asset(*parts):
 # --------------------------------------------------------------- half one, export
 
 dest = os.path.join(SERVER, "mods", os.path.basename(JAR))
+LC_CONFIG = os.path.join(SERVER, "config", "lostcities")
+KEPT_CONFIG = LC_CONFIG + ".kept"
+
+# The Lost Cities config belongs to the rig. The second half of this check points a
+# dimension at the profile the export wrote, and leaving that behind hands every
+# later boot a city dimension whose world style stops resolving as soon as this
+# world is deleted. An unresolved world style throws rather than generating nothing.
+if os.path.isdir(KEPT_CONFIG):
+    shutil.rmtree(KEPT_CONFIG)
+if os.path.isdir(LC_CONFIG):
+    shutil.copytree(LC_CONFIG, KEPT_CONFIG)
 for path in (os.path.join(SERVER, "world"), EXPORTS):
     if os.path.isdir(path):
         shutil.rmtree(path)
@@ -310,6 +321,10 @@ else:
 
 if os.path.isfile(dest):
     os.remove(dest)
-print("\nremoved the jar, rig baseline is clean again")
+if os.path.isdir(KEPT_CONFIG):
+    if os.path.isdir(LC_CONFIG):
+        shutil.rmtree(LC_CONFIG)
+    shutil.move(KEPT_CONFIG, LC_CONFIG)
+print("\nremoved the jar and put the rig's Lost Cities config back")
 print("\n" + ("FAILURES:\n  " + "\n  ".join(failures)) if failures
       else "\nall checks passed")

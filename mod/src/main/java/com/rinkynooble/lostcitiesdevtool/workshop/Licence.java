@@ -157,6 +157,17 @@ public final class Licence {
         out.append("# from the namespace naming it. The terms of this pack itself "
                 + "are not stated\n");
         out.append("# here: replacing this file is how to state them.\n");
+        // Said plainly because it cannot be enforced. A statement carried through
+        // from a pack that was itself carrying one is taken on that pack's word:
+        // nothing distinguishes a notice this wrote from a file a pack shipped
+        // with the same first line, so a heading naming a namespace is a claim by
+        // whoever wrote the file it came out of, not a reading of that namespace.
+        out.append("#\n");
+        out.append("# Each heading is the namespace the statement under it was "
+                + "found with or\n");
+        out.append("# carried from. Check them against the packs themselves "
+                + "before relying on\n");
+        out.append("# them.\n");
         for (Map.Entry<String, String> e : blocks.entrySet()) {
             out.append('\n').append(RULE).append(' ').append(e.getKey())
                     .append(' ').append(RULE).append('\n');

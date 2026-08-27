@@ -152,9 +152,19 @@ def report_at(con, cx, cz):
 
 
 dest = os.path.join(SERVER, "mods", os.path.basename(JAR))
-for path in (WORLD, os.path.join(SERVER, "config", "lostcities")):
-    if os.path.isdir(path):
-        shutil.rmtree(path)
+LC_CONFIG = os.path.join(SERVER, "config", "lostcities")
+KEPT = LC_CONFIG + ".kept"
+
+# The Lost Cities config belongs to the rig, not to this check. Pointing a
+# dimension at a profile and leaving it there hands every later boot a city
+# dimension whose world style stops resolving the moment this world is deleted,
+# and an unresolved world style throws rather than generating nothing.
+if os.path.isdir(KEPT):
+    shutil.rmtree(KEPT)
+if os.path.isdir(LC_CONFIG):
+    shutil.move(LC_CONFIG, KEPT)
+if os.path.isdir(WORLD):
+    shutil.rmtree(WORLD)
 shutil.copy(JAR, dest)
 install()
 print("fresh world, jar installed, the wiki's first-city pack as a datapack")
@@ -167,10 +177,22 @@ try:
         print("=" * 72)
         print("1. a world that really generated")
         con.command("execute in %s run forceload add 0 0 95 95" % CITY)
-        # Generation is not instant and a report on an ungenerated chunk answers
-        # about nothing, which would pass every assertion below by describing an
-        # empty world.
-        time.sleep(25)
+        # Waited for rather than slept through. A report on an ungenerated chunk
+        # answers about nothing, so a fixed sleep long enough on this machine is a
+        # failure blamed on the pack on a slower one. The rig has paid for a bad
+        # wait once already: a generation loop tested a block tag that does not
+        # exist, never matched, and burned a 300 second timeout on every run in
+        # this project's history.
+        waited = 0
+        while waited < 180:
+            time.sleep(5)
+            waited += 5
+            if "is city" in report_at(con, 3, 3):
+                break
+        print("  waited %d seconds for the area to generate" % waited)
+        if waited >= 180:
+            fail("nothing generated inside 180 seconds, so nothing below is being "
+                 "asked about a city")
 
         cities = 0
         buildings = 0
@@ -315,7 +337,11 @@ finally:
 
 if os.path.isfile(dest):
     os.remove(dest)
-print("\nremoved the jar, rig baseline is clean again")
+if os.path.isdir(KEPT):
+    if os.path.isdir(LC_CONFIG):
+        shutil.rmtree(LC_CONFIG)
+    shutil.move(KEPT, LC_CONFIG)
+print("\nremoved the jar and put the rig's Lost Cities config back")
 
 print("\n" + "=" * 72)
 if failures:
