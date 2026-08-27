@@ -43,7 +43,8 @@ public final class Chat {
      *
      * <p>{@code Licence.MAX_LINE} is the same number and is deliberately a copy:
      * that class holds no Minecraft type so that it can be checked without a server,
-     * and importing this one to share an int would end that.
+     * and importing this one to share an int would end that. Moving this number
+     * means moving that one, and {@code check-licence-text.py} fails until it does.
      */
     private static final int WIDTH = 52;
 

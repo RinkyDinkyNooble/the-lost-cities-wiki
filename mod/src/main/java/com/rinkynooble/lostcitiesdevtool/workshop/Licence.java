@@ -57,6 +57,10 @@ public final class Licence {
      * types, and this class is Minecraft-free on purpose: that is what lets the
      * summariser and the notice format be checked in a second instead of behind a
      * ninety second server boot. A duplicated int is the cheaper of the two.
+     *
+     * <p>{@code check-licence-text.py} compares the two and fails when they differ,
+     * because nothing in the compiler can. A copy with a comment asking to be kept
+     * in step is a copy that goes stale.
      */
     public static final int MAX_LINE = 52;
 

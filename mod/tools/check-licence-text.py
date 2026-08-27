@@ -26,7 +26,9 @@ Compiles against the sources directly, taking Gson from the Gradle cache, so it
 needs the mod to have been built once but does not need it built now.
 """
 import glob
+import io
 import os
+import re
 import subprocess
 import sys
 
@@ -101,4 +103,32 @@ for line in (run.stdout + run.stderr).splitlines():
 
 if run.returncode != 0:
     raise SystemExit("\nFAILURES: see above")
+
+
+def constant(path, name):
+    """One int out of a source file, by the name it is declared under."""
+    text = io.open(path, encoding="utf-8").read()
+    found = re.search(r"\b%s\s*=\s*(\d+)\s*;" % name, text)
+    if not found:
+        raise SystemExit("could not find %s in %s" % (name, path))
+    return int(found.group(1))
+
+
+# Licence.MAX_LINE is Chat.WIDTH copied rather than read. Reading it would mean
+# importing Chat, which holds Minecraft types, and Licence is free of them on
+# purpose: that is what lets everything above run in a second instead of behind a
+# ninety second server boot. The copy is the cheaper of the two, and this is what
+# stops it going stale, since nothing in the compiler can.
+print("\nthe copied width")
+width = constant(os.path.join(SRC, "com", "rinkynooble", "lostcitiesdevtool",
+                              "chat", "Chat.java"), "WIDTH")
+cap = constant(SOURCES[0], "MAX_LINE")
+print("  Chat.WIDTH %d, Licence.MAX_LINE %d" % (width, cap))
+if width != cap:
+    print("  FAIL a licence line is cut to %d where the chat box holds %d, so a "
+          "licence is cut to a different width from everything printed beside it"
+          % (cap, width))
+    raise SystemExit("\nFAILURES: see above")
+print("  ok   both are the same number")
+
 print("\nall checks passed")
