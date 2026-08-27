@@ -190,6 +190,14 @@ try:
             fail("the file the exporter reads does not hold what the command "
                  "reported writing: %s" % on_disk)
 
+        # The no-key form, which lists what the plot holds. Its refusal path is
+        # exercised below and its answer was not, so a `get` that listed nothing
+        # would have gone unnoticed.
+        listed = at(BUILDING, "get")
+        print("  listing: " + listed.replace("\n", " ")[-140:])
+        if "floors" not in listed:
+            fail("`plot get` with no key did not list the key that was just set")
+
         unset = at(BUILDING, "get cellars")
         print("  unset: " + unset.replace("\n", " ")[-140:])
         if "unset" not in unset:

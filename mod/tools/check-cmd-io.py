@@ -225,7 +225,28 @@ try:
                  "arm a pasted command block does not" % armed)
 
         print("\n" + "=" * 72)
-        print("5. export will not overwrite without being told")
+        print("5. keep leaves conversions as written, the default reverses them")
+        # An export turns a placeholder into a real block and an import turns it
+        # back, so a placeholder somebody stood in with survives a round trip.
+        # `keep` is the way to say leave the real blocks alone. Asserted on the
+        # mode the command reports, which is what a person sees; that a conversion
+        # really resolves per scope is check-conversions' job.
+        default = con.command("lcdev import %s:main" % NS).rstrip()
+        kept = con.command("lcdev import %s:main keep" % NS).rstrip()
+        print("  default: %s" % re.sub(r"\s+", " ", default)[
+            max(0, default.find("conversions")):][:60])
+        print("  keep:    %s" % re.sub(r"\s+", " ", kept)[
+            max(0, kept.find("conversions")):][:60])
+        if "reversed" not in default:
+            fail("the default import did not report reversing conversions, so a "
+                 "placeholder does not come back as the placeholder")
+        if "left as written" not in kept:
+            fail("`keep` did not report leaving conversions as written, so the "
+                 "flag that exists to keep the real blocks does not reach the "
+                 "importer")
+
+        print("\n" + "=" * 72)
+        print("6. export will not overwrite without being told")
         first = con.command("lcdev export once").rstrip()
         print("  " + first.replace("\n", " ")[-150:])
         again = con.command("lcdev export once").rstrip()

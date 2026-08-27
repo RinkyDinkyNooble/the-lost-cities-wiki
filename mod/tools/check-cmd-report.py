@@ -323,6 +323,21 @@ try:
             fail("`in <asset> char` answered exactly what the unscoped form did, "
                  "so the asset argument is not narrowing anything")
 
+        # The other branch of `in`. The asset argument is greedy-adjacent and the
+        # two branches are separate nodes, so one working says nothing about the
+        # other: `report block minecraft:gold_block` once became a request for the
+        # character 'b' because of exactly this shape.
+        scoped_block = con.command("execute in %s positioned %d 80 %d run lcdev in "
+                                   "mycity:tower_floor block %s"
+                                   % (CITY, cx * 16 + 8, cz * 16 + 8,
+                                      "minecraft:light_gray_concrete")).rstrip()
+        print("  " + scoped_block.replace("\n", " ")[:240])
+        if "tower_floor" not in scoped_block:
+            fail("`in <asset> block` did not name the asset it was scoped to")
+        if "light_gray_concrete" not in scoped_block:
+            fail("`in <asset> block` did not answer about the block it was asked "
+                 "about, so the greedy argument swallowed something")
+
         bad = con.command("lcdev in mycity:nosuchpart char %s" % ALPHA).rstrip()
         print("  " + bad.replace("\n", " ")[:200])
         if "nosuchpart" not in bad:
