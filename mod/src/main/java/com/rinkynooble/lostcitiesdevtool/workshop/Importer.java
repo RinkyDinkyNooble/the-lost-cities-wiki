@@ -256,7 +256,16 @@ public final class Importer {
         List<String> unlicensed = new ArrayList<>();
         for (String namespace : importer.namespaces()) {
             Attribution.Found found = Attribution.find(server, namespace);
-            Attribution.keep(server, namespace, found);
+            try {
+                Attribution.keep(server, namespace, found);
+            } catch (IOException e) {
+                // Every plot has already been pasted and saved by now, so letting
+                // this out reports an import that ran as one that could not run,
+                // and re-running is what somebody told that would do next.
+                importer.warnings.add("the licence " + namespace + " states could "
+                        + "not be copied into the world, so an export will not "
+                        + "carry it: " + e.getMessage());
+            }
             if (found == null) {
                 unlicensed.add(namespace);
             } else {

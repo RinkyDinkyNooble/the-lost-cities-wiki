@@ -38,7 +38,13 @@ import java.util.List;
  */
 public final class Chat {
 
-    /** Roughly the width of the chat box at default scale, in characters. */
+    /**
+     * Roughly the width of the chat box at default scale, in characters.
+     *
+     * <p>{@code Licence.MAX_LINE} is the same number and is deliberately a copy:
+     * that class holds no Minecraft type so that it can be checked without a server,
+     * and importing this one to share an int would end that.
+     */
     private static final int WIDTH = 52;
 
     private static final String RULE = "─".repeat(24);

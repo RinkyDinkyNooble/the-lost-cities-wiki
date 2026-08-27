@@ -136,9 +136,59 @@ public class LicenceProbe {
                 "[alpha, plain, zeta]");
     }
 
+    /**
+     * blocksOf, on text this mod did not write.
+     *
+     * Every other case here feeds it a notice built by notice(), which is the half
+     * that cannot be malformed. The half that can is a license.txt out of somebody
+     * else's pack, and both of the faults below were reachable from one and from
+     * nothing else: a crash that ended the export in a stack trace, and a silent
+     * drop of the statement the whole feature exists to carry.
+     */
+    static void hostile() {
+        System.out.println("\ntext this mod did not write");
+
+        // The two rules overlap, so the name would run from index 6 to index 5.
+        String overlapping = Licence.MARKER + "\n===== =====\n";
+        try {
+            check("an overlapping rule line is not a heading",
+                    Licence.blocksOf(overlapping).isEmpty(), true);
+        } catch (RuntimeException e) {
+            failures++;
+            System.out.println("  FAIL blocksOf threw on an overlapping rule: " + e);
+        }
+
+        // Marker line, no heading. Parsing to nothing must not read as a notice
+        // carrying nothing, or the terms are dropped rather than carried.
+        Map<String, String> headless = new LinkedHashMap<>();
+        headless.put("victim", Licence.MARKER + "\nReserved, Someone 2024.\n");
+        check("a marker with no heading is carried whole",
+                Licence.carriedFrom(headless).keySet().toString(), "[victim]");
+        String notice = Licence.notice(headless);
+        check("and reaches the pack rather than vanishing",
+                notice != null && notice.contains("Reserved, Someone 2024."), true);
+
+        // Shapes that are near misses rather than headings.
+        for (String line : new String[]{"=====", "======", "===== ", " =====",
+                                        "===== two words =====", "=====  ====="}) {
+            try {
+                Licence.blocksOf(Licence.MARKER + "\n" + line + "\n");
+            } catch (RuntimeException e) {
+                failures++;
+                System.out.println("  FAIL blocksOf threw on " + line + ": " + e);
+            }
+        }
+        System.out.println("  ok   near-miss rule lines parse without throwing");
+
+        check("a truncated notice still reads", Licence.blocksOf(
+                Licence.MARKER + "\n===== alpha =====\nAlpha te")
+                .get("alpha"), "Alpha te");
+    }
+
     public static void main(String[] args) {
         summaries();
         notices();
+        hostile();
         System.out.println();
         if (failures > 0) {
             System.out.println(failures + " failed");

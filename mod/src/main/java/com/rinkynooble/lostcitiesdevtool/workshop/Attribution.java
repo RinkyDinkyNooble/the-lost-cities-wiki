@@ -15,11 +15,13 @@ import net.minecraft.world.level.storage.LevelResource;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.WeakReference;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -27,6 +29,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -78,6 +81,17 @@ public final class Attribution {
     /** The same names in the casings an author is likely to have used. */
     private static final Set<String> SPELLINGS = spellings();
 
+    /**
+     * Which packs supply which namespace, and the manager that was read to find out.
+     *
+     * <p>Weakly held so keeping the answer cannot keep a discarded manager alive.
+     * Every caller is on the server thread, the same as {@link Assets}.
+     */
+    private static WeakReference<ResourceManager> providersFor =
+            new WeakReference<>(null);
+    @Nullable
+    private static Map<String, List<PackResources>> byNamespace;
+
     /** What a namespace states, and where it says it. */
     public record Found(String namespace, String text, String where,
                         boolean truncated) {
@@ -126,11 +140,8 @@ public final class Attribution {
     @Nullable
     private static Found fromRoot(ResourceManager manager, String namespace) {
         Found found = null;
-        try (Stream<PackResources> packs = manager.listPacks()) {
-            for (PackResources pack : packs.toList()) {
-                if (!pack.getNamespaces(PackType.SERVER_DATA).contains(namespace)) {
-                    continue;
-                }
+        try {
+            for (PackResources pack : packsFor(manager, namespace)) {
                 Found here = rootOf(pack, namespace);
                 // The last pack providing the namespace wins, which is the order
                 // everything else about a namespace already resolves in.
@@ -143,6 +154,38 @@ public final class Attribution {
                     + "providing {}: {}", namespace, e.toString());
         }
         return found;
+    }
+
+    /**
+     * The loaded packs supplying a namespace, in load order.
+     *
+     * <p>Built once per resource manager rather than once per namespace.
+     * {@code getNamespaces} lists a pack's {@code data/} folder on every call, and
+     * an import asks about several namespaces on an instance that can hold hundreds
+     * of packs, which was hundreds of directory listings apiece for an answer that
+     * cannot change while one import runs.
+     *
+     * <p>Keyed on the manager itself, the way {@link Assets} keys its own cache: a
+     * datapack load builds a new one, so a reload is picked up without anything
+     * having to remember to invalidate.
+     */
+    private static List<PackResources> packsFor(ResourceManager manager,
+                                                String namespace) {
+        Map<String, List<PackResources>> have = byNamespace;
+        if (have == null || providersFor.get() != manager) {
+            Map<String, List<PackResources>> built = new LinkedHashMap<>();
+            try (Stream<PackResources> packs = manager.listPacks()) {
+                for (PackResources pack : packs.toList()) {
+                    for (String ns : pack.getNamespaces(PackType.SERVER_DATA)) {
+                        built.computeIfAbsent(ns, k -> new ArrayList<>()).add(pack);
+                    }
+                }
+            }
+            have = built;
+            byNamespace = built;
+            providersFor = new WeakReference<>(manager);
+        }
+        return have.getOrDefault(namespace, List.of());
     }
 
     @Nullable
@@ -186,18 +229,35 @@ public final class Attribution {
 
     @Nullable
     private static Found fromFolder(PackResources pack, Path root, String namespace) {
+        // Grouped by which name it is before any of them is read, because the
+        // listing arrives in whatever order the filesystem keeps. Taking the first
+        // entry that matched anything would let NTFS's alphabetical order put
+        // COPYING ahead of LICENSE.txt, which is the reverse of the order these are
+        // written in, and would make one pack answer differently on two machines.
+        Map<String, List<Path>> byName = new LinkedHashMap<>();
         try (Stream<Path> listing = Files.list(root)) {
             for (Path file : listing.toList()) {
-                String name = file.getFileName().toString()
-                        .toLowerCase(Locale.ROOT);
+                String name = file.getFileName().toString().toLowerCase(Locale.ROOT);
                 if (Files.isRegularFile(file) && ROOT_NAMES.contains(name)) {
-                    return read(namespace, () -> Files.newInputStream(file),
-                            pack.packId() + "/" + file.getFileName());
+                    byName.computeIfAbsent(name, k -> new ArrayList<>()).add(file);
                 }
             }
         } catch (IOException | RuntimeException e) {
             LostCitiesDevTool.LOGGER.warn("could not list the root of pack {}: {}",
                     pack.packId(), e.toString());
+            return null;
+        }
+        for (String name : ROOT_NAMES) {
+            for (Path file : byName.getOrDefault(name, List.of())) {
+                // Past an empty or unreadable one rather than stopping there. A
+                // zero byte COPYING beside a real LICENSE.txt would otherwise
+                // report the pack as stating nothing.
+                Found found = read(namespace, () -> Files.newInputStream(file),
+                        pack.packId() + "/" + file.getFileName());
+                if (found != null) {
+                    return found;
+                }
+            }
         }
         return null;
     }
@@ -297,7 +357,15 @@ public final class Attribution {
         return out;
     }
 
-    /** Drop every kept statement, for a workshop being emptied. */
+    /**
+     * Drop every kept statement, for a workshop being emptied.
+     *
+     * <p>Regular files only. A wipe calls this after it has already emptied every
+     * plot and before it repaints, so anything thrown here leaves the workshop
+     * half done and reports the whole clear as failed. A folder somebody put in
+     * here is not worth that: {@code deleteIfExists} on a non-empty directory
+     * throws, and this has no business deleting one either way.
+     */
     public static void forget(MinecraftServer server) throws IOException {
         Path root = root(server);
         if (!Files.isDirectory(root)) {
@@ -305,7 +373,8 @@ public final class Attribution {
         }
         List<Path> files;
         try (Stream<Path> listing = Files.list(root)) {
-            files = new ArrayList<>(listing.toList());
+            files = listing.filter(Files::isRegularFile)
+                    .collect(Collectors.toCollection(ArrayList::new));
         }
         for (Path file : files) {
             Files.deleteIfExists(file);

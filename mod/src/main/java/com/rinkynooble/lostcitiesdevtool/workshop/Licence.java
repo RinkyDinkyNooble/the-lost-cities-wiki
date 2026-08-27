@@ -50,7 +50,13 @@ public final class Licence {
      *
      * <p>A line cap on its own is not enough. One very long line wraps into three in
      * chat and defeats it, which is exactly what a licence written as a single
-     * paragraph does. Matches the width the chat box holds at default scale.
+     * paragraph does.
+     *
+     * <p>52 because that is what {@code Chat.WIDTH} is, and it is copied rather than
+     * read. Reading it would mean importing {@code Chat}, which holds Minecraft
+     * types, and this class is Minecraft-free on purpose: that is what lets the
+     * summariser and the notice format be checked in a second instead of behind a
+     * ninety second server boot. A duplicated int is the cheaper of the two.
      */
     public static final int MAX_LINE = 52;
 
@@ -167,7 +173,11 @@ public final class Licence {
         Map<String, String> blocks = new TreeMap<>();
         for (Map.Entry<String, String> e : byNamespace.entrySet()) {
             Map<String, String> inner = blocksOf(e.getValue());
-            if (inner == null) {
+            // Empty counts as not a notice. A text opening with the marker and
+            // holding no heading parses to nothing, and treating that as a notice
+            // carrying nothing drops the statement instead of carrying it, which
+            // is the silent loss of attribution this whole feature exists to stop.
+            if (inner == null || inner.isEmpty()) {
                 blocks.put(e.getKey(), e.getValue());
             } else {
                 blocks.putAll(inner);
@@ -212,15 +222,24 @@ public final class Licence {
         return out;
     }
 
-    /** The namespace a separator line names, or null where the line is not one. */
+    /**
+     * The namespace a separator line names, or null where the line is not one.
+     *
+     * <p><b>The length check is not belt and braces.</b> The two rules can overlap:
+     * `===== =====` starts with one and ends with the other while holding only
+     * eleven characters, so the name runs from index 6 to index 5 and the substring
+     * throws. This is read on text out of somebody else's pack, so a line shaped
+     * like that is reachable and used to end the export in a stack trace.
+     */
     @Nullable
     private static String headingOf(String line) {
         String t = line.strip();
-        if (!t.startsWith(RULE + " ") || !t.endsWith(" " + RULE)) {
+        int from = RULE.length() + 1;
+        int to = t.length() - RULE.length() - 1;
+        if (from > to || !t.startsWith(RULE + " ") || !t.endsWith(" " + RULE)) {
             return null;
         }
-        String name = t.substring(RULE.length() + 1,
-                t.length() - RULE.length() - 1).strip();
+        String name = t.substring(from, to).strip();
         return name.isEmpty() || name.contains(" ") ? null : name;
     }
 }
