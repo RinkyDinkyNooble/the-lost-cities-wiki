@@ -764,17 +764,20 @@ public final class Exporter {
             // and says so in one line among the other warnings, which is the
             // quietest way this compiler could lose somebody's work.
             //
-            // Reached more easily than it looks. A tag is part of a cell's key, so
-            // filtering re-keys every tagged block: exporting once plainly and once
-            // with `notags` claims two of the pool's characters for each of them,
-            // and the ledger never gives one back.
+            // The pool holds about forty thousand characters and Minecraft ships
+            // around twenty six thousand block states, so reaching this needs a cell
+            // count no build produces. It is kept because the alternative is writing
+            // air for a character that does not exist, and because a cell is a block
+            // together with its marks and its kept NBT, which has no fixed ceiling.
             faults.add(Finding.error("palette", 0,
                     "ran out of palette characters at " + where,
-                    "The pool holds " + ledger.capacity() + " and the ledger keeps "
-                            + "every character it has ever handed out, so re-exporting "
-                            + "with different `tagkeys` or `notags` claims more. "
-                            + "Delete lostcitiesdevtool/palette-ledger.json beside "
-                            + "the world to start the lettering over"));
+                    "The pool holds " + ledger.capacity() + " and this world has "
+                            + "spent all of them. The ledger keeps every character it "
+                            + "has ever handed out and never reclaims one, so the "
+                            + "count is every distinct block, mark and tag combination "
+                            + "this world has exported, not what is standing now. "
+                            + "Delete lostcitiesdevtool/palette-ledger.json beside the "
+                            + "world to start the lettering over"));
             return PaletteLedger.AIR;
         }
         if (!sink.containsKey(key)) {
