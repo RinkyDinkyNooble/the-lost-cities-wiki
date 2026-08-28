@@ -3,6 +3,8 @@ package com.rinkynooble.lostcitiesdevtool.command;
 import com.rinkynooble.lostcitiesdevtool.LostCitiesDevTool;
 import com.rinkynooble.lostcitiesdevtool.chat.Chat;
 import com.rinkynooble.lostcitiesdevtool.chat.ProfileKeys;
+import com.rinkynooble.lostcitiesdevtool.workshop.Conditions;
+import com.google.gson.JsonObject;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -13,6 +15,8 @@ import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import mcjty.lostcities.setup.Registration;
 import mcjty.lostcities.varia.ChunkCoord;
@@ -101,7 +105,112 @@ public class ReportCommand {
                                                 StringArgumentType.greedyString())
                                                 .executes(ctx -> blockInAsset(ctx,
                                                         StringArgumentType.getString(
-                                                                ctx, "id"))))))));
+                                                                ctx, "id")))))))
+                // What `loot` and `mob` name. Without these the only way to write
+                // one of those marks is to read somebody else's pack and copy a
+                // name out of it, which is what happened.
+                .then(Commands.literal("conditions")
+                        .requires(s -> s.hasPermission(2))
+                        .executes(ReportCommand::listConditions))
+                .then(Commands.literal("condition")
+                        .requires(s -> s.hasPermission(2))
+                        .then(Commands.argument("name", ResourceLocationArgument.id())
+                                .suggests((c, b) -> SharedSuggestionProvider
+                                        .suggestResource(Conditions.ids(
+                                                c.getSource().getServer()), b))
+                                .executes(ReportCommand::describeCondition))));
+    }
+
+    /** How many entries of one Condition are listed before the rest are counted. */
+    private static final int MAX_ENTRIES = 20;
+
+    /**
+     * {@code /lcdev conditions}: every Condition a pack has defined.
+     *
+     * <p>The listing exists because the names are not guessable and nothing else
+     * shows them. A {@code loot} or {@code mob} mark names one of these.
+     */
+    private static int listConditions(CommandContext<CommandSourceStack> ctx) {
+        CommandSourceStack source = ctx.getSource();
+        Map<String, JsonObject> all = Conditions.all(source.getServer());
+        if (all.isEmpty()) {
+            Chat.fail(source, "No conditions are loaded", null,
+                    "They live in lostcities/conditions/ in a datapack. Lost Cities "
+                            + "ships chestloot, easymobs and hardmobs");
+            return 0;
+        }
+        Chat.header(source, "Conditions", all.size() + " loaded");
+        for (Map.Entry<String, JsonObject> e : new TreeMap<>(all).entrySet()) {
+            int count = Conditions.entriesOf(e.getValue()).size();
+            Chat.kv(source, e.getKey(), count + (count == 1 ? " entry" : " entries"));
+        }
+        Chat.note(source, "/lcdev condition <name> shows one. A loot or mob mark "
+                + "names one of these, not a loot table and not an entity.");
+        return 1;
+    }
+
+    /**
+     * {@code /lcdev condition <name>}: what one Condition holds.
+     *
+     * <p>Each entry's factor is a weight against its siblings rather than a chance,
+     * so the share is worked out and shown beside it. The keys other than
+     * {@code factor} and {@code value} are the test deciding where that entry
+     * applies, and an entry with none applies wherever the Condition is consulted.
+     */
+    private static int describeCondition(CommandContext<CommandSourceStack> ctx) {
+        CommandSourceStack source = ctx.getSource();
+        String name = ResourceLocationArgument.getId(ctx, "name").toString();
+        JsonObject found = Conditions.get(source.getServer(), name);
+        if (found == null) {
+            Chat.fail(source, "No condition by that name", name,
+                    "/lcdev conditions lists every one that is loaded");
+            return 0;
+        }
+        List<Conditions.Entry> entries = Conditions.entriesOf(found);
+        float total = Conditions.totalFactor(entries);
+
+        Chat.header(source, name, entries.size()
+                + (entries.size() == 1 ? " entry" : " entries"));
+        if (entries.isEmpty()) {
+            Chat.warn(source, "It holds no entries, so it chooses nothing.");
+            return 1;
+        }
+        int shown = 0;
+        for (Conditions.Entry entry : entries) {
+            if (shown++ == MAX_ENTRIES) {
+                Chat.note(source, (entries.size() - MAX_ENTRIES)
+                        + " more entries, not shown. The file has all of them.");
+                break;
+            }
+            String where = entry.always() ? "always"
+                    : String.join(", ", describeTests(entry));
+            Chat.kv(source, share(entry.factor(), total), entry.value() + "   " + where);
+        }
+        Chat.note(source, "The factor is a weight against the others here, not a "
+                + "chance. Anything after the value is the test deciding where that "
+                + "entry applies.");
+        return 1;
+    }
+
+    /** One entry's weight, as its own number and as what it works out to. */
+    private static String share(float factor, float total) {
+        if (total <= 0) {
+            return String.valueOf(factor);
+        }
+        return String.format("%s  (%.0f%%)", trim(factor), 100.0f * factor / total);
+    }
+
+    /** A factor without a trailing .0, since most of them are whole numbers. */
+    private static String trim(float value) {
+        return value == Math.rint(value) ? String.valueOf((long) value)
+                : String.valueOf(value);
+    }
+
+    private static List<String> describeTests(Conditions.Entry entry) {
+        List<String> out = new java.util.ArrayList<>();
+        entry.tests().forEach((key, value) ->
+                out.add(key + " " + value.replace("\"", "")));
+        return out;
     }
 
     /**
@@ -148,10 +257,19 @@ public class ReportCommand {
         return 1;
     }
 
+    /**
+     * Every loaded asset, offered by namespace or by name.
+     *
+     * <p>suggestResource rather than suggest. The plain one matches a typed prefix
+     * against the whole id and re-anchors only after an underscore, so an asset's
+     * own name offers nothing until its namespace has been typed, while a name
+     * holding an underscore appears to work. That inconsistency is worse than
+     * either behaviour on its own.
+     */
     private static CompletableFuture<Suggestions> suggestAssets(
             CommandContext<CommandSourceStack> ctx, SuggestionsBuilder builder) {
-        return SharedSuggestionProvider.suggest(
-                PaletteLookup.ids(ctx.getSource().getLevel()), builder);
+        return SharedSuggestionProvider.suggestResource(
+                PaletteLookup.locations(ctx.getSource().getLevel()), builder);
     }
 
     private static int report(CommandContext<CommandSourceStack> ctx, String character) {

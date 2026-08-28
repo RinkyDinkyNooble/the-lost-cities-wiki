@@ -310,6 +310,14 @@ try:
                  "whose licence is not being found cannot tell why")
         if "Treat it as all rights reserved" not in said:
             fail("nothing was said about how to proceed")
+        # Pointed at where terms actually live, because a namespace says nothing
+        # about who wrote what is in it: a datapack can override any namespace,
+        # so even the mod's own may hold somebody else's content under their own
+        # terms. Naming a namespace's usual licence would be a guess dressed as
+        # a fact, so the message sends the reader to the source instead.
+        if "official sources" not in said:
+            fail("the message did not point at where terms actually live, so a "
+                 "reader with no file to read is left with only the caution")
         for word in ("illegal", "is all rights reserved", "you may not"):
             if word in said:
                 fail("the output states %r, which is a determination about "

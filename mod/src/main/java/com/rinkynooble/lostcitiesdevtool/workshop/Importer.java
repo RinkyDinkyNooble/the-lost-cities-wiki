@@ -11,6 +11,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.packs.repository.Pack;
@@ -311,6 +312,29 @@ public final class Importer {
     /** Every world style the server has loaded, for tab completion. */
     public static List<String> worldStyles(MinecraftServer server) {
         return new ArrayList<>(Assets.load(server).folder("worldstyles").keySet());
+    }
+
+    /**
+     * The same names as resource locations, for tab completion.
+     *
+     * <p>Completion over strings matches a typed prefix against the whole name and
+     * knows nothing about the colon, so {@code standard} offers nothing for
+     * {@code lostcities:standard}. Over resource locations it matches the namespace
+     * or the path, which is how every resource argument in the game behaves.
+     *
+     * <p>A name that is not a legal resource location is left out rather than
+     * throwing: it could not have been typed into this argument either.
+     */
+    public static List<ResourceLocation> worldStyleIds(MinecraftServer server) {
+        List<ResourceLocation> out = new ArrayList<>();
+        for (String name : worldStyles(server)) {
+            try {
+                out.add(new ResourceLocation(name));
+            } catch (RuntimeException ignored) {
+                // Not addressable, so not suggestible.
+            }
+        }
+        return out;
     }
 
     /**

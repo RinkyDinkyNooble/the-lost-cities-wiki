@@ -184,6 +184,35 @@ try:
                  "so it reads as a rejected mark rather than a missing player")
 
         print("\n" + "=" * 72)
+        print("1b. the conditions loot and mob actually name are findable")
+        # The reason these commands exist. `loot` and `mob` point at a Condition,
+        # and until there was a way to list them the only way to write one was to
+        # read somebody else's pack and copy a name out of it.
+        listed = con.command("lcdev conditions").rstrip()
+        print("  " + listed.replace("\n", " ")[:260])
+        for shipped in ("chestloot", "easymobs", "hardmobs"):
+            if shipped not in listed:
+                fail("`conditions` did not list lostcities:%s, which the mod ships "
+                     "and which a loot or mob mark is meant to name" % shipped)
+
+        one = con.command("lcdev condition lostcities:chestloot").rstrip()
+        print("  " + one.replace("\n", " ")[:320])
+        if "lostcitychest" not in one:
+            fail("`condition` did not show the values chestloot chooses between, "
+                 "so it says nothing a reader could not have guessed")
+        if "%" not in one:
+            fail("`condition` showed no share for an entry, so a factor reads as a "
+                 "chance when it is a weight against its siblings")
+        if "range" not in one:
+            fail("`condition` did not show the test on an entry that carries one, "
+                 "which is the half that cannot be read off the value")
+
+        missing = con.command("lcdev condition lostcities:nosuchcondition").rstrip()
+        print("  " + missing.replace("\n", " ")[:180])
+        if "No condition by that name" not in missing:
+            fail("an unknown condition was not refused by name")
+
+        print("\n" + "=" * 72)
         print("2. one stone floor, six positions marked")
         # One block everywhere, so anything that comes out with more than one
         # character came from the marks and from nothing else.

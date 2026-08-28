@@ -9,6 +9,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.rinkynooble.lostcitiesdevtool.chat.Chat;
 import com.rinkynooble.lostcitiesdevtool.workshop.Boundaries;
 import com.rinkynooble.lostcitiesdevtool.workshop.Catalogue;
+import com.rinkynooble.lostcitiesdevtool.workshop.Conditions;
 import com.rinkynooble.lostcitiesdevtool.workshop.Layout;
 import com.rinkynooble.lostcitiesdevtool.workshop.Settings;
 import com.rinkynooble.lostcitiesdevtool.workshop.SettingsStore;
@@ -150,7 +151,32 @@ public class PlotCommand {
                                         MARK_KEYS, b))
                                 .then(Commands.argument("value",
                                                 StringArgumentType.greedyString())
+                                        .suggests(PlotCommand::suggestMarkValues)
                                         .executes(PlotCommand::mark)))));
+    }
+
+    /**
+     * What a mark's value may be, for the two keys where guessing it is hopeless.
+     *
+     * <p><b>{@code loot} and {@code mob} name a Condition</b>, not a loot table and
+     * not an entity. Nothing in the game says so and the names are not guessable, so
+     * without this the only way to write one is to read somebody else's pack. The
+     * asset check catches a loot table path and cannot catch {@code minecraft:zombie}
+     * under {@code mob}, because the rule is that the value holds a slash, so the
+     * wrong answer that looks most right is the one that gets through.
+     *
+     * <p>The other four keys take a block or a character, which the player can see
+     * in front of them, so they are left alone.
+     */
+    private static java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions>
+    suggestMarkValues(CommandContext<CommandSourceStack> ctx,
+                      com.mojang.brigadier.suggestion.SuggestionsBuilder builder) {
+        String key = StringArgumentType.getString(ctx, "key");
+        if (!"loot".equals(key) && !"mob".equals(key)) {
+            return builder.buildFuture();
+        }
+        return SharedSuggestionProvider.suggestResource(
+                Conditions.ids(ctx.getSource().getServer()), builder);
     }
 
     private static int mark(CommandContext<CommandSourceStack> ctx) {

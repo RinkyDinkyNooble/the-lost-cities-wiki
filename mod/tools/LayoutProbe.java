@@ -168,6 +168,8 @@ public class LayoutProbe {
         System.out.printf("  %d by %d blocks, %d plots painted%n",
                 maxX - minX + 1, maxZ - minZ + 1, all.size());
 
+        cost();
+
         System.out.println();
         if (failures > 0) {
             System.out.println("FAILED (" + failures + ")");
@@ -175,5 +177,74 @@ public class LayoutProbe {
         }
         System.out.println("layout is stable: growing a row moves nothing that "
                 + "already existed");
+    }
+
+    /**
+     * What one call to Layout.plots() costs, and how it grows.
+     *
+     * Every plot suggestion calls it. `/lcdev plot set <tab>` reads the plot under
+     * the caller to know which keys that row class offers, and a client asks for
+     * suggestions on every keystroke, so this runs tens of times while somebody
+     * types one argument.
+     *
+     * The colouring is greedy over real adjacency, which is quadratic: each plot is
+     * compared against every plot already placed. That is the right algorithm, since
+     * a formula on row and column indices collides once two rows have different plot
+     * widths. It does mean the cost is n squared, and the numbers below are here so
+     * that stops being a surprise.
+     *
+     * Measured rather than assumed, and printed whether or not it passes. The
+     * default catalogue is well inside anything a person notices; the grown cases
+     * say where the ceiling is.
+     */
+    static void cost() {
+        System.out.println();
+        System.out.println("what one Layout.plots() costs, called per keystroke");
+        Layout.setGrown(Map.of());
+        long base = time("default catalogue");
+
+        Map<String, Integer> grown = new LinkedHashMap<>();
+        for (Catalogue.Row r : Catalogue.rows()) {
+            grown.put(r.id(), 20);
+        }
+        Layout.setGrown(grown);
+        time("every row grown to 20");
+
+        for (Catalogue.Row r : Catalogue.rows()) {
+            grown.put(r.id(), 60);
+        }
+        Layout.setGrown(grown);
+        long big = time("every row grown to 60");
+        Layout.setGrown(Map.of());
+
+        // The budget check-suggest-speed holds the server-side paths to. The
+        // default catalogue is the one a person actually types against, so that is
+        // what is asserted; the grown figure is printed to show the shape.
+        if (base > 20_000_000L) {
+            failures++;
+            System.out.println("  FAIL the default catalogue costs " + base / 1_000_000
+                    + " ms a keystroke, and 50 is what a person starts to feel");
+        }
+        System.out.println("  the cost is quadratic in plots, so the grown figure "
+                + "above is the shape, not the norm");
+        if (big > 200_000_000L) {
+            failures++;
+            System.out.println("  FAIL even a heavily grown catalogue should not "
+                    + "cost " + big / 1_000_000 + " ms a keystroke");
+        }
+    }
+
+    /** The best of twenty runs, which is the one least polluted by the JIT. */
+    static long time(String what) {
+        Layout.plots();
+        long best = Long.MAX_VALUE;
+        int plots = 0;
+        for (int i = 0; i < 20; i++) {
+            long started = System.nanoTime();
+            plots = Layout.plots().size();
+            best = Math.min(best, System.nanoTime() - started);
+        }
+        System.out.printf("  %-30s %6d plots  %7.2f ms%n", what, plots, best / 1e6);
+        return best;
     }
 }

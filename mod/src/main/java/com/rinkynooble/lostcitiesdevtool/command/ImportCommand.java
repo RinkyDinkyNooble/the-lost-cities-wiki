@@ -39,9 +39,20 @@ public class ImportCommand {
                         .executes(ImportCommand::list)
                         .then(Commands.argument("worldstyle",
                                 ResourceLocationArgument.id())
-                                .suggests((c, b) -> SharedSuggestionProvider.suggest(
-                                        Importer.worldStyles(c.getSource().getServer()),
-                                        b))
+                                // suggestResource, not suggest. The plain one
+                                // matches a typed prefix against the whole string
+                                // and re-anchors only after an underscore, so
+                                // `standard` offers nothing for
+                                // `lostcities:standard` while `everywhere` does
+                                // offer `lostcities:standard_everywhere`. That is
+                                // the same namespace-versus-path confusion the
+                                // argument type below already fixed for parsing,
+                                // left unfixed for completion. suggestResource
+                                // matches the namespace or the path, which is how
+                                // every resource argument in the game behaves.
+                                .suggests((c, b) -> SharedSuggestionProvider
+                                        .suggestResource(Importer.worldStyleIds(
+                                                c.getSource().getServer()), b))
                                 .executes(ctx -> run(ctx, true, false))
                                 .then(Commands.literal("run")
                                         .executes(ctx -> run(ctx, true, true))
@@ -219,10 +230,17 @@ public class ImportCommand {
         // missing file is weak evidence: plenty of packs state their terms on a
         // project page and ship nothing. A determination about somebody's work
         // printed by a tool is one that can be wrong with their name on it.
+        //
+        // No namespace is special, including lostcities. A datapack can override
+        // anything in any namespace, so content sitting under a namespace says
+        // nothing about who wrote it or under what terms: the mod's own namespace
+        // may hold somebody else's overrides, licensed differently. Naming a
+        // namespace's usual licence here would therefore be a guess dressed as a
+        // fact. Report what was found and point at where terms actually live.
         Chat.prose(source, "Copyright is automatic, so nothing being stated is not "
                 + "the same as nothing being reserved. Treat it as all rights "
-                + "reserved unless the author says otherwise, which they may have "
-                + "done on their project page rather than in the files. Ask before "
-                + "redistributing.");
+                + "reserved unless the author says otherwise. Check the pack's own "
+                + "project page, repository or other official sources, and ask the "
+                + "author before redistributing.");
     }
 }

@@ -94,6 +94,22 @@ public final class PaletteLookup {
     }
 
     /**
+     * The same ids as resource locations, for tab completion.
+     *
+     * <p>Completion over strings matches a typed prefix against the whole id and
+     * knows nothing about the colon, so typing an asset's own name offers nothing
+     * until the namespace has been typed first. Over resource locations it matches
+     * the namespace or the path, the way every resource argument in the game does.
+     */
+    public static List<ResourceLocation> locations(ServerLevel level) {
+        Set<ResourceLocation> ids = new LinkedHashSet<>();
+        for (Source source : scan(level).sources()) {
+            ids.add(source.id());
+        }
+        return new ArrayList<>(ids);
+    }
+
+    /**
      * Every source carrying this id.
      *
      * <p>More than one kind can hold the same name, and a pack that names a building

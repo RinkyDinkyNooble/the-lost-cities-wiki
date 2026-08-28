@@ -69,11 +69,12 @@ python mod/tools/check-cmd-plot.py
 python mod/tools/check-cmd-mark.py
 python mod/tools/check-cmd-workshop.py
 python mod/tools/check-cmd-io.py
+python mod/tools/check-palette-pool.py
 ```
 
 The first four need no server and finish in about a second each. The other
-twenty boot one apiece and take roughly ninety seconds. Run them one at a time:
-two servers cannot share the rig. All twenty four end in `all checks passed`:
+twenty one boot one apiece and take roughly ninety seconds. Run them one at a time:
+two servers cannot share the rig. All twenty five end in `all checks passed`:
 
 - [ ] `check-validator`, every asset-check rule, and nothing thrown by a malformed
       file
@@ -112,6 +113,8 @@ two servers cannot share the rig. All twenty four end in `all checks passed`:
       cannot take, and lays out the same way twice
 - [ ] `check-cmd-io`, a pasted command block arrives disarmed unless `run` asks for
       it, and an export will not quietly replace one
+- [ ] `check-palette-pool`, two parts with their own palettes still share one pool
+      of 120, which is the shape of the exhaustion bug
 - [ ] No mixin failures in the rig's log:
       `grep -ci "mixin apply failed\|InvalidInjection" testrig/servers/forge-1.20.1-47.4.10/logs/debug.log`
       is 0
