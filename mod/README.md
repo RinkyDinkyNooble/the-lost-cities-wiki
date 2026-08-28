@@ -281,6 +281,7 @@ footprint up to the 10x10 that `multisettings.areasize` allows.
 ```
 /lcdev workshop build     lay the catalogue out
 /lcdev workshop go        travel there
+/lcdev workshop leave     go back where you ran `go`
 /lcdev export mypack      compile it into a datapack and a profile
 /lcdev import <style>     paste a loaded pack back in to edit it
 ```
@@ -475,7 +476,7 @@ published results were produced on.
 | `mod/tools/check-palette-pool.py` | Two buildings of 70 distinct blocks each export together, reaching past the 120 characters the pool used to hold; every character handed out is one a slice row can carry, checked by rules written from what Lost Cities does with a character rather than by asking the mod; the parts' own palettes are read out of the written pack rather than out of the ledger; and the pack is installed as a datapack and imported back with both buildings compared block for block |
 | `mod/tools/check-cmd-plot.py` | A building plot offers `floors` and a street plot offers `height`, because the codecs behind them differ; `resolve` folds the plot, its levels, the chunk and that chunk's levels in that order; and a key the plot lacks, a value of the wrong type, a chunk outside the plot and standing off one are each refused with what would work |
 | `mod/tools/check-cmd-mark.py` | All six block-level marks reach the exported palette on the entry for the position they were placed at, and a marked block letters apart from the same block unmarked |
-| `mod/tools/check-cmd-workshop.py` | `rows` counts the catalogue and names its three row classes, `here` states the rule for the class under you, `grow` refuses a single-only row in the format's own terms, rows only get longer, and building twice leaves the same layout |
+| `mod/tools/check-cmd-workshop.py` | `rows` counts the catalogue and names its three row classes, `here` states the rule for the class under you, `go` and `leave` both say a player is what they are missing rather than failing quietly, `grow` refuses a single-only row in the format's own terms, rows only get longer, and building twice leaves the same layout |
 | `mod/tools/check-cmd-io.py` | A command block pasted from somebody else's pack arrives with `auto` cleared and only `run` arms it, `import` lists what is loaded and names an unknown style back, and `export` refuses to overwrite without `-f` |
 | `mod/tools/check-clear.py` | A confirmed clear leaves no block standing, including above what the settings describe, and two packs that call a building the same thing do not stop the backup |
 | `mod/tools/check-roundtrip.py` | Export, import, export again is **byte for byte the same pack**, and every plot holds the blocks it held before the export. Over every row class, both orientations of a multibuilding, block states with properties, both non-default palette placements, json5 output, the raw escape hatch, and two plots asking for one asset name |
@@ -489,6 +490,14 @@ can each pass while the exporter and the importer disagree about the format, bec
 both were written from the same reading of it.
 
 Every feature in [PLAN.md](PLAN.md) names the test that proves it.
+
+### Tools that are not checks
+
+| File | What it does |
+|---|---|
+| `mod/tools/make-stress-pack.py` | Writes a pack whose one building holds 158 distinct block states, 40 of them lettered past the 120 characters the pool used to hold, then generates a city from it and requires the blocks with those characters to be standing in it. Leaves the pack in `research/stress-pack/` |
+| `mod/tools/palettechars.py` | What a palette character may be, judged from what Lost Cities does with one. Shared by the two above so a rule cannot be fixed in one and not the other |
+| `mod/tools/extract-catalogue.py`, `mod/tools/extract-profile-keys.py` | Read the target version's own jar rather than restating it here |
 
 ## Licence
 

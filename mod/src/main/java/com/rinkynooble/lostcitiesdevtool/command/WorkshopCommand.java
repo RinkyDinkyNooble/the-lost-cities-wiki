@@ -14,8 +14,14 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 
 import java.io.IOException;
@@ -46,6 +52,9 @@ public class WorkshopCommand {
                                 // escape from whatever they were standing next to.
                                 .requires(s -> s.hasPermission(2))
                                 .executes(WorkshopCommand::go))
+                        .then(Commands.literal("leave")
+                                .requires(s -> s.hasPermission(2))
+                                .executes(WorkshopCommand::leave))
                         .then(Commands.literal("build")
                                 .requires(s -> s.hasPermission(2))
                                 .executes(WorkshopCommand::build))
@@ -278,12 +287,127 @@ public class WorkshopCommand {
                     "Run it in game rather than from the console or RCON");
             return 0;
         }
+        // Only from outside. Running `go` while already in the workshop would
+        // otherwise overwrite the way out with a workshop position, and the player
+        // who ran it twice could not get back to where they started.
+        if (!player.level().dimension().equals(Workshop.DIMENSION)) {
+            remember(player);
+        }
         // Above the floor, over the front desk at the origin.
         player.teleportTo(workshop, 8.5, Layout.FLOOR_Y + 1.0, 8.5,
                 player.getYRot(), player.getXRot());
         Chat.header(source, "Workshop", "version " + Catalogue.version());
         Chat.note(source, "The front desk is the plot you are standing on. "
                 + "Buildings are east, infrastructure is west.");
+        Chat.note(source, "`/lcdev workshop leave` puts you back where you ran this.");
+        return 1;
+    }
+
+    // ------------------------------------------------------------------- leave
+
+    /**
+     * Where {@code go} was run from, kept on the player.
+     *
+     * <p>Forge's persistent data is written into the player's own NBT, so this
+     * survives a logout. It is deliberately not the vanilla respawn point: that is a
+     * bed which may have been broken since, and teleporting into where a bed used to
+     * be is a way to suffocate somebody. The fallback is the world spawn, which is
+     * the one position a server always has.
+     */
+    private static final String RETURN = "lostcitiesdevtool:return";
+
+    private static void remember(ServerPlayer player) {
+        CompoundTag spot = new CompoundTag();
+        spot.putString("dimension", player.level().dimension().location().toString());
+        spot.putDouble("x", player.getX());
+        spot.putDouble("y", player.getY());
+        spot.putDouble("z", player.getZ());
+        spot.putFloat("yaw", player.getYRot());
+        spot.putFloat("pitch", player.getXRot());
+        player.getPersistentData().put(RETURN, spot);
+    }
+
+    /**
+     * The level {@code spot} names, or null when it names nothing usable.
+     *
+     * <p>Null covers a dimension that has since been removed from the pack, and a
+     * stored position that somehow points back at the workshop. Sending somebody
+     * from the workshop to the workshop is not leaving.
+     */
+    private static ServerLevel storedLevel(MinecraftServer server, CompoundTag spot) {
+        if (!spot.contains("dimension")) {
+            return null;
+        }
+        ResourceLocation id = ResourceLocation.tryParse(spot.getString("dimension"));
+        if (id == null) {
+            return null;
+        }
+        ResourceKey<Level> key = ResourceKey.create(Registries.DIMENSION, id);
+        if (key.equals(Workshop.DIMENSION)) {
+            return null;
+        }
+        return server.getLevel(key);
+    }
+
+    private static int leave(CommandContext<CommandSourceStack> ctx) {
+        CommandSourceStack source = ctx.getSource();
+        ServerPlayer player;
+        try {
+            player = source.getPlayerOrException();
+        } catch (Exception e) {
+            Chat.fail(source, "Only a player can be sent out of the workshop", null,
+                    "Run it in game rather than from the console or RCON");
+            return 0;
+        }
+        if (!player.level().dimension().equals(Workshop.DIMENSION)) {
+            Chat.fail(source, "You are not in the workshop",
+                    player.level().dimension().location().toString(),
+                    "There is nothing to leave. `/lcdev workshop go` is the way in");
+            return 0;
+        }
+
+        MinecraftServer server = source.getServer();
+        CompoundTag spot = player.getPersistentData().getCompound(RETURN);
+        ServerLevel target = storedLevel(server, spot);
+        double x;
+        double y;
+        double z;
+        float yaw;
+        float pitch;
+        String how;
+        if (target != null) {
+            x = spot.getDouble("x");
+            y = spot.getDouble("y");
+            z = spot.getDouble("z");
+            yaw = spot.getFloat("yaw");
+            pitch = spot.getFloat("pitch");
+            how = "where you ran `workshop go`";
+        } else {
+            target = server.overworld();
+            BlockPos spawn = target.getSharedSpawnPos();
+            x = spawn.getX() + 0.5;
+            y = spawn.getY();
+            z = spawn.getZ() + 0.5;
+            yaw = player.getYRot();
+            pitch = player.getXRot();
+            how = spot.isEmpty()
+                    ? "world spawn, because nothing recorded how you got in"
+                    : "world spawn, because the dimension you came from is not loaded";
+        }
+
+        player.teleportTo(target, x, y, z, yaw, pitch);
+        // Cleared whichever way it went. A return point that outlives the trip it
+        // was written for sends the next `leave` somewhere the player has not been
+        // for a week.
+        player.getPersistentData().remove(RETURN);
+
+        BlockPos to = BlockPos.containing(x, y, z);
+        String dimension = target.dimension().location().toString();
+        Chat.header(source, "Left the workshop");
+        Chat.position(source, "sent to",
+                dimension + "  " + to.getX() + " " + to.getY() + " " + to.getZ(),
+                dimension, to.getX(), to.getY(), to.getZ());
+        Chat.note(source, "Back to " + how + ".");
         return 1;
     }
 

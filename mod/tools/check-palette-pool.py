@@ -40,11 +40,13 @@ import subprocess
 import sys
 import threading
 import time
-import unicodedata
 
 sys.path.insert(0, "testrig")
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 from rcon import Rcon  # noqa: E402
+
+sys.path.insert(0, "mod/tools")
+from palettechars import OLD_POOL, unsafe  # noqa: E402
 
 SERVER = "testrig/servers/forge-1.20.1-47.4.10"
 JAR = sorted(glob.glob("mod/build/libs/lostcities_devtool-*.jar"))[-1]
@@ -75,13 +77,6 @@ TALL = 6
 SCRATCH = {ONE: (2000, 2000), TWO: (2000, 2064)}
 SCRATCH_BOX = (1984, 1984, 2079, 2143)
 
-# The pool as it stood when the bug was reported. Nothing reads this but the check:
-# it is here so case 2 can prove it is genuinely working past the old limit rather
-# than passing because the fixture got smaller.
-OLD_POOL = (list("',<>?]")
-            + [chr(c) for c in range(0x391, 0x3AA)]
-            + [chr(c) for c in range(0x3B1, 0x3CA)]
-            + [chr(c) for c in range(0x410, 0x450)])
 
 # Plain blocks with no neighbour-dependent state. The first draft of this used
 # stairs in many orientations, which does not work: Minecraft recalculates a
@@ -211,44 +206,6 @@ def ledger():
 
 def exhausted(reply):
     return "ran out of palette characters" in reply
-
-
-def unsafe(c):
-    """Why this character has no business in a slice row, or None.
-
-    Each of these is a way for a pack to be wrong without anything saying so, which
-    is why the check names the reason rather than counting failures.
-
-    **This deliberately restates `PaletteLedger.safe` rather than asking the mod
-    which characters it considers safe.** A check that imported the mod's own answer
-    would agree with it however wrong it was. The rules are written here from what
-    Lost Cities does with a character, so the two have to arrive at the same set by
-    separate routes. If a rule changes on one side, this is meant to fail.
-    """
-    if len(c) != 1:
-        return "is %d characters, not one" % len(c)
-    if ord(c) > 0xFFFF:
-        return ("is U+%04X, past the plane. Lost Cities reads a row with "
-                "toCharArray(), so this counts as two cells" % ord(c))
-    if 0xD800 <= ord(c) <= 0xDFFF:
-        return "is an unpaired surrogate"
-    if c == " ":
-        return "is the air character"
-    if c.isspace() or unicodedata.category(c) in ("Zs", "Zl", "Zp"):
-        return "is blank, so the cell is invisible in the row"
-    if c in ('"', "\\"):
-        return "needs escaping inside a JSON string"
-    if unicodedata.category(c) in ("Cc", "Cf", "Co", "Cs", "Cn"):
-        return "is category %s, which has no glyph" % unicodedata.category(c)
-    if unicodedata.category(c) in ("Mn", "Me", "Mc"):
-        return "is a combining mark, so it attaches to the cell before it"
-    if unicodedata.bidirectional(c) in ("R", "AL"):
-        return "is right to left, so the row renders out of order"
-    for form in ("NFC", "NFD"):
-        if not unicodedata.is_normalized(form, c):
-            return ("is rewritten by %s, so a tool that normalises the pack turns "
-                    "one cell into another" % form)
-    return None
 
 
 # ------------------------------------------------------------- half one, export

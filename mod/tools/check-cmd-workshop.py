@@ -6,9 +6,9 @@
 Needs the wiki's test rig, the same way the other server checks do.
 
 `build`, `clear` and `sync` are already covered by checks of their own, so this is
-the rest: `rows`, `here`, `grow` and the refusal `go` gives without a player. What
-they have in common is that they are how somebody learns the catalogue, and a wrong
-answer teaches the format wrong rather than breaking anything visibly.
+the rest: `rows`, `here`, `grow` and the refusals `go` and `leave` give without a
+player. What they have in common is that they are how somebody learns the catalogue,
+and a wrong answer teaches the format wrong rather than breaking anything visibly.
 
 What it asserts:
 
@@ -153,11 +153,25 @@ try:
             fail("`here` on the walkway did not say there is no plot")
 
         print("\n" + "=" * 72)
-        print("3. go says what it needs rather than failing quietly")
+        print("3. go and leave say what they need rather than failing quietly")
+        # Both move a player, and RCON has no player, so what is checkable is the
+        # refusal. That the teleport itself lands where it should is in the same
+        # bucket as `mark`'s raycast: it needs somebody at a client.
         said = con.command("lcdev workshop go").rstrip()
-        print("  " + said.replace("\n", " ")[:200])
+        print("  go:    " + said.replace("\n", " ")[:170])
         if "Only a player" not in said:
             fail("`go` over RCON did not say a player is what is missing")
+
+        said = con.command("lcdev workshop leave").rstrip()
+        print("  leave: " + said.replace("\n", " ")[:170])
+        # Asked in this order on purpose. A literal that never reached the tree gives
+        # the parser's own error, which also lacks "Only a player", so testing the
+        # refusal first would report one cause as two failures and name neither.
+        if "Unknown" in said or "Incorrect argument" in said:
+            fail("`workshop leave` is not registered: the parser refused it before "
+                 "the command ran")
+        elif "Only a player" not in said:
+            fail("`leave` over RCON did not say a player is what is missing")
 
         print("\n" + "=" * 72)
         print("4. grow refuses what cannot grow, in the format's own terms")
