@@ -390,9 +390,16 @@ public class WorkshopCommand {
             z = spawn.getZ() + 0.5;
             yaw = player.getYRot();
             pitch = player.getXRot();
+            // Three ways to end up here, and they are not the same thing to be told.
+            // A stored dimension that is the workshop cannot come from `go`, which
+            // only records from outside, so it means the tag was written by
+            // something else.
             how = spot.isEmpty()
                     ? "world spawn, because nothing recorded how you got in"
-                    : "world spawn, because the dimension you came from is not loaded";
+                    : spot.contains("dimension")
+                            ? "world spawn, because " + spot.getString("dimension")
+                                    + " is not a dimension you can be sent to"
+                            : "world spawn, because what was recorded is incomplete";
         }
 
         player.teleportTo(target, x, y, z, yaw, pitch);

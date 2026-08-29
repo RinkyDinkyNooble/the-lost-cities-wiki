@@ -63,6 +63,7 @@ import time
 sys.path.insert(0, "testrig")
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 from rcon import Rcon  # noqa: E402
+import rig  # noqa: E402
 
 SERVER = "testrig/servers/forge-1.20.1-47.4.10"
 JAR = sorted(glob.glob("mod/build/libs/lostcities_devtool-*.jar"))[-1]
@@ -151,7 +152,6 @@ def report_at(con, cx, cz):
                        % (CITY, cx * 16 + 8, cz * 16 + 8)).rstrip()
 
 
-dest = os.path.join(SERVER, "mods", os.path.basename(JAR))
 LC_CONFIG = os.path.join(SERVER, "config", "lostcities")
 KEPT = LC_CONFIG + ".kept"
 
@@ -165,7 +165,7 @@ if os.path.isdir(LC_CONFIG):
     shutil.move(LC_CONFIG, KEPT)
 if os.path.isdir(WORLD):
     shutil.rmtree(WORLD)
-shutil.copy(JAR, dest)
+dest = rig.install(SERVER, JAR)
 install()
 print("fresh world, jar installed, the wiki's first-city pack as a datapack")
 print("using %s\n" % os.path.basename(JAR))

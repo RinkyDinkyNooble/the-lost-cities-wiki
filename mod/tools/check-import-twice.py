@@ -31,6 +31,7 @@ import time
 sys.path.insert(0, "testrig")
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 from rcon import Rcon  # noqa: E402
+import rig  # noqa: E402
 
 SERVER = "testrig/servers/forge-1.20.1-47.4.10"
 JAR = sorted(glob.glob("mod/build/libs/lostcities_devtool-*.jar"))[-1]
@@ -132,11 +133,10 @@ def settings_written():
     return sorted(out)
 
 
-dest = os.path.join(SERVER, "mods", os.path.basename(JAR))
 for path in (WORLD, EXPORTS, BACKUPS):
     if os.path.isdir(path):
         shutil.rmtree(path)
-shutil.copy(JAR, dest)
+dest = rig.install(SERVER, JAR)
 write_pack(os.path.join(WORLD, "datapacks", "tinypack"))
 print("fresh world, jar installed, a one-plot pack beside Lost Cities' own\n")
 

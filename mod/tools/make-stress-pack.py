@@ -29,6 +29,7 @@ The last section is the one that matters. It finds the blocks whose characters c
 from past the old pool, generates a city, and counts *those* blocks in the world. A
 character Lost Cities could not read would leave them missing.
 """
+import atexit
 import glob
 import io
 import json
@@ -43,6 +44,7 @@ import time
 sys.path.insert(0, "testrig")
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 from rcon import Rcon  # noqa: E402
+import rig  # noqa: E402
 
 sys.path.insert(0, "mod/tools")
 from palettechars import OLD_POOL, unsafe  # noqa: E402
@@ -195,15 +197,33 @@ if len(ALL) < WANT:
 # The Lost Cities config belongs to the rig. Half two points a dimension at the
 # profile this writes, and leaving that behind hands every later boot a city
 # dimension whose world style stops resolving as soon as this world is deleted.
+#
+# Registered with atexit rather than left at the bottom of the file, because the
+# bottom of the file is only reached when nothing raised. A failed boot, a timed out
+# RCON call or a malformed asset would otherwise walk out past the restore and leave
+# every later check booting into an unresolved world style.
 if os.path.isdir(KEPT_CONFIG):
     shutil.rmtree(KEPT_CONFIG)
 if os.path.isdir(LC_CONFIG):
     shutil.copytree(LC_CONFIG, KEPT_CONFIG)
-dest = os.path.join(SERVER, "mods", os.path.basename(JAR))
+
+
+def restore():
+    jar = globals().get("dest")
+    if jar and os.path.isfile(jar):
+        os.remove(jar)
+    if os.path.isdir(KEPT_CONFIG):
+        if os.path.isdir(LC_CONFIG):
+            shutil.rmtree(LC_CONFIG)
+        shutil.move(KEPT_CONFIG, LC_CONFIG)
+        print("removed the jar and put the rig's Lost Cities config back")
+
+
+atexit.register(restore)
 for path in (WORLD, EXPORTS):
     if os.path.isdir(path):
         shutil.rmtree(path)
-shutil.copy(JAR, dest)
+dest = rig.install(SERVER, JAR)
 print("fresh world, jar installed: %s\n" % os.path.basename(JAR))
 
 proc, log = boot()
@@ -378,9 +398,26 @@ else:
 
             # Generation is asynchronous. Poll on a block the terrain cannot supply,
             # rather than sleeping a fixed time.
+            # Stops at the first chunk holding one. The poll only needs to know
+            # whether anything has generated, and asking all sixteen every five
+            # seconds for four minutes is most of a thousand clone calls to answer a
+            # yes or no.
+            def anywhere(name):
+                for cx in CHUNKS:
+                    for cz in CHUNKS:
+                        bx, bz = cx * 16, cz * 16
+                        reply = con.command(
+                            "execute in %s run clone %d %d %d %d %d %d 992 %d 992 "
+                            "filtered %s"
+                            % (CITY, bx, LOW, bz, bx + 15, HIGH, bz + 15, LOW, name))
+                        m = re.search(r"([0-9]+) block", reply)
+                        if m and int(m.group(1)) > 0:
+                            return True
+                return False
+
             deadline = time.time() + 240
             while sample and time.time() < deadline:
-                if count(sample[0]) > 0:
+                if anywhere(sample[0]):
                     break
                 time.sleep(5)
 
@@ -406,22 +443,21 @@ else:
 # --------------------------------------------------------------------- deliver it
 
 if os.path.isdir(src):
-    if os.path.isdir(OUT):
-        shutil.rmtree(OUT)
-    os.makedirs(OUT)
+    # Only what this tool writes. `rmtree(OUT)` took README.md with it, which is
+    # hand written, is not regenerated, and is the file that tells somebody to run
+    # this command. The second run destroyed the documentation for the first.
+    os.makedirs(OUT, exist_ok=True)
+    for gone in (os.path.join(OUT, "data"), os.path.join(OUT, "pack.mcmeta"),
+                 os.path.join(OUT, PACK + ".json")):
+        if os.path.isdir(gone):
+            shutil.rmtree(gone)
+        elif os.path.isfile(gone):
+            os.remove(gone)
     shutil.copytree(os.path.join(src, "data"), os.path.join(OUT, "data"))
     shutil.copy(os.path.join(src, "pack.mcmeta"), OUT)
     if os.path.isfile(profile):
         shutil.copy(profile, OUT)
     print("\npack written to %s" % OUT)
-
-if os.path.isfile(dest):
-    os.remove(dest)
-if os.path.isdir(KEPT_CONFIG):
-    if os.path.isdir(LC_CONFIG):
-        shutil.rmtree(LC_CONFIG)
-    shutil.move(KEPT_CONFIG, LC_CONFIG)
-print("removed the jar and put the rig's Lost Cities config back")
 
 print("\n" + "=" * 72)
 if failures:

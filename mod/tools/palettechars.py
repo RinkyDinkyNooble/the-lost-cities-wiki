@@ -16,11 +16,12 @@ import unicodedata
 
 # The pool as it stood before it was widened to the plane. Nothing reads this but
 # the checks: it is here so they can prove they are working past the old limit
-# rather than passing because a fixture got smaller.
-OLD_POOL = (list("',<>?]")
-            + [chr(c) for c in range(0x391, 0x3AA)]
-            + [chr(c) for c in range(0x3B1, 0x3CA)]
-            + [chr(c) for c in range(0x410, 0x450)])
+# rather than passing because a fixture got smaller. A set rather than a list
+# because it is only ever asked whether it holds a character, and how many.
+OLD_POOL = frozenset("',<>?]"
+                     + "".join(chr(c) for c in range(0x391, 0x3AA))
+                     + "".join(chr(c) for c in range(0x3B1, 0x3CA))
+                     + "".join(chr(c) for c in range(0x410, 0x450)))
 
 
 def unsafe(c):

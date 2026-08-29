@@ -20,6 +20,7 @@ right up until it does not load.
 The world is wiped first and the jar removed afterwards, so the rig's baseline stays
 what the wiki's published results were produced on.
 """
+import atexit
 import glob
 import io
 import json
@@ -34,6 +35,7 @@ import time
 sys.path.insert(0, "testrig")
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 from rcon import Rcon  # noqa: E402
+import rig  # noqa: E402
 
 SERVER = "testrig/servers/forge-1.20.1-47.4.10"
 # Whichever jar the build produced. Naming it in full meant every version
@@ -92,7 +94,6 @@ def asset(*parts):
 
 # --------------------------------------------------------------- half one, export
 
-dest = os.path.join(SERVER, "mods", os.path.basename(JAR))
 LC_CONFIG = os.path.join(SERVER, "config", "lostcities")
 KEPT_CONFIG = LC_CONFIG + ".kept"
 
@@ -104,10 +105,31 @@ if os.path.isdir(KEPT_CONFIG):
     shutil.rmtree(KEPT_CONFIG)
 if os.path.isdir(LC_CONFIG):
     shutil.copytree(LC_CONFIG, KEPT_CONFIG)
+
+
+def restore():
+    """Put the rig's config back, whatever happened on the way here.
+
+    Registered rather than left at the bottom of the file, because the bottom is
+    only reached when nothing raised, and this check rewrites common.toml to point
+    at its own profile. Walking out past the restore leaves every later check
+    booting into a world style that no longer resolves.
+    """
+    jar = globals().get("dest")
+    if jar and os.path.isfile(jar):
+        os.remove(jar)
+    if os.path.isdir(KEPT_CONFIG):
+        if os.path.isdir(LC_CONFIG):
+            shutil.rmtree(LC_CONFIG)
+        shutil.move(KEPT_CONFIG, LC_CONFIG)
+        print("\nremoved the jar and put the rig's Lost Cities config back")
+
+
+atexit.register(restore)
 for path in (os.path.join(SERVER, "world"), EXPORTS):
     if os.path.isdir(path):
         shutil.rmtree(path)
-shutil.copy(JAR, dest)
+dest = rig.install(SERVER, JAR)
 print("fresh world, jar installed\n")
 
 proc = boot()
@@ -319,12 +341,5 @@ else:
     finally:
         stop(proc)
 
-if os.path.isfile(dest):
-    os.remove(dest)
-if os.path.isdir(KEPT_CONFIG):
-    if os.path.isdir(LC_CONFIG):
-        shutil.rmtree(LC_CONFIG)
-    shutil.move(KEPT_CONFIG, LC_CONFIG)
-print("\nremoved the jar and put the rig's Lost Cities config back")
 print("\n" + ("FAILURES:\n  " + "\n  ".join(failures)) if failures
       else "\nall checks passed")

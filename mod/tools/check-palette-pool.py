@@ -44,6 +44,7 @@ import time
 sys.path.insert(0, "testrig")
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 from rcon import Rcon  # noqa: E402
+import rig  # noqa: E402
 
 sys.path.insert(0, "mod/tools")
 from palettechars import OLD_POOL, unsafe  # noqa: E402
@@ -210,13 +211,12 @@ def exhausted(reply):
 
 # ------------------------------------------------------------- half one, export
 
-dest = os.path.join(SERVER, "mods", os.path.basename(JAR))
 for path in (WORLD, EXPORTS):
     if os.path.isdir(path):
         shutil.rmtree(path)
 for stale in glob.glob(os.path.join(SERVER, "mods", "lostcities_devtool-*.jar")):
     os.remove(stale)
-shutil.copy(JAR, dest)
+dest = rig.install(SERVER, JAR)
 print("fresh world, jar installed: %s" % os.path.basename(JAR))
 print("the pool used to hold %d; this check works past that on purpose\n"
       % len(OLD_POOL))
@@ -287,7 +287,7 @@ try:
         print("\n" + "=" * 72)
         print("3. every character handed out is one a row can hold")
         assigned = ledger()
-        chars = list(assigned.values())
+        chars = set(assigned.values())
         beyond = [c for c in chars if c not in OLD_POOL]
         print("  characters assigned: %d, of them past the old pool: %d"
               % (len(chars), len(beyond)))

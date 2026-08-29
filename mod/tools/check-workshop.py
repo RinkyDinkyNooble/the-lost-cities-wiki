@@ -47,6 +47,7 @@ import time
 sys.path.insert(0, "testrig")
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 from rcon import Rcon  # noqa: E402
+import rig  # noqa: E402
 
 SERVER = "testrig/servers/forge-1.20.1-47.4.10"
 # Whichever jar the build produced. Naming it in full meant every version
@@ -167,11 +168,10 @@ def touching(a, b):
             and b["chunkZ"] - 1 <= a["chunkZ"] + a["height"])
 
 
-dest = os.path.join(SERVER, "mods", os.path.basename(JAR))
 world = os.path.join(SERVER, "world")
 if os.path.isdir(world):
     shutil.rmtree(world)
-shutil.copy(JAR, dest)
+dest = rig.install(SERVER, JAR)
 print("fresh world, jar installed\n")
 
 proc = None
