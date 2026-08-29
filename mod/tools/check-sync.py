@@ -184,6 +184,32 @@ try:
             fail("sync said nothing about a key no plot uses")
 
         print("\n" + "=" * 72)
+        print("4b. the same mistake one scope deeper is reported too")
+        # The rule above read only the top level, so the exact mistake it was written
+        # for was silent inside a scope. A chunk key is looked up by the exact string
+        # `dx + "," + dz`, so a space in it never matches and the plot's own value is
+        # used with nothing said. The settings file invites this: its own header calls
+        # itself the truth and safe to edit by hand.
+        write_settings("building/1x1/1", {
+            "name": "deep",
+            "chunks": {
+                "0,0": {"floor": 3},
+                "0, 1": {"floors": 3},
+            },
+            "levels": {"one": {"floors": 2}, "1": {"chunks": {"0,0": {}}}},
+        })
+        said = con.command("lcdev workshop sync").rstrip()
+        print("  " + said.replace("\n", " ")[-560:])
+        for want, what in (
+                ("does not use: floor", "a mistyped field inside a chunk scope"),
+                ('"0, 1"', "a chunk key with a space, which nothing can address"),
+                ('"one"', "a level key that is not a number"),
+                ("chunks is not read here", "a chunk scope inside a level, which "
+                 "resolve never looks up")):
+            if want not in said:
+                fail("sync said nothing about %s" % what)
+
+        print("\n" + "=" * 72)
         print("5. a file naming no row at all")
         write_settings("nosuchrow/0", {"name": "orphan"})
         said = con.command("lcdev workshop sync").rstrip()

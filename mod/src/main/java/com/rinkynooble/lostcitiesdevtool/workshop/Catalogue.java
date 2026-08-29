@@ -77,8 +77,17 @@ public final class Catalogue {
 
     private static final String PATH = "/data/lostcitiesdevtool/catalogue.json";
 
-    private static List<Row> rows;
-    private static String version = "unknown";
+    /**
+     * Volatile because these are published from one thread and read from others.
+     *
+     * <p>Every caller is on the server thread today, and that is an invariant nothing
+     * enforces. Without volatile the failure mode is unsafe publication: a reader sees
+     * the reference before the object it points at is fully built. That appears once,
+     * on somebody else's machine, and never reproduces. `Json5Overrides` in this same
+     * codebase already does it this way.
+     */
+    private static volatile List<Row> rows;
+    private static volatile String version = "unknown";
 
     /**
      * Its own logger rather than the mod entry point's.

@@ -1,5 +1,7 @@
 package com.rinkynooble.lostcitiesdevtool.validate;
 
+import java.util.List;
+
 /**
  * One problem in one file.
  *
@@ -28,5 +30,31 @@ public record Finding(String file, int line, Severity severity, String message,
     /** {@code path/file.json:12} is the shape an editor jumps to. */
     public String location() {
         return line > 0 ? file + ":" + line : file;
+    }
+
+    /**
+     * Why a list of findings counts as a failure, in the caller's words.
+     *
+     * <p>Here rather than at the call site because the answer is about severity, and
+     * severity is this record's business. It also makes the question checkable
+     * without a server, which the call site was not.
+     *
+     * <p><b>The first ERROR, not the first finding.</b> A list carries warnings and
+     * errors in the order they were discovered, so the first entry is only the cause
+     * when nothing warned earlier. The wipe backup reported the first entry, which
+     * meant a warning ahead of the error was named as the reason a backup failed,
+     * immediately before the wipe it was protecting.
+     */
+    public static String firstError(List<Finding> findings,
+                                    String noneFound) {
+        if (findings == null) {
+            return noneFound;
+        }
+        for (Finding f : findings) {
+            if (f.severity() == Severity.ERROR) {
+                return f.message();
+            }
+        }
+        return noneFound;
     }
 }

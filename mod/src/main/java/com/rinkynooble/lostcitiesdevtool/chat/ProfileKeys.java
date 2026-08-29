@@ -47,7 +47,16 @@ public final class ProfileKeys {
     private static final String KEYS = "/data/lostcitiesdevtool/profile_keys.json";
     private static final String FIXES = "/data/lostcitiesdevtool/profile_key_corrections.json";
 
-    private static Map<String, Key> keys;
+    /**
+     * Volatile because these are published from one thread and read from others.
+     *
+     * <p>Every caller is on the server thread today, and that is an invariant nothing
+     * enforces. Without volatile the failure mode is unsafe publication: a reader sees
+     * the reference before the object it points at is fully built. That appears once,
+     * on somebody else's machine, and never reproduces. `Json5Overrides` in this same
+     * codebase already does it this way.
+     */
+    private static volatile Map<String, Key> keys;
 
     private ProfileKeys() {
     }

@@ -135,7 +135,39 @@ public class ValidatorProbe {
                     {"parts": {"monorails": {"both": "a"}}}""", ""),
 
             new Case("highway as a list is fine", "worldstyles", """
-                    {"parts": {"highways": {"open": ["a", "b"]}}}""", "")
+                    {"parts": {"highways": {"open": ["a", "b"]}}}""", ""),
+
+            // Conditions. Nothing checked these until the audit found that
+            // `Conditions.entriesOf` substitutes a default for an unreadable factor
+            // and leans on a report that did not exist, so `/lcdev condition` printed
+            // a share worked out from a number nobody wrote.
+            new Case("condition with no values", "conditions", """
+                    {}""", "needs a 'values' list"),
+            new Case("condition values is not a list", "conditions", """
+                    {"values": "nope"}""", "needs a 'values' list"),
+            new Case("condition with empty values", "conditions", """
+                    {"values": []}""", "chooses nothing"),
+            new Case("condition entry is not an object", "conditions", """
+                    {"values": ["nope"]}""", "not an object"),
+            new Case("condition factor is not a number", "conditions", """
+                    {"values": [{"factor": "high", "value": "x"}]}""",
+                    "no readable 'factor'"),
+            new Case("condition factor is missing", "conditions", """
+                    {"values": [{"value": "x"}]}""", "no readable 'factor'"),
+            new Case("condition value is missing", "conditions", """
+                    {"values": [{"factor": 1}]}""", "no readable 'value'"),
+            new Case("condition factor is negative", "conditions", """
+                    {"values": [{"factor": -2, "value": "x"}]}""", "negative factor"),
+            new Case("condition factors total zero", "conditions", """
+                    {"values": [{"factor": 0, "value": "x"}]}""",
+                    "no entry can be chosen"),
+            new Case("condition entry has a key nothing reads", "conditions", """
+                    {"values": [{"factor": 1, "value": "x", "inpartt": "y"}]}""",
+                    "key nothing reads"),
+            new Case("a good condition is silent", "conditions", """
+                    {"values": [{"factor": 8, "value": "lostcities:chests/a",
+                     "range": "4,100"}, {"factor": 20, "value": "b",
+                     "inpart": "rail_dungeon1"}]}""", "")
     );
 
     /**
@@ -205,7 +237,8 @@ public class ValidatorProbe {
 
     /** Every kind, so a bare empty object cannot throw in any of them. */
     static final List<String> KINDS =
-            List.of("buildings", "palettes", "parts", "worldstyles", "citystyles");
+            List.of("buildings", "palettes", "parts", "worldstyles", "citystyles",
+                    "conditions");
 
     public static void main(String[] args) {
         int failed = 0;
@@ -272,8 +305,52 @@ public class ValidatorProbe {
             }
         }
 
+        failed += firstErrorCases();
+
         System.out.printf("%n%d rule cases, %d failed. %d malformed cases, %d threw%n",
                 CASES.size(), failed, MALFORMED.size() + KINDS.size(), threw);
         System.exit(failed == 0 && threw == 0 ? 0 : 1);
+    }
+
+    /**
+     * Which finding is quoted as the reason a list of findings is a failure.
+     *
+     * <p>The wipe backup used to quote the first entry, and a list carries warnings
+     * and errors in the order they were discovered. So a pack that warned before it
+     * errored had the warning named as the reason its backup failed, in the message
+     * read immediately before a wipe.
+     *
+     * <p>The first case below is the one that was wrong. The others are the cases
+     * that were always right and have to stay so.
+     */
+    static int firstErrorCases() {
+        System.out.println();
+        int bad = 0;
+        Finding warn = Finding.warn("a.json", 1, "a warning", "");
+        Finding err = Finding.error("b.json", 2, "the real error", "");
+        Finding err2 = Finding.error("c.json", 3, "a later error", "");
+
+        bad += expect("warning before the error", "the real error",
+                Finding.firstError(List.of(warn, err), "none"));
+        bad += expect("error alone", "the real error",
+                Finding.firstError(List.of(err), "none"));
+        bad += expect("error before a second error", "the real error",
+                Finding.firstError(List.of(err, err2), "none"));
+        bad += expect("warnings only", "none",
+                Finding.firstError(List.of(warn), "none"));
+        bad += expect("empty list", "none",
+                Finding.firstError(List.of(), "none"));
+        bad += expect("null list", "none", Finding.firstError(null, "none"));
+        return bad;
+    }
+
+    private static int expect(String name, String want, String got) {
+        if (want.equals(got)) {
+            System.out.printf("  ok     firstError %-27s %s%n", name, got);
+            return 0;
+        }
+        System.out.printf("  FAIL   firstError %-27s wanted '%s', got '%s'%n",
+                name, want, got);
+        return 1;
     }
 }
