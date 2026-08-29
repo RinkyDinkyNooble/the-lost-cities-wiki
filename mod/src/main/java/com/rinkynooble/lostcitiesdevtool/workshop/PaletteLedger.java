@@ -95,7 +95,10 @@ public final class PaletteLedger {
      */
     private static String pool() {
         StringBuilder out = new StringBuilder();
-        Set<Character> seen = new HashSet<>();
+        // Indexed by the character itself. A HashSet here boxed forty thousand
+        // Characters and threw them all away a moment later, to answer a question
+        // one array of the plane's own size answers directly.
+        boolean[] seen = new boolean[Character.MAX_VALUE + 1];
         for (char c : new char[]{'\'', ',', '<', '>', '?', ']'}) {
             take(out, seen, c);
         }
@@ -116,11 +119,11 @@ public final class PaletteLedger {
         return out.toString();
     }
 
-    private static void take(StringBuilder out, Set<Character> seen, char c) {
-        if (seen.contains(c) || !safe(c)) {
+    private static void take(StringBuilder out, boolean[] seen, char c) {
+        if (seen[c] || !safe(c)) {
             return;
         }
-        seen.add(c);
+        seen[c] = true;
         out.append(c);
     }
 
@@ -154,12 +157,13 @@ public final class PaletteLedger {
         if (c == AIR || c == '"' || c == '\\') {
             return false;
         }
-        if (Character.isSurrogate(c) || !Character.isDefined(c)) {
-            return false;
-        }
-        if (Character.isWhitespace(c) || Character.isSpaceChar(c)) {
-            return false;
-        }
+        // The general category is the single authority on everything below. It used
+        // to be asked three times over: `isSurrogate` is the `SURROGATE` case,
+        // `isDefined` is the `UNASSIGNED` case, and `isSpaceChar` is exactly the
+        // three separator cases, with the rest of `isWhitespace` being `CONTROL`.
+        // Three of the eleven cases could therefore never be the deciding test, and
+        // a reader could not tell which check was load-bearing. Verified equivalent
+        // over all 65536 characters before the guards came out.
         switch (Character.getType(c)) {
             case Character.CONTROL:
             case Character.FORMAT:

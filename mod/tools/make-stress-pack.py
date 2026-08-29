@@ -71,23 +71,37 @@ WANT = 100
 
 AIR_BLOCK = "minecraft:air"
 
-# Blocks that turn up in ordinary terrain, so counting one in a generated world says
-# nothing about whether the building drew it. The whole claim in half two rests on
-# finding blocks that could only have come from the pack, so these are excluded from
-# what it looks for. Learned by counting andesite and cobblestone and proving
-# nothing.
-NATURAL = {
-    "minecraft:stone", "minecraft:granite", "minecraft:diorite",
-    "minecraft:andesite", "minecraft:calcite", "minecraft:tuff",
-    "minecraft:dripstone_block", "minecraft:sandstone", "minecraft:deepslate",
-    "minecraft:cobblestone", "minecraft:mossy_cobblestone", "minecraft:obsidian",
-    "minecraft:netherrack", "minecraft:blackstone", "minecraft:end_stone",
-    "minecraft:prismarine", "minecraft:dark_prismarine", "minecraft:air",
-    "minecraft:oak_log", "minecraft:spruce_log", "minecraft:birch_log",
-    "minecraft:jungle_log", "minecraft:acacia_log", "minecraft:dark_oak_log",
-    "minecraft:mangrove_log", "minecraft:cherry_log", "minecraft:basalt",
-    "minecraft:muddy_mangrove_roots", "minecraft:crimson_stem",
-    "minecraft:warped_stem", "minecraft:hay_block",
+# What half two is allowed to look for: blocks nothing but this pack can have put
+# there. The claim rests on finding a block that could only have come from the pack,
+# so a block terrain also makes proves nothing, which the first draft learned by
+# counting andesite and cobblestone.
+#
+# **Named rather than excluded, because the two fail in opposite directions.** This
+# was an exclusion list, and an exclusion list fails open: a naturally occurring
+# block added to PLAIN and forgotten here gets sampled, is found because terrain made
+# it rather than because the building drew it, and the count passes proving nothing.
+# An inclusion list fails closed. A block nobody added here is simply not sampled,
+# and if that empties the sample the check says so instead of passing.
+#
+# Deliberately shorter than it could be. Every entry has to be something no worldgen
+# produces, so anything that shows up in a village, a bastion, an end city, a fossil
+# or a shipwreck is left out even where it is also crafted.
+#
+# The stone brick family is out on evidence rather than on principle. A run counting
+# it found 5794 cracked and 1830 mossy against 7 of each plank, and 7 is one per
+# building in the sampled area. Those two were coming from somewhere that is not this
+# pack, which is exactly the contamination being guarded against. **A count far above
+# the building count is that signature**, and it is worth looking at rather than
+# celebrating.
+MANMADE = {
+    "minecraft:oak_planks", "minecraft:spruce_planks", "minecraft:birch_planks",
+    "minecraft:jungle_planks", "minecraft:acacia_planks",
+    "minecraft:dark_oak_planks", "minecraft:cherry_planks",
+    "minecraft:bamboo_planks", "minecraft:crimson_planks",
+    "minecraft:warped_planks", "minecraft:bamboo_block",
+    "minecraft:mud_bricks", "minecraft:mud_brick_slab",
+    "minecraft:ochre_froglight", "minecraft:verdant_froglight",
+    "minecraft:pearlescent_froglight",
 }
 
 # `/clone` refuses more than 32768 blocks in one go, so a region is counted one
@@ -193,6 +207,16 @@ print("distinct block states this will place: %d" % len(ALL))
 if len(ALL) < WANT:
     raise SystemExit("the fixture only describes %d states, which is under the %d "
                      "this is supposed to stress" % (len(ALL), WANT))
+
+# A name in MANMADE that the fixture never places can never be found in the world,
+# so it silently shrinks the sample half two draws from instead of failing. Asked
+# here, before anything is built, because it is a typo rather than a result.
+stray = MANMADE - {block_of(state) for state in ALL}
+if stray:
+    raise SystemExit("MANMADE names blocks the fixture never places, so they could "
+                     "only ever be missing: %s" % ", ".join(sorted(stray)))
+print("of them vouched for as impossible in terrain: %d"
+      % len(MANMADE & {block_of(state) for state in ALL}))
 
 # The Lost Cities config belongs to the rig. Half two points a dimension at the
 # profile this writes, and leaving that behind hands every later boot a city
@@ -390,11 +414,12 @@ else:
             # Only blocks that could not have come from terrain. Counting one that
             # could would pass whether or not the building drew anything.
             sample = sorted({block_of(b) for b in beyond.values()}
-                            - NATURAL)[:12]
+                            & MANMADE)[:12]
             if not sample:
-                fail("every block with an exotic character is one that occurs in "
-                     "ordinary terrain, so nothing here can tell the pack apart "
-                     "from the world it generated into")
+                fail("no block with an exotic character is one this check will "
+                     "vouch for as impossible in terrain, so nothing here can tell "
+                     "the pack apart from the world it generated into. Widen "
+                     "MANMADE, or check that the fixture still places what it names")
 
             # Generation is asynchronous. Poll on a block the terrain cannot supply,
             # rather than sleeping a fixed time.
