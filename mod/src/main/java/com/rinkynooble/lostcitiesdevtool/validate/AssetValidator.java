@@ -48,6 +48,7 @@ public final class AssetValidator {
                 checkInlinePalette(out, file, json, rawText);
             }
             case "worldstyles" -> checkWorldStyle(out, file, json, rawText);
+            case "conditions" -> checkCondition(out, file, json, rawText);
             default -> {
             }
         }
@@ -471,6 +472,105 @@ public final class AssetValidator {
                                 + "shifts along, and the tail past position " + (expected - 1)
                                 + " is never read"));
             }
+        }
+    }
+
+    /**
+     * A Condition: a weighted list of values, each with the tests that place it.
+     *
+     * <p>Nothing checked conditions until now, and `Conditions.entriesOf` was written
+     * to lean on a check that did not exist. It turns an unreadable {@code factor}
+     * into {@code 1.0} and an unreadable {@code value} into the empty string, on the
+     * reasoning that the entry is still there and should still be shown. That is
+     * fine as far as it goes, but it means {@code /lcdev condition} prints a share
+     * worked out from a number nobody wrote, and says nothing. In a tool whose whole
+     * job is reporting a pack accurately, a plausible wrong number is worse than a
+     * refusal, so the refusal belongs here.
+     *
+     * <p>{@code factor} and {@code value} are both required by the codec: they are
+     * plain fields on {@code ConditionPart} where every test is an {@code Optional}.
+     */
+    private static void checkCondition(List<Finding> out, String file,
+                                       JsonObject json, String raw) {
+        if (!json.has("values") || !json.get("values").isJsonArray()) {
+            out.add(Finding.error(file, lineOf(raw, "values"),
+                    "a condition needs a 'values' list",
+                    "Each entry is an object with a 'factor', a 'value', and "
+                            + "optionally the tests deciding where it applies"));
+            return;
+        }
+        JsonArray values = json.getAsJsonArray("values");
+        if (values.isEmpty()) {
+            out.add(Finding.warn(file, lineOf(raw, "values"),
+                    "'values' is empty, so this condition chooses nothing",
+                    "Anything pointing at it gets no value at all"));
+            return;
+        }
+        float total = 0;
+        boolean totalKnown = true;
+        for (int i = 0; i < values.size(); i++) {
+            if (!values.get(i).isJsonObject()) {
+                out.add(Finding.error(file, lineOf(raw, "values"),
+                        "entry " + i + " is not an object",
+                        "Each entry is an object with a 'factor' and a 'value'"));
+                totalKnown = false;
+                continue;
+            }
+            JsonObject entry = values.get(i).getAsJsonObject();
+            Float factor = numberOr(entry, "factor");
+            if (factor == null) {
+                totalKnown = false;
+                out.add(Finding.error(file, lineOf(raw, "factor"),
+                        "entry " + i + " has no readable 'factor'",
+                        entry.has("factor")
+                                ? "It is written as " + entry.get("factor")
+                                        + ", which is not a number. The tool reports "
+                                        + "it as 1.0 and its share comes out wrong"
+                                : "'factor' is required, and is a weight against the "
+                                        + "other entries rather than a chance"));
+            } else {
+                total += factor;
+                if (factor < 0) {
+                    out.add(Finding.warn(file, lineOf(raw, "factor"),
+                            "entry " + i + " has a negative factor, " + factor,
+                            "A factor is a weight against its siblings, so a negative "
+                                    + "one makes every share in this file meaningless"));
+                }
+            }
+            if (strOr(entry, "value") == null) {
+                out.add(Finding.error(file, lineOf(raw, "value"),
+                        "entry " + i + " has no readable 'value'",
+                        "'value' is required, and names what this entry chooses"));
+            }
+            for (String key : entry.keySet()) {
+                if (key.equals("factor") || key.equals("value")
+                        || CONDITION_KEYS.contains(key)) {
+                    continue;
+                }
+                out.add(Finding.warn(file, lineOf(raw, key),
+                        "entry " + i + " has a key nothing reads: " + key,
+                        "The codec keeps 'factor', 'value' and the tests "
+                                + String.join(", ", CONDITION_KEYS)
+                                + ". Anything else parses into nothing"));
+            }
+        }
+        if (totalKnown && total <= 0) {
+            out.add(Finding.warn(file, lineOf(raw, "values"),
+                    "the factors total " + total + ", so no entry can be chosen",
+                    "A factor is a weight against its siblings, and a total of zero "
+                            + "leaves nothing to weigh"));
+        }
+    }
+
+    /** A number, or null when the key is missing or written as something else. */
+    private static Float numberOr(JsonObject json, String key) {
+        if (!json.has(key) || !json.get(key).isJsonPrimitive()) {
+            return null;
+        }
+        try {
+            return json.get(key).getAsFloat();
+        } catch (RuntimeException e) {
+            return null;
         }
     }
 

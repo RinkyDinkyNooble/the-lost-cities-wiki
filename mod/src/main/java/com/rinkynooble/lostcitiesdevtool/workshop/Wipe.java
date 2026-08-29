@@ -1,6 +1,7 @@
 package com.rinkynooble.lostcitiesdevtool.workshop;
 
 import com.google.gson.JsonObject;
+import com.rinkynooble.lostcitiesdevtool.validate.Finding;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -125,8 +126,12 @@ public final class Wipe {
         Exporter.Result result = Exporter.run(server, level, stamp,
                 Exporter.Options.backupTo(root));
         if (result.failed()) {
+            // The first ERROR, not the first finding: `findings` carries the asset
+            // check's warnings too, in discovery order. This is the message somebody
+            // reads immediately before a wipe, so naming the wrong cause here is the
+            // worst place in the mod for it.
             throw new IOException("the backup could not be written: "
-                    + result.findings().get(0).message());
+                    + Finding.firstError(result.findings(), "no error was recorded"));
         }
         return root;
     }

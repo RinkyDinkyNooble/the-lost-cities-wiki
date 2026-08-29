@@ -28,6 +28,14 @@ import mcjty.lostcities.worldgen.lost.BuildingInfo.StreetType;
 public abstract class BuildingInfoMixin {
 
     /**
+     * The bound that reaches FULL, worked out once.
+     *
+     * <p>It cannot change at runtime, and {@code Enum.values()} clones its backing
+     * array on every call. This is read per street chunk.
+     */
+    private static final int FULL_STREET_BOUND = StreetType.values().length - 1;
+
+    /**
      * Repair 3.2. Makes the {@code full} street shape reachable.
      *
      * <p>The street type is chosen with
@@ -59,7 +67,7 @@ public abstract class BuildingInfoMixin {
             return bound;
         }
         // Restore the one the subtraction removed, and keep PARK excluded.
-        return StreetType.values().length - 1;
+        return FULL_STREET_BOUND;
     }
 
     @ModifyArg(

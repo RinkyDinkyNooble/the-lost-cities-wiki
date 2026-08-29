@@ -28,6 +28,14 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 @Mixin(LostCityTerrainFeature.class)
 public abstract class LostCityTerrainFeatureMixin {
 
+    /**
+     * The bound that reaches FULL, worked out once.
+     *
+     * <p>It cannot change at runtime, and {@code Enum.values()} clones its backing
+     * array on every call. This is read per street chunk.
+     */
+    private static final int FULL_STREET_BOUND = StreetType.values().length - 1;
+
     @ModifyArg(
             method = "generateStreet(Lmcjty/lostcities/worldgen/lost/BuildingInfo;"
                     + "Lmcjty/lostcities/worldgen/ChunkHeightmap;)V",
@@ -39,6 +47,6 @@ public abstract class LostCityTerrainFeatureMixin {
         if (!Config.INSTANCE.fixFullStreetShape.get()) {
             return bound;
         }
-        return StreetType.values().length - 1;
+        return FULL_STREET_BOUND;
     }
 }

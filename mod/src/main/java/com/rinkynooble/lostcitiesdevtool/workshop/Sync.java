@@ -178,11 +178,99 @@ public final class Sync {
         List<String> known = new ArrayList<>(STRUCTURAL);
         Settings.fieldsFor(row).forEach(f -> known.add(f.name()));
         List<Note> out = new ArrayList<>();
-        for (String key : settings.keySet()) {
+        walkScope(id, settings, known, "", out, Set.of("chunks", "levels"));
+        return out;
+    }
+
+    /**
+     * The same check, at every depth a value can be written at.
+     *
+     * <p>This used to read the top level only, which left the exact mistake it was
+     * written for silent one level down: {@code floor} inside a chunk scope is as
+     * wrong as {@code floor} beside it, and was reported in one place and not the
+     * other.
+     *
+     * <p>The scope keys are checked too, because a scope nobody can address is worse
+     * than a stray field. {@code Settings.resolve} looks a chunk up by the exact
+     * string {@code dx + "," + dz}, so {@code "0, 0"} with a space never matches
+     * anything, and the plot's own value is used with nothing said. The file invites
+     * this: its header calls itself the truth and safe to edit by hand.
+     *
+     * <p>{@code raw}, {@code marks} and {@code conversions} are not descended into.
+     * The first is documented as merged verbatim, and the other two are keyed by
+     * position and by block rather than by anything this could check.
+     *
+     * <p>{@code addressable} is which scope keys {@link Settings#resolve} will
+     * actually look up at this depth, and it narrows going down: a plot has both, a
+     * chunk has only its levels, and a level has neither. Passing the set rather than
+     * a depth flag is what makes {@code chunks} inside a level a reported mistake
+     * instead of a key that is accepted and then never read.
+     */
+    private static void walkScope(String id, JsonObject scope, List<String> known,
+                                  String where, List<Note> out,
+                                  Set<String> addressable) {
+        for (String key : scope.keySet()) {
+            if (key.equals("raw") || key.equals("marks") || key.equals("conversions")) {
+                continue;
+            }
+            if (!addressable.contains(key)
+                    && (key.equals("chunks") || key.equals("levels"))) {
+                out.add(new Note(id, where + key + " is not read here. "
+                        + (key.equals("chunks")
+                                ? "Chunk scopes belong on the plot"
+                                : "Level scopes belong on the plot or on a chunk")));
+                continue;
+            }
+            if (addressable.contains(key)) {
+                JsonObject inner = scope.get(key).isJsonObject()
+                        ? scope.getAsJsonObject(key) : null;
+                if (inner == null) {
+                    out.add(new Note(id, where + key + " is not a set of scopes"));
+                    continue;
+                }
+                boolean chunks = key.equals("chunks");
+                for (String name : inner.keySet()) {
+                    if (!(chunks ? isChunkKey(name) : isNumber(name))) {
+                        out.add(new Note(id, where + key + " has a scope nothing can "
+                                + "address: " + quoted(name) + (chunks
+                                ? ", which is not \"x,z\" with no spaces"
+                                : ", which is not a level number")));
+                        continue;
+                    }
+                    if (inner.get(name).isJsonObject()) {
+                        // A chunk still has its own levels. A level has nothing below.
+                        walkScope(id, inner.getAsJsonObject(name), known,
+                                where + key + " " + name + ": ", out,
+                                chunks ? Set.of("levels") : Set.of());
+                    }
+                }
+                continue;
+            }
             if (!known.contains(key)) {
-                out.add(new Note(id, "has a key this plot does not use: " + key));
+                out.add(new Note(id, where.isEmpty()
+                        ? "has a key this plot does not use: " + key
+                        : where + "has a key this plot does not use: " + key));
             }
         }
-        return out;
+    }
+
+    private static boolean isNumber(String text) {
+        try {
+            Integer.parseInt(text.trim());
+            return text.trim().equals(text);
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    private static boolean isChunkKey(String text) {
+        int comma = text.indexOf(',');
+        return comma > 0 && text.indexOf(',', comma + 1) < 0
+                && isNumber(text.substring(0, comma))
+                && isNumber(text.substring(comma + 1));
+    }
+
+    private static String quoted(String text) {
+        return "\"" + text + "\"";
     }
 }

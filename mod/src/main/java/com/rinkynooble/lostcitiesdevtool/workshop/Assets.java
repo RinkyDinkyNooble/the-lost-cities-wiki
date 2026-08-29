@@ -17,6 +17,7 @@ import javax.annotation.Nullable;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -52,9 +53,10 @@ public final class Assets {
      * hands out is the thing that changes. Every caller is on the server thread:
      * commands run there, and so does the packet that asks for suggestions.
      */
-    private static WeakReference<ResourceManager> cachedFor = new WeakReference<>(null);
+    private static volatile WeakReference<ResourceManager> cachedFor =
+            new WeakReference<>(null);
     @Nullable
-    private static Assets cached;
+    private static volatile Assets cached;
 
     private Assets() {
     }
@@ -192,8 +194,17 @@ public final class Assets {
         return name.contains(":") ? name : "lostcities:" + name;
     }
 
+    /**
+     * Every asset in a folder, read only.
+     *
+     * <p>Wrapped because the object this comes from is cached and handed to every
+     * later caller until the next datapack load. A caller that mutated the map it got
+     * back would corrupt the cache for everyone, with nothing to say it had happened.
+     * No caller does today, and that is exactly the kind of safety that lasts only
+     * until somebody writes the next one.
+     */
     public Map<String, JsonObject> folder(String folder) {
-        return byFolder.getOrDefault(folder, Map.of());
+        return Collections.unmodifiableMap(byFolder.getOrDefault(folder, Map.of()));
     }
 
     /**

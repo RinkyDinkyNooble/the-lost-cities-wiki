@@ -123,6 +123,7 @@ Checked, all decidable from a single file:
 | A `block` value that is not a legal block id, such as a 1.12 `@meta` suffix | The whole palette throws while being built, so every character in the file stops resolving. Lost Cities 7.4.12 ships one |
 | A weighted list that misses or overruns its 128 slots | `Not enough blocks in the random list`, or entries that never appear |
 | A `slices` layer that is not `xsize * zsize` characters | `String index out of range`, or a silent shift |
+| A Condition entry with a missing or unreadable `factor` or `value`, a negative factor, factors totalling zero, or a key that is none of the thirteen tests | Silence. `/lcdev condition` shows the entry at a default nobody wrote, and its share comes out wrong |
 
 Nothing is prevented from loading. The check reports and steps aside.
 
@@ -470,7 +471,7 @@ published results were produced on.
 | `mod/tools/check-part-reuse.py` | Levels of one building that drew the same blocks share a part file, and the building keeps one entry per level |
 | `mod/tools/check-tag-export.py` | A chest built in the workshop exports carrying its inventory, `tagkeys` decides which keys reach the pack, and `notags` drops all of them without dropping the blocks |
 | `mod/tools/check-conversions.py` | A placeholder block converts differently per plot, per chunk and per level, the narrower scope winning and adding to the wider rather than replacing it |
-| `mod/tools/check-sync.py` | A settings file written outside the game is read without syncing, and `workshop sync` lays out the plot one names that the catalogue does not have, reports a key no plot uses, and changes nothing when there is nothing to do |
+| `mod/tools/check-sync.py` | A settings file written outside the game is read without syncing, and `workshop sync` lays out the plot one names that the catalogue does not have, reports a key no plot uses at any depth including inside a chunk or level scope, reports a scope key nothing can address, and changes nothing when there is nothing to do |
 | `mod/tools/check-licence.py` | A licence at `data/<namespace>/lostcities/license.txt` and one at the uppercase root of a folder pack are both found, an oversized one is capped at 64 KB, a namespace stating nothing is reported as nothing found rather than as all rights reserved, and an export carries what was found while `export plot` carries only that plot's |
 | `mod/tools/check-cmd-report.py` | `report` names the profile, its description and the world style of a chunk that really generated, and every level of a building names the part chosen for it; `key` carries the mod's own comment and the correction where that comment is wrong; `char` and `block` answer as inverses over one chunk's compiled palette, and `in` narrows the same question to one asset |
 | `mod/tools/check-palette-pool.py` | Two buildings of 70 distinct blocks each export together, reaching past the 120 characters the pool used to hold; every character handed out is one a slice row can carry, checked by rules written from what Lost Cities does with a character rather than by asking the mod; the parts' own palettes are read out of the written pack rather than out of the ledger; and the pack is installed as a datapack and imported back with both buildings compared block for block |
