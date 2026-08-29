@@ -67,7 +67,7 @@ PLOT = "building/1x1/0"
 BASE = -63
 
 # How many distinct states the pack has to reach to be worth calling a stress test.
-WANT = 100
+WANT = 1000
 
 AIR_BLOCK = "minecraft:air"
 
@@ -110,33 +110,123 @@ LOW = 40
 HIGH = 167
 CHUNKS = range(7, 11)
 
-# One block id, three states, and nothing recalculates an axis.
-PILLARS = ("oak_log", "spruce_log", "birch_log", "jungle_log", "acacia_log",
-           "dark_oak_log", "mangrove_log", "cherry_log", "crimson_stem",
-           "warped_stem", "stripped_oak_log", "stripped_birch_log",
-           "stripped_spruce_log", "hay_block", "bone_block", "basalt",
-           "polished_basalt", "quartz_pillar", "purpur_pillar", "deepslate",
-           "ochre_froglight", "verdant_froglight", "pearlescent_froglight",
-           "muddy_mangrove_roots", "bamboo_block")
+COLOURS = ("white", "orange", "magenta", "light_blue", "yellow", "lime", "pink",
+           "gray", "light_gray", "cyan", "purple", "blue", "brown", "green",
+           "red", "black")
 
-# One block id, three states. A slab's type is decided when it is placed and is not
-# revisited; `double` is a full block and still a separate palette entry.
-SLABS = ("stone_slab", "smooth_stone_slab", "sandstone_slab", "cobblestone_slab",
-         "brick_slab", "stone_brick_slab", "quartz_slab", "oak_slab",
-         "spruce_slab", "birch_slab", "purpur_slab", "blackstone_slab",
-         "deepslate_brick_slab", "mud_brick_slab")
+# axis, three each. Nothing recalculates an axis.
+PILLARS = tuple(
+    ["%s_log" % w for w in ("oak", "spruce", "birch", "jungle", "acacia",
+                            "dark_oak", "mangrove", "cherry")]
+    + ["stripped_%s_log" % w for w in ("oak", "spruce", "birch", "jungle", "acacia",
+                                       "dark_oak", "mangrove", "cherry")]
+    + ["%s_wood" % w for w in ("oak", "spruce", "birch", "jungle", "acacia",
+                               "dark_oak", "mangrove", "cherry")]
+    + ["stripped_%s_wood" % w for w in ("oak", "spruce", "birch", "jungle", "acacia",
+                                        "dark_oak", "mangrove", "cherry")]
+    + ["crimson_stem", "warped_stem", "stripped_crimson_stem",
+       "stripped_warped_stem", "crimson_hyphae", "warped_hyphae",
+       "stripped_crimson_hyphae", "stripped_warped_hyphae",
+       "hay_block", "bone_block", "basalt", "polished_basalt", "quartz_pillar",
+       "purpur_pillar", "deepslate", "ochre_froglight", "verdant_froglight",
+       "pearlescent_froglight", "muddy_mangrove_roots", "bamboo_block",
+       "stripped_bamboo_block"])
 
-# Margin, and a reminder that most of a real build is plain blocks.
-PLAIN = ("stone", "granite", "diorite", "andesite", "calcite", "tuff",
-         "dripstone_block", "sandstone", "bricks", "prismarine",
-         "dark_prismarine", "purpur_block", "end_stone", "quartz_block",
-         "netherrack", "blackstone", "obsidian", "oak_planks", "spruce_planks",
-         "birch_planks", "jungle_planks", "acacia_planks", "dark_oak_planks",
-         "cherry_planks", "bamboo_planks", "crimson_planks", "warped_planks",
-         "stone_bricks", "mossy_stone_bricks", "cracked_stone_bricks",
-         "chiseled_stone_bricks", "mud_bricks", "nether_bricks",
-         "red_nether_bricks", "polished_granite", "polished_diorite",
-         "polished_andesite", "smooth_stone", "cobblestone", "mossy_cobblestone")
+# type=top|bottom|double, three each. Decided on placement, never revisited.
+SLABS = tuple(
+    ["%s_slab" % w for w in ("oak", "spruce", "birch", "jungle", "acacia",
+                             "dark_oak", "mangrove", "cherry", "bamboo",
+                             "bamboo_mosaic", "crimson", "warped")]
+    + ["stone_slab", "smooth_stone_slab", "sandstone_slab", "cut_sandstone_slab",
+       "petrified_oak_slab", "cobblestone_slab", "brick_slab", "stone_brick_slab",
+       "mud_brick_slab", "nether_brick_slab", "quartz_slab", "red_sandstone_slab",
+       "cut_red_sandstone_slab", "purpur_slab", "prismarine_slab",
+       "prismarine_brick_slab", "dark_prismarine_slab", "polished_granite_slab",
+       "smooth_red_sandstone_slab", "mossy_stone_brick_slab",
+       "polished_diorite_slab", "mossy_cobblestone_slab", "end_stone_brick_slab",
+       "smooth_sandstone_slab", "smooth_quartz_slab", "granite_slab",
+       "andesite_slab", "red_nether_brick_slab", "polished_andesite_slab",
+       "diorite_slab", "cobbled_deepslate_slab", "polished_deepslate_slab",
+       "deepslate_brick_slab", "deepslate_tile_slab", "blackstone_slab",
+       "polished_blackstone_slab", "polished_blackstone_brick_slab"]
+    + ["cut_copper_slab", "exposed_cut_copper_slab", "weathered_cut_copper_slab",
+       "oxidized_cut_copper_slab", "waxed_cut_copper_slab",
+       "waxed_exposed_cut_copper_slab", "waxed_weathered_cut_copper_slab",
+       "waxed_oxidized_cut_copper_slab"])
+
+# facing, four each. A horizontal facing set by setblock is not revisited.
+GLAZED = tuple("%s_glazed_terracotta" % c for c in COLOURS)
+
+# facing x half x open, sixteen each. A trapdoor connects to nothing.
+TRAPDOORS = tuple(
+    ["%s_trapdoor" % w for w in ("oak", "spruce", "birch", "jungle", "acacia",
+                                 "dark_oak", "mangrove", "cherry", "bamboo",
+                                 "crimson", "warped")]
+    + ["iron_trapdoor"])
+
+# facing, six each, including up and down. A block entity with no neighbour logic.
+SHULKERS = tuple(["shulker_box"] + ["%s_shulker_box" % c for c in COLOURS])
+
+# The rest of the property-bearing families, as (ids, property, values) triples.
+FACING4 = ("carved_pumpkin", "jack_o_lantern", "loom", "stonecutter",
+           "anvil", "chipped_anvil", "damaged_anvil")
+FACING6 = ("end_rod", "lightning_rod")
+
+# candles x lit, eight each. Supported by the stone layer beneath.
+CANDLES = tuple(["candle"] + ["%s_candle" % c for c in COLOURS])
+LIT4 = ("furnace", "blast_furnace", "smoker")
+FACING6_PLAIN = ("dispenser", "dropper")
+COMMANDS = ("command_block", "chain_command_block", "repeating_command_block")
+
+# One state each. Most of a real build is plain blocks.
+PLAIN = tuple(
+    ["%s_wool" % c for c in COLOURS]
+    + ["%s_concrete" % c for c in COLOURS]
+    + ["%s_concrete_powder" % c for c in COLOURS]
+    + ["%s_terracotta" % c for c in COLOURS]
+    + ["%s_stained_glass" % c for c in COLOURS]
+    + ["%s_planks" % w for w in ("oak", "spruce", "birch", "jungle", "acacia",
+                                 "dark_oak", "mangrove", "cherry", "bamboo",
+                                 "crimson", "warped")]
+    + ["terracotta", "glass", "tinted_glass", "stone", "granite", "diorite",
+       "andesite", "polished_granite", "polished_diorite", "polished_andesite",
+       "cobblestone", "mossy_cobblestone", "smooth_stone", "stone_bricks",
+       "mossy_stone_bricks", "cracked_stone_bricks", "chiseled_stone_bricks",
+       "bricks", "cobbled_deepslate", "polished_deepslate", "deepslate_bricks",
+       "cracked_deepslate_bricks", "deepslate_tiles", "cracked_deepslate_tiles",
+       "chiseled_deepslate", "reinforced_deepslate", "tuff", "calcite",
+       "dripstone_block", "sandstone", "chiseled_sandstone", "cut_sandstone",
+       "smooth_sandstone", "red_sandstone", "chiseled_red_sandstone",
+       "cut_red_sandstone", "smooth_red_sandstone", "prismarine",
+       "prismarine_bricks", "dark_prismarine", "sea_lantern", "purpur_block",
+       "end_stone", "end_stone_bricks", "quartz_block", "chiseled_quartz_block",
+       "quartz_bricks", "smooth_quartz", "netherrack", "nether_bricks",
+       "cracked_nether_bricks", "chiseled_nether_bricks", "red_nether_bricks",
+       "blackstone", "polished_blackstone", "polished_blackstone_bricks",
+       "cracked_polished_blackstone_bricks", "chiseled_polished_blackstone",
+       "gilded_blackstone", "smooth_basalt", "obsidian", "crying_obsidian",
+       "magma_block", "soul_sand", "soul_soil", "mud", "packed_mud", "mud_bricks",
+       "clay", "gravel", "dirt", "coarse_dirt", "rooted_dirt", "moss_block",
+       "iron_block", "gold_block", "diamond_block", "emerald_block", "lapis_block",
+       "redstone_block", "coal_block", "netherite_block", "copper_block",
+       "exposed_copper", "weathered_copper", "oxidized_copper", "waxed_copper_block",
+       "waxed_exposed_copper", "waxed_weathered_copper", "waxed_oxidized_copper",
+       "cut_copper", "exposed_cut_copper", "weathered_cut_copper",
+       "oxidized_cut_copper", "waxed_cut_copper", "waxed_exposed_cut_copper",
+       "waxed_weathered_cut_copper", "waxed_oxidized_cut_copper",
+       "raw_iron_block", "raw_gold_block", "raw_copper_block",
+       "coal_ore", "deepslate_coal_ore", "iron_ore", "deepslate_iron_ore",
+       "copper_ore", "deepslate_copper_ore", "gold_ore", "deepslate_gold_ore",
+       "lapis_ore", "deepslate_lapis_ore", "diamond_ore", "deepslate_diamond_ore",
+       "emerald_ore", "deepslate_emerald_ore", "nether_gold_ore",
+       "nether_quartz_ore", "ancient_debris",
+       "bookshelf", "crafting_table", "cartography_table", "fletching_table",
+       "smithing_table", "melon", "pumpkin", "dried_kelp_block", "honeycomb_block",
+       "slime_block", "honey_block", "sponge", "wet_sponge", "glowstone",
+       "shroomlight", "amethyst_block", "budding_amethyst", "ice", "packed_ice",
+       "blue_ice", "snow_block", "nether_wart_block", "warped_wart_block",
+       "mangrove_roots", "sculk", "bamboo_mosaic"])
+
 
 failures = []
 
@@ -150,11 +240,37 @@ def states():
     """Every distinct block state this places, in a fixed order."""
     out = []
     for name in PILLARS:
-        for axis in ("x", "y", "z"):
-            out.append("minecraft:%s[axis=%s]" % (name, axis))
+        out.extend("minecraft:%s[axis=%s]" % (name, a) for a in ("x", "y", "z"))
     for name in SLABS:
-        for kind in ("top", "bottom", "double"):
-            out.append("minecraft:%s[type=%s]" % (name, kind))
+        out.extend("minecraft:%s[type=%s]" % (name, t)
+                   for t in ("top", "bottom", "double"))
+    for name in GLAZED + FACING4:
+        out.extend("minecraft:%s[facing=%s]" % (name, f)
+                   for f in ("north", "south", "east", "west"))
+    for name in TRAPDOORS:
+        for f in ("north", "south", "east", "west"):
+            for h in ("top", "bottom"):
+                for o in ("true", "false"):
+                    out.append("minecraft:%s[facing=%s,half=%s,open=%s]"
+                               % (name, f, h, o))
+    for name in SHULKERS + FACING6 + FACING6_PLAIN:
+        out.extend("minecraft:%s[facing=%s]" % (name, f)
+                   for f in ("north", "south", "east", "west", "up", "down"))
+    for name in LIT4:
+        for f in ("north", "south", "east", "west"):
+            out.extend("minecraft:%s[facing=%s,lit=%s]" % (name, f, l)
+                       for l in ("true", "false"))
+    for name in COMMANDS:
+        for f in ("north", "south", "east", "west", "up", "down"):
+            out.extend("minecraft:%s[facing=%s,conditional=%s]" % (name, f, c)
+                       for c in ("true", "false"))
+    for name in CANDLES:
+        for n in ("1", "2", "3", "4"):
+            out.extend("minecraft:%s[candles=%s,lit=%s]" % (name, n, l)
+                       for l in ("true", "false"))
+    out.append("minecraft:chain[axis=x]")
+    out.append("minecraft:chain[axis=y]")
+    out.append("minecraft:chain[axis=z]")
     out.extend("minecraft:" + name for name in PLAIN)
     return out
 
@@ -294,22 +410,41 @@ try:
         con.command("execute in %s run forceload add %d %d %d %d"
                     % (WORKSHOP, x, z, x + 15, z + 15))
 
-        # Two storeys, each a stone floor with a layer of distinct states above it.
-        # `floors 1` with `cellars 0` is two levels of six, so the second storey's
-        # floor is six above the first.
-        half = (len(ALL) + 1) // 2
-        for storey, (low, chunk) in enumerate(((BASE, ALL[:half]),
-                                               (BASE + 6, ALL[half:]))):
+        # Alternating floors, not one floor per storey. `floors 1` with `cellars 0`
+        # is two levels of six, which is twelve layers: the even ones are stone and
+        # the odd ones carry states. Six usable layers of 256 is 1536 slots.
+        #
+        # **Every state layer sits directly on stone**, and that is the reason for
+        # the alternation rather than a stack. A block that needs support under it
+        # pops the moment its neighbour updates, and a fixture that quietly loses a
+        # row is exactly the failure this whole tool exists to catch.
+        floors = [BASE + n for n in range(0, 12, 2)]
+        layers = [BASE + n for n in range(1, 12, 2)]
+        if len(ALL) > len(layers) * 256:
+            raise SystemExit("%d states will not fit in %d slots. Add a level."
+                             % (len(ALL), len(layers) * 256))
+        for low in floors:
             con.command("execute in %s run fill %d %d %d %d %d %d minecraft:stone"
                         % (WORKSHOP, x, low, z, x + 15, low, z + 15))
-            for i, state in enumerate(chunk):
-                reply = con.command(
-                    "execute in %s run setblock %d %d %d %s"
-                    % (WORKSHOP, x + (i % 16), low + 1, z + (i // 16), state))
-                if "Could not set" in reply or "Unknown block" in reply:
-                    fail("storey %d: %s was refused (%s)"
-                         % (storey + 1, state, reply.strip()[:60]))
-            print("storey %d: %d states placed" % (storey + 1, len(chunk)))
+        placed = 0
+        refused = 0
+        for i, state in enumerate(ALL):
+            layer = layers[i // 256]
+            spot = i % 256
+            reply = con.command(
+                "execute in %s run setblock %d %d %d %s"
+                % (WORKSHOP, x + (spot % 16), layer, z + (spot // 16), state))
+            if "Could not set" in reply or "Unknown block" in reply:
+                if refused < 10:
+                    fail("%s was refused (%s)" % (state, reply.strip()[:60]))
+                refused += 1
+            else:
+                placed += 1
+        print("placed %d of %d states across %d layers"
+              % (placed, len(ALL), len(layers)))
+        if refused:
+            fail("%d states were refused, so the fixture names blocks this version "
+                 "does not have" % refused)
 
         for cmd in ("lcdev plot set name stresshouse", "lcdev plot set floors 1",
                     "lcdev plot set cellars 0", "lcdev plot set citystyles mycity",
@@ -348,6 +483,29 @@ if len(chars) < WANT:
     fail("the palette holds %d entries, under the %d this is meant to stress. "
          "Some states collapsed on placement, which is what happens when a block "
          "recalculates its own properties from its neighbours" % (len(chars), WANT))
+
+# Which families collapsed, by name. Comparing whole state strings does not work:
+# the exporter writes every property a state carries, so an intended
+# `oak_trapdoor[facing=north,half=bottom,open=false]` comes back with `powered` and
+# `waterlogged` on it too. Counting distinct palette entries per block id says the
+# same thing without the mismatch, and names what to remove.
+wanted = {}
+for state in ALL:
+    wanted[block_of(state)] = wanted.get(block_of(state), 0) + 1
+got = {}
+for blk in chars.values():
+    got[block_of(blk)] = got.get(block_of(blk), 0) + 1
+collapsed = sorted((name, n, got.get(name, 0)) for name, n in wanted.items()
+                   if got.get(name, 0) < n)
+if collapsed:
+    print("  families that did not survive placement intact: %d" % len(collapsed))
+    for name, asked, kept in collapsed[:12]:
+        print("      %-44s asked %2d, kept %2d"
+              % (name.replace("minecraft:", ""), asked, kept))
+    print("      (a family that keeps fewer states than it asked for reads its own "
+          "properties off a neighbour, and does not belong in this fixture)")
+else:
+    print("  every family survived placement intact")
 if not beyond:
     fail("nothing in the palette came from past the old pool, so this pack does "
          "not stress anything the old build could not already do")
