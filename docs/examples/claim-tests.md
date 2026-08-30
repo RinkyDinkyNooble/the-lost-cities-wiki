@@ -538,6 +538,41 @@ rotate, rails rotate, and everything else keeps the facing it was authored with.
 No world test. Rotation reaches parts through highways, railways, monorails and
 scattered buildings, none of which the rig has generated.
 
+#### ROT-2 What the tag ships as, per version, and how a pack adds to it { #rot-2 }
+
+**Code review.** The tag was read out of each jar at
+`data/lostcities/tags/blocks/rotatable.json`, which is the path in all seven,
+including the 1.21 ones:
+
+| Jar | `values` |
+|---|---|
+| `lostcities-1.20-7.4.12` | `#minecraft:stairs` |
+| `lostcities-1.20-7.5.1` | `#minecraft:stairs`, `#minecraft:doors` |
+| `lostcities-1.20-7.5.2` | `#minecraft:stairs`, `#minecraft:doors` |
+| `lostcities-1.21-8.2.2` | `#minecraft:stairs` |
+| `lostcities-1.21-8.4.1` | `#minecraft:stairs`, `#minecraft:doors` |
+| `LostCities-1.21.11-9.5.1` | `#minecraft:stairs`, `#minecraft:doors` |
+| `LostCities-26.1.2-10.0.1` | `#minecraft:stairs`, `#minecraft:doors` |
+
+None of the seven sets `replace`. So doors arrive in 7.5.1, are absent again in 8.2.2,
+and are present from 8.4.1 onward.
+
+**The namespace in the path is the tag's, not the pack author's.** A tag is loaded by
+its own id, so every datapack contributing to `lostcities:rotatable` writes
+`data/lostcities/tags/blocks/rotatable.json` and the loader merges what it finds. A
+file under a different namespace declares a different tag, which nothing reads. That is
+Minecraft's tag loader rather than anything Lost Cities does.
+
+`"replace": true` in such a file discards the entries Lost Cities ships, so stairs would
+stop rotating. Absent, as in all seven jars, contributions accumulate.
+
+**Being in the tag reaches exactly one call.** ROT-1's first branch is
+`state.rotate(transform)`, so the tag decides whether `rotate` is called and the block's
+own implementation decides what that does. A block whose `rotate` ignores its facing is
+unchanged by being tagged.
+
+No world test. Read from the jars, and from the same method ROT-1 quotes.
+
 ### Generation order, damage and ruins
 
 Source pages: [The Generation Pipeline](../under-the-hood/generation-pipeline.md),

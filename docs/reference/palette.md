@@ -329,20 +329,21 @@ When the mod rotates a part, a block rotates with it only if that block is in th
 
 What the tag contains by default **is not the same on every version**, so check yours before assuming a block is covered. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-| Lost Cities | `lostcities:rotatable` ships as |
+| Lost Cities | `lostcities:rotatable` ships as [code review](../examples/claim-tests.md#rot-2){.v .v-c} |
 |---|---|
 | 7.4.12 | `#minecraft:stairs` |
 | 7.5.1, 7.5.2 | `#minecraft:stairs`, `#minecraft:doors` |
 | 8.2.2 | `#minecraft:stairs` |
 | 8.4.1 | `#minecraft:stairs`, `#minecraft:doors` |
 | 9.5.1 | `#minecraft:stairs`, `#minecraft:doors` |
+| 10.0.1 | `#minecraft:stairs`, `#minecraft:doors` |
 
-Doors arrived in 7.5.1, are absent again in 8.2.2, and are back in 8.4.1. On a version without them, a door in a rotated part keeps its authored facing like anything else untagged.
+Doors arrived in 7.5.1, are absent again in 8.2.2, and are back from 8.4.1 onward. On a version without them, a door in a rotated part keeps its authored facing like anything else untagged. [code review](../examples/claim-tests.md#rot-2){.v .v-c}
 
 !!! tip "Fixing it"
     Add the block to `lostcities:rotatable` with a normal datapack tag merge. You need no code and no Lost Cities file.
 
-    **The namespace in the path is `lostcities`, not yours.** A tag file is found by the tag's own id, so to add to `lostcities:rotatable` you write a file at that same path inside your own datapack and Minecraft merges the two. Putting it under your own namespace creates a different tag that nothing reads.
+    **The namespace in the path is `lostcities`, not yours.** A tag file is found by the tag's own id, so to add to `lostcities:rotatable` you write a file at that same path inside your own datapack and Minecraft merges the two. Putting it under your own namespace creates a different tag that nothing reads. [code review](../examples/claim-tests.md#rot-2){.v .v-c}
 
     ```json title="data/lostcities/tags/blocks/rotatable.json"
     {
@@ -355,7 +356,7 @@ Doors arrived in 7.5.1, are absent again in 8.2.2, and are back in 8.4.1. On a v
 
     Never add `"replace": true`: that discards what Lost Cities ships, so stairs would stop rotating and the fix would make things worse. Mark a modded block `"required": false` so the file does not fail to load when that mod is absent. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-    Being in the tag only makes the mod call `rotate` on the block. A block whose own `rotate` does not handle its facing stays put anyway.
+    Being in the tag only makes the mod call `rotate` on the block. A block whose own `rotate` does not handle its facing stays put anyway. [code review](../examples/claim-tests.md#rot-2){.v .v-c}
 
 ## Block tags the mod checks
 
