@@ -34,7 +34,7 @@ unzip -l build/libs/lostcities_devtool-*.jar
 - [ ] No `mcjty/` entries
 - [ ] `META-INF/mods.toml`, `logo.png`, `LICENSE_lostcities_devtool.txt` present
 - [ ] `lostcities_devtool.mixins.json` and `.refmap.json` present
-- [ ] Size in the expected range, currently around 300 KB
+- [ ] Size in the expected range, currently around 370 KB
 - [ ] `unzip -p build/libs/*.jar META-INF/mods.toml | grep version` shows the new number
 
 ## 4. Test the jar you will ship
