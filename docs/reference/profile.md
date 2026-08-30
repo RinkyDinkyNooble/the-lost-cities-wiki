@@ -342,9 +342,18 @@ Mostly relevant to `space`, `spheres`, and `cavernspheres` landscape types. [cod
 
 ## `client`
 
-Only affects players who also have Lost Cities installed. `-1` leaves the default alone. [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+!!! danger "All five of these do nothing on 7.4.12"
+    They parse, land in fields and get copied between profiles, and **nothing ever applies them**. Setting them has no effect a player can see. [game test](../examples/claim-tests.md#prf-8){.v .v-g} [code review](../examples/claim-tests.md#prf-8){.v .v-c}
 
-| Key | Default | Range | Meaning [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
+    `javap` over every class in the 7.4.12 jar finds no subscriber to `ViewportEvent`, `RenderFog` or `ComputeFogColor`, and no use of `FogRenderer` at all. The only classes touching `FOG_RED` are `ProfileSetup` and `LostCityProfile`, where the single read is a copy constructor. [code review](../examples/claim-tests.md#prf-8){.v .v-c}
+
+    Confirmed at a client rather than inferred: same seed and position, two profiles differing only in this section, one of them with `fogRed` 1.0, `fogDensity` 0.9 and `horizon` 200. Sky, fog colour, fog density and horizon were identical in both, while the city generated from the profile in each. [game test](../examples/claim-tests.md#prf-8){.v .v-g}
+
+    **This was read from 7.4.12 only.** Whether a later version wired the fog up has not been checked, so treat the table below as what the keys are declared to mean rather than what they do. [code review](../examples/claim-tests.md#prf-8){.v .v-c}
+
+The table records the mod's own declared meaning for each key. `-1` is the "leave it alone" value throughout. [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+
+| Key | Default | Range | Declared meaning, not observed behaviour [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|---|---|
 | `horizon` | `-1` | -1 to 256 | Overrides the client-side horizon height, which is where the sky meets the fog. `-1` leaves Minecraft's own value alone. |
 | `fogRed` | `-1` | -1 to 1 | Red fog component, `0`to`1` when set explicitly. |
