@@ -21,6 +21,7 @@ writes tens of thousands of blocks, and reads and writes files beside your world
 | `/lcdev in <asset> char <character>` | The same lookup inside one named asset |
 | `/lcdev in <asset> block <id>` | The same, in reverse, inside one named asset |
 | `/lcdev workshop go` | Teleport to the workshop dimension |
+| `/lcdev workshop leave` | Go back where you ran `go`, or to world spawn if nothing was recorded |
 | `/lcdev workshop rows` | Every catalogue row, each one a place to click |
 | `/lcdev workshop here` | Which plot you are standing on and what it compiles into |
 | `/lcdev workshop build` | Lay the catalogue out, or repaint it |
@@ -117,6 +118,13 @@ structure, is what you get by saying it once.
 catalogue produces the same plots in the same colours, so it repaints rather than
 duplicating. `go` teleports you in.
 
+`/lcdev workshop leave` brings you back. It returns you to where you ran `go`,
+recorded on the player before the teleport, so it survives a logout. Running `go`
+again while already in the workshop does not overwrite that, which means you cannot
+strand yourself by using it twice. With nothing recorded, because you reached the
+workshop some other way, it sends you to world spawn rather than to a respawn point:
+a respawn point is a bed that may have been broken since.
+
 ### Finding your way around
 
 `/lcdev workshop rows` lists every row that is laid out, grouped by family, each one
@@ -145,7 +153,7 @@ Two rows behave differently on purpose:
 | Row | Behaviour | Why |
 |---|---|---|
 | The three `monorail/` rows | Stay at one plot, and `grow` refuses | Their codec takes a single name, so a list there is a load error rather than a longer row |
-| `multibuilding/` above 3x3 | Declared with no plots until grown | Laying out every footprint up to 10x10 would paint several thousand chunks of floor for shapes most packs never use |
+| `multibuilding/` above 3x3 | Declared with no plots until grown | A row reserves its band whether or not it holds plots, so growing one moves nothing that already exists. What an empty row does not have is a painted floor, and laying out every footprint up to 10x10 would paint several thousand chunks of it for shapes most packs never use |
 
 ### How large a multibuilding can be
 
