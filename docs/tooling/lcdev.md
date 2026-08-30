@@ -3,7 +3,7 @@
 Every `/lcdev` command, what each argument means, and what it does to your world.
 
 !!! note "This page documents the companion mod, not Lost Cities"
-    `/lcdev` comes from [The Lost Cities - DevTool](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/releases/tag/mod-v1.3.0). Lost Cities' own commands are on [Testing and Debugging Commands](commands.md). Nothing here is a claim about Lost Cities' behaviour, so it carries no verification chips: it describes a tool this wiki ships.
+    `/lcdev` comes from [The Lost Cities - DevTool](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/releases/latest), described here as of **3.0.0**. Lost Cities' own commands are on [Testing and Debugging Commands](commands.md). Nothing here is a claim about Lost Cities' behaviour, so it carries no verification chips: it describes a tool this wiki ships.
 
 ## Everything at a glance
 
@@ -20,12 +20,15 @@ writes tens of thousands of blocks, and reads and writes files beside your world
 | `/lcdev block <id>` | Which characters produce a given block here |
 | `/lcdev in <asset> char <character>` | The same lookup inside one named asset |
 | `/lcdev in <asset> block <id>` | The same, in reverse, inside one named asset |
+| `/lcdev conditions` | Every Condition loaded, and how many entries each holds |
+| `/lcdev condition <name>` | One Condition in full: each entry's value, share and test |
 | `/lcdev workshop go` | Teleport to the workshop dimension |
 | `/lcdev workshop leave` | Go back where you ran `go`, or to world spawn if nothing was recorded |
 | `/lcdev workshop rows` | Every catalogue row, each one a place to click |
 | `/lcdev workshop here` | Which plot you are standing on and what it compiles into |
 | `/lcdev workshop build` | Lay the catalogue out, or repaint it |
 | `/lcdev workshop grow <row> <plots>` | Make a row longer, or lay out one that is empty |
+| `/lcdev workshop sync` | Find settings files the catalogue has no plot for, and stray keys |
 | `/lcdev workshop clear [confirm [anyway]]` | Empty every plot, after a backup |
 | `/lcdev plot get [key]` | What this plot's settings say |
 | `/lcdev plot keys` | Every setting this plot accepts, and what each does |
@@ -38,7 +41,7 @@ writes tens of thousands of blocks, and reads and writes files beside your world
 | `/lcdev plot show` | Draw where each level starts, on the walkway |
 | `/lcdev plot hide` | Rub those markers out |
 | `/lcdev mark <key> <value>` | Attach a palette key to the block you are looking at |
-| `/lcdev export <name> [-f]` | Compile the workshop into a datapack |
+| `/lcdev export <name> [plot] [notags] [-f]` | Compile the workshop, or one plot, into a datapack |
 | `/lcdev import <worldstyle> [keep] [run]` | Paste a loaded pack into the workshop |
 
 ## On a server
@@ -105,6 +108,11 @@ structure, is what you get by saying it once.
 | The ground floor everywhere uses a different palette | `/lcdev plot setlevel 0 palette part` |
 | Which of those applies to chunk 1,0 on the ground floor | `/lcdev plot resolve 1 0 0` |
 
+!!! note "One setting does not fold this way"
+    `conversions` is a table rather than a value, so a narrower scope **adds to** it
+    instead of replacing it, and the pack sits underneath the plot as a fifth scope.
+    See [`conversions`, and the scope it belongs to](#conversions-and-the-scope-it-belongs-to).
+
 ## The workshop
 
 ### Getting there
@@ -154,6 +162,42 @@ Two rows behave differently on purpose:
 |---|---|---|
 | The three `monorail/` rows | Stay at one plot, and `grow` refuses | Their codec takes a single name, so a list there is a load error rather than a longer row |
 | `multibuilding/` above 3x3 | Declared with no plots until grown | A row reserves its band whether or not it holds plots, so growing one moves nothing that already exists. What an empty row does not have is a painted floor, and laying out every footprint up to 10x10 would paint several thousand chunks of it for shapes most packs never use |
+
+### Settings files the catalogue cannot see
+
+```
+/lcdev workshop sync
+```
+
+**Values never need syncing.** Every command loads a plot's settings off disk when it
+is asked, so a number changed in a text editor is already what the next export
+compiles. Nothing has to be run first.
+
+What can disagree is whether the workshop can see the file at all. A settings file
+names a plot, a plot belongs to a row, and a row lays out a fixed number of plots.
+Write `building/1x1/20.json5` into a row holding eight and nothing is wrong with the
+file: it describes a plot the catalogue does not lay out, so every command walking the
+catalogue steps past it, and the export writes a pack without it in silence.
+
+Sync walks the files rather than the plots, which is the only direction that can see
+one the other does not have. It grows rows to cover what it finds, repaints only if
+something grew, and reports four things:
+
+| Reported | What is said about it |
+|---|---|
+| A file naming a plot its row had no room for | How far that row grew to cover it |
+| A file naming a row the catalogue does not have | The file, and the row is left alone |
+| A file that could not be read | The parse error |
+| **A key the plot has no use for** | The key, at whatever depth it sits |
+
+That last one is reported nowhere else. `floor` where `floors` was meant is ignored
+everywhere and complained about by nothing, so it gives a one-storey building and no
+error. Sync finds it inside a chunk or level scope as well as beside them.
+
+A monorail row stays at one plot however many files name it, since a list where the
+codec takes a single name is a load error rather than a longer row. No row grows past
+512 plots either way, so a stray `building/1x1/99999.json5` reports the file instead of
+laying out a hundred thousand plots and painting a floor for each.
 
 ### How large a multibuilding can be
 
@@ -233,6 +277,68 @@ name, so `mypack:tower` becomes `tower`, unless two packs both call something
 `tower`: then both keep their namespace, as `mypack_tower` and `otherpack_tower`,
 and the import says which ones it had to rename.
 
+### The three settings a help line cannot hold
+
+`/lcdev plot keys` explains every setting, and that text is deliberately not copied
+here: it is generated from the same declarations that write the settings file's
+comments and drive tab completion, so a fourth copy is a fourth thing that can drift.
+Three settings carry behaviour a help line has no room for.
+
+#### `tagkeys`, which of a block's NBT reaches the pack
+
+An export reads what a block entity is carrying, because for some blocks that is the
+whole asset: a command block without its command is nothing. It also reads what was
+never meant to ship. A chest opened while building carries its inventory, and a chest
+meant to generate loot carries a `LootTableSeed`, which pins one roll into every copy
+in every world.
+
+| Value | Kept |
+|---|---|
+| unset | Everything the block carries |
+| `CustomName` | Only `CustomName` |
+| `!Items` | Everything except `Items` |
+| `Base.Color` | Only that key, reached inside the `Base` compound |
+
+One bare path anywhere makes the whole list a keep-list, and `!` then only subtracts
+from it. Cancelling the last keep-rule leaves a list that keeps nothing, rather than
+flipping into a drop-list that keeps everything.
+
+Set on the front desk it is the pack's rule, and a plot naming the same key again
+overrides it. That is the opposite way round from `conversions` below, because a filter
+is a policy a plot has good reason to make an exception to.
+
+`/lcdev export mypack notags` drops all of it for one export without changing a
+setting. A backup written by `clear confirm` keeps tags whatever the last export was
+told, because a backup exists to put things back as they were.
+
+#### `conversions`, and the scope it belongs to
+
+A conversion turns a block placed in the workshop into a different block in the pack.
+It is how you build with wool where the asset wants a command block: placing the
+command block would fire it, so a placeholder stands in and the export swaps it.
+
+Conversions **layer** rather than replace, which is the one exception to
+[how settings fold together](#how-settings-fold-together) above. They resolve pack, then
+plot, then level, then chunk, then that chunk's level, and each scope adds to what came
+before or overrides one entry of it. A chunk wanting one extra mapping does not have to
+restate the plot's whole table to keep it.
+
+The pack is the base and the narrower scope wins. A pack-wide mapping nothing can
+override would not be a default.
+
+`tagkeys` deliberately does not layer. It resolves, so the narrowest list is the one
+that reads. Concatenating a plot's list with a chunk's would put `!Items` at one scope
+and `Items` at another, fighting in an order nobody can see.
+
+A single block is `/lcdev mark`, not a conversion.
+
+#### `source`, the namespace a plot came from
+
+Written by an import, holding the namespace that plot's asset was read from. Nothing
+reads it but the export, which carries that namespace's licence statement into the pack
+it writes. A plot built by hand has none, and clearing the key stops an export saying
+the content came from there. See [Licences in a Pack](licences.md).
+
 ### Seeing where the compiler will cut
 
 ```
@@ -248,12 +354,25 @@ preview can never overwrite what you built. `hide` removes it.
 ### Marking a single block
 
 ```
-/lcdev mark loot minecraft:chests/simple_dungeon
+/lcdev mark loot chestloot
 ```
 
 Attaches a palette key to the block you are looking at, so that one position becomes
 its own palette entry. Accepts `damaged`, `torch`, `variant`, `loot`, `mob` and
 `frompalette`.
+
+!!! danger "`loot` and `mob` name a Condition, not a loot table and not an entity"
+    `/lcdev mark loot minecraft:chests/simple_dungeon` is the natural guess and it is
+    wrong. Both keys name an asset under `lostcities/conditions/`, and Lost Cities ships
+    three: `chestloot`, `easymobs` and `hardmobs`.
+
+    Tab completion offers the loaded Condition names for these two keys, so the working
+    value is there without having to know the word Condition at all. The other four
+    marks take a block or a character, which you can see in front of you.
+
+    The load-time asset check refuses a value containing a slash, which catches a loot
+    table path. It cannot catch `minecraft:zombie` under `mob`: no slash, equally wrong.
+    See [Conditions](#conditions) below for reading what one holds.
 
 !!! warning "Marks do not survive a round trip yet"
     An export writes them. An import does not read them back into settings, so a
@@ -263,16 +382,45 @@ its own palette entry. Accepts `damaged`, `torch`, `variant`, `loot`, `mob` and
 
 ```
 /lcdev export mypack
-/lcdev export mypack -f
+/lcdev export mypack plot
+/lcdev export mypack notags -f
 ```
 
 Writes a complete datapack to `config/lostcitiesdevtool/exports/<name>/`, with the
 profile beside it rather than inside it, because a profile is config and not
-datapack. An existing export of the same name is an error unless you pass `-f`.
+datapack.
+
+| Flag | Meaning |
+|---|---|
+| `-f` | Overwrite an existing export of the same name. Without it, that is an error |
+| `plot` | Compile only the plot you are standing on, and leave the rest of the workshop out |
+| `notags` | Ship no block NBT anywhere in the pack, whatever `tagkeys` says |
+
+All three are optional and combine **in any order**, because the command tree carries a
+child for every flag not yet given rather than spelling out the six orderings by hand.
 
 Nothing is written until the whole pack has passed the same checks the mod runs on a
 datapack at load time, so a pack that would fail in a world fails here instead,
 where the message can name the plot.
+
+An export also writes the licence statements it is holding into
+`lostcities/license.txt` in the pack it compiles. See [Licences in a Pack](licences.md).
+
+### Exporting one plot
+
+`export <name> plot` is for lifting one building into a pack you are already writing.
+
+**It writes a fragment, not a pack.** The plot's assets and the palette their characters
+resolve through, and no city style, no world style and no profile. A pack carrying a
+world style is installable, and installing a one-building world style generates a world
+made of that building, which is not what somebody exporting a single plot wanted. The
+command says as much when it finishes.
+
+Standing off a plot is refused rather than quietly exporting everything, because a
+whole workshop written out under a name that says one plot is worse than an error.
+
+The plot's own licence statement is carried, which is exactly the moment attribution
+should follow.
 
 ```
 /lcdev import lostcities:standard
@@ -290,6 +438,10 @@ every datapack in the world are equally importable.
 | `run` | Let pasted command blocks fire. Without it they arrive holding their command but unable to run |
 
 Both flags may be given together, in either order.
+
+An import also reports what each namespace it read said about reuse, and records the
+namespace on every plot it fills so an export can carry that statement back out. See
+[Licences in a Pack](licences.md).
 
 ### Blocks that carry NBT
 
@@ -347,6 +499,81 @@ which is how you check a building you are not standing in.
     greedy so that a character can be anything, including a space, which means it has
     to be the last thing on the line.
 
+## Conditions
+
+```
+/lcdev conditions
+/lcdev condition lostcities:chestloot
+```
+
+`loot` and `mob` in a palette entry name a **Condition**: an asset under
+`lostcities/conditions/` holding a weighted list of values, each entry carrying its own
+test for where it applies. Nothing in the game lists them, so before these two commands
+the only way to learn a name was to open somebody else's pack and copy one out.
+
+| Command | Prints |
+|---|---|
+| `/lcdev conditions` | Every Condition loaded, with how many entries each holds |
+| `/lcdev condition <name>` | One in full: each entry's value, its weight as a share of the whole, and the test deciding where it applies |
+
+The share is worked out rather than printed raw. A `factor` is a weight against its
+siblings and not a chance, so a bare `8` beside a bare `20` invites the wrong reading.
+
+!!! tip "Write the namespace, or take the completion"
+    `/lcdev condition` reads its argument as a resource location, and an unqualified one
+    defaults to `minecraft:`. So `condition chestloot` looks for `minecraft:chestloot`
+    and answers **No condition by that name**, while `condition lostcities:chestloot`
+    finds it. Tab completion offers the qualified names, so taking one is the short way.
+
+    `/lcdev mark loot chestloot` is not affected. That argument is plain text and a bare
+    name there means `lostcities:`, the way every other asset reference does.
+
+See [Condition Reference](../reference/condition.md) for the format itself.
+
+## Palette characters, and how many there are
+
+A pack needs one palette character per distinct block state. An export letters them out
+of a fixed pool and records what it gave to what in a ledger beside the world, so a
+second export letters the same block the same way instead of producing a whole-file
+diff.
+
+**The pool holds about 40,000 characters**, against the roughly 26,000 block states
+Minecraft ships, so it is no longer the limit on anything. It keeps its old beginning,
+six ASCII punctuation marks then Greek then Cyrillic, so a ledger written by an earlier
+build carries on where it left off and nothing already lettered moves.
+
+Nothing above `U+FFFF` is ever handed out, and that ceiling is Lost Cities' rather than
+a preference. A palette is keyed by a single Java character and a slice row is read one
+character at a time, so a code point above the plane would collapse every character in
+its block of 1024 onto one key, and would take two positions inside a row and shift the
+rest of the layer along.
+
+The pool refuses five more things, each for a reason a row makes obvious:
+
+| Refused | Why |
+|---|---|
+| Blanks | A row is positional, so a space that is not the air character is a cell nobody can see |
+| Control, format and private use | No glyph |
+| Combining marks | They attach to the cell before them |
+| Right-to-left characters | The row renders in an order that is not the order of the blocks |
+| Anything a normaliser would rewrite | NFD turns one character into two, and a row expects one |
+
+Undefined code points are refused too, which is not theoretical: the Greek capitals run
+straight through `U+03A2`, a reserved hole.
+
+Running out is an error rather than a warning, and the message says what the count is
+made of. Writing air for a character that does not exist would ship a pack with holes in
+its buildings and mention it in one line among the others.
+
+!!! note "A tag is part of a cell's key"
+    Filtering NBT re-keys every tagged block, so exporting once plainly and once with
+    `notags` claims two of the pool's characters for each of them, and the ledger never
+    gives one back. Against 40,000 that no longer matters, and it is why the ledger can
+    grow faster than the pack does.
+
+See [Palette: what counts as a valid character](../reference/palette.md#what-counts-as-a-valid-character)
+for the same rules from Lost Cities' side.
+
 ## Why completion is fast on a big pack
 
 Completing an asset or a world style name means listing what is loaded, and a client
@@ -373,6 +600,8 @@ simply never read, and the setting silently does nothing. `cityChance` lives in
 
 ## See also
 
+- [Licences in a Pack](licences.md), where the file goes and what an import and an export do with it
 - [Testing and Debugging Commands](commands.md), for Lost Cities' own `/lostcities`
 - [Editing and Tooling](editing.md), for the in-world part editor
+- [Condition Reference](../reference/condition.md), for what `loot` and `mob` name
 - [Error Messages](../troubleshooting/errors.md)
