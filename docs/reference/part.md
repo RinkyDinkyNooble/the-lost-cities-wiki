@@ -151,7 +151,7 @@ Any other key parses, is stored, and nothing in 7.4.12 reads it. A companion mod
 
 The mod does not always place a part the way you authored it. A building reuses one part on several sides of the same structure, and streets, highways and rails reuse a small set of shapes in whatever orientation an intersection needs. So the same part JSON is commonly placed rotated or mirrored. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-Most blocks do not reorient when that happens. Only stairs and rails do by default. See [Palette: rotation and the `lostcities:rotatable` tag](palette.md#rotation-and-the-lostcitiesrotatable-tag) if your part uses doors, furnaces, or any other block whose facing matters. [game test](../examples/claim-tests.md#prt-4){.v .v-g}
+Most blocks do not reorient when that happens. Stairs and rails always do, and doors do on some versions and not others. See [Palette: rotation and the `lostcities:rotatable` tag](palette.md#rotation-and-the-lostcitiesrotatable-tag) for what your version ships and how to add a block, if your part uses furnaces, ladders, banners or anything else whose facing matters. [game test](../examples/claim-tests.md#prt-4){.v .v-g}
 
 ## See also
 
