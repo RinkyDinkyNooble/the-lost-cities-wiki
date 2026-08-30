@@ -118,6 +118,7 @@ nav:
       - Editing & Tooling: tooling/editing.md
       - Testing & Debugging Commands: tooling/commands.md
       - The DevTool Commands: tooling/lcdev.md
+      - Licences in a Pack: tooling/licences.md
   - Troubleshooting:
       - Error Messages: troubleshooting/errors.md
       - Known Issues & Workarounds: troubleshooting/known-issues.md

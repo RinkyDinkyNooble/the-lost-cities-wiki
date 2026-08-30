@@ -213,7 +213,7 @@ Three of the entries above are fixed in compiled code and no datapack or config 
 | `streetblocks.parts.full` never generating | The bound is off by one in a compiled method | Yes, as an opt-in fix in the DevTool |
 | Per-block rail variation | The palette method that would give it exists and the railway code does not call it | No |
 
-[The Lost Cities - DevTool](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/releases/tag/mod-v1.3.0)
+[The Lost Cities - DevTool](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/releases/latest)
 is a companion mod that patches the first two at runtime. Both are **off by default**,
 because both change what generates: a world made with one enabled will not produce the
 same chunks without it. Neither is a fork, and neither changes anything else. <!-- noclaim -->
