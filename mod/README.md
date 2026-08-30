@@ -279,6 +279,21 @@ can hold, generated from the codec keys the target version declares. 138 rows,
 chunk aligned, each floor marked in its own colour, including every multibuilding
 footprint up to the 10x10 that `multisettings.areasize` allows.
 
+The catalogue reserves 608 by 5408 blocks. A row keeps its band whether or not it
+holds plots, which is what stops growing one moving anything already built. Nothing
+is painted for a row with no plots, so build time and world size do not pay for the
+space.
+
+!!! warning "Upgrading from 1.x moves an existing workshop"
+
+    Rows used to take no room until they held plots, so growing one pushed every row
+    after it. Plot positions are written into the world when something is pasted onto
+    them and never written down again, which left those builds at coordinates that now
+    belong to a different plot.
+
+    **Export before upgrading, import after.** The export is the only record of what
+    was on a plot that survives the move.
+
 ```
 /lcdev workshop build     lay the catalogue out
 /lcdev workshop go        travel there

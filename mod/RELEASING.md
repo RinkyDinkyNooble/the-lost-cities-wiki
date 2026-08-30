@@ -70,11 +70,13 @@ python mod/tools/check-cmd-mark.py
 python mod/tools/check-cmd-workshop.py
 python mod/tools/check-cmd-io.py
 python mod/tools/check-palette-pool.py
+python mod/tools/check-config.py
 ```
 
 The first four need no server and finish in about a second each. The other
-twenty one boot one apiece and take roughly ninety seconds. Run them one at a time:
-two servers cannot share the rig. All twenty five end in `all checks passed`:
+twenty two boot at least one apiece; most take about thirty seconds and
+`check-config` takes four minutes because it boots eight times. Run them one at a
+time: two servers cannot share the rig. All twenty six end in `all checks passed`:
 
 - [ ] `check-validator`, every asset-check rule, and nothing thrown by a malformed
       file
@@ -113,8 +115,11 @@ two servers cannot share the rig. All twenty five end in `all checks passed`:
       cannot take, and lays out the same way twice
 - [ ] `check-cmd-io`, a pasted command block arrives disarmed unless `run` asks for
       it, and an export will not quietly replace one
-- [ ] `check-palette-pool`, two parts with their own palettes still share one pool
-      of 120, which is the shape of the exhaustion bug
+- [ ] `check-palette-pool`, two buildings past the old pool of 120 export, every
+      character is one a slice row can carry, and the pack reads back block for block
+- [ ] `check-config`, a toggle changes what the mod does in both directions.
+      `fixFullStreetShape` off draws none of the `full` street shape and on draws
+      1504 of it
 - [ ] No mixin failures in the rig's log:
       `grep -ci "mixin apply failed\|InvalidInjection" testrig/servers/forge-1.20.1-47.4.10/logs/debug.log`
       is 0
