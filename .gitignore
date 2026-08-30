@@ -17,3 +17,8 @@ testrig/servers/*
 testrig/java/*
 !testrig/java/.gitkeep
 testrig/.rigcache/
+
+# Agent tooling. Not relevant to anyone building the mod, and not the
+# public face of this project.
+CLAUDE.md
+CLAUDE.local.md
