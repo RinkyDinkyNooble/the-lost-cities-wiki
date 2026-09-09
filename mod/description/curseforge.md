@@ -11,9 +11,21 @@ world generation unless you switch on one of the optional fixes.
 |---|---|
 | Minecraft | 1.20.1 |
 | Forge | 47+ |
-| The Lost Cities | 7.4.12, required |
+| The Lost Cities | 7.4.12 **or** 7.5.1 to 7.5.4, required. One file per line, see below |
 | Java | 17 or newer |
 | Licence | [0BSD](https://opensource.org/license/0bsd) |
+
+**Pick the file that matches your Lost Cities version.** A mod that rewrites another
+mod's methods is tied to the shape of those methods, and 7.5 moved two of them, so one
+file cannot serve both lines. Forge checks the version for you and refuses to start
+rather than loading the wrong one.
+
+| Your Lost Cities | Download |
+|---|---|
+| 7.4.12 | `3.0.0` |
+| 7.5.1, 7.5.2, 7.5.3, 7.5.4 | `3.0.0-7.5`, currently **beta** |
+
+Both files carry the same commands, the same workshop and the same fixes.
 
 ---
 

@@ -13,6 +13,14 @@ Run in order. Every step is a command or a yes/no check.
 The mod version tracks changes to this mod, not to Lost Cities. A port that adds
 nothing is a minor bump, not the Lost Cities version.
 
+**A parallel line is the exception.** When one Lost Cities line needs its own file
+rather than a wider range, the two files carry the same feature number and the newer
+target is named in a suffix: `3.0.0` for 7.4.12 and `3.0.0-7.5` for 7.5.1 to 7.5.4.
+A minor or patch bump would say the second file fixes or adds something the first
+lacks. It does not, and a user picking between them needs to see that at a glance.
+Add `-beta` while the suite has had one run against the new line rather than a
+release cycle of them.
+
 ```bash
 # mod/gradle.properties
 mod_version=1.0.2
@@ -45,6 +53,8 @@ and uploading.
 
 ```bash
 cd ../..
+python mod/tools/check-mixin-targets.py
+python mod/tools/check-mixin-applied.py
 python mod/tools/check-validator.py
 python mod/tools/check-workshop.py
 python mod/tools/check-layout.py
@@ -78,6 +88,12 @@ twenty two boot at least one apiece; most take about thirty seconds and
 `check-config` takes four minutes because it boots eight times. Run them one at a
 time: two servers cannot share the rig. All twenty six end in `all checks passed`:
 
+- [ ] `check-mixin-targets`, every injection point resolves in every supported Lost
+      Cities version, by exact descriptor and by call count inside its method. Reads
+      the jars, needs no server, and is the check that says whether the declared
+      version range is honest
+- [ ] `check-mixin-applied`, every server side mixin reached its target on a running
+      server. Two worlds, spheres and default, because no single one loads them all
 - [ ] `check-validator`, every asset-check rule, and nothing thrown by a malformed
       file
 - [ ] `check-workshop`, the dimension and the catalogue

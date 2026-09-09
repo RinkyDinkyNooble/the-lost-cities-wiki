@@ -37,8 +37,19 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin(LostCityFeature.class)
 public abstract class LostCityFeatureMixin {
 
+    /**
+     * On 7.4.12 the try/catch sat directly in {@code place}. 7.5 moved the body into
+     * a chunk neighbourhood locking wrapper and left the catch in the lambda that
+     * wrapper calls, so both redirects target the lambda instead. The lambda is
+     * static, which is why both handlers below are.
+     *
+     * <p>A lambda's number is assigned by the compiler and is not part of any
+     * contract. This one is {@code $0} in 7.5.1, 7.5.2, 7.5.3 and 7.5.4, checked by
+     * descriptor rather than by name alone.
+     */
     private static final String PLACE =
-            "m_142674_(Lnet/minecraft/world/level/levelgen/feature/FeaturePlaceContext;)Z";
+            "lambda$place$0(Lnet/minecraft/server/level/WorldGenRegion;"
+                    + "Lmcjty/lostcities/worldgen/IDimensionInfo;)Z";
 
     /**
      * The catch block prints the exception and then calls {@code logChunkInfo}, which
@@ -49,7 +60,7 @@ public abstract class LostCityFeatureMixin {
             remap = false,
             at = @At(value = "INVOKE",
                     target = "Ljava/lang/Exception;printStackTrace()V"))
-    private void lostcitiesdevtool$captureFault(Exception fault) {
+    private static void lostcitiesdevtool$captureFault(Exception fault) {
         LastFault.set(fault);
         fault.printStackTrace();
     }
@@ -66,7 +77,7 @@ public abstract class LostCityFeatureMixin {
                     remap = false,
                     target = "Lmcjty/lostcities/worldgen/ErrorLogger;logChunkInfo("
                             + "IILmcjty/lostcities/worldgen/IDimensionInfo;)V"))
-    private void lostcitiesdevtool$report(int chunkX, int chunkZ, IDimensionInfo provider) {
+    private static void lostcitiesdevtool$report(int chunkX, int chunkZ, IDimensionInfo provider) {
         Throwable fault = LastFault.take();
 
         if (!Config.INSTANCE.detailedFaultReports.get()) {

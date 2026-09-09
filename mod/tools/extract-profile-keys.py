@@ -36,11 +36,11 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 MOD = os.path.dirname(HERE)
 REPO = os.path.dirname(MOD)
 
-JAR = os.path.join(MOD, "libs", "lostcities-1.20-7.4.12.jar")
+JAR = os.path.join(MOD, "libs", "lostcities-1.20-7.5.4.jar")
 KEYS = os.path.join(REPO, "docs", "examples", "mod-keys.json")
 OUT = os.path.join(MOD, "src", "main", "resources", "data", "lostcitiesdevtool",
                    "profile_keys.json")
-VERSION = "7.4.12"
+VERSION = "7.5.4"
 
 PROFILE_CLASS = "mcjty/lostcities/config/LostCityProfile.class"
 IDENT = re.compile(r"^[A-Za-z_][A-Za-z_0-9]*$")

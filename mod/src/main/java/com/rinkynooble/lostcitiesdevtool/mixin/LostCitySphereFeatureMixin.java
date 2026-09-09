@@ -57,9 +57,17 @@ public abstract class LostCitySphereFeatureMixin {
      * <p>The consequence is that this mixin targets a shipped Lost Cities jar. That
      * is the only environment it is meant for, and the acceptance test runs against
      * one.
+     *
+     * <p>On 7.4.12 the call sat directly in {@code place}. 7.5 moved the body into a
+     * chunk neighbourhood locking wrapper, so the call now sits in the lambda that
+     * wrapper invokes. The lambda is static, which is why the handler is. Its number
+     * is {@code $0} in 7.5.1 through 7.5.4, checked by descriptor rather than by name
+     * alone, and its parameters are the region, the level and the dimension info.
      */
     @Redirect(
-            method = "m_142674_(Lnet/minecraft/world/level/levelgen/feature/FeaturePlaceContext;)Z",
+            method = "lambda$place$0(Lnet/minecraft/server/level/WorldGenRegion;"
+                    + "Lnet/minecraft/world/level/WorldGenLevel;"
+                    + "Lmcjty/lostcities/worldgen/IDimensionInfo;)Z",
             remap = false,
             at = @At(
                     value = "INVOKE",
@@ -68,7 +76,7 @@ public abstract class LostCitySphereFeatureMixin {
                             + "Lmcjty/lostcities/worldgen/LostCityTerrainFeature;"
                             + "Lnet/minecraft/server/level/WorldGenRegion;"
                             + "Lnet/minecraft/world/level/chunk/ChunkAccess;)V"))
-    private void lostcitiesdevtool$guardSphereGeneration(
+    private static void lostcitiesdevtool$guardSphereGeneration(
             LostCityTerrainFeature feature, WorldGenRegion region, ChunkAccess chunk) {
 
         if (!Config.INSTANCE.catchSphereFeatureErrors.get()) {

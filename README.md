@@ -36,8 +36,9 @@ command is documented on
 Two optional fixes, both off by default, correct bugs traced here: `belowpart` reading
 the wrong part, and the `full` street shape never being selected.
 
-Built for Minecraft 1.20.1 and Lost Cities 7.4.12. See [mod/README.md](mod/README.md)
-for every setting and the evidence behind it.
+Built for Minecraft 1.20.1, in two files: one for Lost Cities 7.4.12 and one for 7.5.1
+through 7.5.4. See [mod/README.md](mod/README.md) for every setting, the evidence behind
+it, and why the two lines cannot share a jar.
 
 Every claim carries one of three labels, and every page says which:
 
@@ -58,13 +59,13 @@ Ten versions have been booted and had their blocks read back, not two.
 | Target | State |
 |---|---|
 | Lost Cities **7.4.12**, Minecraft 1.20.1, Forge | Primary. Every page is written against it. |
-| **7.5.1**, Minecraft 1.20.1, Forge | The 7.4.12 claim-test pack passes unchanged, with one documented difference in how a building's palette is resolved. |
+| **7.5.1** to **7.5.4**, Minecraft 1.20.1, Forge | The 7.4.12 claim-test pack passes unchanged, with one documented difference in how a building's palette is resolved. 7.5.4 adds one profile key the rest of the line does not have. |
 | **8.2.2** and **8.4.1**, Minecraft 1.21, NeoForge | Run in a world. 8.2.2 has a higher number than 7.5 and a smaller feature set. |
 | **9.5.1** and **10.0.1**, Minecraft 1.21.11 and 26.1.2, NeoForge | Run in a world, identical counts to Forge. |
 | **5.3.29**, **6.0.3**, **6.2.2**, Minecraft 1.18 and 1.19 | Run in a world. The thin end of the datapack era. |
 | **2.0.22** and earlier | A different asset system, with its own section and its own rig. |
 
-The [Versions](https://rinkydinkynooble.github.io/the-lost-cities-wiki/versions/) section states which pages apply to which release. 7.5.1, 8.4.1, 9.5.1 and 10.0.1 declare the same 160 profile keys and 268 datapack keys, compared by name, type, default, minimum and maximum, so one set of pages covers all four.
+The [Versions](https://rinkydinkynooble.github.io/the-lost-cities-wiki/versions/) section states which pages apply to which release. 7.5.1, 8.4.1, 9.5.1 and 10.0.1 declare the same 160 profile keys and 268 datapack keys, compared by name, type, default, minimum and maximum, so one set of pages covers all four. 7.5.2 and 7.5.3 match them exactly. 7.5.4 adds `railwayLevelOffset` and changes nothing else.
 
 ## Layout
 

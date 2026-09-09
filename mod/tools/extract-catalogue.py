@@ -36,7 +36,7 @@ REPO = os.path.dirname(MOD)
 KEYS = os.path.join(REPO, "docs", "examples", "mod-keys.json")
 OUT = os.path.join(MOD, "src", "main", "resources", "data", "lostcitiesdevtool",
                    "catalogue.json")
-VERSION = "7.4.12"
+VERSION = "7.5.4"
 
 # How many plots a row of one-chunk shapes starts with. A row is not a limit: any
 # row grows on demand, from an import or from `/lcdev workshop grow`. This is only

@@ -46,7 +46,7 @@ mixin {
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     // Compile against the real jar. It is not bundled: the mod is a hard dependency.
-    compileOnly files('libs/lostcities-1.20-7.4.12.jar')
+    compileOnly files('libs/lostcities-1.20-7.5.4.jar')
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 

@@ -15,10 +15,23 @@ The build plan, including everything not yet written, is in [PLAN.md](PLAN.md).
 |---|---|
 | Minecraft | 1.20.1 |
 | Forge | 47.4.10 |
-| The Lost Cities | 7.4.12, a hard dependency |
+| The Lost Cities | 7.5.1 to 7.5.4, a hard dependency |
 
 The Lost Cities version range is deliberately narrow. A mixin is bound to the shape
 of the code it patches, so each target version needs its own verification pass.
+
+**This branch targets the 7.5 line.** `main` targets 7.4.12 and the two ship as
+separate files. Nine of the eleven mixins are identical between the lines; the two
+that are not attach to code 7.5 moved into a chunk neighbourhood locking wrapper,
+and no single annotation matches both shapes. The shipped key reference is generated
+from the target jar, and the lines do not declare the same keys: 131 profile keys on
+7.4.12, 161 on 7.5.4.
+
+The range was established rather than assumed. Every injection point was compared by
+exact descriptor, and every redirected call counted inside its target method, across
+7.4.12, 7.5.1, 7.5.2, 7.5.3 and 7.5.4, with 7.4.12 as the control column. 7.5.1,
+7.5.2 and 7.5.3 hold the same 327 classes and the same 160 profile keys. 7.5.4 adds
+three GUI classes and `railwayLevelOffset`, and touches nothing patched here.
 
 ## Configuration
 
@@ -120,7 +133,7 @@ Checked, all decidable from a single file:
 | A `range` that does not parse, or carries a third number | A throw, or a floor range that is not the one written |
 | `loot` or `mob` holding an ID rather than a Condition name | `Error getting resource ...`, after placement, leaving invisible chests |
 | A `char` longer than one code unit, or starting above U+FFFF | Silence, or a smeared layer |
-| A `block` value that is not a legal block id, such as a 1.12 `@meta` suffix | The whole palette throws while being built, so every character in the file stops resolving. Lost Cities 7.4.12 ships one |
+| A `block` value that is not a legal block id, such as a 1.12 `@meta` suffix | The whole palette throws while being built, so every character in the file stops resolving. Lost Cities ships one, `bricks_desert_redsand.json`, on 7.4.12 and still on 7.5.4 |
 | A weighted list that misses or overruns its 128 slots | `Not enough blocks in the random list`, or entries that never appear |
 | A `slices` layer that is not `xsize * zsize` characters | `String index out of range`, or a silent shift |
 | A Condition entry with a missing or unreadable `factor` or `value`, a negative factor, factors totalling zero, or a key that is none of the thirteen tests | Silence. `/lcdev condition` shows the entry at a default nobody wrote, and its share comes out wrong |
@@ -450,7 +463,7 @@ the command says that too. It is the answer to the question.
 ```
 
 The jar lands in `build/libs/` as `lostcities_devtool-<minecraft>-<version>.jar`.
-`libs/lostcities-1.20-7.4.12.jar` is compile-only and is not bundled; check with
+`libs/lostcities-1.20-7.5.4.jar` is compile-only and is not bundled; check with
 `unzip -l`, which should list no `mcjty/` entries.
 
 **This cannot be built by CI.** Every mixin targets a Lost Cities class, so the build
@@ -472,6 +485,8 @@ published results were produced on.
 | Check | What has to hold |
 |---|---|
 | `mod/tools/check-validator.py` | Every asset-check rule says the right thing, says nothing about a sound asset, and never throws on a malformed one. No server, under a second |
+| `mod/tools/check-mixin-targets.py` | Every mixin injection point resolves in every supported Lost Cities version, by exact descriptor and by call count inside its target method. Counting is the point: two injections are `@ModifyArg` on the only `nextInt(int, int)` call in a method, and a second call would attach the fix to the wrong argument without any error. 7.4.12 is the control column. No server, seconds |
+| `mod/tools/check-mixin-applied.py` | Every server side mixin reached its target on a running server. `check-mixin-targets` says an injection point exists in a jar; this says the mixin got to it. Boots twice, on a spheres landscape and on an ordinary city, because a spheres world never loads `LostCityTerrainFeature` and a city world never loads `LostCitySphereFeature` |
 | `mod/tools/check-layout.py` | Growing a row moves no plot that already existed, no two plots overlap, and no floor is repainted under a build. No server, about a second |
 | `mod/tools/check-tags.py` | A keep-list drops what it does not name and a drop-list keeps what it does not name, over sixteen cases. No server, about a second |
 | `mod/tools/check-licence-text.py` | A licence is cut to three lines with its blank lines and centring stripped, a paragraph-long one is cut to the chat width, and a pack carrying another pack's statement passes it through rather than wrapping it again. No server, about a second |
