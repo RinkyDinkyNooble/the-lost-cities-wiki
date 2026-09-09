@@ -140,12 +140,18 @@ time: two servers cannot share the rig. All twenty six end in `all checks passed
       `grep -ci "mixin apply failed\|InvalidInjection" testrig/servers/forge-1.20.1-47.4.10/logs/debug.log`
       is 0
 
-## 5. Write the two documents
+## 5. Write the changelog
 
 ```bash
 mod/description/changelog-<version>.md    what changed, for someone who has it
-mod/description/release-<version>.md      what it is, for someone who does not
 ```
+
+**No `release-<version>.md`.** That file existed for a GitHub release body, and
+there are no GitHub releases. The `release-*.md` files from 1.0.1 through 3.0.0 stay
+where they are as a record; nothing new joins them.
+
+State what changed. Do not state what any mod loader does anyway: Forge refusing to
+start on a version mismatch is not news to anyone reading a changelog.
 
 Copy the previous pair and edit. Keep the changelog's headings benefit-first, not
 config-group-first.
@@ -185,7 +191,6 @@ release exists leaves four broken links on the live site.
 
 ## 8. Publish
 
-- [ ] GitHub release, body from `release-<version>.md`, jar attached
 - [ ] CurseForge file upload, changelog from `changelog-<version>.md`
 - [ ] CurseForge: The Lost Cities set as a **required dependency** in the dependency
       field, not only in the description text
