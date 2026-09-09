@@ -15,17 +15,16 @@ world generation unless you switch on one of the optional fixes.
 | Java | 17 or newer |
 | Licence | [0BSD](https://opensource.org/license/0bsd) |
 
-**Pick the file that matches your Lost Cities version.** A mod that rewrites another
-mod's methods is tied to the shape of those methods, and 7.5 moved two of them, so one
-file cannot serve both lines. Forge checks the version for you and refuses to start
-rather than loading the wrong one.
+Pick the file that matches your Lost Cities version. A mod that rewrites another mod's
+methods is tied to the shape of those methods, and 7.5 moved two of them, so one file
+cannot serve both lines.
 
 | Your Lost Cities | Download |
 |---|---|
 | 7.4.12 | `3.0.0` |
-| 7.5.1, 7.5.2, 7.5.3, 7.5.4 | `3.0.0-7.5`, currently **beta** |
+| 7.5.1, 7.5.2, 7.5.3, 7.5.4 | `3.0.0-7.5`, beta |
 
-Both files carry the same commands, the same workshop and the same fixes.
+The two files are the same mod. Nothing is added or missing on either side.
 
 ---
 
@@ -164,12 +163,12 @@ run.
 /lcdev condition chestloot        its entries, each one's share, and the test that places it
 ```
 
-`in` lets you inspect a named file without finding a generated city first, which is the
-difference between testing a condition and waiting to see whether it worked.
+`in` inspects a named file without needing a generated city to stand in first, so a
+condition can be tested rather than waited on.
 
-`condition` matters more than it looks: `loot` and `mob` in a palette name a Condition
-rather than a loot table or an entity, and until now there was no way to see what one
-contained without opening somebody else's pack.
+`condition` is worth knowing about. In a palette, `loot` and `mob` name a Condition, not
+a loot table or an entity, and this shows what one holds without opening the pack file
+by hand.
 
 Tab completion does not read every loaded file on every keystroke. On a server holding
 911 Lost Cities assets that cost **99 ms a character**, close to two seconds to type one
