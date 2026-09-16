@@ -933,8 +933,29 @@ public final class Exporter {
 
         JsonObject world = new JsonObject();
         world.addProperty("outsidestyle", namespace + ":outside");
+        // A style the profile names is reached through the profile, not from here.
+        // Listing it as well would weight it against the others and have it roll for
+        // ordinary cities, which is a pack that generates differently from the one
+        // that was imported. Its assets are still written; only the reference moves.
+        String alternative = string(merged("profile", core),
+                "cityStyleAlternative", "");
+        boolean named = !alternative.isBlank() && styles.contains(alternative);
+        // A world style listing no city style generates no cities at all, so an
+        // alternative that is the only style the pack has stays listed here too.
+        // Below the threshold it is reached either way, and above it the pack does
+        // something rather than nothing.
+        boolean excluding = named && styles.size() > 1;
+        if (named && !excluding) {
+            warnings.add(alternative + " is the only city style here and the profile "
+                    + "names it as its alternative. A world style listing none "
+                    + "generates no cities, so it is listed as a normal style as "
+                    + "well. Below cityStyleThreshold it is reached either way.");
+        }
         JsonArray list = new JsonArray();
         for (String style : styles) {
+            if (excluding && style.equals(alternative)) {
+                continue;
+            }
             JsonObject e = new JsonObject();
             e.addProperty("factor", 1.0);
             e.addProperty("citystyle", namespace + ":" + style);
@@ -1224,6 +1245,16 @@ public final class Exporter {
         JsonObject profile = new JsonObject();
         Map<String, JsonObject> sections = new LinkedHashMap<>();
         JsonObject raw = merged("profile", core);
+        // Written in full, the same way worldStyle is. The style is emitted under
+        // this pack's namespace, and a bare name means lostcities: to Lost Cities,
+        // so an unqualified value here would point the profile at the mod's own
+        // assets rather than at the ones beside it.
+        if (raw.has("cityStyleAlternative")) {
+            String style = string(raw, "cityStyleAlternative", "");
+            if (!style.isBlank() && !style.contains(":")) {
+                raw.addProperty("cityStyleAlternative", namespace + ":" + style);
+            }
+        }
         for (String key : raw.keySet()) {
             ProfileKeys.Key known = ProfileKeys.get(key);
             if (known == null) {

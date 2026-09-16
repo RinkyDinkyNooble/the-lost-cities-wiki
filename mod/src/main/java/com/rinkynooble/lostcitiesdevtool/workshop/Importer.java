@@ -4,6 +4,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import mcjty.lostcities.config.LostCityProfile;
+import mcjty.lostcities.config.ProfileSetup;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.core.BlockPos;
@@ -40,6 +42,12 @@ import java.util.TreeSet;
  * then the parts those stack, then the palettes those resolve through. Every asset
  * that lands somewhere gets a plot, and every plot gets the settings that would
  * export it back again.
+ *
+ * <p><b>The world style is not the only root.</b> Generation starts from a profile,
+ * which picks the world style and may also name a {@code cityStyleAlternative} that
+ * no world style mentions. Every profile pointing at the world style being imported
+ * is walked too, or the assets under that second style are invisible here and the
+ * pack comes in looking smaller than it is.
  *
  * <p><b>Rows grow to fit.</b> A row starts at three plots because that is a sensible
  * catalogue, not because a pack holds three of anything. The one exception is a row
@@ -157,6 +165,15 @@ public final class Importer {
     @Nullable
     private String inherit;
 
+    /**
+     * Profile keys an export should write back, gathered from the profiles walked.
+     *
+     * <p>The profile is config rather than datapack, so it is not one of the assets
+     * and the resource manager never sees it. It still decides which city styles a
+     * pack can reach, which is why it is read here at all.
+     */
+    private final JsonObject profileKeys = new JsonObject();
+
     /** Plot ids this run wrote to, so the rest can be counted afterwards. */
     private final Set<String> filled = new LinkedHashSet<>();
 
@@ -199,6 +216,7 @@ public final class Importer {
         Importer importer = new Importer(server, level, loaded, reverse, ledger,
                 autoRun);
         importer.walk(world);
+        importer.walkProfiles(worldStyleName);
         importer.growRows();
         importer.nameAssets();
         int plots = importer.paste();
@@ -212,6 +230,19 @@ public final class Importer {
         core.addProperty("worldStyle", shortOf(worldStyleName));
         if (importer.inherit != null) {
             core.addProperty("inherit", importer.inherit);
+        }
+        // Merged rather than replaced. The profile block is where a pack's own
+        // profile keys are kept, and most of them are nothing to do with this
+        // import: overwriting the block would delete whatever was set by hand or by
+        // an earlier import of a pack this one sits beside.
+        if (!importer.profileKeys.keySet().isEmpty()) {
+            JsonObject profile = core.has("profile")
+                    && core.get("profile").isJsonObject()
+                    ? core.getAsJsonObject("profile") : new JsonObject();
+            for (String key : importer.profileKeys.keySet()) {
+                profile.add(key, importer.profileKeys.get(key));
+            }
+            core.add("profile", profile);
         }
         // What the pack calls itself lives in pack.mcmeta, which is not one of the
         // assets and is not under lostcities/ at all. It comes from the pack the
@@ -372,6 +403,73 @@ public final class Importer {
             walkFamily(parts, "highways", "highway");
             walkFamily(parts, "railways", "railway");
             walkFamily(parts, "monorails", "monorail");
+        }
+    }
+
+    /**
+     * The city styles the profiles reach, which the world style does not name.
+     *
+     * <p>Generation starts from a profile, not from a world style: the profile picks
+     * the world style and may also name a {@code cityStyleAlternative} that no world
+     * style mentions. Walking only {@code world.citystyles} therefore misses every
+     * asset that lives under that second style, and the pack comes into the workshop
+     * looking smaller than it is.
+     *
+     * <p>Profiles are read from {@code config/lostcities/profiles} during mod
+     * construction and held in {@code STANDARD_PROFILES}, so they are asked of the
+     * running game rather than loaded here. Every profile pointing at the world style
+     * being imported is walked, public or not, because a private profile's assets are
+     * still the pack's assets.
+     */
+    private void walkProfiles(String worldStyleName) {
+        String wanted = Assets.qualify(worldStyleName);
+        Set<String> alternatives = new LinkedHashSet<>();
+        for (LostCityProfile profile : ProfileSetup.STANDARD_PROFILES.values()) {
+            String world = profile.getWorldStyle();
+            if (world == null || !wanted.equals(Assets.qualify(world))) {
+                continue;
+            }
+            String alternative = profile.CITY_STYLE_ALTERNATIVE;
+            if (alternative == null || alternative.isBlank()) {
+                continue;
+            }
+            String full = Assets.qualify(alternative);
+            if (assets.get("citystyles", full) == null) {
+                warnings.add("profile " + profile.getName() + " names city style "
+                        + alternative + " as its alternative, and no loaded pack "
+                        + "defines it. Nothing was imported for it.");
+                continue;
+            }
+            // Below the threshold, not above it. The default of -1 is below every
+            // city factor there is, so a profile that names an alternative and
+            // leaves the threshold alone never reaches it. Worth saying, because
+            // the style imports either way and the pack looks correct.
+            if (profile.CITY_STYLE_THRESHOLD < 0.0f) {
+                warnings.add("profile " + profile.getName() + " names " + alternative
+                        + " as its alternative city style and leaves "
+                        + "cityStyleThreshold at " + profile.CITY_STYLE_THRESHOLD
+                        + ", which no city factor falls below, so Lost Cities never "
+                        + "reaches it. It was imported anyway.");
+            }
+            walkCityStyle(full);
+            alternatives.add(shortOf(full));
+            profileKeys.addProperty("cityStyleThreshold",
+                    profile.CITY_STYLE_THRESHOLD);
+        }
+        if (alternatives.isEmpty()) {
+            return;
+        }
+        // An export writes one profile, and a profile holds one alternative. Several
+        // profiles naming different ones is a pack this cannot round trip whole, so
+        // it says which one it kept rather than picking in silence.
+        profileKeys.addProperty("cityStyleAlternative",
+                alternatives.iterator().next());
+        if (alternatives.size() > 1) {
+            warnings.add(alternatives.size() + " profiles name different alternative "
+                    + "city styles for this world style ("
+                    + String.join(", ", alternatives) + "). All of them were "
+                    + "imported, and an export writes one profile, so it carries "
+                    + alternatives.iterator().next() + " and not the rest.");
         }
     }
 

@@ -182,6 +182,12 @@ public final class SettingsStore {
             case "levels" -> "Per level overrides. Only what differs from above.";
             case "marks" -> "Palette keys attached to a block position, keyed x,y,z. "
                     + "Written by /lcdev mark.";
+            case "profile" -> "The profile keys the export writes beside the pack, "
+                    + "each under the section Lost Cities registered it in. A "
+                    + "profile is config rather than datapack, and cityStyleAlternative "
+                    + "is the one key here that decides which assets a pack can "
+                    + "reach: the style it names is not listed on the world style and "
+                    + "is entered only below cityStyleThreshold.";
             default -> "Not a key this version's schema knows. Kept as written.";
         };
     }

@@ -495,6 +495,7 @@ published results were produced on.
 | `mod/tools/check-export-plot.py` | `export <name> plot` writes the plot you stand on and its palette, leaves the neighbouring plot out, writes nothing that claims to be a world, and takes its flags in either order |
 | `mod/tools/check-import.py` | Lost Cities' own pack imports: 42 assets onto 42 plots, and what lands has the settings to export again |
 | `mod/tools/check-import-fidelity.py` | A band naming two parts comes in showing both, and a palette `tag` reaches the block |
+| `mod/tools/check-import-profile.py` | A city style named only by a profile's `cityStyleAlternative` imports, an export keeps it off the world style's list and points the profile it writes at it, and an alternative below an unreachable threshold imports with a warning |
 | `mod/tools/check-suggest-speed.py` | A suggestion provider stays inside a 50 ms budget with 911 assets loaded, and the cache behind it notices a `/reload` |
 | `mod/tools/check-loud-output.py` | A lookup that matches everything answers in a few lines rather than hundreds |
 | `mod/tools/check-import-twice.py` | Importing a second city reports the first one's plots rather than hiding them, an unconfirmed clear removes nothing, and a confirmed one backs up before it empties |
