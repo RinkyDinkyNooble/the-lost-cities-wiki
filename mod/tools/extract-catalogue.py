@@ -57,13 +57,20 @@ FAMILIES = [
 # and `multibuildings` are not here: they are the whole east area.
 SELECTOR_ROWS = ["fronts", "parks", "fountains", "bridges", "stairs", "raildungeons"]
 
-# Every multi-building footprint, up to the largest one that can exist.
+# Every multi-building footprint that fits the default placement area.
 #
 # The ceiling is the world style's `multisettings.areasize`, which defaults to 10:
 # a multi-building is placed inside one area of that many chunks square, so 10x10
-# is the largest that fits. `multisettings.maximum` caps what the generator will
-# actually roll and defaults to 5, so anything above that needs the world style
-# raising it as well as the plots existing here.
+# is the largest that fits by default. `multisettings.maximum` caps what the
+# generator will actually roll and defaults to 5, so anything above that needs the
+# world style raising it as well as the plots existing here.
+#
+# **This is not a limit on what the mod can import.** A pack may raise `areasize`
+# and ship a bigger footprint, and packs do: ChaosZPack sets it to 16 and ships a
+# 16x7. Those are registered at import by `Catalogue.registerMulti` and appended
+# to what this file generates, so they are absent here by design rather than
+# refused. Raising the number below would move every row after the ones it adds
+# and strand whatever is built on them, which is why the runtime appends instead.
 #
 # 1x2 and 2x1 are both here because they are not rotations of each other: the mod
 # places them on different axes. 1x1 is not, because that is the buildings row.

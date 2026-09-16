@@ -87,7 +87,41 @@ public final class Catalogue {
      * codebase already does it this way.
      */
     private static volatile List<Row> rows;
+    private static volatile List<Row> generated;
     private static volatile String version = "unknown";
+
+    /**
+     * Multi-building footprints past the ones the generated catalogue holds, in the
+     * order they were first seen.
+     *
+     * <p>The generated catalogue stops at 10 because that is the default
+     * {@code multisettings.areasize}, and a multi-building is placed inside one area
+     * of that many chunks square. A pack is free to raise the area, and packs do:
+     * ChaosZPack sets it to 16 and ships a 16x7. Those footprints are legal, they
+     * generate, and a catalogue fixed at 10 could not hold them, so an import dropped
+     * them with a warning and the pack lost content on the way in.
+     *
+     * <p><b>Registration order, never sorted.</b> A row reserves a band of the world
+     * and a plot's position is written down the first time something is pasted onto
+     * it, so a row that appears before an existing one pushes it north and strands
+     * every build on it. Appending can never do that. Sorting can: registering 12x12
+     * and later 11x11 would put 11x11 first and move 12x12 out from under whatever
+     * was built there.
+     */
+    private static volatile List<String> extraMultis = List.of();
+
+    /**
+     * A ceiling rather than a limit anyone should reach, in the same spirit as
+     * {@code Layout.MAX_PLOTS_IN_ROW}.
+     *
+     * <p>Every footprint here comes out of a pack's own file, so a malformed
+     * {@code dimx} reaches this directly. A row reserves its height in chunks whether
+     * or not it holds plots, and growing one lays out plots that wide, so a file
+     * claiming a five figure footprint would reserve a band nothing could travel and
+     * paint plots nothing could use. 64 is far past any real pack: at 16 chunks
+     * ChaosZPack is already a 256 block building.
+     */
+    public static final int MAX_MULTI = 64;
 
     /**
      * Its own logger rather than the mod entry point's.
@@ -101,11 +135,102 @@ public final class Catalogue {
     private Catalogue() {
     }
 
+    /** The generated catalogue, then whatever has been registered since, in order. */
     public static List<Row> rows() {
-        if (rows == null) {
-            rows = load();
+        List<Row> have = rows;
+        return have != null ? have : build();
+    }
+
+    private static synchronized List<Row> build() {
+        // Checked again under the lock: two threads reaching a null cache together
+        // would otherwise both build, and the second would publish a list the first
+        // had already handed out plots from.
+        List<Row> have = rows;
+        if (have != null) {
+            return have;
         }
+        if (generated == null) {
+            generated = load();
+        }
+        List<Row> out = new ArrayList<>(generated);
+        for (String id : extraMultis) {
+            int[] size = sizeOf(id);
+            if (size != null) {
+                out.add(new Row(id, "Selectors", "multibuildings", Area.EAST,
+                        Kind.SELECTOR, "citystyle", 0, size[0], size[1], null));
+            }
+        }
+        rows = Collections.unmodifiableList(out);
         return rows;
+    }
+
+    private static final String MULTI_PREFIX = "multibuilding/";
+
+    /**
+     * {@code multibuilding/16x7} to {@code {16, 7}}, or null where it is not one.
+     */
+    @Nullable
+    private static int[] sizeOf(String id) {
+        if (!id.startsWith(MULTI_PREFIX)) {
+            return null;
+        }
+        String size = id.substring(MULTI_PREFIX.length());
+        int x = size.indexOf('x');
+        if (x <= 0 || x == size.length() - 1) {
+            return null;
+        }
+        try {
+            int w = Integer.parseInt(size.substring(0, x));
+            int h = Integer.parseInt(size.substring(x + 1));
+            return w >= 1 && h >= 1 && w <= MAX_MULTI && h <= MAX_MULTI
+                    ? new int[]{w, h} : null;
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Make room for a footprint the generated catalogue does not have.
+     *
+     * @return the row id, or null where the footprint is not one this will lay out
+     */
+    @Nullable
+    public static synchronized String registerMulti(int width, int height) {
+        if (width < 1 || height < 1 || width > MAX_MULTI || height > MAX_MULTI) {
+            return null;
+        }
+        String id = MULTI_PREFIX + width + "x" + height;
+        if (row(id) != null) {
+            return id;
+        }
+        List<String> next = new ArrayList<>(extraMultis);
+        next.add(id);
+        extraMultis = List.copyOf(next);
+        rows = null;
+        return id;
+    }
+
+    /** What has been registered, for the world record to write down. */
+    public static List<String> extraMultis() {
+        return extraMultis;
+    }
+
+    /**
+     * Put back what a previous session registered, in the order it registered them.
+     *
+     * <p>Order is the whole point of persisting this rather than rebuilding it from
+     * whatever a pack happens to hold: the bands have to land where they landed
+     * before, or every plot in them moves.
+     */
+    public static synchronized void setExtraMultis(List<String> ids) {
+        List<String> next = new ArrayList<>();
+        for (String id : ids) {
+            if (sizeOf(id) != null && !next.contains(id)) {
+                next.add(id);
+            }
+        }
+        extraMultis = List.copyOf(next);
+        rows = null;
     }
 
     public static String version() {

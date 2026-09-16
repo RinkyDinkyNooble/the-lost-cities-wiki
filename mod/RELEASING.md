@@ -69,6 +69,7 @@ python mod/tools/check-suggest-speed.py
 python mod/tools/check-loud-output.py
 python mod/tools/check-import-fidelity.py
 python mod/tools/check-import-profile.py
+python mod/tools/check-multibuilding-size.py
 python mod/tools/check-clear.py
 python mod/tools/check-part-reuse.py
 python mod/tools/check-tag-export.py
@@ -111,6 +112,8 @@ time: two servers cannot share the rig. All twenty six end in `all checks passed
       keeps its NBT
 - [ ] `check-import-profile`, a city style only a profile names comes in, and an
       export puts it back on the profile rather than on the world style
+- [ ] `check-multibuilding-size`, a footprint past the generated catalogue gets a
+      row, and nothing already laid out moves to make space for it
 - [ ] `check-clear`, a confirmed clear leaves nothing standing and a shared short
       name does not block the backup
 - [ ] `check-layout`, growing a row moves nothing that already existed

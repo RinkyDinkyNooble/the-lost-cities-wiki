@@ -290,7 +290,13 @@ Client only, changes no generation, on by default.
 A dimension the mod adds, laid out as a catalogue: one plot for every shape a pack
 can hold, generated from the codec keys the target version declares. 138 rows,
 chunk aligned, each floor marked in its own colour, including every multibuilding
-footprint up to the 10x10 that `multisettings.areasize` allows.
+footprint up to the 10x10 that the default `multisettings.areasize` allows.
+
+A pack may widen that area and ship a larger footprint, and packs do. Those are
+added to the catalogue when an import meets them, appended after the generated rows
+and recorded in the world so the next build puts them back in the same place.
+Appended rather than sorted: a row inserted ahead of an existing one would move its
+band and strand whatever is built there.
 
 The catalogue reserves 608 by 5408 blocks. A row keeps its band whether or not it
 holds plots, which is what stops growing one moving anything already built. Nothing
@@ -496,6 +502,7 @@ published results were produced on.
 | `mod/tools/check-import.py` | Lost Cities' own pack imports: 42 assets onto 42 plots, and what lands has the settings to export again |
 | `mod/tools/check-import-fidelity.py` | A band naming two parts comes in showing both, and a palette `tag` reaches the block |
 | `mod/tools/check-import-profile.py` | A city style named only by a profile's `cityStyleAlternative` imports, an export keeps it off the world style's list and points the profile it writes at it, and an alternative below an unreachable threshold imports with a warning |
+| `mod/tools/check-multibuilding-size.py` | A footprint past the generated catalogue gets a row in either dimension, no plot that existed before the import moves, the rows come back at the same coordinates after a restart, and a footprint past the sanity ceiling is refused |
 | `mod/tools/check-suggest-speed.py` | A suggestion provider stays inside a 50 ms budget with 911 assets loaded, and the cache behind it notices a `/reload` |
 | `mod/tools/check-loud-output.py` | A lookup that matches everything answers in a few lines rather than hundreds |
 | `mod/tools/check-import-twice.py` | Importing a second city reports the first one's plots rather than hiding them, an unconfirmed clear removes nothing, and a confirmed one backs up before it empties |

@@ -106,6 +106,11 @@ public final class Wipe {
         // Rows an import grew go back to their catalogue size. Leaving them long
         // would keep painting floors for plots nothing is built on.
         Layout.setGrown(java.util.Map.of());
+        // And footprints an import made room for go with them. Nothing is built on
+        // them once the workshop is empty, so nothing can be stranded by their
+        // leaving, and keeping them would let dead bands pile up across every
+        // import and wipe this world ever sees.
+        Catalogue.setExtraMultis(java.util.List.of());
         // The statements imported assets brought with them go with the assets. The
         // backup was written before any of this, so it still carries them.
         Attribution.forget(server);

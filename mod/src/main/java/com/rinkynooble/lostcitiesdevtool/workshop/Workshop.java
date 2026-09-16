@@ -177,6 +177,14 @@ public final class Workshop {
         Layout.grown().forEach(grown::addProperty);
         root.add("grownRows", grown);
 
+        // The footprints an import had to make room for, in the order it made room.
+        // A list rather than an object because the order is the load-bearing part:
+        // these rows are appended to the catalogue, and reordering them moves every
+        // band after the one that moved.
+        com.google.gson.JsonArray extra = new com.google.gson.JsonArray();
+        Catalogue.extraMultis().forEach(extra::add);
+        root.add("extraRows", extra);
+
         Path dir = server.getWorldPath(LevelResource.ROOT).resolve(DIR);
         try {
             Files.createDirectories(dir);
@@ -206,6 +214,7 @@ public final class Workshop {
         // one with grown rows would otherwise inherit them and lay out plots its
         // own registry has never heard of.
         Layout.setGrown(java.util.Map.of());
+        Catalogue.setExtraMultis(java.util.List.of());
         Path path = registryPath(server);
         if (!Files.isRegularFile(path)) {
             return;
@@ -213,6 +222,16 @@ public final class Workshop {
         try {
             JsonObject root = com.google.gson.JsonParser.parseString(
                     Files.readString(path, StandardCharsets.UTF_8)).getAsJsonObject();
+            // Before the sizes, because a grown row may be one of these: a row that
+            // does not exist yet cannot be grown, and the count would be dropped.
+            if (root.has("extraRows") && root.get("extraRows").isJsonArray()) {
+                java.util.List<String> extra = new java.util.ArrayList<>();
+                for (com.google.gson.JsonElement e
+                        : root.getAsJsonArray("extraRows")) {
+                    extra.add(e.getAsString());
+                }
+                Catalogue.setExtraMultis(extra);
+            }
             if (!root.has("grownRows")) {
                 return;
             }

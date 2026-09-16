@@ -576,10 +576,17 @@ public final class Importer {
         }
         int w = intOf(multi, "dimx", 1);
         int h = intOf(multi, "dimz", 1);
-        String id = "multibuilding/" + w + "x" + h;
-        if (Catalogue.row(id) == null) {
-            warnings.add(name + " is " + w + "x" + h + ", which the catalogue has no "
-                    + "row for. Add one and import again.");
+        // The generated catalogue stops at the default placement area of 10. A pack
+        // that widens `multisettings.areasize` may ship more than that and generate
+        // it, so the footprint is made room for rather than refused: dropping it lost
+        // the largest buildings a pack had, which is the opposite of what an import
+        // is for.
+        String id = Catalogue.registerMulti(w, h);
+        if (id == null) {
+            warnings.add(name + " is " + w + "x" + h + " chunks, which is past the "
+                    + Catalogue.MAX_MULTI + " this lays out. It was left out. A "
+                    + "footprint that size is usually a dimx or dimz that is not "
+                    + "what its author meant.");
             return null;
         }
         return id;
