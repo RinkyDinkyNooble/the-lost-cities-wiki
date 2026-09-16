@@ -14,12 +14,16 @@ The mod version tracks changes to this mod, not to Lost Cities. A port that adds
 nothing is a minor bump, not the Lost Cities version.
 
 **A parallel line is the exception.** When one Lost Cities line needs its own file
-rather than a wider range, the two files carry the same feature number and the newer
-target is named in a suffix: `3.0.0` for 7.4.12 and `3.0.0-7.5` for 7.5.1 to 7.5.4.
-A minor or patch bump would say the second file fixes or adds something the first
-lacks. It does not, and a user picking between them needs to see that at a glance.
-Add `-beta` while the suite has had one run against the new line rather than a
-release cycle of them.
+rather than a wider range, the newer target is named in a suffix: `3.0.0` for 7.4.12
+and `3.0.0-7.5` for the 7.5 line. Add `-beta` while the suite has had one run against
+the new line rather than a release cycle of them.
+
+**The two files carry the same feature number only while both lines move together.**
+That held through `3.0.0`, where the second file was the same mod against a different
+target. It stopped holding at `3.1.0-7.5`, which carries two import fixes that were
+not back-ported to 7.4.12. Once the lines diverge, the number has to say so: a user
+picking between the files needs to see which one is ahead. Keep them level where they
+are level, and bump where they are not.
 
 ```bash
 # mod/gradle.properties

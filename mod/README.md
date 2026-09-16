@@ -15,7 +15,7 @@ The build plan, including everything not yet written, is in [PLAN.md](PLAN.md).
 |---|---|
 | Minecraft | 1.20.1 |
 | Forge | 47.4.10 |
-| The Lost Cities | 7.5.1 to 7.5.4, a hard dependency |
+| The Lost Cities | 7.5.1 to 7.5.5, a hard dependency |
 
 The Lost Cities version range is deliberately narrow. A mixin is bound to the shape
 of the code it patches, so each target version needs its own verification pass.
@@ -29,9 +29,20 @@ from the target jar, and the lines do not declare the same keys: 131 profile key
 
 The range was established rather than assumed. Every injection point was compared by
 exact descriptor, and every redirected call counted inside its target method, across
-7.4.12, 7.5.1, 7.5.2, 7.5.3 and 7.5.4, with 7.4.12 as the control column. 7.5.1,
-7.5.2 and 7.5.3 hold the same 327 classes and the same 160 profile keys. 7.5.4 adds
-three GUI classes and `railwayLevelOffset`, and touches nothing patched here.
+7.4.12, 7.5.1, 7.5.2, 7.5.3, 7.5.4 and 7.5.5, with 7.4.12 as the control column.
+7.5.1, 7.5.2 and 7.5.3 hold the same 327 classes and the same 160 profile keys. 7.5.4
+adds three GUI classes and `railwayLevelOffset`. 7.5.5 changes 45 classes and adds
+one. None of them touches anything patched here.
+
+**The key reference is generated from 7.5.4, and 7.5.5 declares more than it.** The
+mixins are verified on 7.5.5 and the mod runs there, but six keys 7.5.5 added are
+unknown to this build: `railwaySpacingNorthSouth` and `railwaySpacingEastWest` on the
+profile, and `bridgesupport`, `bridgesupportpart`, `highwaysupport` and
+`highwaysupportpart` on the world and city styles. `/lcdev key` does not describe the
+first two and an export files them under the wrong section; the workshop has no plot
+for the last four, so an import does not bring them in and an export does not write
+them. Regenerating the reference from 7.5.5 needs the same per-version pass the
+others had and has not been done.
 
 ## Configuration
 
