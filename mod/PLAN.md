@@ -139,7 +139,7 @@ Each feature is proved on the existing rig unless noted.
 | 4.x | By hand, with a client. |
 | 5.1 to 5.2 | `mod/tools/check-workshop.py`: the dimension exists, no two touching plots share a floor colour, a row grows on request, a single-only row refuses, and the three settings scopes resolve in the documented order. |
 | 5.3 | `mod/tools/check-export.py`: the written pack, installed as a datapack, generates a city. 10,672 gold blocks from the building the workshop held. |
-| 5.4 | `mod/tools/check-import.py`: Lost Cities' own pack imports onto 42 plots, 714,240 blocks, and every filled plot has a floor under it. |
+| 5.4 | `mod/tools/check-import.py`: Lost Cities' own pack imports onto 49 plots, 782,080 blocks, and every filled plot has a floor under it. It was 42 plots and 714,240 blocks until `3.1.1-7.5` taught the import to follow profiles; the shipped `largecities` profile names a city style no world style does, and nothing had walked it. |
 | 5.5 | `mod/tools/check-roundtrip.py`: 51 files byte identical across export, import, export, and 13 plots block identical, compared in the world by `execute if blocks`. |
 | all | `mod/tools/check-validator.py`: every asset-check rule, in a plain JVM in under a second. 25 rule cases, and 29 malformed ones asserting only that nothing throws. |
 

@@ -136,6 +136,30 @@ public final class Layout {
      */
     public static final int MAX_PLOTS_IN_ROW = 512;
 
+    /**
+     * The most chunks one row will cover, plots times footprint.
+     *
+     * <p>{@link #MAX_PLOTS_IN_ROW} bounds the count and not the area, which was
+     * enough while every row was at most 10 by 10. Footprints are now registered on
+     * demand up to {@code Catalogue.MAX_MULTI}, so a row can be 64 by 64, and 512 of
+     * those is two million chunks of floor painted on the server thread. The whole
+     * shipped catalogue is 496 chunks, so this is generous by a factor of eight and
+     * still finite.
+     */
+    public static final int MAX_CHUNKS_IN_ROW = 4096;
+
+    /**
+     * How many plots of this shape fit the area budget, at least one.
+     *
+     * <p>Takes the two numbers rather than a row, because the caller has to be able
+     * to ask before the row exists: a footprint registered and then refused would
+     * leave a band behind, and bands are never taken back.
+     */
+    public static int plotsAllowed(int width, int height) {
+        int area = Math.max(1, width * height);
+        return Math.max(1, Math.min(MAX_PLOTS_IN_ROW, MAX_CHUNKS_IN_ROW / area));
+    }
+
     public static void grow(String rowId, int plots) {
         GROWN.merge(rowId, plots, Math::max);
     }

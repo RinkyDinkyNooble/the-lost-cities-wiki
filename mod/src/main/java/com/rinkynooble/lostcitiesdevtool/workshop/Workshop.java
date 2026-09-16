@@ -144,7 +144,13 @@ public final class Workshop {
         root.addProperty("_about", "Written by /lcdev workshop build. The layout is "
                 + "computed from the catalogue, so this is a record of what was "
                 + "built rather than the source of it.");
+        // Two versions, because they are two facts and conflating them put a
+        // Lost Cities version on screen that was not the one running.
         root.addProperty("version", Catalogue.version());
+        root.addProperty("catalogueForLostCities", Catalogue.version());
+        if (Versions.running() != null) {
+            root.addProperty("runningLostCities", Versions.running());
+        }
         root.addProperty("floorY", Layout.FLOOR_Y);
 
         JsonArray array = new JsonArray();

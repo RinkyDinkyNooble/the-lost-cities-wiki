@@ -299,20 +299,29 @@ Client only, changes no generation, on by default.
 ## The workshop
 
 A dimension the mod adds, laid out as a catalogue: one plot for every shape a pack
-can hold, generated from the codec keys the target version declares. 138 rows,
+can hold, generated from the codec keys the target version declares. 146 rows,
 chunk aligned, each floor marked in its own colour, including every multibuilding
 footprint up to the 10x10 that the default `multisettings.areasize` allows.
 
-A pack may widen that area and ship a larger footprint, and packs do. Those are
-added to the catalogue when an import meets them, appended after the generated rows
-and recorded in the world so the next build puts them back in the same place.
-Appended rather than sorted: a row inserted ahead of an existing one would move its
-band and strand whatever is built there.
+A pack may widen that area and ship a larger footprint, and packs do. Two ways to
+get a plot for one:
 
-The catalogue reserves 608 by 5408 blocks. A row keeps its band whether or not it
-holds plots, which is what stops growing one moving anything already built. Nothing
-is painted for a row with no plots, so build time and world size do not pay for the
-space.
+| | |
+|---|---|
+| Import a pack that holds it | The footprint is added as the import walks it |
+| `/lcdev workshop grow multibuilding/<w>x<h> <plots>` | Names it directly, for building one by hand before any pack contains it |
+
+Either way the row is appended after the generated ones and recorded in the world,
+so the next build puts it back in the same place. Appended rather than sorted: a row
+inserted ahead of an existing one would move its band and strand whatever is built
+there. Anything past 64 chunks is refused, since at that size it is a typo rather
+than a building, and one row will not cover more than 4096 chunks counting plots
+times footprint.
+
+A row keeps its band whether or not it holds plots, which is what stops growing one
+moving anything already built. Nothing is painted for a row with no plots, so build
+time and world size do not pay for the space: the shipped catalogue lays out 388
+plots over 496 chunks, and `/lcdev workshop build` reports all three numbers.
 
 !!! warning "Upgrading from 1.x moves an existing workshop"
 
@@ -510,9 +519,10 @@ published results were produced on.
 | `mod/tools/check-workshop.py` | The dimension exists, the catalogue lays out without two touching plots sharing a colour, and every plot's settings file round trips through `/lcdev plot` |
 | `mod/tools/check-export.py` | The compiler writes a pack, and that pack, installed as a datapack, generates a city with the workshop's blocks in it |
 | `mod/tools/check-export-plot.py` | `export <name> plot` writes the plot you stand on and its palette, leaves the neighbouring plot out, writes nothing that claims to be a world, and takes its flags in either order |
-| `mod/tools/check-import.py` | Lost Cities' own pack imports: 42 assets onto 42 plots, and what lands has the settings to export again |
+| `mod/tools/check-import.py` | Lost Cities' own pack imports: 49 assets onto 49 plots, and what lands has the settings to export again. It was 42 until the import began following profiles: the shipped `largecities` profile names a city style no world style does |
 | `mod/tools/check-import-fidelity.py` | A band naming two parts comes in showing both, and a palette `tag` reaches the block |
 | `mod/tools/check-import-profile.py` | A city style named only by a profile's `cityStyleAlternative` imports, an export keeps it off the world style's list and points the profile it writes at it, and an alternative below an unreachable threshold imports with a warning |
+| `mod/tools/check-version-and-grow.py` | Every version shown names which version it is, the registry records the running Lost Cities beside the catalogue's own, a footprint past the catalogue can be grown by hand with nothing imported, and the row counts written in the docs match what ships |
 | `mod/tools/check-multibuilding-size.py` | A footprint past the generated catalogue gets a row in either dimension, no plot that existed before the import moves, the rows come back at the same coordinates after a restart, and a footprint past the sanity ceiling is refused |
 | `mod/tools/check-suggest-speed.py` | A suggestion provider stays inside a 50 ms budget with 911 assets loaded, and the cache behind it notices a `/reload` |
 | `mod/tools/check-loud-output.py` | A lookup that matches everything answers in a few lines rather than hundreds |

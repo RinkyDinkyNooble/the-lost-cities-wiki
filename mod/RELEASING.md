@@ -20,7 +20,7 @@ the new line rather than a release cycle of them.
 
 **The two files carry the same feature number only while both lines move together.**
 That held through `3.0.0`, where the second file was the same mod against a different
-target. It stopped holding at `3.1.0-7.5`, which carries two import fixes that were
+target. It stopped holding at `3.1.1-7.5`, which carries two import fixes that were
 not back-ported to 7.4.12. Once the lines diverge, the number has to say so: a user
 picking between the files needs to see which one is ahead. Keep them level where they
 are level, and bump where they are not.
@@ -74,6 +74,7 @@ python mod/tools/check-loud-output.py
 python mod/tools/check-import-fidelity.py
 python mod/tools/check-import-profile.py
 python mod/tools/check-multibuilding-size.py
+python mod/tools/check-version-and-grow.py
 python mod/tools/check-clear.py
 python mod/tools/check-part-reuse.py
 python mod/tools/check-tag-export.py
@@ -89,10 +90,14 @@ python mod/tools/check-palette-pool.py
 python mod/tools/check-config.py
 ```
 
-The first four need no server and finish in about a second each. The other
-twenty two boot at least one apiece; most take about thirty seconds and
-`check-config` takes four minutes because it boots eight times. Run them one at a
-time: two servers cannot share the rig. All twenty six end in `all checks passed`:
+There are 31. Five need no server and finish in about a second each:
+`check-mixin-targets`, `check-validator`, `check-layout`, `check-tags` and
+`check-licence-text`. The other 26 boot at least one apiece; most take about thirty
+seconds, `check-config` takes four minutes because it boots eight times, and three
+boot twice. Run them one at a time: two servers cannot share the rig.
+
+**Read the exit code, not the tail.** Every one of them exits non-zero on failure,
+and piping through `tail` reports `tail`'s status, which is always 0.
 
 - [ ] `check-mixin-targets`, every injection point resolves in every supported Lost
       Cities version, by exact descriptor and by call count inside its method. Reads
@@ -104,7 +109,7 @@ time: two servers cannot share the rig. All twenty six end in `all checks passed
       file
 - [ ] `check-workshop`, the dimension and the catalogue
 - [ ] `check-export`, the pack generates a city, gold block count non-zero
-- [ ] `check-import`, Lost Cities' own pack comes in on 42 plots
+- [ ] `check-import`, Lost Cities' own pack comes in on 49 plots
 - [ ] `check-roundtrip`, the two exports are byte identical and every plot holds
       the blocks it held
 - [ ] `check-import-twice`, a second import does not hide the first city, and a
@@ -118,6 +123,8 @@ time: two servers cannot share the rig. All twenty six end in `all checks passed
       export puts it back on the profile rather than on the world style
 - [ ] `check-multibuilding-size`, a footprint past the generated catalogue gets a
       row, and nothing already laid out moves to make space for it
+- [ ] `check-version-and-grow`, no bare version number is shown, and a footprint
+      can be grown by hand in a workshop that has imported nothing
 - [ ] `check-clear`, a confirmed clear leaves nothing standing and a shared short
       name does not block the backup
 - [ ] `check-layout`, growing a row moves nothing that already existed

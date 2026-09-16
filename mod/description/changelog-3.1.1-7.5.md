@@ -1,17 +1,16 @@
-# 3.1.0-7.5
+# 3.1.1-7.5
 
 For The Lost Cities 7.5.1 to 7.5.5, on Minecraft 1.20.1 and Forge 47+.
 
-Two import fixes, both found from a pack in the wild, and the supported range
-extended to 7.5.5.
+Everything since `3.0.0-7.5`. Two import fixes found from a pack in the wild, two
+faults found by running the build, and the supported range extended to 7.5.5.
 
 | Your Lost Cities | Download |
 |---|---|
 | 7.4.12 | `3.0.0` |
-| 7.5.1, 7.5.2, 7.5.3, 7.5.4, 7.5.5 | `3.1.0-7.5` |
+| 7.5.1, 7.5.2, 7.5.3, 7.5.4, 7.5.5 | `3.1.1-7.5` |
 
-The 7.5 file is now ahead of the 7.4.12 file. Both fixes below are in this one and
-not in `3.0.0`.
+The 7.5 file is now ahead of the 7.4.12 file. Nothing here is in `3.0.0`.
 
 ## An import now reads the profile, not only the world style
 
@@ -49,11 +48,15 @@ The catalogue stopped at 10x10, which is the largest footprint the default
 building, and packs do. An import had no plot for those, so it dropped the largest
 buildings a pack had.
 
-Footprints past the catalogue are now added to it when an import meets them.
+There are now two ways to get a plot for one:
+
+| | |
+|---|---|
+| Import a pack that holds it | The footprint is added as the import walks it |
+| `/lcdev workshop grow multibuilding/<w>x<h> <plots>` | Names it directly, for building one by hand before any pack contains it |
 
 ChaosZPack sets `areasize` to 16 and ships an 11x8 walmart and a 4x11. Both now
-import; before, both were dropped. Its two 16-wide aircraft carriers are in the jar
-and referenced by no city style, so they stay out either way.
+import; before, both were dropped.
 
 Rows are appended in the order they are first seen and that order is saved with the
 world, so a build after a restart puts them back in the same place. Nothing that was
@@ -62,6 +65,31 @@ after, none of them moved**.
 
 A footprint past 64 chunks is refused and named. At that size it is a typo in `dimx`
 rather than a building.
+
+One row will not cover more than 4096 chunks either, counting plots times footprint.
+The old limit was 512 plots and said nothing about how big each was, which was
+harmless while nothing exceeded 10x10 and is not once a row can be 64x64. Asking for
+more says how many would fit instead of painting them.
+
+## The workshop said a version that was not the one running
+
+`/lcdev workshop go` printed `Workshop version 7.5.4`. That number came from the
+shipped catalogue, which is generated against one Lost Cities jar at build time, and
+it said 7.5.4 whichever version was actually installed. Labelled "version" with
+nothing to say which version, it read as the mod reporting what it had found.
+
+Every place that shows one now names its subject, and says plainly when the reference
+is older than the game:
+
+```
+Workshop  catalogue for Lost Cities 7.5.4
+! This reference was generated for Lost Cities 7.5.4 and this server runs 7.5.5.
+  Anything 7.5.5 added is not described here, has no plot in the catalogue, and is
+  not written by an export.
+```
+
+The world registry records both, as `catalogueForLostCities` and
+`runningLostCities`, because they are two facts.
 
 ## Supported range
 
@@ -89,5 +117,6 @@ it does not:
 
 Nothing here throws and no pack is refused: the asset check has no list of permitted
 keys, so a 7.5.5 pack using them loads and generates normally. What is lost is the
-authoring support for those six, on 7.5.5 only. Regenerating the reference needs the
-same per-version pass every other version had.
+authoring support for those six, on 7.5.5 only. The workshop now says so on screen
+rather than leaving it to be discovered. Regenerating the reference needs the same
+per-version pass every other version had.

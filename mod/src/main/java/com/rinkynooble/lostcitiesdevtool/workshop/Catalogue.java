@@ -210,6 +210,35 @@ public final class Catalogue {
         return id;
     }
 
+    /**
+     * The footprint a row id names, without making a row for it.
+     *
+     * <p>Separate from {@link #registerMulti} so a caller can decide whether it
+     * wants the row before it exists. Registering and then refusing would leave a
+     * band behind for a command that answered no.
+     *
+     * @return {@code {width, height}}, or null where the id is not a footprint this
+     *         will lay out
+     */
+    @Nullable
+    public static int[] multiSize(String id) {
+        return sizeOf(id);
+    }
+
+    /**
+     * The same, from a row id rather than a pair.
+     *
+     * <p>For the command, which is handed {@code multibuilding/11x11} as text and
+     * should not have to take it apart to ask for it.
+     *
+     * @return the row id, or null where the id is not a footprint this will lay out
+     */
+    @Nullable
+    public static synchronized String registerMulti(String id) {
+        int[] size = sizeOf(id);
+        return size == null ? null : registerMulti(size[0], size[1]);
+    }
+
     /** What has been registered, for the world record to write down. */
     public static List<String> extraMultis() {
         return extraMultis;

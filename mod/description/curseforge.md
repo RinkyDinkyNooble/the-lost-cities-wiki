@@ -22,9 +22,9 @@ cannot serve both lines.
 | Your Lost Cities | Download |
 |---|---|
 | 7.4.12 | `3.0.0` |
-| 7.5.1, 7.5.2, 7.5.3, 7.5.4, 7.5.5 | `3.1.0-7.5` |
+| 7.5.1, 7.5.2, 7.5.3, 7.5.4, 7.5.5 | `3.1.1-7.5` |
 
-The two files were the same mod through `3.0.0`. From `3.1.0-7.5` the 7.5 file is
+The two files were the same mod through `3.0.0`. From `3.1.1-7.5` the 7.5 file is
 ahead: it carries two import fixes the 7.4.12 file does not.
 
 ---
@@ -46,10 +46,12 @@ usually tells you in a way that does not name the file.
 ## Build a pack by building it
 
 The workshop is a dimension laid out as a catalogue, with a plot for every shape a pack
-can hold: 138 rows covering streets, highways, railways, monorails, parks, fountains,
+can hold: 146 rows covering streets, highways, railways, monorails, parks, fountains,
 bridges, stairs, fronts, rail dungeons, buildings, and every multibuilding footprint up
-to the 10x10 that is as wide as one can be. Each plot sits on chunk boundaries and is
-floor marked in its own colour. Rows start at eight plots and grow as far as you want.
+to the 10x10 that fits the default placement area. Widen `multisettings.areasize` and
+you can have bigger ones: name the footprint with `grow` and a plot appears for it.
+Each plot sits on chunk boundaries and is floor marked in its own colour. Rows start at
+eight plots and grow as far as you want.
 
 ```
 /lcdev workshop build     lay the catalogue out
@@ -80,7 +82,7 @@ walk around it and edit it:
 /lcdev import lostcities:standard
 ```
 
-The Lost Cities default pack comes in as **42 assets on 42 plots, 714,240 blocks**,
+The Lost Cities default pack comes in as **49 assets on 49 plots, 782,080 blocks**,
 streets included, even though nothing in that pack names a street part. Change one
 building and compile the whole thing back out.
 

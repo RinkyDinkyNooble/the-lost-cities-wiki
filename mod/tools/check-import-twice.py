@@ -12,7 +12,7 @@ their settings, so the workshop ends up holding two cities at once and the next
 export writes both of them into one pack without saying so.
 
 The second pack here is smaller than the first on purpose. Lost Cities' own pack
-fills 42 plots; this one fills one. Everything in the gap is the bug.
+fills 49 plots; this one fills one. Everything in the gap is the bug.
 
 The pack is written here rather than exported by a first server, so the whole check
 is one boot.

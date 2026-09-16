@@ -7,6 +7,7 @@ import com.rinkynooble.lostcitiesdevtool.chat.Chat;
 import com.rinkynooble.lostcitiesdevtool.workshop.Catalogue;
 import com.rinkynooble.lostcitiesdevtool.workshop.Layout;
 import com.rinkynooble.lostcitiesdevtool.workshop.Sync;
+import com.rinkynooble.lostcitiesdevtool.workshop.Versions;
 import com.rinkynooble.lostcitiesdevtool.workshop.Wipe;
 import com.rinkynooble.lostcitiesdevtool.workshop.Workshop;
 import net.minecraft.commands.CommandSourceStack;
@@ -218,23 +219,72 @@ public class WorkshopCommand {
      * Lay out more plots in one row, or lay out a row that has none.
      *
      * <p>A row's number in the catalogue is where it starts, not what it holds. Every
-     * multi-building footprint up to the world style's area size exists as a row, and
-     * the large ones are declared with no plots because painting them all would be
-     * thousands of chunks of floor for shapes most packs never use.
+     * multi-building footprint up to the <b>default</b> area size of 10 exists as a
+     * row, and the large ones are declared with no plots because painting them all
+     * would be thousands of chunks of floor for shapes most packs never use.
+     *
+     * <p>Past that default there is no row until somebody asks for one, by importing
+     * a pack that holds the footprint or by naming it here. Naming it here is the
+     * only way to build one by hand, which is what this exists for.
      *
      * <p>Rows only ever get longer. Shrinking one would move every plot after it and
      * orphan whatever was built there.
      */
+    /**
+     * Say no to a row that would paint an unreasonable amount of floor.
+     *
+     * <p>{@code MAX_PLOTS_IN_ROW} bounds the count and says nothing about the size
+     * of each, which was enough while nothing exceeded 10 by 10. A 64 by 64 row at
+     * the count limit is two million chunks, laid out and painted on the server
+     * thread before the command answers.
+     *
+     * @return true when it refused, and it has already said so
+     */
+    private static boolean refuseArea(CommandSourceStack source, int width,
+                                      int height, int want) {
+        int allowed = Layout.plotsAllowed(width, height);
+        if (want <= allowed) {
+            return false;
+        }
+        Chat.fail(source, want + " plots of " + width + "x" + height + " is "
+                        + ((long) want * width * height) + " chunks of floor",
+                "the limit is " + Layout.MAX_CHUNKS_IN_ROW + " chunks a row",
+                "At this footprint that is " + allowed
+                        + (allowed == 1 ? " plot" : " plots"));
+        return true;
+    }
+
     private static int grow(com.mojang.brigadier.context.CommandContext<CommandSourceStack> ctx) {
         CommandSourceStack source = ctx.getSource();
         // A row id has a slash in it, which a quotable string argument will not
         // take unquoted. A resource location will: every row id is a legal path.
         String id = ResourceLocationArgument.getId(ctx, "row").getPath();
         int want = IntegerArgumentType.getInteger(ctx, "plots");
+        boolean added = false;
         Catalogue.Row row = Catalogue.row(id);
         if (row == null) {
+            // A multi-building footprint the generated catalogue does not have is
+            // made rather than refused. The catalogue stops at the default
+            // `multisettings.areasize` of 10, not at what a pack may declare, and
+            // somebody widening the area and building a 11x11 by hand should not
+            // have to import a pack that already contains one to get a plot for it.
+            //
+            // Measured before it is made, not after. A row registered and then
+            // refused for its area would leave a band behind for a command that
+            // answered no, and bands are never taken back.
+            int[] size = Catalogue.multiSize(id);
+            if (size != null && !refuseArea(source, size[0], size[1], want)) {
+                String made = Catalogue.registerMulti(id);
+                row = made == null ? null : Catalogue.row(made);
+                added = row != null;
+            } else if (size != null) {
+                return 0;
+            }
+        }
+        if (row == null) {
             Chat.fail(source, "No row named " + id, "catalogue.json",
-                    "/lcdev workshop rows lists every one");
+                    "/lcdev workshop rows lists every one. A multibuilding/<w>x<h> "
+                            + "up to " + Catalogue.MAX_MULTI + " is made on demand");
             return 0;
         }
         if (row.kind() == Catalogue.Kind.SINGLE) {
@@ -244,6 +294,13 @@ public class WorkshopCommand {
                             + "rather than a longer row");
             return 0;
         }
+        // Only for a row that already existed. One that was just added was measured
+        // before it was made, and asking twice would leave a reader unsure which of
+        // the two is the one that fires.
+        if (!added && refuseArea(source, row.width(), row.height(), want)) {
+            return 0;
+        }
+
         ServerLevel workshop = Workshop.level(source.getServer());
         if (workshop == null) {
             Chat.fail(source, "The workshop dimension is not loaded",
@@ -257,6 +314,17 @@ public class WorkshopCommand {
         Workshop.Built built = Workshop.build(workshop);
 
         Chat.header(source, "Grown", row.id());
+        if (added) {
+            Chat.kv(source, "row", "added, " + row.width() + "x" + row.height()
+                    + " chunks");
+            Chat.note(source, "The catalogue had no row this size. It was appended "
+                    + "after the others, so nothing already laid out moved, and it "
+                    + "is saved with the world. A footprint wider than the world "
+                    + "style's multisettings.areasize throws during generation, so "
+                    + "raise that to at least "
+                    + Math.max(row.width(), row.height()) + " in the pack that "
+                    + "uses it.");
+        }
         Chat.kv(source, "plots", before + " to " + after);
         if (after == before) {
             Chat.note(source, "Already at least that long. Rows only get longer, "
@@ -296,7 +364,11 @@ public class WorkshopCommand {
         // Above the floor, over the front desk at the origin.
         player.teleportTo(workshop, 8.5, Layout.FLOOR_Y + 1.0, 8.5,
                 player.getYRot(), player.getXRot());
-        Chat.header(source, "Workshop", "version " + Catalogue.version());
+        Chat.header(source, "Workshop", "catalogue for Lost Cities "
+                + Versions.catalogue());
+        if (Versions.mismatch() != null) {
+            Chat.warn(source, Versions.mismatch());
+        }
         Chat.note(source, "The front desk is the plot you are standing on. "
                 + "Buildings are east, infrastructure is west.");
         Chat.note(source, "`/lcdev workshop leave` puts you back where you ran this.");
@@ -439,7 +511,11 @@ public class WorkshopCommand {
         Workshop.Built built = Workshop.build(workshop);
         long took = System.currentTimeMillis() - started;
 
-        Chat.header(source, "Workshop built", "version " + Catalogue.version());
+        Chat.header(source, "Workshop built", "catalogue for Lost Cities "
+                + Versions.catalogue());
+        if (Versions.mismatch() != null) {
+            Chat.warn(source, Versions.mismatch());
+        }
         Chat.kv(source, "rows", String.valueOf(Catalogue.rows().size()));
         Chat.kv(source, "plots", String.valueOf(built.plots()));
         Chat.kv(source, "chunks", String.valueOf(built.chunks()));
@@ -462,7 +538,11 @@ public class WorkshopCommand {
             return 0;
         }
 
-        Chat.header(source, "Catalogue", "version " + Catalogue.version());
+        Chat.header(source, "Catalogue", "for Lost Cities "
+                + Versions.catalogue());
+        if (Versions.mismatch() != null) {
+            Chat.warn(source, Versions.mismatch());
+        }
 
         Map<String, Integer> families = new LinkedHashMap<>();
         int plots = 0;
