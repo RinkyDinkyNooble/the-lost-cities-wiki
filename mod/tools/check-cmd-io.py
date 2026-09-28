@@ -31,6 +31,7 @@ What it asserts:
     wrong is a bare name that means `lostcities:` rather than the pack's own
     namespace, which is the format's rule and not this mod's.
 """
+import atexit
 import glob
 import io
 import json
@@ -54,11 +55,28 @@ LOADER = "net/minecraftforge/forge/1.20.1-47.4.10"
 WORKSHOP = "lostcitiesdevtool:workshop"
 WORLD = os.path.join(SERVER, "world")
 PLOTS = os.path.join(WORLD, "lostcitiesdevtool", "plots.json")
-EXPORTS = os.path.join(SERVER, "config", "lostcitiesdevtool", "exports")
+TOOLDIR = os.path.join(SERVER, "config", "lostcitiesdevtool")
+EXPORTS = os.path.join(TOOLDIR, "exports")
+BACKUPS = os.path.join(TOOLDIR, "backups")
+SENTINEL = os.path.join(BACKUPS, "check-cmd-io", "keep.txt")
+# What an export named `..` writes where the exports and backups were, on a build
+# without the guard. Removed either way, so a red run leaves the rig as it found it.
+STRAYS = [os.path.join(TOOLDIR, n) for n in ("data", "profile", "pack.mcmeta")]
 BASE = -63
 NS = "iopack"
 
 failures = []
+
+
+def tidy():
+    for path in STRAYS + [os.path.dirname(SENTINEL)]:
+        if os.path.isdir(path):
+            shutil.rmtree(path)
+        elif os.path.isfile(path):
+            os.remove(path)
+
+
+atexit.register(tidy)
 
 
 def fail(msg):
@@ -259,6 +277,29 @@ try:
         if "Exported" not in forced:
             fail("-f did not overwrite, so there is no way to re-export a pack "
                  "under the name it already has")
+
+        print("\n" + "=" * 72)
+        print("7. a name cannot climb out of the exports folder")
+        # `..` is a legal word to the argument. Resolved as written it names the
+        # folder holding every export and every wipe backup, the refusal above says
+        # to pass -f, and -f deleted the lot. `.` names the exports folder itself.
+        # The damage is asserted before the wording, because it is the one cause.
+        tidy()
+        os.makedirs(os.path.dirname(SENTINEL), exist_ok=True)
+        io.open(SENTINEL, "w", encoding="utf-8").write("a backup somebody needs\n")
+        for name in ("..", "."):
+            said = con.command("lcdev export %s -f" % name).rstrip()
+            print("  %-3s %s" % (name, said.replace("\n", " ")[:170]))
+            if not os.path.isfile(SENTINEL):
+                fail("an export named %s deleted a wipe backup outside the exports "
+                     "folder" % name)
+                break
+            if not os.path.isdir(os.path.join(EXPORTS, "once")):
+                fail("an export named %s deleted the export written in case 6" % name)
+                break
+            if "cannot name an export" not in said:
+                fail("an export named %s was not refused with the rule it broke"
+                     % name)
 finally:
     try:
         with Rcon(port=25575, password="lcwiki") as con:

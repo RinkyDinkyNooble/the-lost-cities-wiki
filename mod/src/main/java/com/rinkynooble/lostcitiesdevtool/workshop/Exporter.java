@@ -194,7 +194,7 @@ public final class Exporter {
     public static Result run(MinecraftServer server, ServerLevel level, String name,
                              Options options) throws IOException {
         Path root = options.root() != null ? options.root()
-                : exportsRoot(server).resolve(name);
+                : exportFolder(server, name);
         JsonObject core = SettingsStore.load(server, Layout.CORE_ID);
         PaletteLedger ledger = PaletteLedger.load(server);
         Exporter exporter = new Exporter(server, level, ledger, core, options);
@@ -223,6 +223,32 @@ public final class Exporter {
     public static Path exportsRoot(MinecraftServer server) {
         return Path.of("config", "lostcitiesdevtool", "exports")
                 .toAbsolutePath().normalize();
+    }
+
+    /**
+     * The folder an export of this name is written to, and nowhere else.
+     *
+     * <p>The name comes from a command argument that accepts dots, so {@code ..} is
+     * a legal word. Resolved as written it named the folder holding every export
+     * and every wipe backup, the refusal to overwrite it said to pass {@code -f},
+     * and {@code -f} then deleted all of it before writing the pack in its place.
+     * {@code .} named the exports folder itself. A name has to be one folder
+     * directly inside the exports folder, and not a hidden one.
+     *
+     * @throws IOException naming the rule, for any other name
+     */
+    public static Path exportFolder(MinecraftServer server, String name)
+            throws IOException {
+        Path exports = exportsRoot(server);
+        Path folder = exports.resolve(name).normalize();
+        if (name.isBlank() || name.startsWith(".")
+                || !exports.equals(folder.getParent())) {
+            throw new IOException(name + " cannot name an export. An export is "
+                    + "written to a folder of that name inside "
+                    + exports.getFileName() + ", so it cannot start with a dot or "
+                    + "climb out of that folder. Use letters, digits, - and _");
+        }
+        return folder;
     }
 
     /** Where a wipe puts the copy it takes before destroying anything. */
