@@ -10,7 +10,6 @@ import net.minecraft.server.packs.PathPackResources;
 import net.minecraft.server.packs.resources.IoSupplier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.world.level.storage.LevelResource;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -61,7 +60,6 @@ import java.util.stream.Stream;
  */
 public final class Attribution {
 
-    private static final String DIR = "lostcitiesdevtool";
     private static final String LICENCES = "licences";
 
     /**
@@ -343,8 +341,7 @@ public final class Attribution {
     // ------------------------------------------------------------------ keeping
 
     public static Path root(MinecraftServer server) {
-        return server.getWorldPath(LevelResource.ROOT).resolve(DIR)
-                .resolve(LICENCES).toAbsolutePath().normalize();
+        return Folders.world(server).resolve(LICENCES);
     }
 
     /**

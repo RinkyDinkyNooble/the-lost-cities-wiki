@@ -48,16 +48,6 @@ public class ServerEvents {
     }
 
     /**
-     * Says once, in chat, which files are shadowed.
-     *
-     * <p>The log carries the same wording, but a shadowed file is the kind of fault an
-     * author hits while testing rather than while reading logs, and the symptom is an
-     * edit that appears to do nothing.
-     *
-     * <p>Operators only. On a shared server nobody else can act on it, and the profile
-     * half of the list is settled before any player is in a position to change it.
-     */
-    /**
      * Read back the rows a previous import grew, before anything asks the layout
      * where a plot is.
      *
@@ -72,6 +62,16 @@ public class ServerEvents {
                 .loadGrownRows(event.getServer());
     }
 
+    /**
+     * Says once, in chat, which files are shadowed.
+     *
+     * <p>The log carries the same wording, but a shadowed file is the kind of fault an
+     * author hits while testing rather than while reading logs, and the symptom is an
+     * edit that appears to do nothing.
+     *
+     * <p>Operators only. On a shared server nobody else can act on it, and the profile
+     * half of the list is settled before any player is in a position to change it.
+     */
     @SubscribeEvent
     public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
         if (!Config.on(Config.INSTANCE.warnOnJson5Override, true)) {

@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.rinkynooble.lostcitiesdevtool.core.Json;
 import mcjty.lostcities.config.LostCityProfile;
 import mcjty.lostcities.config.ProfileSetup;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
@@ -399,13 +400,13 @@ public final class Importer {
         if (world.has("outsidestyle")) {
             outsideStyle = world.get("outsidestyle").getAsString();
         }
-        for (JsonElement e : array(world, "citystyles")) {
+        for (JsonElement e : Json.array(world, "citystyles")) {
             if (!e.isJsonObject() || !e.getAsJsonObject().has("citystyle")) {
                 continue;
             }
             walkCityStyle(e.getAsJsonObject().get("citystyle").getAsString());
         }
-        JsonObject parts = object(world, "parts");
+        JsonObject parts = Json.object(world, "parts");
         if (parts != null) {
             walkFamily(parts, "highways", "highway");
             walkFamily(parts, "railways", "railway");
@@ -519,7 +520,7 @@ public final class Importer {
         String styleName = style.has("style")
                 ? style.get("style").getAsString() : "standard";
 
-        JsonObject selectors = object(style, "selectors");
+        JsonObject selectors = Json.object(style, "selectors");
         if (selectors != null) {
             for (String key : selectors.keySet()) {
                 String rowId = "buildings".equals(key) ? "building/1x1"
@@ -555,8 +556,8 @@ public final class Importer {
         // says otherwise. None of the mod's own city styles name any, which is why
         // an import that only read what was written found no streets at all and
         // left every street row empty.
-        JsonObject street = object(style, "streetblocks");
-        JsonObject streetParts = street == null ? null : object(street, "parts");
+        JsonObject street = Json.object(style, "streetblocks");
+        JsonObject streetParts = street == null ? null : Json.object(street, "parts");
         boolean saysNothing = streetParts == null || streetParts.keySet().isEmpty();
         for (Map.Entry<String, String> shape : STREET_DEFAULTS.entrySet()) {
             String rowId = "street/" + shape.getKey();
@@ -597,8 +598,8 @@ public final class Importer {
             warnings.add("multibuilding " + name + " is referenced and not loaded");
             return null;
         }
-        int w = intOf(multi, "dimx", 1);
-        int h = intOf(multi, "dimz", 1);
+        int w = Json.intOf(multi, "dimx", 1);
+        int h = Json.intOf(multi, "dimz", 1);
         // The generated catalogue stops at the default placement area of 10. A pack
         // that widens `multisettings.areasize` may ship more than that and generate
         // it, so the footprint is made room for rather than refused: dropping it lost
@@ -616,7 +617,7 @@ public final class Importer {
     }
 
     private void walkFamily(JsonObject parts, String family, String prefix) {
-        JsonObject shapes = object(parts, family);
+        JsonObject shapes = Json.object(parts, family);
         if (shapes == null) {
             return;
         }
@@ -901,7 +902,7 @@ public final class Importer {
         // `top: false`. A plot is a fixed place and has to show something, so it
         // shows the alternatives one above the other, which is what the building can
         // be made of. pinFloors keeps the export from writing a count back.
-        boolean pinned = intOf(building, "maxfloors", -1) >= 0;
+        boolean pinned = Json.intOf(building, "maxfloors", -1) >= 0;
         List<JsonObject> bag = new ArrayList<>();
         for (JsonElement e : parts) {
             if (e.isJsonObject() && e.getAsJsonObject().has("part")
@@ -909,9 +910,9 @@ public final class Importer {
                 bag.add(e.getAsJsonObject());
             }
         }
-        int floors = pinned ? Math.max(intOf(building, "maxfloors", 0), 0)
+        int floors = pinned ? Math.max(Json.intOf(building, "maxfloors", 0), 0)
                 : Math.max(0, Math.min(bag.size(), MAX_SHOWN) - 1);
-        int cellars = Math.max(intOf(building, "maxcellars", -1), 0);
+        int cellars = Math.max(Json.intOf(building, "maxcellars", -1), 0);
 
         settings.addProperty("floors", floors);
         settings.addProperty("cellars", cellars);
@@ -1172,8 +1173,8 @@ public final class Importer {
                 ? part.getAsJsonArray("slices") : new JsonArray();
         int x0 = plot.blockMinX() + dx * 16;
         int z0 = plot.blockMinZ() + dz * 16;
-        int xsize = Math.max(0, Math.min(16, intOf(part, "xsize", 16)));
-        int zsize = Math.max(0, Math.min(16, intOf(part, "zsize", 16)));
+        int xsize = Math.max(0, Math.min(16, Json.intOf(part, "xsize", 16)));
+        int zsize = Math.max(0, Math.min(16, Json.intOf(part, "zsize", 16)));
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
         Set<Character> used = new LinkedHashSet<>();
 
@@ -1274,7 +1275,7 @@ public final class Importer {
             warnings.add("style " + styleName + " is referenced and not loaded, so "
                     + "the parts using it pasted as air");
         } else {
-            for (JsonElement group : array(style, "randompalettes")) {
+            for (JsonElement group : Json.array(style, "randompalettes")) {
                 if (!group.isJsonArray() || group.getAsJsonArray().isEmpty()) {
                     continue;
                 }
@@ -1294,7 +1295,7 @@ public final class Importer {
     }
 
     private void readPalette(JsonObject palette, Map<Character, Cell> into) {
-        for (JsonElement e : array(palette, "palette")) {
+        for (JsonElement e : Json.array(palette, "palette")) {
             if (!e.isJsonObject()) {
                 continue;
             }
@@ -1347,7 +1348,7 @@ public final class Importer {
             JsonObject variant = assets.get("variants",
                     entry.get("variant").getAsString());
             if (variant != null) {
-                for (JsonElement e : array(variant, "blocks")) {
+                for (JsonElement e : Json.array(variant, "blocks")) {
                     if (e.isJsonObject() && e.getAsJsonObject().has("block")) {
                         return parse(e.getAsJsonObject().get("block").getAsString());
                     }
@@ -1432,24 +1433,5 @@ public final class Importer {
     private static String namespaceOf(String name) {
         return name.contains(":") ? name.substring(0, name.indexOf(':'))
                 : "lostcities";
-    }
-
-    private static JsonArray array(JsonObject o, String key) {
-        return o.has(key) && o.get(key).isJsonArray()
-                ? o.getAsJsonArray(key) : new JsonArray();
-    }
-
-    @Nullable
-    private static JsonObject object(JsonObject o, String key) {
-        return o.has(key) && o.get(key).isJsonObject()
-                ? o.getAsJsonObject(key) : null;
-    }
-
-    private static int intOf(JsonObject o, String key, int fallback) {
-        try {
-            return o.has(key) ? o.get(key).getAsInt() : fallback;
-        } catch (RuntimeException e) {
-            return fallback;
-        }
     }
 }

@@ -88,18 +88,12 @@ public final class Chat {
 
     /** A section heading, with a rule above it so blocks of output separate. */
     public static void header(CommandSourceStack source, String text) {
-        send(source, Component.literal(RULE).withStyle(ChatFormatting.DARK_GRAY));
-        send(source, Component.literal(text)
-                .withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD));
+        header(source, text, "");
     }
 
     /** A heading with a trailing detail that is not part of the title. */
     public static void header(CommandSourceStack source, String text, String detail) {
-        send(source, Component.literal(RULE).withStyle(ChatFormatting.DARK_GRAY));
-        send(source, Component.literal(text)
-                .withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD)
-                .append(Component.literal("  " + detail)
-                        .withStyle(ChatFormatting.DARK_GRAY)));
+        headerLines(text, detail).forEach(line -> send(source, line));
     }
 
     // ---------------------------------------------------------------- key, value
@@ -114,16 +108,13 @@ public final class Chat {
      */
     public static void kv(CommandSourceStack source, String key, String value,
                           @Nullable Component hover) {
-        MutableComponent name = Component.literal(key).withStyle(ChatFormatting.GRAY);
+        MutableComponent name = key(key);
         if (hover != null) {
             name = name.withStyle(s -> s
                     .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hover))
                     .withUnderlined(true));
         }
-        send(source, Component.literal(BULLET).withStyle(ChatFormatting.DARK_GRAY)
-                .append(name)
-                .append(Component.literal("  ").withStyle(ChatFormatting.DARK_GRAY))
-                .append(value(value)));
+        send(source, fact(name, value(value)));
     }
 
     /** A fact whose key is a profile key, so the mod's own description is available. */
@@ -199,10 +190,7 @@ public final class Chat {
                                 Component.literal(canRun
                                         ? "Click to teleport here"
                                         : "Click to put the teleport in your chat box"))));
-        send(source, Component.literal(BULLET).withStyle(ChatFormatting.DARK_GRAY)
-                .append(Component.literal(key).withStyle(ChatFormatting.GRAY))
-                .append(Component.literal("  ").withStyle(ChatFormatting.DARK_GRAY))
-                .append(target));
+        send(source, fact(key(key), target));
     }
 
     /**
@@ -228,10 +216,7 @@ public final class Chat {
                                         : "Click to put this in your chat box: ")
                                         + x + " " + y + " " + z)
                                         .withStyle(ChatFormatting.GRAY))));
-        send(source, Component.literal(BULLET).withStyle(ChatFormatting.DARK_GRAY)
-                .append(Component.literal(key).withStyle(ChatFormatting.GRAY))
-                .append(Component.literal("  ").withStyle(ChatFormatting.DARK_GRAY))
-                .append(target));
+        send(source, fact(key(key), target));
     }
 
     /** A file path that offers to copy itself, since nobody can type one from chat. */
@@ -244,10 +229,7 @@ public final class Chat {
                         .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
                                 Component.literal(path + "\n\nClick to copy")
                                         .withStyle(ChatFormatting.GRAY))));
-        send(source, Component.literal(BULLET).withStyle(ChatFormatting.DARK_GRAY)
-                .append(Component.literal(key).withStyle(ChatFormatting.GRAY))
-                .append(Component.literal("  ").withStyle(ChatFormatting.DARK_GRAY))
-                .append(target));
+        send(source, fact(key(key), target));
     }
 
     // -------------------------------------------------------------------- prose
@@ -311,6 +293,18 @@ public final class Chat {
     }
 
     // ------------------------------------------------------------------ internals
+
+    /** The shape of every fact: a dim bullet, the key, and what it points at. */
+    private static Component fact(Component key, Component target) {
+        return Component.literal(BULLET).withStyle(ChatFormatting.DARK_GRAY)
+                .append(key)
+                .append(Component.literal("  ").withStyle(ChatFormatting.DARK_GRAY))
+                .append(target);
+    }
+
+    private static MutableComponent key(String key) {
+        return Component.literal(key).withStyle(ChatFormatting.GRAY);
+    }
 
     /** A value, cut to one line, with the whole of it on hover when it does not fit. */
     private static Component value(String text) {

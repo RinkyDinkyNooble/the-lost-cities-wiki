@@ -1,12 +1,11 @@
 package com.rinkynooble.lostcitiesdevtool.workshop;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.JsonOps;
 import com.rinkynooble.lostcitiesdevtool.chat.ProfileKeys;
+import com.rinkynooble.lostcitiesdevtool.core.Json;
 import com.rinkynooble.lostcitiesdevtool.json5.Json5;
 import com.rinkynooble.lostcitiesdevtool.validate.AssetValidator;
 import com.rinkynooble.lostcitiesdevtool.validate.Finding;
@@ -171,7 +170,7 @@ public final class Exporter {
         this.level = level;
         this.ledger = ledger;
         this.core = core;
-        this.namespace = string(core, "namespace", "mypack");
+        this.namespace = Json.string(core, "namespace", "mypack");
     }
 
     // -------------------------------------------------------------------- entry
@@ -204,8 +203,7 @@ public final class Exporter {
 
     public static Result run(MinecraftServer server, ServerLevel level, String name,
                              Options options) throws IOException {
-        Path root = options.root() != null ? options.root()
-                : exportFolder(server, name);
+        Path root = options.root() != null ? options.root() : exportFolder(name);
         JsonObject core = SettingsStore.load(server, Layout.CORE_ID);
         PaletteLedger ledger = PaletteLedger.load(server);
         Exporter exporter = new Exporter(server, level, ledger, core, options);
@@ -231,11 +229,6 @@ public final class Exporter {
                 root);
     }
 
-    public static Path exportsRoot(MinecraftServer server) {
-        return Path.of("config", "lostcitiesdevtool", "exports")
-                .toAbsolutePath().normalize();
-    }
-
     /**
      * The folder an export of this name is written to, and nowhere else.
      *
@@ -248,9 +241,8 @@ public final class Exporter {
      *
      * @throws IOException naming the rule, for any other name
      */
-    public static Path exportFolder(MinecraftServer server, String name)
-            throws IOException {
-        Path exports = exportsRoot(server);
+    public static Path exportFolder(String name) throws IOException {
+        Path exports = Folders.exports();
         Path folder = exports.resolve(name).normalize();
         if (name.isBlank() || name.startsWith(".")
                 || !exports.equals(folder.getParent())) {
@@ -260,12 +252,6 @@ public final class Exporter {
                     + "climb out of that folder. Use letters, digits, - and _");
         }
         return folder;
-    }
-
-    /** Where a wipe puts the copy it takes before destroying anything. */
-    public static Path backupsRoot(MinecraftServer server) {
-        return Path.of("config", "lostcitiesdevtool", "backups")
-                .toAbsolutePath().normalize();
     }
 
     // ------------------------------------------------------------------ compile
@@ -280,7 +266,7 @@ public final class Exporter {
                 continue;
             }
             JsonObject settings = SettingsStore.load(server, plot.id());
-            if (settings.keySet().isEmpty() || bool(settings, "skip", false)) {
+            if (settings.keySet().isEmpty() || Json.bool(settings, "skip", false)) {
                 continue;
             }
             settingsById.put(plot.id(), settings);
@@ -288,7 +274,7 @@ public final class Exporter {
             // workshop filled from three packs has to carry that plot's author's
             // terms and not the other two, or the fragment states something about
             // somebody's work that is not true of it.
-            String from = string(settings, "source", "");
+            String from = Json.string(settings, "source", "");
             if (!from.isEmpty()) {
                 sources.add(from);
             }
@@ -324,7 +310,7 @@ public final class Exporter {
         Map<String, List<String>> byName = new LinkedHashMap<>();
         for (Map.Entry<String, JsonObject> e : settingsById.entrySet()) {
             byName.computeIfAbsent(
-                    string(e.getValue(), "name", e.getKey().replace('/', '_')),
+                    Json.string(e.getValue(), "name", e.getKey().replace('/', '_')),
                     k -> new ArrayList<>()).add(e.getKey());
         }
         Set<String> taken = new LinkedHashSet<>();
@@ -365,7 +351,7 @@ public final class Exporter {
     private void compilePlot(Layout.Plot plot, JsonObject settings) {
         Catalogue.Row row = plot.row();
         String name = plotNames.getOrDefault(plot.id(),
-                string(settings, "name", plot.id().replace('/', '_')));
+                Json.string(settings, "name", plot.id().replace('/', '_')));
         boolean stacked = "buildings".equals(row.key())
                 || "multibuildings".equals(row.key());
 
@@ -374,7 +360,7 @@ public final class Exporter {
             // Honoured as written. A part that is not a level of a building
             // draws fine at a single slice, and every street shape the mod ships
             // is exactly one: a road is one layer of blocks.
-            int height = Math.max(1, intOf(settings, "height", 6));
+            int height = Math.max(1, Json.intOf(settings, "height", 6));
             String partName = name;
             // A flat plot is one part, so `building` and `part` mean the same
             // thing here: its own palette, carried in the file.
@@ -456,14 +442,14 @@ public final class Exporter {
                               JsonObject plotSettings) {
         partsByBody.clear();
         JsonObject settings = Settings.resolve(plotSettings, dx, dz, 0);
-        int cellars = Math.max(0, intOf(settings, "cellars", 0));
-        int floors = Math.max(0, intOf(settings, "floors", 1));
-        List<Integer> tops = ints(settings, "tops");
+        int cellars = Math.max(0, Json.intOf(settings, "cellars", 0));
+        int floors = Math.max(0, Json.intOf(settings, "floors", 1));
+        List<Integer> tops = Json.ints(settings, "tops");
 
         // A pack may leave the count to the profile, in which case the parts are a
         // bag the generator draws from rather than a fixed stack. Writing bounds
         // then would pin a building that was never meant to be pinned.
-        boolean pin = bool(settings, "pinFloors", true);
+        boolean pin = Json.bool(settings, "pinFloors", true);
         if (!pin && tops.isEmpty()) {
             // An unpinned building's floors are all conditioned `top: false`, so
             // without a roof the topmost level of every height it could be rolled
@@ -505,7 +491,7 @@ public final class Exporter {
 
         if (settings.has("rubble")) {
             building.addProperty("rubble", paletteValue(
-                    string(settings, "rubble", " "), name + " rubble", buildingSink));
+                    Json.string(settings, "rubble", " "), name + " rubble", buildingSink));
         }
         if (settings.has("preferslonely")) {
             building.addProperty("preferslonely",
@@ -561,7 +547,7 @@ public final class Exporter {
         warnIfTooTall(name, cellars, floors, tops);
 
         building.addProperty("filler", settings.has("filler")
-                ? paletteValue(string(settings, "filler", String.valueOf(commonest)),
+                ? paletteValue(Json.string(settings, "filler", String.valueOf(commonest)),
                         name + " filler", buildingSink)
                 : String.valueOf(commonest));
         if (commonest == PaletteLedger.AIR && cellars > 0) {
@@ -895,8 +881,8 @@ public final class Exporter {
                         + "has ever handed out and never reclaims one, so the "
                         + "count is every distinct block, mark and tag combination "
                         + "this world has exported, not what is standing now. "
-                        + "Delete lostcitiesdevtool/palette-ledger.json beside the "
-                        + "world to start the lettering over"));
+                        + "Delete " + Folders.NAME + "/" + PaletteLedger.FILE
+                        + " beside the world to start the lettering over"));
     }
 
     /** Where this plot's name goes: a selector, a street shape, or the world style. */
@@ -987,7 +973,7 @@ public final class Exporter {
         // twelve multibuildings, parks, bridges and stairs to whatever the workshop
         // holds, and there is no way to write a style that takes the plumbing and
         // leaves the buildings. Standalone writes the plumbing out instead.
-        String inherit = string(core, "inherit", "citystyle_common");
+        String inherit = Json.string(core, "inherit", "citystyle_common");
         boolean standalone = inherit.isBlank() || "none".equalsIgnoreCase(inherit);
 
         for (String style : styles) {
@@ -1023,7 +1009,7 @@ public final class Exporter {
         // Listing it as well would weight it against the others and have it roll for
         // ordinary cities, which is a pack that generates differently from the one
         // that was imported. Its assets are still written; only the reference moves.
-        String alternative = string(merged("profile", core),
+        String alternative = Json.string(merged("profile", core),
                 "cityStyleAlternative", "");
         boolean named = !alternative.isBlank() && styles.contains(alternative);
         // A world style listing no city style generates no cities at all, so an
@@ -1089,7 +1075,7 @@ public final class Exporter {
             });
             world.add("parts", parts);
         }
-        assets.put("worldstyles/" + string(core, "worldStyle", "main"), world);
+        assets.put("worldstyles/" + Json.string(core, "worldStyle", "main"), world);
     }
 
     /**
@@ -1164,7 +1150,7 @@ public final class Exporter {
      * own.
      */
     private static String placement(JsonObject settings) {
-        String value = string(settings, "palette", "global");
+        String value = Json.string(settings, "palette", "global");
         return switch (value) {
             case "part", "building", "global" -> value;
             default -> "global";
@@ -1267,7 +1253,7 @@ public final class Exporter {
         // needs this mod present to load at all. Plain JSON is valid JSON5, so what
         // is written is the same text under a different name; the extension is the
         // part that decides which loader reads it.
-        String format = string(core, "format", "json");
+        String format = Json.string(core, "format", "json");
         boolean json5 = "json5".equalsIgnoreCase(format);
         if (!json5 && !"json".equalsIgnoreCase(format)) {
             warnings.add(format + " is not a format this writes. Use json or json5. "
@@ -1306,8 +1292,8 @@ public final class Exporter {
         // older game, which says nothing about the tool that wrote it.
         pack.addProperty("pack_format", SharedConstants.getCurrentVersion()
                 .getPackVersion(PackType.SERVER_DATA));
-        pack.addProperty("description", string(core, "description",
-                string(core, "packName", name)));
+        pack.addProperty("description", Json.string(core, "description",
+                Json.string(core, "packName", name)));
         meta.add("pack", pack);
         Files.writeString(root.resolve("pack.mcmeta"), json(meta),
                 StandardCharsets.UTF_8);
@@ -1329,7 +1315,7 @@ public final class Exporter {
         // so an unqualified value here would point the profile at the mod's own
         // assets rather than at the ones beside it.
         if (raw.has("cityStyleAlternative")) {
-            String style = string(raw, "cityStyleAlternative", "");
+            String style = Json.string(raw, "cityStyleAlternative", "");
             if (!style.isBlank() && !style.contains(":")) {
                 raw.addProperty("cityStyleAlternative", namespace + ":" + style);
             }
@@ -1347,7 +1333,7 @@ public final class Exporter {
         }
         sections.computeIfAbsent("lostcity", k -> new JsonObject())
                 .addProperty("worldStyle",
-                        namespace + ":" + string(core, "worldStyle", "main"));
+                        namespace + ":" + Json.string(core, "worldStyle", "main"));
         sections.forEach(profile::add);
         Path profileDir = root.resolve("profile");
         Files.createDirectories(profileDir);
@@ -1370,12 +1356,8 @@ public final class Exporter {
         return String.valueOf(BuiltInRegistries.BLOCK.getKey(state.getBlock()));
     }
 
-    /** Built once. A Gson builds its adapters on creation, and this ran per asset. */
-    private static final Gson PRETTY = new GsonBuilder().setPrettyPrinting()
-            .disableHtmlEscaping().create();
-
     private static String json(JsonElement e) {
-        return PRETTY.toJson(e) + "\n";
+        return Json.PRETTY.toJson(e) + "\n";
     }
 
     private JsonObject merged(String key, JsonObject from) {
@@ -1389,30 +1371,6 @@ public final class Exporter {
                     .forEach(e -> out.add(e.getKey(), e.getValue()));
         }
         return out;
-    }
-
-    private static String string(JsonObject o, String key, String fallback) {
-        try {
-            return o.has(key) ? o.get(key).getAsString() : fallback;
-        } catch (RuntimeException e) {
-            return fallback;
-        }
-    }
-
-    private static int intOf(JsonObject o, String key, int fallback) {
-        try {
-            return o.has(key) ? o.get(key).getAsInt() : fallback;
-        } catch (RuntimeException e) {
-            return fallback;
-        }
-    }
-
-    private static boolean bool(JsonObject o, String key, boolean fallback) {
-        try {
-            return o.has(key) ? o.get(key).getAsBoolean() : fallback;
-        } catch (RuntimeException e) {
-            return fallback;
-        }
     }
 
     /**
@@ -1467,19 +1425,5 @@ public final class Exporter {
                     "Fix it in the plot's settings file. Written into the pack as it "
                             + "stands, Lost Cities would read it as no value at all"));
         }
-    }
-
-    private static List<Integer> ints(JsonObject o, String key) {
-        List<Integer> out = new ArrayList<>();
-        if (o.has(key) && o.get(key).isJsonArray()) {
-            o.getAsJsonArray(key).forEach(e -> {
-                try {
-                    out.add(e.getAsInt());
-                } catch (RuntimeException ignored) {
-                    // Malformed entries are the file's problem; the check reports it.
-                }
-            });
-        }
-        return out;
     }
 }

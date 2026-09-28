@@ -124,7 +124,7 @@ public final class Wipe {
         String stamp = java.time.LocalDateTime.now()
                 .format(java.time.format.DateTimeFormatter
                         .ofPattern("yyyy-MM-dd-HHmmss"));
-        Path root = Exporter.backupsRoot(server).resolve(stamp);
+        Path root = Folders.backups().resolve(stamp);
         Files.createDirectories(root.getParent());
         // Whole and tagged whatever the last export was told, because a backup
         // exists to put things back exactly as they were.

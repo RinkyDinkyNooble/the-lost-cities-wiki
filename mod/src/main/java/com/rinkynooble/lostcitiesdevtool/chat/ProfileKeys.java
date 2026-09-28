@@ -22,11 +22,11 @@ import java.util.Map;
  * {@code ruinChance} means.
  *
  * <p>Both files are resources rather than code. {@code profile_keys.json} is
- * generated from the jar by {@code mod/tools/extract-profile-keys.py} and holds all
- * 131 keys. {@code profile_key_corrections.json} is written by hand and holds the
- * few whose comment says something the code does not do; the comment is still shown,
- * because that is what the reader will find in their own config file, with the
- * correction under it.
+ * generated from the jar by {@code mod/tools/extract-profile-keys.py} and holds every
+ * key of the version it was generated from. {@code profile_key_corrections.json} is
+ * written by hand and holds the few whose comment says something the code does not
+ * do; the comment is still shown, because that is what the reader will find in their
+ * own config file, with the correction under it.
  *
  * <p>Missing or unreadable data is not an error. Hover text is a courtesy, and a
  * report is still worth printing without it.

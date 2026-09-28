@@ -2,6 +2,7 @@ package com.rinkynooble.lostcitiesdevtool.workshop;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.rinkynooble.lostcitiesdevtool.core.Json;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 
@@ -90,27 +91,15 @@ public final class Conditions {
      */
     public static List<Entry> entriesOf(JsonObject condition) {
         List<Entry> out = new ArrayList<>();
-        if (!condition.has("values") || !condition.get("values").isJsonArray()) {
-            return out;
-        }
-        for (JsonElement raw : condition.getAsJsonArray("values")) {
+        for (JsonElement raw : Json.array(condition, "values")) {
             if (!raw.isJsonObject()) {
                 continue;
             }
             JsonObject entry = raw.getAsJsonObject();
-            float factor = 1.0f;
-            try {
-                factor = entry.has("factor") ? entry.get("factor").getAsFloat() : 1.0f;
-            } catch (RuntimeException ignored) {
-                // Written as something that is not a number. Shown at its default
-                // rather than dropped, because the entry is still there.
-            }
-            String value = "";
-            try {
-                value = entry.has("value") ? entry.get("value").getAsString() : "";
-            } catch (RuntimeException ignored) {
-                // Same.
-            }
+            // A factor that is not a number is shown at its default rather than
+            // dropped, because the entry is still there.
+            float factor = Json.floatOf(entry, "factor", 1.0f);
+            String value = Json.string(entry, "value", "");
             Map<String, String> tests = new LinkedHashMap<>();
             for (String key : entry.keySet()) {
                 if (key.equals("factor") || key.equals("value")) {

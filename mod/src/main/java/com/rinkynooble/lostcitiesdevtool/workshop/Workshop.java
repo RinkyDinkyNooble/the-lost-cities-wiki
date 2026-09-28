@@ -1,9 +1,9 @@
 package com.rinkynooble.lostcitiesdevtool.workshop;
 
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.rinkynooble.lostcitiesdevtool.LostCitiesDevTool;
+import com.rinkynooble.lostcitiesdevtool.core.Json;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -14,7 +14,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.LevelResource;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -43,7 +42,6 @@ public final class Workshop {
             Registries.DIMENSION, new ResourceLocation("lostcitiesdevtool:workshop"));
 
     /** The registry lives with the world, because a plot belongs to a world. */
-    private static final String DIR = "lostcitiesdevtool";
     private static final String FILE = "plots.json";
 
     private Workshop() {
@@ -60,14 +58,6 @@ public final class Workshop {
     public record Built(int plots, int chunks, long blocks) {
     }
 
-    /**
-     * Lay the floors out.
-     *
-     * <p>Only the floor. A plot's marker says where a thing goes and how big it is;
-     * what goes on it is the author's business, and later phases fill it from a pack.
-     * Re-running is safe and idempotent: the same catalogue produces the same plots
-     * in the same colours, so this repaints rather than duplicating.
-     */
     /**
      * The floor colours, in the order {@link Layout} assigns them.
      *
@@ -105,6 +95,14 @@ public final class Workshop {
                 : COLOURS[Math.floorMod(colour, COLOURS.length)];
     }
 
+    /**
+     * Lay the floors out.
+     *
+     * <p>Only the floor. A plot's marker says where a thing goes and how big it is;
+     * what goes on it is the author's business, and later phases fill it from a pack.
+     * Re-running is safe and idempotent: the same catalogue produces the same plots
+     * in the same colours, so this repaints rather than duplicating.
+     */
     public static Built build(ServerLevel level) {
         List<Layout.Plot> plots = Layout.plots();
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
@@ -133,17 +131,20 @@ public final class Workshop {
     /**
      * Write the plot registry beside the world.
      *
-     * <p>A file rather than {@code SavedData}, for the same reason the settings will
-     * be files: it can be read, diffed and fixed without the game running. Nothing
-     * reads it back yet, because the layout is computed from the catalogue and is
-     * the same every time; it exists so a person, or a later phase, can see what the
-     * build decided.
+     * <p>A file rather than {@code SavedData}, for the same reason the settings are
+     * files: it can be read, diffed and fixed without the game running. The plot
+     * list is a record for a person and is never read back, because the layout is
+     * computed from the catalogue. {@code grownRows} and {@code extraRows} are read
+     * back, by {@link #loadGrownRows}, since they are the part of the layout the
+     * catalogue does not hold.
      */
     public static void save(MinecraftServer server, List<Layout.Plot> plots) {
         JsonObject root = new JsonObject();
-        root.addProperty("_about", "Written by /lcdev workshop build. The layout is "
-                + "computed from the catalogue, so this is a record of what was "
-                + "built rather than the source of it.");
+        root.addProperty("_about", "Written each time the workshop is laid out. The "
+                + "plot list records what was built and is not read back, because "
+                + "the layout is computed from the catalogue. grownRows and extraRows "
+                + "are read back when the server starts: they are the rows an import, "
+                + "grow or sync made larger or added, and the next build keeps them.");
         // Two versions, because they are two facts and conflating them put a
         // Lost Cities version on screen that was not the one running.
         root.addProperty("version", Catalogue.version());
@@ -191,12 +192,11 @@ public final class Workshop {
         Catalogue.extraMultis().forEach(extra::add);
         root.add("extraRows", extra);
 
-        Path dir = server.getWorldPath(LevelResource.ROOT).resolve(DIR);
+        Path path = registryPath(server);
         try {
-            Files.createDirectories(dir);
-            try (Writer w = Files.newBufferedWriter(dir.resolve(FILE),
-                    StandardCharsets.UTF_8)) {
-                new GsonBuilder().setPrettyPrinting().create().toJson(root, w);
+            Files.createDirectories(path.getParent());
+            try (Writer w = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
+                Json.PRETTY.toJson(root, w);
             }
         } catch (IOException e) {
             // The world is already built. Failing to write the record is worth
@@ -206,7 +206,6 @@ public final class Workshop {
         }
     }
 
-    /** Absolute and normalised, because it is printed for someone to click and copy. */
     /**
      * Read back the row sizes a previous import grew.
      *
@@ -253,8 +252,8 @@ public final class Workshop {
         }
     }
 
+    /** Absolute and normalised, because it is printed for someone to click and copy. */
     public static Path registryPath(MinecraftServer server) {
-        return server.getWorldPath(LevelResource.ROOT).resolve(DIR).resolve(FILE)
-                .toAbsolutePath().normalize();
+        return Folders.world(server).resolve(FILE);
     }
 }

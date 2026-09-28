@@ -1,7 +1,7 @@
 package com.rinkynooble.lostcitiesdevtool.workshop;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.rinkynooble.lostcitiesdevtool.core.Json;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Blocks;
@@ -65,9 +65,9 @@ public final class Boundaries {
      * top.
      */
     public static List<Line> of(JsonObject settings) {
-        int cellars = Math.max(0, intOf(settings, "cellars", 0));
-        int floors = Math.max(0, intOf(settings, "floors", 1));
-        List<Integer> tops = intsOf(settings, "tops");
+        int cellars = Math.max(0, Json.intOf(settings, "cellars", 0));
+        int floors = Math.max(0, Json.intOf(settings, "floors", 1));
+        List<Integer> tops = Json.ints(settings, "tops");
 
         List<Line> out = new ArrayList<>();
         int y = BASE;
@@ -130,7 +130,7 @@ public final class Boundaries {
             return top;
         }
         List<Line> lines = of(settings);
-        int height = intOf(settings, "height", 0);
+        int height = Json.intOf(settings, "height", 0);
         return Math.max(top, Math.max(lines.get(lines.size() - 1).y(),
                 BASE + height));
     }
@@ -196,30 +196,6 @@ public final class Boundaries {
         for (int z = z0 + 1; z <= z1 - 1; z++) {
             out.add(new BlockPos(x0, y, z));
             out.add(new BlockPos(x1, y, z));
-        }
-        return out;
-    }
-
-    private static int intOf(JsonObject o, String key, int fallback) {
-        try {
-            return o.has(key) ? o.get(key).getAsInt() : fallback;
-        } catch (RuntimeException e) {
-            return fallback;
-        }
-    }
-
-    private static List<Integer> intsOf(JsonObject o, String key) {
-        List<Integer> out = new ArrayList<>();
-        if (o.has(key) && o.get(key).isJsonArray()) {
-            JsonArray a = o.getAsJsonArray(key);
-            for (int i = 0; i < a.size(); i++) {
-                try {
-                    out.add(a.get(i).getAsInt());
-                } catch (RuntimeException ignored) {
-                    // A malformed entry is the file's problem, not a reason to draw
-                    // nothing. The export will refuse it with a proper message.
-                }
-            }
         }
         return out;
     }

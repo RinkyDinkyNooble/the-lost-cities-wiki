@@ -1,13 +1,12 @@
 package com.rinkynooble.lostcitiesdevtool.workshop;
 
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.rinkynooble.lostcitiesdevtool.core.Json;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraft.world.level.storage.LevelResource;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -57,7 +56,7 @@ public final class PaletteLedger {
     /** Air. The mod's own convention, and the one character never assigned. */
     public static final char AIR = ' ';
 
-    private static final String FILE = "palette-ledger.json";
+    static final String FILE = "palette-ledger.json";
 
     /** Built once. Forty thousand characters, and the scan that finds them is 4ms. */
     private static final String POOL = pool();
@@ -296,8 +295,7 @@ public final class PaletteLedger {
     // -------------------------------------------------------------- persistence
 
     public static Path pathOf(MinecraftServer server) {
-        return server.getWorldPath(LevelResource.ROOT).resolve("lostcitiesdevtool")
-                .resolve(FILE).toAbsolutePath().normalize();
+        return Folders.world(server).resolve(FILE);
     }
 
     public static PaletteLedger load(MinecraftServer server) throws IOException {
@@ -351,8 +349,6 @@ public final class PaletteLedger {
         root.add("assigned", map);
         Path path = pathOf(server);
         Files.createDirectories(path.getParent());
-        Files.writeString(path,
-                new GsonBuilder().setPrettyPrinting().create().toJson(root),
-                StandardCharsets.UTF_8);
+        Files.writeString(path, Json.PRETTY.toJson(root), StandardCharsets.UTF_8);
     }
 }

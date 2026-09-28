@@ -284,6 +284,19 @@ try:
             fail("%d distinct blocks produced only %d ledger entries, so the "
                  "fixture is not placing what it thinks it is" % (n1 + n2, cells))
 
+        # The ledger is the file somebody edits when two cells collide, so a block
+        # state's `=` has to be written as itself. Gson's default HTML escaping
+        # writes each one as a six-character unicode escape.
+        text = io.open(LEDGER, encoding="utf-8").read()
+        states = [k for k in ledger() if "=" in k]
+        escaped = text.count("\\u003d")
+        print("  ledger keys holding a block state: %d, escaped equals signs: %d"
+              % (len(states), escaped))
+        if not states:
+            fail("no ledger key holds a block state, so the escaping is untested")
+        elif escaped:
+            fail("the palette ledger writes = as a unicode escape, %d times" % escaped)
+
         print("\n" + "=" * 72)
         print("3. every character handed out is one a row can hold")
         assigned = ledger()
