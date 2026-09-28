@@ -29,8 +29,15 @@ import java.util.Map;
  */
 public class ValidationListener extends SimplePreparableReloadListener<List<Finding>> {
 
-    /** The asset folders worth reading. Others carry no rule this can check. */
-    private static final List<String> KINDS = List.of("buildings", "palettes", "parts");
+    /**
+     * The asset folders worth reading. Others carry no rule this can check.
+     *
+     * <p>{@code conditions} and {@code worldstyles} were missing, so the Condition
+     * rules and the monorail rule ran only in the JVM probe and on exports while
+     * the README and the CurseForge page said they ran at load.
+     */
+    private static final List<String> KINDS =
+            List.of("buildings", "palettes", "parts", "conditions", "worldstyles");
 
     @Override
     protected List<Finding> prepare(ResourceManager manager, ProfilerFiller profiler) {
@@ -43,20 +50,13 @@ public class ValidationListener extends SimplePreparableReloadListener<List<Find
         for (String kind : KINDS) {
             String folder = "lostcities/" + kind;
             // Keyed by the name on disk rather than the name the loader sees, so a
-            // finding names the file the author has to open.
-            Map<ResourceLocation, Resource> chosen = new LinkedHashMap<>(
-                    manager.listResources(folder,
-                            loc -> loc.getPath().endsWith(Json5.EXT_JSON)));
-            if (json5) {
-                manager.listResources(folder,
-                        loc -> loc.getPath().endsWith(Json5.EXT_JSON5))
-                        .forEach((loc, resource) -> {
-                            // Same precedence the loader applies, so a shadowed .json
-                            // is not reported for faults nothing will ever hit.
-                            chosen.remove(Json5.asJson(loc));
-                            chosen.put(loc, resource);
-                        });
-            }
+            // finding names the file the author has to open, and chosen by the rule
+            // the loader applies, so a shadowed file is not reported for faults
+            // nothing will ever hit.
+            Map<ResourceLocation, Resource> json = manager.listResources(folder,
+                    loc -> loc.getPath().endsWith(Json5.EXT_JSON));
+            Map<ResourceLocation, Resource> chosen = json5
+                    ? Json5.merge(manager, folder, json).files() : json;
             for (Map.Entry<ResourceLocation, Resource> entry : chosen.entrySet()) {
                 readOne(findings, kind, entry.getKey(), entry.getValue());
             }

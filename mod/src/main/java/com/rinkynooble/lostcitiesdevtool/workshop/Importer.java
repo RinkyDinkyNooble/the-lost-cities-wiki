@@ -3,6 +3,7 @@ package com.rinkynooble.lostcitiesdevtool.workshop;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import mcjty.lostcities.config.LostCityProfile;
 import mcjty.lostcities.config.ProfileSetup;
@@ -25,12 +26,14 @@ import net.minecraft.world.level.block.state.BlockState;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -52,7 +55,8 @@ import java.util.TreeSet;
  * <p><b>Rows grow to fit.</b> A row starts at three plots because that is a sensible
  * catalogue, not because a pack holds three of anything. The one exception is a row
  * the codec allows a single value for: a monorail row stays at one plot however many
- * the pack has, because a list there is a load error rather than a bigger row.
+ * the pack has, because a list there is dropped for the default rather than read as
+ * a bigger row.
  */
 public final class Importer {
 
@@ -147,6 +151,9 @@ public final class Importer {
     /** Style name -> its merged palette, built once. */
     private final Map<String, Map<Character, Cell>> stylePalettes =
             new LinkedHashMap<>();
+
+    /** Block text -> what it parses as, for this import. Empty where it will not. */
+    private final Map<String, Optional<BlockState>> parsed = new HashMap<>();
 
     /**
      * Assets a style falls back to rather than names.
@@ -423,8 +430,17 @@ public final class Importer {
      */
     private void walkProfiles(String worldStyleName) {
         String wanted = Assets.qualify(worldStyleName);
-        Set<String> alternatives = new LinkedHashSet<>();
-        for (LostCityProfile profile : ProfileSetup.STANDARD_PROFILES.values()) {
+        // Alternative to the threshold of the first profile naming it. The two are
+        // one setting between them, so they are kept as a pair: taking the style
+        // from the first profile and the threshold from the last wrote a profile
+        // that no pack contained.
+        Map<String, Float> alternatives = new LinkedHashMap<>();
+        // By name, so which profile counts as first does not depend on how a hash
+        // map happened to order them.
+        List<LostCityProfile> profiles = new ArrayList<>(
+                ProfileSetup.STANDARD_PROFILES.values());
+        profiles.sort(Comparator.comparing(LostCityProfile::getName));
+        for (LostCityProfile profile : profiles) {
             String world = profile.getWorldStyle();
             if (world == null || !wanted.equals(Assets.qualify(world))) {
                 continue;
@@ -452,9 +468,7 @@ public final class Importer {
                         + "reaches it. It was imported anyway.");
             }
             walkCityStyle(full);
-            alternatives.add(shortOf(full));
-            profileKeys.addProperty("cityStyleThreshold",
-                    profile.CITY_STYLE_THRESHOLD);
+            alternatives.putIfAbsent(shortOf(full), profile.CITY_STYLE_THRESHOLD);
         }
         if (alternatives.isEmpty()) {
             return;
@@ -462,19 +476,28 @@ public final class Importer {
         // An export writes one profile, and a profile holds one alternative. Several
         // profiles naming different ones is a pack this cannot round trip whole, so
         // it says which one it kept rather than picking in silence.
-        profileKeys.addProperty("cityStyleAlternative",
-                alternatives.iterator().next());
+        Map.Entry<String, Float> kept = alternatives.entrySet().iterator().next();
+        profileKeys.addProperty("cityStyleAlternative", kept.getKey());
+        profileKeys.addProperty("cityStyleThreshold", kept.getValue());
         if (alternatives.size() > 1) {
             warnings.add(alternatives.size() + " profiles name different alternative "
                     + "city styles for this world style ("
-                    + String.join(", ", alternatives) + "). All of them were "
-                    + "imported, and an export writes one profile, so it carries "
-                    + alternatives.iterator().next() + " and not the rest.");
+                    + String.join(", ", alternatives.keySet()) + "). All of them "
+                    + "were imported, and an export writes one profile, so it carries "
+                    + kept.getKey() + " with its threshold of " + kept.getValue()
+                    + " and not the rest.");
         }
     }
 
     private void walkCityStyle(String name) {
-        JsonObject style = assets.cityStyle(name);
+        JsonObject style;
+        try {
+            style = assets.cityStyle(name);
+        } catch (Assets.InheritanceLoop e) {
+            warnings.add(e.getMessage() + ". Nothing under " + name
+                    + " was imported.");
+            return;
+        }
         if (style == null) {
             warnings.add("city style " + name + " is referenced and not loaded");
             return;
@@ -894,7 +917,7 @@ public final class Importer {
         List<JsonObject> bag = new ArrayList<>();
         for (JsonElement e : parts) {
             if (e.isJsonObject() && e.getAsJsonObject().has("part")
-                    && !bool(e.getAsJsonObject(), "top", false)) {
+                    && !onTop(e.getAsJsonObject())) {
                 bag.add(e.getAsJsonObject());
             }
         }
@@ -987,7 +1010,7 @@ public final class Importer {
                 continue;
             }
             JsonObject ref = e.getAsJsonObject();
-            if (!bool(ref, "top", false) || ref == topmost) {
+            if (!onTop(ref) || ref == topmost) {
                 continue;
             }
             JsonObject part = assets.get("parts", ref.get("part").getAsString());
@@ -1139,49 +1162,17 @@ public final class Importer {
     private List<JsonObject> allMatching(JsonArray parts, int level, int floors) {
         List<JsonObject> out = new ArrayList<>();
         for (JsonElement e : parts) {
-            if (!e.isJsonObject()) {
-                continue;
+            if (e.isJsonObject() && e.getAsJsonObject().has("part")
+                    && Levels.matches(e.getAsJsonObject(), level, floors)) {
+                out.add(e.getAsJsonObject());
             }
-            JsonObject ref = e.getAsJsonObject();
-            if (!ref.has("part")) {
-                continue;
-            }
-            if (ref.has("top") && ref.get("top").getAsBoolean() != (level >= floors)) {
-                continue;
-            }
-            if (ref.has("ground")
-                    && ref.get("ground").getAsBoolean() != (level == 0)) {
-                continue;
-            }
-            if (ref.has("cellar") && ref.get("cellar").getAsBoolean() != (level < 0)) {
-                continue;
-            }
-            if (ref.has("floor") && ref.get("floor").getAsInt() != level) {
-                continue;
-            }
-            if (ref.has("range")) {
-                int[] r = range(ref.get("range").getAsString());
-                if (r == null || level < r[0] || level > r[1]) {
-                    continue;
-                }
-            }
-            out.add(ref);
         }
         return out;
     }
 
-    @Nullable
-    private static int[] range(String text) {
-        String[] halves = text.split(",");
-        if (halves.length != 2) {
-            return null;
-        }
-        try {
-            return new int[]{Integer.parseInt(halves[0].trim()),
-                    Integer.parseInt(halves[1].trim())};
-        } catch (NumberFormatException e) {
-            return null;
-        }
+    /** Whether a part reference is conditioned on the top, as the codec reads it. */
+    private static boolean onTop(JsonObject ref) {
+        return Boolean.TRUE.equals(Levels.bool(ref.get("top")));
     }
 
     /** Draw a part into the world. Returns how tall it was. */
@@ -1193,15 +1184,23 @@ public final class Importer {
                 ? part.getAsJsonArray("slices") : new JsonArray();
         int x0 = plot.blockMinX() + dx * 16;
         int z0 = plot.blockMinZ() + dz * 16;
+        int xsize = Math.max(0, Math.min(16, intOf(part, "xsize", 16)));
+        int zsize = Math.max(0, Math.min(16, intOf(part, "zsize", 16)));
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
         Set<Character> used = new LinkedHashSet<>();
 
         for (int y = 0; y < slices.size(); y++) {
-            List<String> rows = rowsOf(slices.get(y));
+            // One string per layer, read at z * xsize + x. Lost Cities joins a
+            // layer's rows before it reads them, so where the rows break is only
+            // formatting. Reading row by row pasted any layer not broken every
+            // sixteen characters into the wrong cells, and the export then wrote
+            // those cells back.
+            String layer = layerOf(slices.get(y));
             for (int z = 0; z < 16; z++) {
-                String row = z < rows.size() ? rows.get(z) : "";
                 for (int x = 0; x < 16; x++) {
-                    char c = x < row.length() ? row.charAt(x) : ' ';
+                    int at = z * xsize + x;
+                    char c = x < xsize && z < zsize && at < layer.length()
+                            ? layer.charAt(at) : ' ';
                     Cell cell = palette.get(c);
                     used.add(c);
                     pos.set(x0 + x, baseY + y, z0 + z);
@@ -1373,32 +1372,55 @@ public final class Importer {
     @Nullable
     private BlockState parse(String description) {
         String wanted = reverse.getOrDefault(description, description);
+        return parsed.computeIfAbsent(wanted, this::parseOnce).orElse(null);
+    }
+
+    /**
+     * One block text, parsed the first time it is met.
+     *
+     * <p>A part's palette is rebuilt for every part pasted, from the style, the
+     * building and the part, so a shared palette of a few hundred entries was
+     * parsed again for every part of every building. The warning for text that
+     * will not parse repeated the same way, once per part that resolved through it.
+     */
+    private Optional<BlockState> parseOnce(String wanted) {
         try {
-            return BlockStateParser.parseForBlock(BuiltInRegistries.BLOCK.asLookup(),
-                    wanted, false).blockState();
+            StringReader reader = new StringReader(wanted);
+            BlockState state = BlockStateParser.parseForBlock(
+                    BuiltInRegistries.BLOCK.asLookup(), reader, false).blockState();
+            // The whole text or nothing, as Lost Cities reads it. The parser stops
+            // where a block id stops, so "minecraft:red_sandstone@2" came back as red
+            // sandstone, where Lost Cities fails the value and the palette with it.
+            if (!reader.canRead()) {
+                return Optional.of(state);
+            }
         } catch (CommandSyntaxException e) {
-            // A shipped palette carries at least one 1.12 block id with an @meta
-            // suffix that has never been valid here. Saying so once is useful;
-            // failing the import over somebody else's bug is not.
-            warnings.add("could not read the block '" + wanted + "', left as air");
-            return null;
+            // Falls through to the warning below.
         }
+        // A shipped palette carries at least one 1.12 block id with an @meta suffix
+        // that has never been valid here. Saying so once is useful; failing the
+        // import over somebody else's bug is not.
+        warnings.add("could not read the block '" + wanted + "', left as air");
+        return Optional.empty();
     }
 
     // ----------------------------------------------------------------- plumbing
 
-    private static List<String> rowsOf(JsonElement layer) {
-        List<String> out = new ArrayList<>();
-        if (layer.isJsonArray()) {
-            layer.getAsJsonArray().forEach(e -> out.add(e.getAsString()));
-        } else if (layer.isJsonPrimitive()) {
+    /** A layer as one string, the way {@code BuildingPartRE} joins its rows. */
+    private static String layerOf(JsonElement layer) {
+        if (layer.isJsonPrimitive()) {
             // One string per layer is the shape the mod holds internally.
-            String all = layer.getAsString();
-            for (int i = 0; i + 16 <= all.length(); i += 16) {
-                out.add(all.substring(i, i + 16));
+            return layer.getAsString();
+        }
+        StringBuilder out = new StringBuilder();
+        if (layer.isJsonArray()) {
+            for (JsonElement row : layer.getAsJsonArray()) {
+                if (row.isJsonPrimitive()) {
+                    out.append(row.getAsString());
+                }
             }
         }
-        return out;
+        return out.toString();
     }
 
     /** A name, or a list of them: three families accept either. */
@@ -1438,14 +1460,6 @@ public final class Importer {
     private static int intOf(JsonObject o, String key, int fallback) {
         try {
             return o.has(key) ? o.get(key).getAsInt() : fallback;
-        } catch (RuntimeException e) {
-            return fallback;
-        }
-    }
-
-    private static boolean bool(JsonObject o, String key, boolean fallback) {
-        try {
-            return o.has(key) ? o.get(key).getAsBoolean() : fallback;
         } catch (RuntimeException e) {
             return fallback;
         }

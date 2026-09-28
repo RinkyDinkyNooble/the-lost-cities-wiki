@@ -68,6 +68,8 @@ SETTINGS = os.path.join(WORLD, "lostcitiesdevtool", "plots")
 EXPORTS = os.path.join(SERVER, "config", "lostcitiesdevtool", "exports")
 PROFILES = os.path.join(SERVER, "config", "lostcities", "profiles")
 PROFILE = os.path.join(PROFILES, "devtoolprofilecheck.json")
+# A second profile for case C, sorting after the first by name.
+PROFILE2 = os.path.join(PROFILES, "devtoolprofilecheckz.json")
 WORKSHOP = "lostcitiesdevtool:workshop"
 
 NS = "prof"
@@ -192,6 +194,16 @@ def write_pack(root):
             {"char": "b", "block": "minecraft:stone"},
             {"char": "B", "block": "minecraft:stone"},
         ]},
+        # Named only by the second profile of case C.
+        "citystyles/alt2": {
+            "style": NS + ":main",
+            "streetblocks": {"border": "y", "wall": "w", "street": "S",
+                             "streetbase": "b", "streetvariant": "B",
+                             "width": 8},
+            "selectors": {"buildings": [{"factor": 1.0,
+                                         "value": NS + ":alt2house"}]},
+        },
+        "buildings/alt2house": house("e"),
         "buildings/primhouse": house("g"),
         "buildings/althouse": house("e"),
         "parts/pg": {"xsize": 16, "zsize": 16, "refpalette": NS + ":main",
@@ -228,8 +240,9 @@ def write_profile(threshold):
 # this check's datapack defines, and every later check would boot into a profile
 # whose world style does not resolve.
 def cleanup():
-    if os.path.isfile(PROFILE):
-        os.remove(PROFILE)
+    for path in (PROFILE, PROFILE2):
+        if os.path.isfile(path):
+            os.remove(path)
 
 
 atexit.register(cleanup)
@@ -265,7 +278,15 @@ def blocks_at(con, plot, block):
     return int(found.group(1)) if found else 0
 
 
-def run_case(label, threshold, assertions):
+def write_second_profile(alternative, threshold):
+    io.open(PROFILE2, "w", encoding="utf-8", newline="\n").write(json.dumps({
+        "lostcity": {"worldStyle": NS + ":main"},
+        "cities": {"cityStyleAlternative": NS + ":" + alternative,
+                   "cityStyleThreshold": threshold},
+    }, indent=2) + "\n")
+
+
+def run_case(label, threshold, assertions, second=None):
     print("\n" + "=" * 72)
     print(label)
     print("=" * 72)
@@ -275,6 +296,10 @@ def run_case(label, threshold, assertions):
     rig.install(SERVER, JAR)
     write_pack(os.path.join(WORLD, "datapacks", "profpack"))
     write_profile(threshold)
+    if second:
+        write_second_profile(*second)
+    elif os.path.isfile(PROFILE2):
+        os.remove(PROFILE2)
     proc = boot()
     try:
         with Rcon(port=25575, password="lcwiki") as con:
@@ -444,6 +469,33 @@ def case_b(con, output):
              "a pack whose alternative style can never generate looks correct")
 
 
+# --------------------------------------------------------------- case C
+
+def case_c(con, output):
+    """Two profiles, two alternatives, one pair kept.
+
+    An export writes one profile, so one alternative survives, and its threshold
+    has to be the one written beside it. Taking the style from the first profile
+    walked and the threshold from the last wrote a pair no profile contains.
+    """
+    core = settings_of("core") or {}
+    profile = core.get("profile") or {}
+    alt = profile.get("cityStyleAlternative")
+    try:
+        threshold = round(float(profile.get("cityStyleThreshold")), 3)
+    except (TypeError, ValueError):
+        threshold = None
+    print("  recorded pair: %r, %r" % (alt, threshold))
+    if (alt, threshold) not in {("alt", 0.3), ("alt2", 0.7)}:
+        fail("the import recorded %r with threshold %r, a pair neither profile "
+             "holds" % (alt, threshold))
+    elif (alt, threshold) != ("alt", 0.3):
+        fail("the pair kept came from the second profile by name, so which one "
+             "survives depends on map order rather than on anything written")
+    else:
+        ok("the alternative kept travels with its own threshold")
+
+
 print("check-import-profile: a city style only a profile names")
 print("jar: %s" % os.path.basename(JAR))
 
@@ -451,6 +503,8 @@ run_case("case A: cityStyleThreshold 0.3, the alternative is reachable",
          0.3, case_a)
 run_case("case B: cityStyleThreshold -1.0, the default, nothing falls below it",
          -1.0, case_b)
+run_case("case C: two profiles name different alternatives and thresholds",
+         0.3, case_c, second=("alt2", 0.7))
 
 print("\n" + "=" * 72)
 if failures:

@@ -3,6 +3,7 @@ package com.rinkynooble.lostcitiesdevtool.validate;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.rinkynooble.lostcitiesdevtool.workshop.Levels;
 
 import javax.annotation.Nullable;
 
@@ -86,14 +87,16 @@ public final class AssetValidator {
      * The three monorail keys take a plain string, and the other families do not.
      *
      * <p>{@code MonorailParts} declares {@code both}, {@code vertical} and
-     * {@code station} as {@code Codec.STRING}. Highways and railways go through
-     * {@code Tools.listOrStringList}, which takes either. So a list under a
-     * monorail key is not a longer row, it is a value the codec cannot read at all,
-     * and the world style carrying it does not decode.
+     * {@code station} as {@code Codec.STRING.optionalFieldOf(key, default)}.
+     * Highways and railways go through {@code Tools.listOrStringList}, which takes
+     * either. So a list under a monorail key is not a longer row.
      *
-     * <p>Worth checking here because nothing else does. A tool reading the file back
-     * as JSON sees a list and carries on; only the codec minds, and by the time it
-     * minds the file is gone.
+     * <p><b>It is not a load error either.</b> The optional field codec in the
+     * DataFixerUpper 1.20.1 ships, 6.0.8, answers a value it cannot parse with an
+     * empty result rather than a failure, so the world style loads and the key
+     * takes Lost Cities' own default part. Measured: a world style with a list
+     * there boots cleanly. The parts the author named simply never appear, which is
+     * why this is worth checking: nothing else says so.
      */
     private static void checkWorldStyle(List<Finding> out, String file,
                                         JsonObject json, String raw) {
@@ -114,8 +117,10 @@ public final class AssetValidator {
                                 : "an object") + ", and it takes one part name",
                         "The monorail keys are plain strings, unlike the highway and "
                                 + "railway keys beside them, which accept either a "
-                                + "name or a list of them. A world style with a list "
-                                + "here does not decode, so nothing in it loads"));
+                                + "name or a list of them. Lost Cities reads this as "
+                                + "no value and uses its own monorails_" + key
+                                + " instead, so the parts named here never appear "
+                                + "and nothing says so"));
             }
         }
     }
@@ -146,6 +151,25 @@ public final class AssetValidator {
             }
             JsonObject ref = e.getAsJsonObject();
 
+            // A test the codec cannot parse is read as no test, because every one
+            // of them is an optional field, and optional fields in the codec
+            // library 1.20.1 ships answer a bad value with absence. "top": "yes"
+            // therefore places the part on every level, roofs included.
+            for (String key : List.of("ground", "top", "cellar", "floor")) {
+                boolean number = key.equals("floor");
+                if (!ref.has(key) || deadReported.contains(key)
+                        || (number ? Levels.integer(ref.get(key))
+                                : Levels.bool(ref.get(key))) != null) {
+                    continue;
+                }
+                deadReported.add(key);
+                out.add(Finding.error(file, lineOf(raw, key),
+                        "'" + key + "' is written as " + ref.get(key) + ", which is not "
+                                + (number ? "a number" : "true or false"),
+                        "Lost Cities reads a value it cannot parse as no test at all, "
+                                + "so this part is placed as if '" + key
+                                + "' were not there"));
+            }
             for (String dead : List.of("inpart", "belowpart")) {
                 if (ref.has(dead) && !deadReported.contains(dead)) {
                     deadReported.add(dead);
@@ -159,19 +183,20 @@ public final class AssetValidator {
                 }
             }
             if (ref.has("range")) {
-                String value = strOr(ref, "range");
+                String value = Levels.string(ref.get("range"));
                 if (value == null) {
                     out.add(Finding.error(file, lineOf(raw, "range"),
                             "'range' is not text", "It is two integers in a string, "
-                                    + "as in \"0,2\""));
+                                    + "as in \"0,2\". Anything else is read as no "
+                                    + "range, so this part applies at every level"));
                     continue;
                 }
-                if (parseRange(value) == null) {
+                if (Levels.range(value) == null) {
                     out.add(Finding.error(file, lineOf(raw, "range"),
                             "range \"" + value + "\" does not parse as two integers",
                             "The mod throws 'Bad range specification: " + value + "!'. "
                                     + "Write two integers separated by a comma and no space"));
-                } else if (value.split(",").length > 2) {
+                } else if (Levels.numbers(value) > 2) {
                     out.add(Finding.warn(file, lineOf(raw, "range"),
                             "range \"" + value + "\" has more than two numbers",
                             "The mod reads the first two and discards the rest, silently. "
@@ -202,16 +227,26 @@ public final class AssetValidator {
 
         // A building does not have to declare bounds. Conditions written as top true
         // and top false cover every level at any height, which is what the mod's own
-        // content does. So where a bound is declared, check that height; where it is
-        // not, check every height the profile could plausibly roll, and report the
-        // first that leaves a level uncovered.
-        int declaredTop = Math.max(intOr(json, "maxfloors", -1), intOr(json, "minfloors", -1));
-        int declaredDeep = Math.max(intOr(json, "maxcellars", -1), intOr(json, "mincellars", -1));
+        // content does. So every height the building can be generated at is checked,
+        // and the first that leaves a level uncovered is reported.
+        //
+        // Declared bounds narrow that, and do not pin it. Lost Cities rolls a height
+        // from the profile and then clamps it, min against maxfloors and max against
+        // minfloors, so every height from the lower bound to the larger of the two is
+        // reachable. Checking the top one alone passed a building whose conditions
+        // only worked at full height. Where a bound is missing the profile decides,
+        // and the default profile's minimum is 0.
+        int maxFloors = intOr(json, "maxfloors", -1);
+        int minFloors = intOr(json, "minfloors", -1);
+        int maxCellars = intOr(json, "maxcellars", -1);
+        int minCellars = intOr(json, "mincellars", -1);
+        boolean bounded = maxFloors >= 0 || minFloors >= 0;
 
-        int topFrom = declaredTop >= 0 ? declaredTop : 0;
-        int topTo = declaredTop >= 0 ? declaredTop : PROBED_MAX_FLOORS;
-        int deepFrom = declaredDeep >= 0 ? declaredDeep : 0;
-        int deepTo = declaredDeep >= 0 ? declaredDeep : PROBED_MAX_CELLARS;
+        int topTo = bounded ? Math.max(maxFloors, minFloors) : PROBED_MAX_FLOORS;
+        int topFrom = minFloors >= 0 ? Math.min(minFloors, topTo) : 0;
+        int deepTo = maxCellars >= 0 || minCellars >= 0
+                ? Math.max(maxCellars, minCellars) : PROBED_MAX_CELLARS;
+        int deepFrom = minCellars >= 0 ? Math.min(minCellars, deepTo) : 0;
 
         for (int deepest = deepFrom; deepest <= deepTo; deepest++) {
             for (int top = topFrom; top <= topTo; top++) {
@@ -219,7 +254,8 @@ public final class AssetValidator {
                 for (int level = -deepest; level <= top; level++) {
                     boolean matched = false;
                     for (JsonElement e : parts) {
-                        if (e.isJsonObject() && matchesLevel(e.getAsJsonObject(), level, top)) {
+                        if (e.isJsonObject()
+                                && Levels.matches(e.getAsJsonObject(), level, top)) {
                             matched = true;
                             break;
                         }
@@ -231,13 +267,17 @@ public final class AssetValidator {
                 if (uncovered.isEmpty()) {
                     continue;
                 }
-                String at = declaredTop >= 0
-                        ? "Levels run -" + deepest + " to " + top + " INCLUSIVE, so "
-                          + "'maxfloors': " + top + " is a " + (top + 1) + "-storey building."
-                        : "This building declares no floor bounds, so the profile decides "
+                String at = !bounded
+                        ? "This building declares no floor bounds, so the profile decides "
                           + "the height. At " + (top + 1) + " storeys and " + deepest
                           + " cellars, which the profile can roll, those levels match "
-                          + "nothing.";
+                          + "nothing."
+                        : top == topTo
+                        ? "Levels run -" + deepest + " to " + top + " INCLUSIVE, so "
+                          + "'maxfloors': " + top + " is a " + (top + 1) + "-storey building."
+                        : "Its bounds let it be generated " + (top + 1) + " storeys "
+                          + "tall with " + deepest + " cellars, not only at its full "
+                          + "height, and at that height these levels match nothing.";
                 out.add(Finding.error(file, lineOf(raw, "parts"),
                         "levels " + uncovered + " match no part",
                         at + " Generation throws 'Misconfiguration! Floor were generated "
@@ -251,43 +291,6 @@ public final class AssetValidator {
     /** The profile's own maximums, used when a building declares no bounds. */
     private static final int PROBED_MAX_FLOORS = 20;
     private static final int PROBED_MAX_CELLARS = 3;
-
-    /** Tests chain with AND, never OR. */
-    private static boolean matchesLevel(JsonObject ref, int level, int topIndex) {
-        if (ref.has("ground") && (level == 0) != ref.get("ground").getAsBoolean()) {
-            return false;
-        }
-        if (ref.has("top") && (level >= topIndex) != ref.get("top").getAsBoolean()) {
-            return false;
-        }
-        if (ref.has("cellar") && (level < 0) != ref.get("cellar").getAsBoolean()) {
-            return false;
-        }
-        if (ref.has("floor") && level != intOr(ref, "floor", Integer.MIN_VALUE)) {
-            return false;
-        }
-        if (ref.has("range")) {
-            int[] bounds = parseRange(strOr(ref, "range"));
-            return bounds != null && level >= bounds[0] && level <= bounds[1];
-        }
-        return true;
-    }
-
-    @Nullable
-    private static int[] parseRange(@Nullable String text) {
-        if (text == null) {
-            return null;
-        }
-        String[] pieces = text.split(",");
-        if (pieces.length < 2) {
-            return null;
-        }
-        try {
-            return new int[]{Integer.parseInt(pieces[0]), Integer.parseInt(pieces[1])};
-        } catch (NumberFormatException e) {
-            return null;
-        }
-    }
 
     // ----------------------------------------------------------------- palettes
 

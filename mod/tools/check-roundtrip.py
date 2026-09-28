@@ -201,7 +201,8 @@ CASES = [
         (0, 0, 0, 0, "minecraft:polished_andesite"),
     ], ["name rails", "height 6"]),
 
-    # The single-string kind. A list here is a load error, not a bigger row.
+    # The single-string kind. A list here is dropped for the default, not read
+    # as a bigger row.
     ("monorail/both/0", 12, [
         (0, 0, 0, 1, "minecraft:quartz_block"),
     ], ["name mono", "height 6"]),
@@ -373,8 +374,8 @@ print("  parts: %d, buildings: %d, multibuildings: %d"
 world = asset(before, "worldstyles", "main")
 print("  world style keys: %s" % sorted((world or {}).keys()))
 
-# A monorail key takes a plain string. A list there is a load error, and the pack
-# that carries one will not come back in the second half.
+# A monorail key takes a plain string. A list there is dropped for Lost Cities'
+# default part, so the pack that carries one would not come back as written.
 mono = ((world or {}).get("parts", {}).get("monorails", {}) or {}).get("both")
 print("  worldstyle.parts.monorails.both = %r" % (mono,))
 if mono is not None and not isinstance(mono, str):
@@ -586,5 +587,9 @@ shutil.rmtree(stash, ignore_errors=True)
 if os.path.isfile(dest):
     os.remove(dest)
 print("\nremoved the jar, rig baseline is clean again")
-print("\n" + ("FAILURES (%d):\n  " % len(failures)) + "\n  ".join(failures)
-      if failures else "\nall checks passed")
+# A check that prints its failures and exits 0 cannot fail a suite, which reads
+# the exit code.
+if failures:
+    print("\nFAILURES (%d):\n  " % len(failures) + "\n  ".join(failures))
+    raise SystemExit(1)
+print("\nall checks passed")

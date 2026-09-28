@@ -10,7 +10,7 @@ What it asserts, which is what phase 1 promised:
 
   * the catalogue for the target version produces the rows it should
   * every single-only row holds exactly one plot, because the monorail codec takes
-    a string and a list is a load error
+    a string and a list is dropped for the default part
   * the shape that parses and never generates is present and flagged, rather than
     quietly dropped
   * no two plots you can see together share a floor colour
@@ -408,5 +408,9 @@ finally:
         os.remove(dest)
     print("\nremoved the jar, rig baseline is clean again")
 
-print("\n" + ("FAILURES:\n  " + "\n  ".join(failures)) if failures
-      else "\nall checks passed")
+# A check that prints its failures and exits 0 cannot fail a suite, which reads
+# the exit code.
+if failures:
+    print("\nFAILURES (%d):\n  " % len(failures) + "\n  ".join(failures))
+    raise SystemExit(1)
+print("\nall checks passed")

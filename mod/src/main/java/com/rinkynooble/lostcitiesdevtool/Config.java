@@ -130,7 +130,15 @@ public class Config {
                         "does not parse or carries a third number, loot and mob holding an ID",
                         "rather than a Condition name, a char longer than one code unit or",
                         "starting above U+FFFF, a weighted list that misses or overruns its",
-                        "128 slots, and a slices layer that is not xsize by zsize characters.",
+                        "128 slots, a slices layer that is not xsize by zsize characters, a",
+                        "level test written with the wrong type, a Condition entry with a",
+                        "negative factor, factors totalling nothing or a key nothing reads,",
+                        "and a monorail part written as a list, which Lost Cities replaces",
+                        "with its own default part.",
+                        "",
+                        "Also on /reload, where it reads the files on disk: a Condition whose",
+                        "factor or value cannot be read stops the server starting, and this",
+                        "says so before the restart does.",
                         "",
                         "Reports only. Nothing is prevented from loading.")
                 .define("validateOnLoad", true);
@@ -199,9 +207,10 @@ public class Config {
         builder.pop();
 
         builder.comment(
-                "Each of these changes what generates. All default to false.",
-                "Turn one on only if you want the change, and expect a world generated",
-                "with it to differ from the same seed without it.")
+                "fixBelowPart and fixFullStreetShape change what generates, so both",
+                "default to false. Turn one on only if you want the change, and expect",
+                "a world generated with it to differ from the same seed without it.",
+                "The three client repairs change no generation and default to true.")
                 .push("repairs");
 
         fixBelowPart = builder

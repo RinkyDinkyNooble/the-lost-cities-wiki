@@ -15,6 +15,8 @@ import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
+import java.util.List;
+
 /**
  * Repair 4.1. Keeps the Cities button anchored to the right edge.
  *
@@ -75,7 +77,12 @@ public class ClientEvents {
         }
 
         LostCitySetup setup = gui.getLocalSetup();
-        setup.setProfile(Profiles.previous(setup.getProfile()));
+        // The list the forward cycle steps through, where the screen has one, so
+        // the backward cycle is its inverse whatever order it is in and whatever
+        // customize appended to it. Rebuilt only before the screen has built it.
+        List<String> live = ((ProfileListAccess) (Object) setup).lostcitiesdevtool$profiles();
+        setup.setProfile(ProfileOrder.previous(
+                live != null ? live : Profiles.selectable(), setup.getProfile()));
         // setProfile refreshes the preview on its own. The labels are the screen's
         // business, and this is the same call the left click makes after toggling.
         access.lostcitiesdevtool$updateValues();

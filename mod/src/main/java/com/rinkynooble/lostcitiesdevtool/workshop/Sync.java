@@ -4,6 +4,8 @@ import com.google.gson.JsonObject;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 
+import javax.annotation.Nullable;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -43,6 +45,9 @@ public final class Sync {
      */
     private static final Set<String> STRUCTURAL =
             Set.of("chunks", "levels", "raw", "marks", "conversions");
+
+    /** The front desk's block of profile keys. Not a field, and read only there. */
+    private static final String PROFILE = "profile";
 
     /** Something about one file worth saying out loud. */
     public record Note(String plotId, String what) {
@@ -105,18 +110,17 @@ public final class Sync {
             }
 
             int slash = id.lastIndexOf('/');
-            Catalogue.Row row = slash < 0 ? null
-                    : Catalogue.row(id.substring(0, slash));
-            if (row == null) {
-                notes.add(new Note(id, "names no row in the catalogue, so nothing "
-                        + "will ever read it"));
-                continue;
-            }
-
             int index;
             try {
-                index = Integer.parseInt(id.substring(slash + 1));
+                index = slash < 0 ? -1 : Integer.parseInt(id.substring(slash + 1));
             } catch (NumberFormatException e) {
+                index = -1;
+            }
+            Catalogue.Row row = rowFor(id, slash, index, notes);
+            if (row == null) {
+                continue;
+            }
+            if (index < 0) {
                 notes.add(new Note(id, "does not end in a plot number"));
                 continue;
             }
@@ -139,19 +143,22 @@ public final class Sync {
             if (row != null && row.kind() == Catalogue.Kind.SINGLE) {
                 notes.add(new Note(e.getKey(), "holds one plot however many files "
                         + "name it, because a list where the mod takes a string is "
-                        + "a load error rather than a bigger row"));
+                        + "dropped for the default rather than read as a bigger row"));
                 continue;
             }
             // The command that grows a row by hand is capped, and this is the
             // same growing reached from a file name instead. A stray
             // `building/1x1/99999.json5` would otherwise lay out a hundred
             // thousand plots and paint every floor, on the server thread, because
-            // of a typo.
-            if (e.getValue() > Layout.MAX_PLOTS_IN_ROW) {
+            // of a typo. The cap is the command's own, by area as well as count:
+            // sixty 10x10 plots is six thousand chunks of floor.
+            int allowed = row == null ? Layout.MAX_PLOTS_IN_ROW
+                    : Layout.plotsAllowed(row.width(), row.height());
+            if (e.getValue() > allowed) {
                 notes.add(new Note(e.getKey(), "would have to hold " + e.getValue()
-                        + " plots to reach a file naming one, and "
-                        + Layout.MAX_PLOTS_IN_ROW + " is the most a row lays out. "
-                        + "The row was left alone."));
+                        + " plots to reach a file naming one, and " + allowed
+                        + " is the most a row of this size lays out. The row was "
+                        + "left alone."));
                 continue;
             }
             Layout.grow(e.getKey(), e.getValue());
@@ -166,6 +173,41 @@ public final class Sync {
     }
 
     /**
+     * The row a settings file names, or null with a note saying why there is none.
+     *
+     * <p>A multi-building footprint the generated catalogue lacks is made, the way
+     * {@code workshop grow} and an import make one. Reporting it as naming no row
+     * was the same fault 3.1.1 fixed for {@code grow}: the development path was
+     * refused while the import path worked, so a footprint written by hand could
+     * never be reached. It is measured before it is made, because a band once
+     * registered is never taken back.
+     */
+    @Nullable
+    private static Catalogue.Row rowFor(String id, int slash, int index,
+                                        List<Note> notes) {
+        String rowId = slash < 0 ? id : id.substring(0, slash);
+        Catalogue.Row row = slash < 0 ? null : Catalogue.row(rowId);
+        if (row != null) {
+            return row;
+        }
+        int[] size = slash < 0 ? null : Catalogue.multiSize(rowId);
+        if (size == null || index < 0) {
+            notes.add(new Note(id, "names no row in the catalogue, so nothing will "
+                    + "ever read it"));
+            return null;
+        }
+        int allowed = Layout.plotsAllowed(size[0], size[1]);
+        if (index + 1 > allowed) {
+            notes.add(new Note(id, "names plot " + index + " of a " + size[0] + "x"
+                    + size[1] + " footprint, and " + allowed + " is the most a row of "
+                    + "that size lays out. No row was made for it."));
+            return null;
+        }
+        String made = Catalogue.registerMulti(rowId);
+        return made == null ? null : Catalogue.row(made);
+    }
+
+    /**
      * Keys the plot has no use for.
      *
      * <p>Worth saying because nothing else says it. A mistyped key is not an error
@@ -177,6 +219,12 @@ public final class Sync {
                                         Catalogue.Row row) {
         List<String> known = new ArrayList<>(STRUCTURAL);
         Settings.fieldsFor(row).forEach(f -> known.add(f.name()));
+        if (row == null) {
+            // The pack's profile keys, which an import writes on the front desk and
+            // an export reads from there alone. Called stray after every import of
+            // a pack whose profile names an alternative city style.
+            known.add(PROFILE);
+        }
         List<Note> out = new ArrayList<>();
         walkScope(id, settings, known, "", out, Set.of("chunks", "levels"));
         return out;

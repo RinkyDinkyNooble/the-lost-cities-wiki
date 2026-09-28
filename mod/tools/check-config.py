@@ -346,30 +346,70 @@ elif off == on:
 # ------------------------------------------------- 3 and 4, the check that runs at load
 
 BROKEN = {"filler": "#", "parts": [{"part": "p", "inpart": "x"}]}
+# A Condition and a world style the load check has rules for, each wrong in a way
+# the server survives. Neither folder was read at load before 3.1.2, while the
+# README and the CurseForge page said both were.
+BROKEN_CONDITION = {"values": [{"factor": -1, "value": "a", "nosuchkey": 1},
+                               {"factor": 1, "value": "b"}]}
+BROKEN_WORLDSTYLE = {"outsidestyle": "outside", "citystyles": [],
+                     "parts": {"monorails": {"both": ["a", "b"]}}}
+# One the server does not survive: a Condition it cannot decode stops it starting,
+# with Minecraft naming the file. Written after the boot, so a /reload is the only
+# thing that reads it, which is the one place its rules can speak.
+UNREADABLE_CONDITION = {"values": [{"factor": "lots", "value": "a"}]}
 
 
-def with_broken_asset(**toggles):
-    """Boot with an asset the check is documented to refuse, and hand back the log."""
+def with_broken_asset(reload=False, **toggles):
+    """Boot with assets the check is documented to refuse, and hand back the log."""
     install()
-    folder = os.path.join(WORLD, "datapacks", PACK, "data", NS, "lostcities",
-                          "buildings")
-    os.makedirs(folder, exist_ok=True)
-    io.open(os.path.join(folder, "broken.json"), "w", encoding="utf-8",
-            newline="\n").write(json.dumps(BROKEN, indent=2))
+    lc = os.path.join(WORLD, "datapacks", PACK, "data", NS, "lostcities")
+    for kind, name, body in (("buildings", "broken", BROKEN),
+                             ("conditions", "brokenloot", BROKEN_CONDITION),
+                             ("worldstyles", "brokenmono", BROKEN_WORLDSTYLE)):
+        os.makedirs(os.path.join(lc, kind), exist_ok=True)
+        io.open(os.path.join(lc, kind, name + ".json"), "w", encoding="utf-8",
+                newline="\n").write(json.dumps(body, indent=2))
     write_config(**toggles)
     proc, log = boot()
+    if reload:
+        io.open(os.path.join(lc, "conditions", "unreadable.json"), "w",
+                encoding="utf-8", newline="\n").write(
+            json.dumps(UNREADABLE_CONDITION, indent=2))
+        before = len(log)
+        with Rcon(port=25575, password="lcwiki") as con:
+            con.command("reload")
+        deadline = time.time() + 60
+        while time.time() < deadline and not any(
+                "unreadable.json" in line for line in log[before:]):
+            time.sleep(0.5)
     stop(proc)
     return "\n".join(log)
 
 
 print("\n" + "=" * 72)
 print("3. validateOnLoad on: a broken asset is reported at load")
-said = with_broken_asset(validateOnLoad=True)
+said = with_broken_asset(reload=True, validateOnLoad=True)
 found = "Lost Cities asset check" in said
 print("  the asset check ran: %s" % found)
 if not found:
     fail("validateOnLoad is on and the asset check said nothing about a building "
          "whose part condition can never match")
+else:
+    lines = said.splitlines()
+    for where, words, what in (
+            ("buildings/broken.json", "inpart", "a building part that never matches"),
+            ("conditions/brokenloot.json", "negative factor",
+             "a Condition entry with a negative factor"),
+            ("conditions/brokenloot.json", "nothing reads",
+             "a Condition entry with a key nothing reads"),
+            ("worldstyles/brokenmono.json", "'both' is a list",
+             "a monorail part written as a list"),
+            ("conditions/unreadable.json", "readable 'factor'",
+             "a Condition the server cannot load, seen on /reload")):
+        named = any(where in line and words in line for line in lines)
+        print("  %-48s %s" % (what, "reported" if named else "SILENT"))
+        if not named:
+            fail("the asset check said nothing about %s (%s)" % (what, where))
 
 print("\n" + "=" * 72)
 print("4. validateOnLoad off: it says nothing")
@@ -497,6 +537,72 @@ if on7 == 0:
 if off8 != 0:
     fail("a .json5 world style still generated with the toggle off, so the toggle "
          "does not decide whether the extension reaches Lost Cities")
+
+print("\n" + "=" * 72)
+print("9. a fresh config file's comments say what the defaults are")
+# Forge writes the comments only into a file it creates, so this boots with none.
+# The [repairs] comment told every user that all five repairs default to false,
+# and three of them are client repairs that default to true.
+install()
+if os.path.isfile(MOD_CONFIG):
+    os.remove(MOD_CONFIG)
+proc, log = boot()
+stop(proc)
+fresh = (io.open(MOD_CONFIG, encoding="utf-8").read()
+         if os.path.isfile(MOD_CONFIG) else "")
+repairs = fresh[fresh.find("[repairs]") - 400:fresh.find("[repairs]")]
+print("  comment above [repairs]: " + re.sub(r"[\s#]+", " ", repairs).strip()[-160:])
+if not fresh:
+    fail("no config file was written, so nothing about its comments was read")
+elif "All default to false" in fresh:
+    fail("the [repairs] comment says all five default to false, and three are on")
+elif "default to true" not in repairs:
+    fail("the [repairs] comment does not say which repairs default to true")
+elif "monorail part written as a list" not in fresh:
+    fail("the validateOnLoad comment does not list the monorail rule it now runs")
+
+print("\n" + "=" * 72)
+print("10. between two packs the later one wins, whatever the extension")
+# Two files of one name in two packs is how a datapack overrides another. The rule
+# was ".json5 always wins", so a .json5 in an early pack beat the .json a later pack
+# put there to replace it, and the override report then said to delete one of a
+# pair that belonged to two different packs. Inside one pack the .json5 still wins.
+# Datapacks found in a new world are enabled in name order, so b_late is later.
+install()
+for pack, name, ext, block in (
+        ("a_early", "order", ".json5", "minecraft:gold_block"),
+        ("b_late", "order", ".json", "minecraft:diamond_block"),
+        ("b_late", "samepack", ".json", "minecraft:iron_block"),
+        ("b_late", "samepack", ".json5", "minecraft:emerald_block")):
+    root = os.path.join(WORLD, "datapacks", pack)
+    folder = os.path.join(root, "data", "prec", "lostcities", "palettes")
+    os.makedirs(folder, exist_ok=True)
+    io.open(os.path.join(root, "pack.mcmeta"), "w", encoding="utf-8",
+            newline="\n").write(json.dumps(
+                {"pack": {"pack_format": 15, "description": pack}}))
+    io.open(os.path.join(folder, name + ext), "w", encoding="utf-8",
+            newline="\n").write(json.dumps(
+                {"palette": [{"char": "Q", "block": block}]}, indent=2))
+write_config()
+proc, log = boot()
+try:
+    with Rcon(port=25575, password="lcwiki") as con:
+        across = con.command("lcdev in prec:order char Q")
+        within = con.command("lcdev in prec:samepack char Q")
+finally:
+    stop(proc)
+said = "\n".join(log)
+print("  across two packs: " + re.sub(r"\s+", " ", across)[-90:])
+print("  within one pack:  " + re.sub(r"\s+", " ", within)[-90:])
+if "diamond_block" not in across:
+    fail("a .json5 in an earlier pack replaced the .json a later pack put there to "
+         "override it")
+if "emerald_block" not in within:
+    fail("inside one pack the .json5 did not win over the .json beside it")
+if "prec:lostcities/palettes/order" in said:
+    fail("the override report named a pair from two packs as one to tidy up")
+if "prec:lostcities/palettes/samepack" not in said:
+    fail("the override report did not name the pair inside one pack")
 
 print("\n" + "=" * 72)
 print("not checked here, and why")

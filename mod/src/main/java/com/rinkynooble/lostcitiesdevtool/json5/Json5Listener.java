@@ -32,13 +32,18 @@ public class Json5Listener extends SimplePreparableReloadListener<List<String>> 
         if (!Config.on(Config.INSTANCE.acceptJson5Extension, true)) {
             return overrides;
         }
-        Map<ResourceLocation, Resource> five = manager.listResources(
-                "lostcities", path -> path.getPath().endsWith(Json5.EXT_JSON5));
-        for (ResourceLocation location : five.keySet()) {
-            ResourceLocation shadowed = Json5.asJson(location);
-            if (manager.getResource(shadowed).isPresent()) {
-                overrides.add(location.getNamespace() + ":" + location.getPath());
-            }
+        // Only the pairs where the .json5 is the one read. A .json in a later pack
+        // replacing a .json5 in an earlier one is ordinary datapack overriding, and
+        // telling somebody to delete one of those is telling them to edit a pack
+        // that is not theirs.
+        Map<ResourceLocation, Resource> json = manager.listResources(
+                "lostcities", path -> path.getPath().endsWith(Json5.EXT_JSON));
+        for (ResourceLocation shadowed : Json5.merge(manager, "lostcities", json)
+                .shadowed()) {
+            String path = shadowed.getPath();
+            overrides.add(shadowed.getNamespace() + ":"
+                    + path.substring(0, path.length() - Json5.EXT_JSON.length())
+                    + Json5.EXT_JSON5);
         }
         return overrides;
     }

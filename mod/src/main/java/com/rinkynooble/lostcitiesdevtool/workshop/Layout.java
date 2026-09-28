@@ -119,7 +119,8 @@ public final class Layout {
     /** How many plots a row holds, which is its default unless it has been grown. */
     public static int plotsIn(Catalogue.Row row) {
         // A row the codec allows only one of stays at one however much a pack holds.
-        // A list where the mod takes a string is a load error, not a bigger row.
+        // A list where the mod takes a string is dropped for the default, not read
+        // as a bigger row.
         if (row.kind() == Catalogue.Kind.SINGLE) {
             return 1;
         }

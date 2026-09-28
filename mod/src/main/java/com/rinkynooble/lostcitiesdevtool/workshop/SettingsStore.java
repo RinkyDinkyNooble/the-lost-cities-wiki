@@ -1,9 +1,11 @@
 package com.rinkynooble.lostcitiesdevtool.workshop;
 
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import com.rinkynooble.lostcitiesdevtool.json5.Json5;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.storage.LevelResource;
@@ -156,7 +158,10 @@ public final class SettingsStore {
             }
             first = false;
             out.append(wrap(explain(key), "  // ")).append('\n');
-            out.append("  \"").append(key).append("\": ")
+            // Quoted by Gson rather than by hand. A key arriving from a file edited
+            // by hand may hold a quote or a backslash, and written between two
+            // bare quote marks it made the next save unreadable.
+            out.append("  ").append(new JsonPrimitive(key)).append(": ")
                     .append(pretty(values.get(key), "  ")).append(",\n");
         }
         out.append("}\n");
@@ -192,14 +197,22 @@ public final class SettingsStore {
         };
     }
 
+    /**
+     * Without HTML escaping, as the exporter already writes. Gson's default turns
+     * every equals sign into a six-character unicode escape, so a block state in a
+     * mark or a conversion came back unreadable in a file meant to be read.
+     */
+    private static final Gson COMPACT = new GsonBuilder().disableHtmlEscaping().create();
+    private static final Gson PRETTY = new GsonBuilder().disableHtmlEscaping()
+            .setPrettyPrinting().create();
+
     /** One line per value, because a settings file is read more than it is edited. */
     private static String compact(JsonElement e) {
-        return new GsonBuilder().create().toJson(e);
+        return COMPACT.toJson(e);
     }
 
     private static String pretty(JsonElement e, String indent) {
-        String text = new GsonBuilder().setPrettyPrinting().create().toJson(e);
-        return text.replace("\n", "\n" + indent);
+        return PRETTY.toJson(e).replace("\n", "\n" + indent);
     }
 
     /** Hard wrap, because chat and editors both cope badly with a very long line. */

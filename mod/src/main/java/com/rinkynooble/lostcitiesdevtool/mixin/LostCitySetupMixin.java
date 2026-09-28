@@ -2,8 +2,8 @@ package com.rinkynooble.lostcitiesdevtool.mixin;
 
 import com.rinkynooble.lostcitiesdevtool.Config;
 import com.rinkynooble.lostcitiesdevtool.LostCitiesDevTool;
-import mcjty.lostcities.config.LostCityProfile;
-import mcjty.lostcities.config.ProfileSetup;
+import com.rinkynooble.lostcitiesdevtool.client.ProfileListAccess;
+import com.rinkynooble.lostcitiesdevtool.client.Profiles;
 import mcjty.lostcities.gui.LostCitySetup;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -13,7 +13,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Repair 4.4. Stops the Customize button crashing the game.
@@ -32,14 +31,20 @@ import java.util.Map;
  *   at mcjty.lostcities.gui.LostCitySetup.customize(LostCitySetup.java:95)
  * </pre>
  *
- * <p>The repair rebuilds the list exactly as {@code toggleProfile} does, from the
- * public entries of {@code ProfileSetup.STANDARD_PROFILES}, and only when it is
- * null. Nothing happens on the normal path.
+ * <p>The repair rebuilds the list the way {@code toggleProfile} does, from the public
+ * entries of {@code ProfileSetup.STANDARD_PROFILES} and in its order, and only when
+ * it is null. Nothing happens on the normal path. The order matters because
+ * {@code toggleProfile} sorts only a list it built itself: one built here unsorted
+ * was stepped through in hash order from then on.
+ *
+ * <p>It also hands the live list to the backward cycle, through
+ * {@link ProfileListAccess}, so that one steps through exactly what the forward
+ * cycle does.
  *
  * <p>Client only, and it changes no generation, so it defaults to on.
  */
 @Mixin(LostCitySetup.class)
-public abstract class LostCitySetupMixin {
+public abstract class LostCitySetupMixin implements ProfileListAccess {
 
     @Shadow(remap = false)
     private List<String> profiles;
@@ -49,15 +54,15 @@ public abstract class LostCitySetupMixin {
         if (!Config.INSTANCE.fixCustomizeCrash.get() || profiles != null) {
             return;
         }
-        List<String> rebuilt = new ArrayList<>();
-        for (Map.Entry<String, LostCityProfile> entry : ProfileSetup.STANDARD_PROFILES.entrySet()) {
-            if (entry.getValue().isPublic()) {
-                rebuilt.add(entry.getKey());
-            }
-        }
-        profiles = rebuilt;
+        // A list customize can add to, which the one Profiles returns may not be.
+        profiles = new ArrayList<>(Profiles.selectable());
         LostCitiesDevTool.LOGGER.info(
                 "Rebuilt the profile list before Customize, which would otherwise "
-                        + "have thrown. {} public profiles.", rebuilt.size());
+                        + "have thrown. {} public profiles.", profiles.size());
+    }
+
+    @Override
+    public List<String> lostcitiesdevtool$profiles() {
+        return profiles;
     }
 }

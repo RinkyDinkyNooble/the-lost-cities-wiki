@@ -146,10 +146,10 @@ Lost Cities asset check: <span style="color:#ed3d3d">2 errors</span>, <span styl
 
 It catches floor ranges that leave a level with nothing to build, conditions that can
 never match, invalid block names, weighted lists that do not add up, layers that are the
-wrong size, Condition entries whose weight is missing or unreadable, and two faults that
-otherwise pass in silence: a monorail part written as a list, which stops a world style
-loading, and an inline palette written as a bare list, which loads perfectly and
-generates an empty building.
+wrong size, Condition entries whose weight is negative, adds up to nothing or cannot be
+read, and two faults that otherwise pass in silence: a monorail part written as a list,
+which Lost Cities swaps for its own default part, and an inline palette written as a
+bare list, which loads perfectly and generates an empty building.
 
 **Nothing is blocked from loading.** The check tells you what is wrong and lets the pack
 run.

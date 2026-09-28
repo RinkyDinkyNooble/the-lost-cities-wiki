@@ -17,8 +17,8 @@ Three row classes, and the difference decides what a plot's settings need:
 
   part-list   Streets, highways and railways. `Tools.listOrStringList`, so a bare
               string or an unbounded list, picked uniform random with no weight.
-  single      Monorails. Plain `Codec.STRING`. A list is a load error, so exactly
-              one plot, ever.
+  single      Monorails. Plain `Codec.STRING`. A list is read as no value and the
+              default part used, so exactly one plot, ever.
   selector    Buildings, multibuildings, parks and the rest. `ObjectSelector`, so
               each entry carries a required `factor` and optional distance gating.
 """

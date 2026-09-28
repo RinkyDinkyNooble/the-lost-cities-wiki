@@ -1,5 +1,6 @@
 package com.rinkynooble.lostcitiesdevtool.workshop;
 
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -27,6 +28,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -113,6 +115,15 @@ public final class Exporter {
     private final Map<String, String> claimedBy = new LinkedHashMap<>();
     /** Faults found while compiling, which the file-by-file rules cannot see. */
     private final List<Finding> faults = new ArrayList<>();
+    /** {@code plot/key} pairs already refused, so a value read per level says so once. */
+    private final Set<String> reportedUnreadable = new LinkedHashSet<>();
+
+    /** The position every block is read at, reused rather than made per block. */
+    private final BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
+    /** Block state to its text. States are shared instances, so identity is enough. */
+    private final Map<BlockState, String> described = new IdentityHashMap<>();
+    /** Each asset as written, kept from the check so the write does not redo it. */
+    private final Map<String, String> texts = new LinkedHashMap<>();
     /**
      * Part body -> the name it was written under, for one building at a time.
      *
@@ -368,10 +379,12 @@ public final class Exporter {
             // A flat plot is one part, so `building` and `part` mean the same
             // thing here: its own palette, carried in the file.
             partsByBody.clear();
+            // The shared map is also the signal emitPart reads to choose between a
+            // refpalette and a palette written into the file.
             emitPart(partName, plot, 0, 0, Boundaries.BASE, height,
-                    rulesFor(settings, settings, 0, 0, 0),
-                    sinkFor(settings, "global".equals(placement(settings))
-                            ? null : new LinkedHashMap<>()));
+                    rulesFor(plot, settings, settings, 0, 0, 0),
+                    "global".equals(placement(settings))
+                            ? cells : new LinkedHashMap<>());
             applyRaw("parts/" + partName, settings);
             record(row, plot, settings, name, partName);
             return;
@@ -496,7 +509,7 @@ public final class Exporter {
         }
         if (settings.has("preferslonely")) {
             building.addProperty("preferslonely",
-                    settings.get("preferslonely").getAsFloat());
+                    number(plot, settings, "preferslonely", 0));
         }
 
         JsonArray parts = new JsonArray();
@@ -505,7 +518,7 @@ public final class Exporter {
         for (int c = cellars; c >= 1; c--) {
             JsonObject atLevel = Settings.resolve(plotSettings, dx, dz, -c);
             Emitted got = emitPart(name + "_c" + c, plot, dx, dz, y,
-                    Boundaries.STRIDE, rulesFor(plotSettings, atLevel, dx, dz, -c),
+                    Boundaries.STRIDE, rulesFor(plot, plotSettings, atLevel, dx, dz, -c),
                     perPart ? new LinkedHashMap<>() : buildingSink);
             parts.add(ref(got.name(), "floor", -c));
             y += Boundaries.STRIDE;
@@ -513,7 +526,7 @@ public final class Exporter {
         for (int f = 0; f <= floors; f++) {
             JsonObject atLevel = Settings.resolve(plotSettings, dx, dz, f);
             Emitted got = emitPart(name + "_f" + f, plot, dx, dz, y,
-                    Boundaries.STRIDE, rulesFor(plotSettings, atLevel, dx, dz, f),
+                    Boundaries.STRIDE, rulesFor(plot, plotSettings, atLevel, dx, dz, f),
                     perPart ? new LinkedHashMap<>() : buildingSink);
             String part = got.name();
             if (f == 0) {
@@ -537,7 +550,7 @@ public final class Exporter {
             int levelOfTop = floors + 1 + t;
             JsonObject atLevel = Settings.resolve(plotSettings, dx, dz, levelOfTop);
             Emitted got = emitPart(name + "_t" + (t + 1), plot, dx, dz, y, height,
-                    rulesFor(plotSettings, atLevel, dx, dz, levelOfTop),
+                    rulesFor(plot, plotSettings, atLevel, dx, dz, levelOfTop),
                     perPart ? new LinkedHashMap<>() : buildingSink);
             JsonObject r = new JsonObject();
             r.addProperty("part", namespace + ":" + got.name());
@@ -601,18 +614,28 @@ public final class Exporter {
      * A pack-wide table nothing can override is not a default, it is a law, and the
      * whole point of scoping a conversion is that one plot can say otherwise.
      */
-    private Rules rulesFor(JsonObject plotSettings, JsonObject resolved,
+    private Rules rulesFor(Layout.Plot plot, JsonObject plotSettings,
+                           JsonObject resolved,
                            int dx, int dz, int level) {
         JsonObject marks = resolved.has("marks") && resolved.get("marks").isJsonObject()
                 ? resolved.getAsJsonObject("marks") : new JsonObject();
 
+        // Only text. A conversion names the block to write, and anything else threw
+        // out of the export on the first block it matched.
         JsonObject conversions = new JsonObject();
-        if (core.has("conversions") && core.get("conversions").isJsonObject()) {
-            core.getAsJsonObject("conversions").entrySet()
-                    .forEach(e -> conversions.add(e.getKey(), e.getValue()));
+        JsonObject pack = core.has("conversions") && core.get("conversions").isJsonObject()
+                ? core.getAsJsonObject("conversions") : new JsonObject();
+        for (JsonObject table : List.of(pack,
+                Settings.layered(plotSettings, dx, dz, level, "conversions"))) {
+            for (Map.Entry<String, JsonElement> e : table.entrySet()) {
+                if (Levels.string(e.getValue()) != null) {
+                    conversions.add(e.getKey(), e.getValue());
+                } else {
+                    unreadable(plot, "conversions." + e.getKey(), e.getValue(),
+                            "a block to write");
+                }
+            }
         }
-        Settings.layered(plotSettings, dx, dz, level, "conversions").entrySet()
-                .forEach(e -> conversions.add(e.getKey(), e.getValue()));
 
         JsonArray paths = new JsonArray();
         if (core.has(TagFilter.KEY) && core.get(TagFilter.KEY).isJsonArray()) {
@@ -852,7 +875,7 @@ public final class Exporter {
             }
             return;
         }
-        List<String> styles = strings(settings, "citystyles");
+        List<String> styles = names(plot, settings, "citystyles");
         if (styles.isEmpty()) {
             warnings.add(plot.id() + " names no city style, so nothing references it. "
                     + "Set citystyles on it.");
@@ -865,13 +888,12 @@ public final class Exporter {
                         .add(namespace + ":" + partName);
             } else {
                 JsonObject entry = new JsonObject();
-                entry.addProperty("factor", settings.has("factor")
-                        ? settings.get("factor").getAsFloat() : 1.0f);
+                entry.addProperty("factor", number(plot, settings, "factor", 1.0f));
                 entry.addProperty("value", full);
                 for (String k : List.of("feather", "minSpawnDistance",
                         "maxSpawnDistance")) {
                     if (settings.has(k)) {
-                        entry.add(k, settings.get(k));
+                        entry.addProperty(k, (int) number(plot, settings, k, 0));
                     }
                 }
                 selectors.computeIfAbsent(style, k -> new TreeMap<>())
@@ -1011,9 +1033,9 @@ public final class Exporter {
                 shapes.forEach((key, names) -> {
                     // The monorail keys take one name. Their codec is a plain
                     // string, unlike the highway and railway keys beside them,
-                    // which accept either, so a list here is not a longer row: it
-                    // is a world style that does not decode and takes everything
-                    // else in the file down with it.
+                    // which accept either, so a list here is not a longer row: Lost
+                    // Cities reads it as no value, uses its own default part, and
+                    // says nothing.
                     if (singleValued.contains(fam + "/" + key)) {
                         if (names.size() > 1) {
                             warnings.add(fam + " " + key + " holds one part only, "
@@ -1109,17 +1131,6 @@ public final class Exporter {
             case "part", "building", "global" -> value;
             default -> "global";
         };
-    }
-
-    /**
-     * A sink, or the shared one.
-     *
-     * <p>Null means the shared map, which is also the signal {@link #emitPart} reads
-     * to decide between a {@code refpalette} and a palette written in the file.
-     */
-    private Map<String, JsonObject> sinkFor(JsonObject settings,
-                                            @Nullable Map<String, JsonObject> own) {
-        return own == null ? cells : own;
     }
 
     /**
@@ -1359,12 +1370,58 @@ public final class Exporter {
         }
     }
 
-    private static List<String> strings(JsonObject o, String key) {
+    /**
+     * A number from a plot's settings, or the fallback with a fault recorded.
+     *
+     * <p>The settings file is edited by hand, so a word where a number belongs is
+     * the ordinary case. Asking Gson for it threw out of the export and the command
+     * answered "An unexpected error occurred". Written into the pack as it stands,
+     * Lost Cities would read it as no value at all. Refused here instead, naming
+     * the plot and the key, once however many levels ask.
+     */
+    private float number(Layout.Plot plot, JsonObject settings, String key,
+                         float fallback) {
+        JsonElement e = settings.get(key);
+        if (e == null) {
+            return fallback;
+        }
+        if (e.isJsonPrimitive() && e.getAsJsonPrimitive().isNumber()) {
+            return e.getAsFloat();
+        }
+        unreadable(plot, key, e, "a number");
+        return fallback;
+    }
+
+    /** Names from a list in a plot's settings, with anything else refused. */
+    private List<String> names(Layout.Plot plot, JsonObject settings, String key) {
         List<String> out = new ArrayList<>();
-        if (o.has(key) && o.get(key).isJsonArray()) {
-            o.getAsJsonArray(key).forEach(e -> out.add(e.getAsString()));
+        JsonElement list = settings.get(key);
+        if (list == null) {
+            return out;
+        }
+        if (!list.isJsonArray()) {
+            unreadable(plot, key, list, "a list of names");
+            return out;
+        }
+        for (JsonElement e : list.getAsJsonArray()) {
+            if (e.isJsonPrimitive() && e.getAsJsonPrimitive().isString()) {
+                out.add(e.getAsString());
+            } else {
+                unreadable(plot, key, e, "a name");
+            }
         }
         return out;
+    }
+
+    /** One fault per plot and key, however many levels read the value. */
+    private void unreadable(Layout.Plot plot, String key, JsonElement value,
+                            String wanted) {
+        if (reportedUnreadable.add(plot.id() + "/" + key)) {
+            faults.add(Finding.error(plot.id(), 0, key + " is written as " + value
+                            + ", which is not " + wanted,
+                    "Fix it in the plot's settings file. Written into the pack as it "
+                            + "stands, Lost Cities would read it as no value at all"));
+        }
     }
 
     private static List<Integer> ints(JsonObject o, String key) {

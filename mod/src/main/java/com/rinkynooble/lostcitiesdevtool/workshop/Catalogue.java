@@ -35,8 +35,9 @@ public final class Catalogue {
          */
         PART_LIST,
         /**
-         * Monorails. Plain {@code Codec.STRING}: a list is a load error, so the row
-         * holds exactly one plot and can never hold two.
+         * Monorails. Plain {@code Codec.STRING}: a list is read as no value and the
+         * default part is used, so the row holds exactly one plot and can never
+         * hold two.
          */
         SINGLE,
         /**
@@ -252,9 +253,16 @@ public final class Catalogue {
      * before, or every plot in them moves.
      */
     public static synchronized void setExtraMultis(List<String> ids) {
+        if (generated == null) {
+            generated = load();
+        }
         List<String> next = new ArrayList<>();
         for (String id : ids) {
-            if (sizeOf(id) != null && !next.contains(id)) {
+            // Not one the generated catalogue already has. Registering never makes
+            // one, but the list is read back from a file somebody may have edited,
+            // and a second row under the same id reserves a second band.
+            boolean shipped = generated.stream().anyMatch(r -> r.id().equals(id));
+            if (sizeOf(id) != null && !shipped && !next.contains(id)) {
                 next.add(id);
             }
         }

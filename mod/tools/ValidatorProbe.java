@@ -53,6 +53,35 @@ public class ValidatorProbe {
                     {"filler": "#", "parts": [{"part": "p", "range": "9"}]}""",
                     "range"),
 
+            // Lost Cities splits a range with StringUtils.split, which drops empty
+            // pieces, so "0,,2" is 0 to 2. Split on every comma it was reported
+            // as broken.
+            new Case("range with an empty piece", "buildings", """
+                    {"filler": "#", "minfloors": 0, "maxfloors": 2,
+                     "mincellars": 0, "maxcellars": 0,
+                     "parts": [{"part": "p", "range": "0,,2"}]}""", ""),
+
+            // And it parses each number as written, so a space is a throw.
+            new Case("range with a space", "buildings", """
+                    {"filler": "#", "parts": [{"part": "p", "range": "0, 2"}]}""",
+                    "does not parse"),
+
+            // The roll is clamped into the bounds, so every height between is
+            // reachable. At two storeys level 2 is the top, which the first part
+            // refuses and the second does not cover. Checking only the full
+            // height passed this.
+            new Case("a height between the bounds", "buildings", """
+                    {"filler": "#", "minfloors": 2, "maxfloors": 4,
+                     "mincellars": 0, "maxcellars": 0,
+                     "parts": [{"part": "a", "range": "0,3", "top": false},
+                               {"part": "b", "floor": 4}]}""", "match no part"),
+
+            // An optional field the codec cannot parse is absent, so this part
+            // is placed on every level. Read as false it was reported as a gap.
+            new Case("a test of the wrong type", "buildings", """
+                    {"filler": "#", "minfloors": 1, "maxfloors": 1,
+                     "parts": [{"part": "p", "top": "yes"}]}""", "not true or false"),
+
             new Case("range with three numbers", "buildings", """
                     {"filler": "#", "minfloors": 0, "maxfloors": 2,
                      "parts": [{"part": "p", "range": "0,2,9"},

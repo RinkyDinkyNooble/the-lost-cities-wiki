@@ -220,8 +220,9 @@ try:
 
         print("\n" + "=" * 72)
         print("6. a row that holds one plot however many files name it")
-        # A monorail takes a plain string, so a list there is a load error rather
-        # than a bigger row. Documented, and until now never exercised.
+        # A monorail takes a plain string, so a list there is dropped for the
+        # default rather than read as a bigger row. Documented, and until now never
+        # exercised.
         write_settings("monorail/both/3", {"name": "extra"})
         said = con.command("lcdev workshop sync").rstrip()
         print("  " + said.replace("\n", " ")[-190:])
@@ -230,7 +231,7 @@ try:
                  "ever holds one")
         if plot_count("monorail/both") != 1:
             fail("the monorail row grew to %d plots, and a list where the mod takes "
-                 "a string is a load error" % plot_count("monorail/both"))
+                 "a string is dropped for the default" % plot_count("monorail/both"))
         os.remove(os.path.join(SETTINGS, "monorail", "both", "3.json5"))
 
         print("\n" + "=" * 72)
@@ -268,6 +269,61 @@ try:
         print("  " + said.replace("\n", " ")[-180:])
         if plot_count("building/1x1") != steady:
             fail("a sync with nothing to do changed the layout anyway")
+
+        print("\n" + "=" * 72)
+        print("10. the front desk's profile block is not called stray")
+        # An import writes the pack's profile keys onto the front desk, and the
+        # export reads them from there alone, so sync called the block a key the
+        # plot does not use after every import that carried one. On a shape plot
+        # nothing reads it, and it is still reported there.
+        write_settings("core", {"namespace": "syncpack",
+                                "profile": {"cityStyleThreshold": 0.5}})
+        write_settings("building/1x1/3", {"name": "shaped",
+                                          "profile": {"cityStyleThreshold": 0.5}})
+        said = con.command("lcdev workshop sync").rstrip()
+        flat = re.sub(r"\s+", " ", said)
+        print("  " + flat[-200:])
+        if "core has a key this plot does not use: profile" in flat:
+            fail("sync called the front desk's profile block a stray key, which "
+                 "an import writes and the export reads")
+        if "building/1x1/3 has a key this plot does not use: profile" not in flat:
+            fail("a profile block on a shape plot, where nothing reads it, was not "
+                 "reported, so the case above proves nothing")
+        os.remove(os.path.join(SETTINGS, "core.json5"))
+        os.remove(os.path.join(SETTINGS, "building", "1x1", "3.json5"))
+
+        print("\n" + "=" * 72)
+        print("11. a footprint written by hand gets the row `grow` would make")
+        # The generated catalogue stops at 10x10. `grow` and an import both make a
+        # row for a larger footprint; sync called the file one that names no row,
+        # the development path refused while the import path worked.
+        write_settings("multibuilding/11x11/0", {"name": "big"})
+        said = con.command("lcdev workshop sync").rstrip()
+        print("  " + re.sub(r"\s+", " ", said)[-160:])
+        extra = json.load(io.open(PLOTS, encoding="utf-8")).get("extraRows", [])
+        count = plot_count("multibuilding/11x11")
+        print("  extra rows %s, plots in the row %d" % (extra, count))
+        if "multibuilding/11x11" not in extra or count != 1:
+            fail("a settings file for an 11x11 footprint did not get a row with its "
+                 "plot, so a footprint written by hand can never be exported")
+        os.remove(os.path.join(SETTINGS, "multibuilding", "11x11", "0.json5"))
+
+        print("\n" + "=" * 72)
+        print("12. a file name cannot grow a row past the chunks `grow` allows")
+        # `grow` stops at 4096 chunks a row, which is 40 plots of 10x10. Sync
+        # stopped only at 512 plots, so a file naming plot 40 painted 4100 chunks.
+        before = plot_count("multibuilding/10x10")
+        write_settings("multibuilding/10x10/40", {"name": "wide"})
+        said = con.command("lcdev workshop sync").rstrip()
+        print("  " + re.sub(r"\s+", " ", said)[-200:])
+        now = plot_count("multibuilding/10x10")
+        print("  plots in multibuilding/10x10: %d (was %d)" % (now, before))
+        if now != before:
+            fail("a file naming plot 40 grew a 10x10 row to %d plots, past the "
+                 "4096 chunks the grow command allows" % now)
+        elif "40 is the most" not in said:
+            fail("sync left the row alone and did not say what limit it hit")
+        os.remove(os.path.join(SETTINGS, "multibuilding", "10x10", "40.json5"))
 finally:
     try:
         with Rcon(port=25575, password="lcwiki") as con:

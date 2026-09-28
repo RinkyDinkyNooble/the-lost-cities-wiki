@@ -341,5 +341,9 @@ else:
     finally:
         stop(proc)
 
-print("\n" + ("FAILURES:\n  " + "\n  ".join(failures)) if failures
-      else "\nall checks passed")
+# A check that prints its failures and exits 0 cannot fail a suite, which reads
+# the exit code.
+if failures:
+    print("\nFAILURES (%d):\n  " % len(failures) + "\n  ".join(failures))
+    raise SystemExit(1)
+print("\nall checks passed")

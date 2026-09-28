@@ -17,9 +17,11 @@ import javax.annotation.Nullable;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -91,10 +93,12 @@ public final class Assets {
 
     private static Assets read(ResourceManager manager) {
         Assets out = new Assets();
-        Map<ResourceLocation, Resource> found = manager
-                .listResources(ROOT.substring(0, ROOT.length() - 1),
-                        id -> id.getPath().endsWith(Json5.EXT_JSON)
-                                || id.getPath().endsWith(Json5.EXT_JSON5));
+        // By the loader's own rule for the two extensions, which this used to leave
+        // to the listing's alphabetical order.
+        String root = ROOT.substring(0, ROOT.length() - 1);
+        Map<ResourceLocation, Resource> found = Json5.merge(manager, root,
+                manager.listResources(root,
+                        id -> id.getPath().endsWith(Json5.EXT_JSON))).files();
         for (Map.Entry<ResourceLocation, Resource> e : found.entrySet()) {
             ResourceLocation id = e.getKey();
             String path = id.getPath();
@@ -218,14 +222,41 @@ public final class Assets {
      */
     @Nullable
     public JsonObject cityStyle(String name) {
+        return cityStyle(name, new ArrayList<>());
+    }
+
+    /**
+     * A city style that inherits itself, directly or by way of others.
+     *
+     * <p>Thrown rather than returned half resolved, because there is no answer to
+     * give. Unchecked recursion ended in a {@code StackOverflowError}, which is an
+     * {@code Error} and not an {@code Exception}: it passed every catch in the
+     * command, reached the server loop and stopped the server.
+     */
+    public static final class InheritanceLoop extends RuntimeException {
+
+        InheritanceLoop(List<String> loop) {
+            super("city style inheritance goes round in a loop: "
+                    + String.join(" -> ", loop));
+        }
+    }
+
+    @Nullable
+    private JsonObject cityStyle(String name, List<String> chain) {
         JsonObject child = get("citystyles", name);
         if (child == null) {
             return null;
         }
+        String self = qualify(name);
+        int seen = chain.indexOf(self);
+        chain.add(self);
+        if (seen >= 0) {
+            throw new InheritanceLoop(chain.subList(seen, chain.size()));
+        }
         if (!child.has("inherit")) {
             return child;
         }
-        JsonObject parent = cityStyle(child.get("inherit").getAsString());
+        JsonObject parent = cityStyle(child.get("inherit").getAsString(), chain);
         if (parent == null) {
             return child;
         }

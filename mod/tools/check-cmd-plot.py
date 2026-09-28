@@ -359,6 +359,37 @@ try:
         if refused:
             fail("run outside the workshop, %s did not say so"
                  % ", ".join(refused))
+
+        print("\n" + "=" * 72)
+        print("9. a file edited by hand survives the next set")
+        # Keys the schema does not know are written back verbatim, and they were
+        # written between two bare quote marks: a key holding a quote made the next
+        # save unreadable. Values went through Gson's HTML escaping, so a block
+        # state came back with every = turned into a unicode escape.
+        path = os.path.join(SETTINGS, *BUILDING.split("/")) + ".json5"
+        io.open(path, "w", encoding="utf-8", newline="\n").write(json.dumps({
+            "floors": 3, 'odd"key': 1,
+            "conversions": {"minecraft:gold_block":
+                            "minecraft:oak_stairs[facing=north]"}}, indent=2))
+        said = at(BUILDING, "set floors 2")
+        text = io.open(path, encoding="utf-8").read()
+        try:
+            back = json.loads(strip_json5(text))
+        except ValueError as e:
+            back = None
+            print("  the file no longer parses: %s" % e)
+        print("  floors now %s, odd key kept %s, block state written plainly %s"
+              % ((back or {}).get("floors"), 'odd"key' in (back or {}),
+                 "facing=north" in text))
+        if back is None:
+            fail("a key holding a quote was written back unescaped, and the "
+                 "settings file no longer parses")
+        elif back.get("floors") != 2 or back.get('odd"key') != 1:
+            fail("the save lost the value it was asked to set or the key it was "
+                 "asked to keep")
+        elif "facing=north" not in text:
+            fail("a block state in the file came back with its = escaped, in a "
+                 "file meant to be read and edited by hand")
 finally:
     try:
         with Rcon(port=25575, password="lcwiki") as con:

@@ -33,6 +33,8 @@ SOURCES = [
                  "AssetValidator.java"),
     os.path.join(SRC, "com", "rinkynooble", "lostcitiesdevtool", "validate",
                  "Finding.java"),
+    os.path.join(SRC, "com", "rinkynooble", "lostcitiesdevtool", "workshop",
+                 "Levels.java"),
     os.path.join(TOOLS, "ValidatorProbe.java"),
 ]
 

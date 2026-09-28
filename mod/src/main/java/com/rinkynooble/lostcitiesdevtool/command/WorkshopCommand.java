@@ -286,8 +286,8 @@ public class WorkshopCommand {
         if (row.kind() == Catalogue.Kind.SINGLE) {
             Chat.fail(source, row.id() + " holds one plot and cannot grow",
                     row.family() + " " + row.key(),
-                    "Its codec takes a single name, so a list there is a load error "
-                            + "rather than a longer row");
+                    "Its codec takes a single name. A list there is not a longer row: "
+                            + "Lost Cities drops it and uses its default part");
             return 0;
         }
         // Only for a row that already existed. One that was just added was measured
@@ -624,7 +624,7 @@ public class WorkshopCommand {
         Chat.kv(source, "variation", (plot.index() + 1) + " of " + Layout.plotsIn(row));
         switch (row.kind()) {
             case SINGLE -> Chat.kv(source, "variations allowed", "one, and only one. "
-                    + "The codec takes a string, so a list is a load error");
+                    + "The codec takes a string, and a list is dropped for the default");
             case PART_LIST -> Chat.kv(source, "variations allowed", "any number, "
                     + "picked uniform random. There is no weight");
             case SELECTOR -> Chat.kv(source, "variations allowed", "any number, "

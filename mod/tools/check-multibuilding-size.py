@@ -416,6 +416,36 @@ try:
 finally:
     stop(proc)
 
+# =============================================================== case C
+print("\n" + "=" * 72)
+print("case C: extraRows naming a row the catalogue already has")
+print("=" * 72)
+# Registering never writes one, but the registry is a file somebody may edit, and
+# a generated id read back as an extra row was a second row under one id with a
+# band of its own.
+doc = registry()
+doc["extraRows"] = list(doc.get("extraRows") or []) + ["multibuilding/2x2"]
+io.open(PLOTS, "w", encoding="utf-8", newline="\n").write(json.dumps(doc, indent=2))
+was = coords()
+proc = boot()
+try:
+    with Rcon(port=25575, password="lcwiki") as con:
+        con.command("lcdev workshop build")
+        extra = registry().get("extraRows") or []
+        drifted = [pid for pid, xz in coords().items()
+                   if pid in was and was[pid] != xz]
+        print("  extraRows after a build: %s, plots drifted: %d"
+              % (extra, len(drifted)))
+        if "multibuilding/2x2" in extra:
+            fail("a generated row named in extraRows was kept as a second row "
+                 "under the same id")
+        elif drifted:
+            fail("%d plots moved when the duplicate was dropped" % len(drifted))
+        else:
+            ok("the duplicate was dropped and nothing moved")
+finally:
+    stop(proc)
+
 print("\n" + "=" * 72)
 if failures:
     print("FAILED (%d)" % len(failures))

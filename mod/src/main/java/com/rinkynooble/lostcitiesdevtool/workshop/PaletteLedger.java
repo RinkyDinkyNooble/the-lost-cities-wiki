@@ -247,6 +247,16 @@ public final class PaletteLedger {
         used.add(c);
     }
 
+    /** The cell a character stands for. A walk, so only for an error message. */
+    private String cellOf(char c) {
+        for (Map.Entry<String, Character> e : assigned.entrySet()) {
+            if (e.getValue() == c) {
+                return e.getKey();
+            }
+        }
+        return "nothing";
+    }
+
     /**
      * A block state as Lost Cities writes one: the id, then its properties.
      *
@@ -302,9 +312,25 @@ public final class PaletteLedger {
             JsonObject map = root.getAsJsonObject("assigned");
             for (String key : map.keySet()) {
                 String value = map.get(key).getAsString();
-                if (!value.isEmpty()) {
-                    ledger.put(key, value.charAt(0));
+                if (value.isEmpty()) {
+                    continue;
                 }
+                char c = value.charAt(0);
+                // The file says it can be edited, and a hand edit can give one
+                // character to two cells. That is a palette drawing the wrong block
+                // wherever the second one stands, which `reserve` refuses at
+                // runtime for exactly that reason; loading one has to refuse too.
+                if (c == AIR || ledger.used.contains(c)) {
+                    throw new IOException(String.format("the palette ledger gives "
+                            + "'%c' U+%04X to %s. %s Fix the entry in %s, or delete "
+                            + "the file to start the lettering over",
+                            c, (int) c, key, c == AIR
+                                    ? "That character is air and is never assigned."
+                                    : "It already stands for " + ledger.cellOf(c)
+                                            + ", and two cells cannot share one.",
+                            path.getFileName()));
+                }
+                ledger.put(key, c);
             }
         } catch (RuntimeException e) {
             throw new IOException("the palette ledger could not be read: "

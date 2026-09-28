@@ -460,6 +460,28 @@ else:
             if after < before:
                 fail("the ledger gave characters back, which it is documented never "
                      "to do and which the stability of a diff depends on")
+
+            print("\n" + "=" * 72)
+            print("6. a ledger that gives one character to two cells is refused")
+            # The file can be edited by hand, and one edit can hand a character to
+            # a second cell. Loaded as it stood, the pack drew one block where the
+            # other belonged; `reserve` refuses exactly that at runtime.
+            doc = json.load(io.open(LEDGER, encoding="utf-8"))
+            cells = list(doc["assigned"])
+            original = json.dumps(doc, indent=2, ensure_ascii=False)
+            doc["assigned"][cells[1]] = doc["assigned"][cells[0]]
+            io.open(LEDGER, "w", encoding="utf-8", newline="\n").write(
+                json.dumps(doc, indent=2, ensure_ascii=False))
+            dupe = os.path.join(SERVER, "config", "lostcitiesdevtool", "exports",
+                                "dupe")
+            said = con.command("lcdev export dupe -f").rstrip()
+            print("  " + re.sub(r"\s+", " ", said)[:220])
+            if os.path.isdir(dupe):
+                fail("a pack was written from a ledger giving one character to two "
+                     "cells, so one of those blocks is drawn as the other")
+            elif "palette ledger" not in said:
+                fail("the export refused without naming the ledger as the cause")
+            io.open(LEDGER, "w", encoding="utf-8", newline="\n").write(original)
     finally:
         shut()
         try:

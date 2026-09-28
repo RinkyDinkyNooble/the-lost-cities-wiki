@@ -19,8 +19,8 @@ What it asserts:
   * **`here` names the rule for the row class it is standing on.** The three classes
     are the reason two rows that look alike need different settings: one variation
     only, any number unweighted, or any number each needing a factor. Getting that
-    wrong sends somebody to write a list where the codec takes a string, which is a
-    load error rather than a longer row.
+    wrong sends somebody to write a list where the codec takes a string, which Lost
+    Cities reads as no value, using its default part without a word.
 
   * **`grow` refuses a row that cannot grow, and says why in terms of the codec.**
     A single-only row is the one place where the obvious thing to try is a load
@@ -184,9 +184,10 @@ try:
         print("  single only: " + said.replace("\n", " ")[:230])
         if "cannot grow" not in said:
             fail("a single-only row was grown, or refused without saying so")
-        if "load error" not in said:
+        if "default part" not in said:
             fail("the refusal did not explain that a list where the codec takes a "
-                 "string is a load error, which is the whole reason to refuse")
+                 "string is dropped for the default part, which is the whole reason "
+                 "to refuse")
 
         print("\n" + "=" * 72)
         print("5. rows only get longer")

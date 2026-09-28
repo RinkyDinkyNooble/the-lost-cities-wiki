@@ -300,6 +300,26 @@ try:
             if "cannot name an export" not in said:
                 fail("an export named %s was not refused with the rule it broke"
                      % name)
+
+        print("\n" + "=" * 72)
+        print("8. a hand-edited value the export cannot read is refused by name")
+        # The settings file says it is safe to edit by hand, so a word where a
+        # number belongs is the ordinary mistake. Gson threw on it and the command
+        # answered "An unexpected error occurred", naming neither plot nor key.
+        hand = os.path.join(WORLD, "lostcitiesdevtool", "plots", "building", "1x1",
+                            "5.json5")
+        os.makedirs(os.path.dirname(hand), exist_ok=True)
+        io.open(hand, "w", encoding="utf-8", newline="\n").write(json.dumps({
+            "name": "handmade", "citystyles": ["city"], "floors": 1,
+            "cellars": 0, "factor": "lots"}))
+        said = con.command("lcdev export hand -f").rstrip()
+        flat = re.sub(r"\s+", " ", said)
+        print("  " + flat[:230])
+        if os.path.isdir(os.path.join(EXPORTS, "hand")):
+            fail("a pack was written with a factor nobody can read")
+        elif "building/1x1/5" not in flat or "factor" not in flat:
+            fail("the export did not name the plot and the key it could not read")
+        os.remove(hand)
 finally:
     try:
         with Rcon(port=25575, password="lcwiki") as con:

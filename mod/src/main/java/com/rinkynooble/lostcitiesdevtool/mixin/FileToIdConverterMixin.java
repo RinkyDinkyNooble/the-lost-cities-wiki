@@ -32,9 +32,9 @@ import java.util.Map;
  * invisible or registered under a mangled id. Renaming it here keeps both steps
  * correct and means no other vanilla method needs patching.
  *
- * <p>Where both names exist the {@code .json5} wins, because it is the one written by
- * hand: {@code ProfileSetup} rewrites every shipped profile as {@code .json} on each
- * launch, so the opposite rule would make overriding one impossible. The collision is
+ * <p>Where both names exist in one pack the {@code .json5} wins, because it is the one
+ * written by hand. Between packs the later one wins, as it does for any two files of
+ * one name; {@link Json5#merge} holds the rule for every lister. The collision is
  * reported separately, by {@code Json5Listener}.
  */
 @Mixin(FileToIdConverter.class)
@@ -56,18 +56,19 @@ public abstract class FileToIdConverterMixin {
         }
 
         Map<ResourceLocation, Resource> found = cir.getReturnValue();
+        Map<ResourceLocation, Resource> json = found == null ? Map.of() : found;
+        Map<ResourceLocation, Resource> files = extension
+                ? Json5.merge(manager, folder, json).files() : json;
         Map<ResourceLocation, Resource> relaxed = new LinkedHashMap<>();
-        if (found != null) {
-            found.forEach((location, resource) ->
-                    relaxed.put(location, comments ? Json5.wrap(resource) : resource));
-        }
-        if (extension) {
-            // A .json5 file is read relaxed whatever the comments toggle says. Comments
-            // are the reason to write one, and its name is what asks for them.
-            manager.listResources(folder, path -> path.getPath().endsWith(Json5.EXT_JSON5))
-                    .forEach((location, resource) ->
-                            relaxed.put(Json5.asJson(location), Json5.wrap(resource)));
-        }
+        files.forEach((location, resource) -> {
+            // A .json5 file is read relaxed whatever the comments toggle says.
+            // Comments are the reason to write one, and its name is what asks for
+            // them. It is presented under its .json name, which is what the id is
+            // derived from.
+            boolean five = location.getPath().endsWith(Json5.EXT_JSON5);
+            relaxed.put(five ? Json5.asJson(location) : location,
+                    five || comments ? Json5.wrap(resource) : resource);
+        });
         cir.setReturnValue(relaxed);
     }
 }

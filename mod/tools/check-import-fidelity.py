@@ -85,6 +85,23 @@ def solid(ch):
     return [first] + [layer for _ in range(5)]
 
 
+def two_rows(ch, at, mark):
+    """One layer written as two rows of 128, with `mark` at flat index `at`.
+
+    Lost Cities joins a layer's rows before it reads them, so this is the same
+    layer as sixteen rows of sixteen. An import reading row by row pastes the
+    first sixteen characters of each row and air for the other fourteen rows.
+    """
+    flat = [ch] * 256
+    flat[at] = mark
+    text = "".join(flat)
+    return [text[:128], text[128:]]
+
+
+# The cell the marked layer holds its diamond at, x 5 and z 9, flat index 149.
+MARK_X, MARK_Z = 5, 9
+
+
 def write_pack(root):
     data = os.path.join(root, "data", NS, "lostcities")
     assets = {
@@ -96,8 +113,18 @@ def write_pack(root):
             "style": NS + ":main",
             "streetblocks": {"border": "y", "wall": "w", "street": "S",
                              "streetbase": "b", "streetvariant": "B", "width": 8},
-            "selectors": {"buildings": [{"factor": 1.0, "value": NS + ":tower"}]},
+            "selectors": {"buildings": [{"factor": 1.0, "value": NS + ":tower"},
+                                        {"factor": 1.0, "value": NS + ":flat"}]},
         },
+        # A world style of its own, so the loop is imported apart from the rest
+        # and a server it takes down cannot hide the other results. The two city
+        # styles inherit each other, which no resolution of them can finish.
+        "worldstyles/loop": {
+            "outsidestyle": NS + ":outside",
+            "citystyles": [{"factor": 1.0, "citystyle": NS + ":loopa"}],
+        },
+        "citystyles/loopa": {"inherit": NS + ":loopb", "style": NS + ":main"},
+        "citystyles/loopb": {"inherit": NS + ":loopa", "style": NS + ":main"},
         "styles/main": {"randompalettes": [[{"factor": 1.0,
                                              "palette": NS + ":main"}]]},
         "styles/outside": {"randompalettes": [[{"factor": 1.0,
@@ -109,6 +136,8 @@ def write_pack(root):
             {"char": "d", "block": "minecraft:diamond_block"},
             {"char": "i", "block": "minecraft:iron_block"},
             {"char": "e", "block": "minecraft:emerald_block"},
+            # 1.12 syntax, which never parses here. Lost Cities ships one like it.
+            {"char": "x", "block": "minecraft:red_sandstone@2"},
             {"char": "C", "block": "minecraft:command_block[conditional=false,"
                                    "facing=north]",
              "tag": {"Command": "/say fidelity", "auto": 1, "conditionMet": 1}},
@@ -133,6 +162,14 @@ def write_pack(root):
                        "slices": solid("i")},
         "parts/roof": {"xsize": 16, "zsize": 16, "refpalette": NS + ":main",
                        "slices": solid("e")},
+        "buildings/flat": {
+            "refpalette": NS + ":main", "filler": "g",
+            "minfloors": 0, "maxfloors": 0, "mincellars": 0, "maxcellars": 0,
+            "parts": [{"part": NS + ":flatpart"}],
+        },
+        "parts/flatpart": {"xsize": 16, "zsize": 16, "refpalette": NS + ":main",
+                           "slices": [two_rows("g", MARK_Z * 16 + MARK_X, "d")]
+                           + [[("g" * 16)] * 16 for _ in range(5)]},
     }
     for name, body in assets.items():
         path = os.path.join(data, *name.split("/")) + ".json"
@@ -156,7 +193,8 @@ try:
     with Rcon(port=25575, password="lcwiki") as con:
         con.command("lcdev workshop build")
         print("=" * 72)
-        print(con.command("lcdev import %s:main" % NS).rstrip()[-400:])
+        imported = con.command("lcdev import %s:main" % NS)
+        print(imported.rstrip()[-400:])
 
         plots = {p["id"]: p for p in
                  json.load(io.open(PLOTS, encoding="utf-8"))["plots"]}
@@ -216,6 +254,65 @@ try:
             fail("the command block came in without its command, so the technique "
                  "the pack is built on does not survive an import")
 
+        # Lost Cities reads a block value whole, as a resource location, so a 1.12
+        # @meta suffix fails it. The import's parser stopped at the @ and pasted
+        # red sandstone without a word. And every part resolves through the shared
+        # palette, which was parsed again for each part pasted, so a warning there
+        # repeated once per part.
+        print("\n" + "=" * 72)
+        print("a block that will not parse is reported, once")
+        repeats = imported.count(
+            "could not read the block 'minecraft:red_sandstone@2'")
+        print("  times the warning appears: %d" % repeats)
+        if repeats != 1:
+            fail("a block Lost Cities cannot read was reported %d times by the "
+                 "import, where once is right" % repeats)
+
+        # A layer's rows are formatting: Lost Cities joins them and reads the
+        # whole at z * xsize + x. Written as two rows of 128 the layer is the same
+        # sixteen by sixteen, and the diamond is at x 5, z 9.
+        print("\n" + "=" * 72)
+        print("a layer whose rows are not sixteen characters each")
+        flat = plots["building/1x1/1"]
+        fx, fz = flat["chunkX"] * 16, flat["chunkZ"] * 16
+        con.command("execute in %s run forceload add %d %d %d %d"
+                    % (WORKSHOP, fx, fz, fx + 15, fz + 15))
+        marked = con.command("execute in %s if block %d %d %d minecraft:diamond_block"
+                             % (WORKSHOP, fx + MARK_X, BASE, fz + MARK_Z))
+        corner = con.command("execute in %s if block %d %d %d minecraft:gold_block"
+                             % (WORKSHOP, fx + 15, BASE, fz + 15))
+        print("  diamond at x %d z %d: %s" % (MARK_X, MARK_Z, marked.strip()))
+        print("  gold in the far corner: %s" % corner.strip())
+        if "passed" not in marked or "passed" not in corner:
+            fail("a layer written as two rows of 128 was pasted row by row, so its "
+                 "cells landed in the wrong places and the export would write them "
+                 "back that way")
+
+        # Two city styles that inherit each other. Resolving them recursed until
+        # the stack overflowed, an Error that passed every catch in the command
+        # and stopped the server.
+        print("\n" + "=" * 72)
+        print("a city style inheritance loop is refused, not recursed into")
+        try:
+            said = con.command("lcdev import %s:loop" % NS).rstrip()
+            alive = "players online" in con.command("list")
+        except Exception as e:  # the connection goes with the server
+            said, alive = "no answer: %s" % e, False
+        print("  " + re.sub(r"\s+", " ", said)[-220:])
+        print("  server still answering: %s" % alive)
+        # Over RCON the Error comes back as a failed command, because RCON runs
+        # the command inside a future. A player's command is a task on the server
+        # loop, which catches Exception and not Error, so the same import there
+        # stops the server. Either way the overflow is the fault.
+        if not alive:
+            fail("importing a world style whose city styles inherit each other "
+                 "took the server down")
+        elif "StackOverflowError" in said:
+            fail("the import recursed through the inheritance loop until the "
+                 "stack overflowed")
+        elif "goes round in a loop" not in said:
+            fail("the import did not say the city styles inherit each other")
+
         con.command("stop")
 finally:
     try:
@@ -226,5 +323,9 @@ finally:
 if os.path.isfile(dest):
     os.remove(dest)
 print("\nremoved the jar, rig baseline is clean again")
-print("\n" + ("FAILURES:\n  " + "\n  ".join(failures)) if failures
-      else "\nall checks passed")
+# A check that prints its failures and exits 0 cannot fail a suite, which reads
+# the exit code.
+if failures:
+    print("\nFAILURES (%d):\n  " % len(failures) + "\n  ".join(failures))
+    raise SystemExit(1)
+print("\nall checks passed")

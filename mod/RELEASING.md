@@ -64,6 +64,7 @@ python mod/tools/check-workshop.py
 python mod/tools/check-layout.py
 python mod/tools/check-tags.py
 python mod/tools/check-licence-text.py
+python mod/tools/check-profile-order.py
 python mod/tools/check-export.py
 python mod/tools/check-export-plot.py
 python mod/tools/check-import.py
@@ -90,11 +91,12 @@ python mod/tools/check-palette-pool.py
 python mod/tools/check-config.py
 ```
 
-There are 31. Five need no server and finish in about a second each:
-`check-mixin-targets`, `check-validator`, `check-layout`, `check-tags` and
-`check-licence-text`. The other 26 boot at least one apiece; most take about thirty
-seconds, `check-config` takes four minutes because it boots eight times, and three
-boot twice. Run them one at a time: two servers cannot share the rig.
+There are 32. Six need no server and finish in about a second each:
+`check-mixin-targets`, `check-validator`, `check-layout`, `check-tags`,
+`check-licence-text` and `check-profile-order`. The other 26 boot at least one
+apiece; most take about thirty seconds, `check-config` takes several minutes
+because it boots ten times, and a few boot two or three times. Run them one at a
+time: two servers cannot share the rig.
 
 **Read the exit code, not the tail.** Every one of them exits non-zero on failure,
 and piping through `tail` reports `tail`'s status, which is always 0.
@@ -107,6 +109,8 @@ and piping through `tail` reports `tail`'s status, which is always 0.
       server. Two worlds, spheres and default, because no single one loads them all
 - [ ] `check-validator`, every asset-check rule, and nothing thrown by a malformed
       file
+- [ ] `check-profile-order`, the Cities screen cycles one order in both directions.
+      The buttons themselves need a client, which the rig does not have
 - [ ] `check-workshop`, the dimension and the catalogue
 - [ ] `check-export`, the pack generates a city, gold block count non-zero
 - [ ] `check-import`, Lost Cities' own pack comes in on 49 plots

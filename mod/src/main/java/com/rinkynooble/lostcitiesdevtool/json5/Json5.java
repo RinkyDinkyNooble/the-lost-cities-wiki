@@ -2,12 +2,19 @@ package com.rinkynooble.lostcitiesdevtool.json5;
 
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Accepts comments and trailing commas in Lost Cities asset files.
@@ -94,6 +101,61 @@ public final class Json5 {
     public static String baseName(String fileName) {
         int dot = fileName.indexOf('.');
         return dot < 0 ? fileName : fileName.substring(0, dot);
+    }
+
+    /**
+     * One folder's Lost Cities files once {@code .json5} is taken into account.
+     *
+     * @param files    the file each asset is read from, keyed by its name on disk
+     * @param shadowed the {@code .json} files a {@code .json5} in the same pack, or a
+     *                 later one, replaced
+     */
+    public record Listing(Map<ResourceLocation, Resource> files,
+                          List<ResourceLocation> shadowed) {
+    }
+
+    /**
+     * The {@code .json} files a folder holds, with the {@code .json5} ones merged in.
+     *
+     * <p><b>Pack order decides first.</b> Two files of one name in two packs is
+     * how a datapack overrides another, and the later pack wins. Only between the
+     * two extensions inside one pack does {@code .json5} win, because that is the
+     * file somebody wrote by hand. The rule used to be ".json5 always wins", which
+     * let a {@code .json5} in an early pack override the {@code .json} a later pack
+     * put there to replace it, and then told the reader to delete one of a pair
+     * that was not theirs to delete.
+     *
+     * <p>Here once rather than in each of the four places that list these files, so
+     * the loader, the load check, the override report and the import cannot
+     * disagree about which file an asset comes from.
+     *
+     * @param json what the manager lists for the folder with a {@code .json} filter
+     */
+    public static Listing merge(ResourceManager manager, String folder,
+                                Map<ResourceLocation, Resource> json) {
+        Map<ResourceLocation, Resource> files = new LinkedHashMap<>(json);
+        List<ResourceLocation> shadowed = new ArrayList<>();
+        Map<PackResources, Integer> order = new IdentityHashMap<>();
+        manager.listPacks().forEach(pack -> order.putIfAbsent(pack, order.size()));
+        manager.listResources(folder, path -> path.getPath().endsWith(EXT_JSON5))
+                .forEach((location, resource) -> {
+                    ResourceLocation sibling = asJson(location);
+                    Resource plain = files.get(sibling);
+                    if (plain != null) {
+                        if (rank(order, plain) > rank(order, resource)) {
+                            return;
+                        }
+                        files.remove(sibling);
+                        shadowed.add(sibling);
+                    }
+                    files.put(location, resource);
+                });
+        return new Listing(files, shadowed);
+    }
+
+    /** Where a resource's pack sits in load order; later packs rank higher. */
+    private static int rank(Map<PackResources, Integer> order, Resource resource) {
+        return order.getOrDefault(resource.source(), -1);
     }
 
     /** A resource that yields the same file with comments and trailing commas blanked. */
