@@ -20,15 +20,15 @@ not exist there is what changes the result. This page lists which keys those are
 
 | Situation | Result |
 |---|---|
-| A key this version does not know | Ignored. The file loads, the asset works, and the behaviour that key would have controlled is simply absent [game test](../examples/claim-tests.md#key-2){.v .v-g} |
+| A key this version does not know | Ignored. The file loads, the asset works, and the behaviour that key would have controlled is absent [game test](../examples/claim-tests.md#key-2){.v .v-g} |
 | A **required** key that is missing | The file fails to decode and the asset does not load at all [code review](../examples/claim-tests.md#key-3){.v .v-c} |
 
 Those two are easy to confuse and they fail in opposite directions. An extra key
 costs nothing at load and everything at generation, because the behaviour it asked
 for never happens and no message says so. A missing required key is loud. [game test](../examples/claim-tests.md#key-2){.v .v-g} [code review](../examples/claim-tests.md#key-3){.v .v-c}
 
-!!! danger "This is why the running version is worth checking first"
-    A datapack written for 7.4.12 loads without complaint on 6.0.3. It quietly stops
+!!! danger "The running version decides what a pack does, without a message"
+    A datapack written for 7.4.12 loads without complaint on 6.0.3, and silently stops
     doing 44 things. See [Error Messages](../troubleshooting/errors.md) for the
     failures that do produce text. [game test](../examples/claim-tests.md#key-2){.v .v-g}
 
@@ -83,8 +83,8 @@ Absent in every 5.x and 6.x version, and also absent in **8.2.2**. Present in
     The wiki's control building carries `overrideFloors: true` and generates 512
     gold blocks on 7.4.12. The identical pack on 8.2.2 generates **768**. Deleting
     that one key on 7.4.12 gives 768 there as well, which isolates the cause. The
-    building is not broken and nothing is logged. It is simply taller than the pack
-    asked for, because the floor count fell back to the profile. [game test](../examples/claim-tests.md#key-4){.v .v-g} [code review](../examples/claim-tests.md#key-4){.v .v-c}
+    building is not broken and nothing is logged. It is taller than the pack asked
+    for, because the floor count fell back to the profile. [game test](../examples/claim-tests.md#key-4){.v .v-g} [code review](../examples/claim-tests.md#key-4){.v .v-c}
 
 ## Group 3: missing in 6.0.3 only
 

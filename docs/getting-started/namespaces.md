@@ -138,7 +138,7 @@ The profile's own file name never takes a namespace. `apocalypse.json` makes a p
     data/lostcities/lostcities/worldstyles/standard.json
     ```
 
-Most modpacks are better off with their own namespace, and overriding is worth it only to replace a specific built-in deliberately. <!-- noclaim -->
+A namespace of your own adds to what the mod ships and replaces nothing. An override is for when one specific built-in is meant to change. <!-- noclaim -->
 
 ### How an override resolves
 

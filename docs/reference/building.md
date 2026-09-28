@@ -122,13 +122,13 @@ Each bound is resolved from three sources: [code review](../examples/claim-tests
 
     The minimum is a `max()` in 7.4.12, 7.5.1 and 10.0.1 alike. [code review](../examples/claim-tests.md#key-1){.v .v-c}
 
-**So what is `overrideFloors` actually for?** Making a building **shorter or looser**
-than the profile permits, which is the case the `min` and `max` cannot express: [game test](../examples/claim-tests.md#bld-2){.v .v-g}
+**`overrideFloors` is for making a building shorter or looser** than the profile
+permits, which is the case the `min` and `max` cannot express: [game test](../examples/claim-tests.md#bld-2){.v .v-g}
 
 | Goal | What to write [game test](../examples/claim-tests.md#bld-2){.v .v-g} |
 |---|---|
-| Never taller than 2, whatever the profile says | `maxfloors: 2`. No override needed, `min()` already wins. |
-| Never shorter than 6, whatever the profile says | `minfloors: 6`. No override needed, `max()` already wins. |
+| Never taller than 2, whatever the profile says | `maxfloors: 2`. `min()` already wins, without an override. |
+| Never shorter than 6, whatever the profile says | `minfloors: 6`. `max()` already wins, without an override. |
 | Exactly 2, in a profile whose `buildingMinFloors` is 4 | `minfloors: 2`, `maxfloors: 2`, **and** `overrideFloors: true`. Without it the profile's minimum of 4 wins the `max()`. |
 
 Cellar counts work the same way, with one addition. The mod adds the chunk's city level to the profile's cellar maximum, so a building on higher terrain is allowed deeper cellars. [code review](../examples/claim-tests.md#ref-2){.v .v-c} [game test](../examples/claim-tests.md#bhv-1){.v .v-g}
@@ -154,7 +154,7 @@ Floor numbering: <!-- noclaim -->
 
     `top: true` does not add a level. It is a test that passes on whichever index is currently highest. With `floors: 3` it matches index 3, the same level `"floor": 3` matches. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-    That has a consequence. If you write both a `"floor": 3` part and a `top: true` part, **both match at index 3**, and the mod picks one at random with equal probability. If you want the top part to win there, either remove the `"floor": 3` entry or narrow it to `"floor": 3, "top": false`. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
+    That has a consequence. If you write both a `"floor": 3` part and a `top: true` part, **both match at index 3**, and the mod picks one at random with equal probability. The top part wins there only once the `"floor": 3` entry is removed, or narrowed to `"floor": 3, "top": false`. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
     You can combine `top` with a number. The mod chains tests with AND, so `{"part": "roof", "top": true, "floor": 3}` means "the top level, but only when the building is exactly four storeys tall". That is useful for a roof that suits only one height. [game test](../examples/claim-tests.md#cnd-1){.v .v-g}
 
@@ -166,7 +166,7 @@ Misconfiguration! Floor were generated for a building where no part condition ma
 
 The wording, including the missing word, is the mod's own. This kills the chunk that was generating. [game test](../examples/claim-tests.md#bld-4){.v .v-g}
 
-**The real rule is coverage, not `minfloors` and `maxfloors`.** You do not have to declare bounds. You have to guarantee that every level that can generate has a matching part. Declaring bounds is the most direct way to make that guarantee, because otherwise the profile decides the height and will eventually roll higher than the parts you wrote. [game test](../examples/claim-tests.md#bld-4){.v .v-g}
+**The rule is coverage, not `minfloors` and `maxfloors`.** You do not have to declare bounds. You have to guarantee that every level that can generate has a matching part. Declaring bounds is the most direct way to make that guarantee, because otherwise the profile decides the height and will eventually roll higher than the parts you wrote. [game test](../examples/claim-tests.md#bld-4){.v .v-g}
 
 This is why writing `"floor": 0`, `"floor": 1` and `"floor": 2` and nothing else crashes. As soon as the profile rolls a four-floor building, level 3 has no match. [game test](../examples/claim-tests.md#bld-4){.v .v-g}
 
@@ -203,12 +203,12 @@ There are two ways to fix it. <!-- noclaim -->
     ```
     The last entry has no conditions, so it matches every level. The building can now be any height without crashing, and specific levels still get their own parts. [game test](../examples/claim-tests.md#bld-4){.v .v-g}
 
-Use the catch-all as your default, especially if your building may be used under a profile you did not write. <!-- noclaim -->
+A catch-all keeps a building valid at any height, which matters most under a profile you did not write. <!-- noclaim -->
 
 The same rule applies below ground. If cellars generate and no part matches a negative index, you get the same crash. [game test](../examples/claim-tests.md#bld-4){.v .v-g}
 
 !!! tip "`parts2` never crashes"
-    Only `parts` has to match. If nothing in `parts2` matches a level, that level simply gets no overlay.
+    Only `parts` has to match. If nothing in `parts2` matches a level, that level gets no overlay.
 
 !!! note "`parts2` sits on the same level, it does not stack above it"
     For each level the mod places the `parts` entry, then places the `parts2` entry
@@ -237,14 +237,14 @@ Each entry in `parts` is a part name plus any of **13** optional test keys. They
 | `inpart` | string or list | The current part name is in this set. |
 | `belowpart` | string or list | The part directly below is in this set. |
 | `inbuilding` | string or list | The current building name is in this set. |
-| `inbiome` | string | The current biome is in this set. **Avoid it here on Minecraft 1.21 and later**, see below. |
+| `inbiome` | string | The current biome is in this set. **Fails every chunk here on Minecraft 1.21 and later**, see below. |
 
 !!! danger "`inbiome` on a part reference fails every chunk on 1.21 and later"
     Reading a biome here means reading it out of a neighbouring chunk while that chunk is still generating, which Minecraft 1.21 refuses. Measured on 8.2.2: one part reference carrying `inbiome` failed **335** chunks with `Exception generating new chunk`. The same pack runs clean on 7.4.12 and 7.5.1. [game test](../examples/claim-tests.md#ek-5){.v .v-g}
 
-    The same key on a [Condition](condition.md) is safe on every version, because a condition is evaluated later. Put the biome test there instead. [game test](../examples/claim-tests.md#ek-5){.v .v-g}
+    The same key on a [Condition](condition.md) is safe on every version, because a condition is evaluated later. [game test](../examples/claim-tests.md#ek-5){.v .v-g}
 
-    The accepted shape also moved. 7.5.1 takes a list or a string, 8.2.2 takes only a string, and 7.4.12 accepted an object and quietly did nothing with it. A bare string is the only form every version accepts. [game test](../examples/claim-tests.md#ek-5){.v .v-g}
+    The accepted shape also moved. 7.5.1 takes a list or a string, 8.2.2 takes only a string, and 7.4.12 accepted an object and silently did nothing with it. A bare string is the only form every version accepts. [game test](../examples/claim-tests.md#ek-5){.v .v-g}
 
 ```json
 { "part": "apartment_floor", "floor": 2 }
@@ -290,7 +290,7 @@ Among all matching entries the mod picks one at random with equal probability. T
 !!! note "`range` does not require `minfloors` or `maxfloors`"
     `range` filters the level index and does nothing else. It shares the [coverage rule](#floor-coverage-the-most-common-failure) with `floor`: every level that can generate still needs something to match it.
 
-    Declaring `minfloors` and `maxfloors` is one way to keep the generated range inside what your parts cover, and it is a reasonable habit. Remember that those bounds only clamp the profile unless you also set `overrideFloors: true`. Under a profile whose `buildingMaxFloors` is 8, `maxfloors: 13` gives you 8, not 13. A `top: true` entry is what safely caps the stack however tall it ends up. [game test](../examples/claim-tests.md#bld-3){.v .v-g}
+    Declaring `minfloors` and `maxfloors` is one way to keep the generated range inside what your parts cover, but those bounds only clamp the profile unless `overrideFloors: true` is set too. Under a profile whose `buildingMaxFloors` is 8, `maxfloors: 13` gives 8, not 13. A `top: true` entry caps the stack however tall it ends up. [game test](../examples/claim-tests.md#bld-3){.v .v-g}
 
 ### Example: two candidates for the same floor
 

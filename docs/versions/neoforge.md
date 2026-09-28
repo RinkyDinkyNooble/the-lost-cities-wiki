@@ -38,10 +38,10 @@ does not say. <!-- noclaim -->
 
 ## 8.4.1 and later match 7.5.1 exactly
 
-On 8.4.1, 9.5.1 or 10.0.1 the mod's configuration surface is identical to 7.5.1 on
-Minecraft 1.20.1. [code review](../examples/claim-tests.md#key-1){.v .v-c}
+The configuration surface of 8.4.1, 9.5.1 and 10.0.1 is identical to the one 7.5.1
+has on Minecraft 1.20.1. [code review](../examples/claim-tests.md#key-1){.v .v-c}
 
-Compared by extracting every key from each jar and diffing the complete sets. The
+The comparison extracts every key from each jar and diffs the complete sets. The
 extraction is `docs/examples/mod-keys.json` and the comparison runs on every build,
 so this claim fails the CI gate if it stops being true. [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 

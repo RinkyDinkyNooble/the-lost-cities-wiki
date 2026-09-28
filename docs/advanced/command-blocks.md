@@ -1,8 +1,5 @@
 ---
 claims: verified
----
-
----
 status: in-progress
 ---
 

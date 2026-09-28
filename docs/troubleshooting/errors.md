@@ -196,7 +196,7 @@ wrong **kind** of name. [game test](../examples/claim-tests.md#ns-4){.v .v-g}
 | The profile's `worldStyle` names a World Style no loaded datapack defines | **This one crashes the game**, because it is resolved before the catch. See [above](#thrown-during-chunk-generation). Check that the profile and the datapack in the world are the same generation of your pack. |
 | A palette `loot` or `mob` key holds a loot table or entity ID | Both name a [Condition](../reference/condition.md). Wrap the value in a one-entry Condition and name that instead. This is by far the most common form. |
 | A bare name that resolved into the `minecraft` namespace | See [Namespaces](../getting-started/namespaces.md#a-bare-name-means-lostcities). |
-| A genuine typo in an asset name | Compare against the file name, which is the asset name. |
+| A typo in an asset name | Compare against the file name, which is the asset name. |
 
 !!! warning "For `loot`, the symptom does not look like an exception"
     The loot pass runs after placement, so the blocks are already in the world. What
@@ -216,8 +216,8 @@ not there. [game test](../examples/claim-tests.md#prt-3){.v .v-g}
 
 `n` is the position it wanted, and for a normal 16 by 16 part the number is
 **255**, the last one. That number tells you nothing about which row is wrong.
-Count the characters in every row of the part, and remember that a row two short
-and another one long cancel out in the total while still smearing the layer. [game test](../examples/claim-tests.md#prt-3){.v .v-g}
+Only counting the characters in every row finds it, because a row two short and
+another one long cancel out in the total while still smearing the layer. [game test](../examples/claim-tests.md#prt-3){.v .v-g}
 
 Too **many** characters produces no message at all. See
 [A wrong row length produces a diagonal smear](../reference/part.md#the-shape-of-slices). [game test](../examples/claim-tests.md#prt-2){.v .v-g}
@@ -288,7 +288,7 @@ The rule is **coverage**, not declaring bounds. Every index from `-cellars` to `
 
 **Fix:** add one part reference with **no condition keys at all**. It matches every level. See [Floor coverage](../reference/building.md#floor-coverage-the-most-common-failure). <!-- noclaim -->
 
-`parts2` never causes this. It is a genuinely optional overlay. [game test](../examples/claim-tests.md#bld-5){.v .v-g}
+`parts2` never causes this. It is an optional overlay. [game test](../examples/claim-tests.md#bld-5){.v .v-g}
 
 ### `NullPointerException` in `ChunkDriver.correct`
 
@@ -376,7 +376,7 @@ A city style's `multibuildings` selector, or a multi-building's grid, names some
 
 The mod asks the city style for a random building name. When the merged `buildings` selector is empty, the weighted picker returns `null`, and the mod throws this rather than continuing. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-**Fix:** give the city style at least one entry in `selectors.buildings`, or inherit from a style that has some. Remember that inheritance is additive, so writing `"buildings": []` on a style that inherits `citystyle_common` still leaves you the parent's 8 entries. You only reach this error when the **merged** list is empty. See [City Style](../reference/citystyle.md#an-empty-selector-list-is-safe-for-five-of-the-eight-and-fatal-for-three). <!-- noclaim -->
+**Fix:** give the city style at least one entry in `selectors.buildings`, or inherit from a style that has some. Inheritance is additive, so writing `"buildings": []` on a style that inherits `citystyle_common` still leaves the parent's 8 entries. This error needs the **merged** list to be empty. See [City Style](../reference/citystyle.md#an-empty-selector-list-is-safe-for-five-of-the-eight-and-fatal-for-three). <!-- noclaim -->
 
 ### `Topleft building type is not set!`
 

@@ -89,7 +89,7 @@ not ship with the credit stripped out.
 exactly the moment attribution should follow: lifting one building out of somebody's
 pack.
 
-Three things about how that works are worth knowing.
+Three details of how that works:
 
 | | |
 |---|---|

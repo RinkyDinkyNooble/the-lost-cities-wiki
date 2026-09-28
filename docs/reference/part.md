@@ -75,7 +75,7 @@ That is one layer: a hollow 4 by 4 box made of whatever block `α` maps to. <!--
     To cover a larger area use a [Multi-Building](multibuilding.md), which is the supported way to span several chunks. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
 !!! note "Smaller than 16 is legal, and the mod relies on it"
-    The mod iterates each part over its **own** `xsize`, `zsize` and slice count, so a part smaller than the chunk simply writes a smaller area. It is not corrupted, and it is not unsupported.
+    The mod iterates each part over its **own** `xsize`, `zsize` and slice count, so a part smaller than the chunk writes a smaller area, and is neither corrupted nor unsupported.
 
     The mod's own [building fronts](citystyle.md#front-parts-are-deliberately-not-16-by-16) are 2 by 16 and 3 by 16 strips, placed along one edge of a street chunk and rotated for each of the four sides. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 

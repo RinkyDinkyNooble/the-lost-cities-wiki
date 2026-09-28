@@ -64,8 +64,7 @@ An entry with no test keys always matches. That is the standard way to write a f
     mod builds for `belowpart` calls `getPart()`, which is the same method the
     `inpart` predicate calls. The two tests are identical.
 
-    So `belowpart` is not a weaker version of what this page used to describe. It is
-    `inpart` under a second name. [game test](../examples/claim-tests.md#cnd-4){.v .v-g} [code review](../examples/claim-tests.md#ref-2){.v .v-c}
+    So `belowpart` is `inpart` under a second name. [game test](../examples/claim-tests.md#cnd-4){.v .v-g} [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
     Present in **7.4.12, 7.5.1, 8.4.1, 9.5.1 and 10.0.1**. Version 8.2.2 does not
     declare the key at all, which is the only release where writing it is an error
@@ -93,10 +92,10 @@ part to use, so there is no current part yet. [code review](../examples/claim-te
 literal `<none>`.** Any entry carrying one is dead, and if the floors it was meant
 to cover have no other entry, every chunk holding that building fails. [game test](../examples/claim-tests.md#cnd-5){.v .v-g}
 
-Use `floor`, `range`, `ground` and `top` to select parts by height. They are the
+`floor`, `range`, `ground` and `top` select parts by height, and they are the
 only level tests that work in a building. [game test](../examples/claim-tests.md#cnd-1){.v .v-g}
 
-`inpart` is genuinely useful in a Condition reached from a palette, which is where
+`inpart` does work in a Condition reached from a palette, which is where
 the mod's own content uses this family of keys. Confirmed in game on 7.4.12: a
 palette `loot` key pointing at a Condition whose only matching entry was gated
 `inpart` resolved to that entry's table, so the real part name does reach it. [game test](../examples/claim-tests.md#cnd-6){.v .v-g}

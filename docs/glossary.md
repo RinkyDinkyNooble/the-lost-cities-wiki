@@ -7,7 +7,7 @@ claims: verified
 Quick definitions for terms used across this wiki. Click here from any page, then go back. <!-- noclaim -->
 
 Datapack
-:   A folder or zip of JSON files that adds or changes game content, no code required. Minecraft loads these itself. Lost Cities content is written as datapack JSON. <!-- noclaim -->
+:   A folder or zip of JSON files that adds or changes game content without any code. Minecraft loads these itself. Lost Cities content is written as datapack JSON. <!-- noclaim -->
 
 Registry
 :   Minecraft's internal list of things that exist: all blocks, all items, or here, all world styles. Adding a JSON file in the right folder registers a new entry. <!-- noclaim -->

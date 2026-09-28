@@ -1,8 +1,5 @@
 ---
 claims: verified
----
-
----
 status: in-progress
 ---
 
@@ -10,12 +7,7 @@ status: in-progress
 
 Each entry is a behaviour traced to its cause in the 7.4.12 source, with a workaround that needs nothing but JSON. An absence from this page means the behaviour has not been traced, not that it is correct. <!-- noclaim -->
 
-Two kinds of thing live here: <!-- noclaim -->
-
-- **Genuine oddities** in how the mod behaves, where the fix is a workaround rather than a setting.
-- **Things that look like bugs but are working as designed**, listed so that time is not spent trying to fix them. <!-- noclaim -->
-
-Anything that produces an actual error message belongs on [Error Messages](errors.md) instead. <!-- noclaim -->
+It holds two kinds of entry: oddities in how the mod behaves, where the fix is a workaround rather than a setting, and behaviour that looks like a bug but works as designed. Anything that produces an error message is on [Error Messages](errors.md) instead. <!-- noclaim -->
 
 ## Corner stairs generate with the wrong shape
 
@@ -23,15 +15,15 @@ Anything that produces an actual error message belongs on [Error Messages](error
 
 Whatever `shape=` you write in a palette's `block` string is **discarded**. Every block placed through a part goes through the same neighbour-aware correction pass vanilla uses when a player places a stair by hand, and the `shape` property is recalculated from whatever ends up adjacent. This is unconditional in the compiled code, and there is no JSON key anywhere that turns it off. [game test](../examples/claim-tests.md#prt-4){.v .v-g}
 
-=== "Fix A: let the geometry do it (try this first)"
+=== "Fix A: let the geometry do it"
 
-    The correction produces the right corner **on its own** when real neighbouring stairs back it up: same `half`, perpendicular `facing`, adjacent position. If your part places those neighbours correctly, you do not need `shape=` at all, and you should not write one, since it is overwritten regardless. [game test](../examples/claim-tests.md#prt-4){.v .v-g}
+    The correction produces the right corner **on its own** when real neighbouring stairs back it up: same `half`, perpendicular `facing`, adjacent position. A part that places those neighbours correctly needs no `shape=`, and one written anyway is overwritten. [game test](../examples/claim-tests.md#prt-4){.v .v-g}
 
-    Check this before reaching for Fix B. It is usually one fewer thing to hand-author, not more. <!-- noclaim -->
+    It is usually one fewer thing to hand-author than Fix B. <!-- noclaim -->
 
 === "Fix B: a self-replacing command block"
 
-    For a corner the surrounding geometry genuinely cannot produce (a decorative or impossible shape), place it *after* generation. The correction pass only runs during the generation call itself, so a command block that fires once and overwrites itself lands the exact state you asked for. <!-- noclaim -->
+    A corner the surrounding geometry cannot produce (a decorative or impossible shape) has to be placed *after* generation. The correction pass only runs during the generation call itself, so a command block that fires once and overwrites itself lands the exact state it names. <!-- noclaim -->
 
     ```json title="Palette entry"
     {
@@ -144,7 +136,7 @@ The same is true of every number in every asset file: there is no range validati
 
 The mod rewrites every built-in profile file **on every launch**, not just the first. 7.4.12 ships 17 of them. Editing `wasteland.json` or `default.json` in place means losing that edit the next time the game starts. [code review](../examples/claim-tests.md#cfg-7){.v .v-c}
 
-**Fix:** always use a file name the mod does not ship, like `mycity.json`. Files it does not recognise are read and left alone. `/lostcities saveprofile <name>` is the intended way to get a starting point. <!-- noclaim -->
+**Fix:** a file name the mod does not ship, like `mycity.json`. Files it does not recognise are read and left alone. `/lostcities saveprofile <name>` writes a complete starting point. <!-- noclaim -->
 
 ## Buildings inherited from `citystyle_common` keep showing up
 

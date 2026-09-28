@@ -81,8 +81,8 @@ The bold row is the version this wiki documents. <!-- noclaim -->
 
 ## Traps specific to one version
 
-Three behaviours vary by version in a way that produces no error message. Each is
-worth checking before assuming a pack is wrong. <!-- noclaim -->
+Three behaviours vary by version in a way that produces no error message, so each
+can make a correct pack look wrong. <!-- noclaim -->
 
 ### Predefined cities and spheres do not work on four versions
 

@@ -46,7 +46,7 @@ writes tens of thousands of blocks, and reads and writes files beside your world
 
 ## On a server
 
-Safe to use, with three things worth knowing.
+Safe to use, with three caveats.
 
 | | |
 |---|---|
@@ -221,7 +221,7 @@ throws.
 ### Starting again
 
 An import fills the plots its pack needs and leaves every other plot alone, because
-somebody may have built on those by hand. That has a consequence worth knowing:
+somebody may have built on those by hand. That has a consequence:
 **importing a second city on top of a first leaves the first one's plots where they
 were**, so the workshop holds both and an export writes both into one pack. The
 import counts those plots and says so.

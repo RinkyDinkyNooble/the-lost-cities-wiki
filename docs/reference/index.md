@@ -52,7 +52,7 @@ Each page opens with a TL;DR, then a key table, then the behaviour the keys alon
 
     [`validate.py`](../examples/index.md#validatepy) checks the rules that can be checked outside the game. <!-- noclaim -->
 
-Three pages carry most of the traps and are worth reading before writing anything: <!-- noclaim -->
+Three pages carry most of the traps: <!-- noclaim -->
 
 - [Palette](palette.md#the-128-slot-rule-for-blocks-and-variant), for the 128-slot rule and what a `char` may legally be [game test](../examples/claim-tests.md#pal-3){.v .v-g}
 - [Building](building.md#floor-coverage-the-most-common-failure), for the floor-coverage failure [game test](../examples/claim-tests.md#bld-4){.v .v-g}

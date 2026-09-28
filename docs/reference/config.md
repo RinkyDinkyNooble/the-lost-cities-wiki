@@ -93,7 +93,7 @@ This file is written into the **save**, at `<world>/serverconfig/lostcities-serv
 | Are my own profiles safe? | Yes. The write loop only touches profiles the mod itself defines |
 [code review](../examples/claim-tests.md#cfg-7){.v .v-c}
 
-To change a default, copy it to a new name and edit the copy. That is what the `__readonly__` note in each shipped file is telling you, and it is accurate: those files really are read-only in effect. <!-- noclaim -->
+A default is changed by copying it to a new name and editing the copy. That is what the `__readonly__` note in each shipped file says, and the note is accurate: those files are read-only in effect. <!-- noclaim -->
 
 !!! danger "One unreadable file drops every profile after it"
     `readProfiles` walks the folder and reads each `.json` in turn. Its `IOException` handler ends in `return` rather than `continue`, so the first file it cannot read stops the scan, and every profile the scan had not reached yet is never registered. [code review](../examples/claim-tests.md#prf-5){.v .v-c}
@@ -101,7 +101,7 @@ To change a default, copy it to a new name and edit the copy. That is what the `
     Which profiles vanish depends on directory order, so the symptom is a profile that exists on disk, is spelled correctly, and is not offered or found. Nothing names the file that stopped the scan. [code review](../examples/claim-tests.md#prf-5){.v .v-c}
 
 !!! warning "A key in the wrong section is never read"
-    Both `.toml` files and the profile JSON are read by section. A key placed under the wrong heading is not reported, it is simply not found, and the setting keeps its default. See the `[profiles]` note above. [code review](../examples/claim-tests.md#prf-7){.v .v-c}
+    Both `.toml` files and the profile JSON are read by section. A key placed under the wrong heading is not reported: it is not found, and the setting keeps its default. See the `[profiles]` note above. [code review](../examples/claim-tests.md#prf-7){.v .v-c}
 
 ### `__readonly__`
 

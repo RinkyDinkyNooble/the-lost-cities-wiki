@@ -66,7 +66,7 @@ Five datapack types have no file-era equivalent: `variant`, `scattered`, `stuff`
 | [Adding Your Own Content](adding-content.md) | `userassets.json`, the load list, overriding, the world type, and the config |
 [code review](../examples/claim-tests.md#f12-2){.v .v-c} [game test](../examples/claim-tests.md#f12-8){.v .v-g}
 
-The reference section of this wiki does **not** apply. Its key tables are read from datapack codecs that do not exist here. Where a key name matches, treat that as a coincidence worth checking rather than a guarantee. [code review](../examples/claim-tests.md#f12-2){.v .v-c}
+The reference section of this wiki does **not** apply. Its key tables are read from datapack codecs that do not exist here. Where a key name matches, that is a coincidence, not a guarantee. [code review](../examples/claim-tests.md#f12-2){.v .v-c}
 
 ## See also
 

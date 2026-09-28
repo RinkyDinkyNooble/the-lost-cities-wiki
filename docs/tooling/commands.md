@@ -5,7 +5,7 @@ claims: verified
 # Testing & Debugging Commands
 
 !!! tip "TL;DR"
-    `/lostcities <command>` (alias `/lost`). Six commands here are useful for checking your custom city actually works.
+    `/lostcities <command>` (alias `/lost`). Six of them check that a custom city works.
 
     | Command | Needs op? [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
     |---|---|
@@ -39,7 +39,7 @@ So the loop is: edit files, quit to title, rejoin, **travel somewhere new** (or 
 /lostcities saveprofile <name>
 ```
 
-Writes one of the mod's built-in presets (not your world's active profile) to `<name>.json` in the server's working directory, fully populated with every key at its default value. No op requirement. This is the fastest way to get a complete, valid starting point instead of typing a [Profile](../reference/profile.md) from scratch, copy the keys you actually want to change into your own file. [code review](../examples/claim-tests.md#cfg-7){.v .v-c}
+Writes one of the mod's built-in presets (not your world's active profile) to `<name>.json` in the server's working directory, fully populated with every key at its default value. It needs no op permission. The file is a complete, valid starting point, so a [Profile](../reference/profile.md) of your own needs only the keys that change, copied out of it. [code review](../examples/claim-tests.md#cfg-7){.v .v-c}
 
 ## Finding out why a chunk looks the way it does
 
@@ -47,13 +47,13 @@ Writes one of the mod's built-in presets (not your world's active profile) to `<
 /lostcities debug
 ```
 
-Run standing in the chunk you want to inspect. Dumps everything the generator decided for that chunk, profile name, building type, floor/cellar count, city level, city style, street type, ruin height, highway levels, rail info, city-sphere data, explosion count, whether it is ocean, straight to the **server console**, not chat. On a dedicated server you need console/log access to see it; in singleplayer it still only goes to the game log, not the in-game chat overlay. This is the single richest diagnostic available, worth checking first for "why did not my city style/building apply here." [code review](../examples/claim-tests.md#ref-2){.v .v-c}
+Run it standing in the chunk to inspect. It dumps everything the generator decided for that chunk (profile name, building type, floor/cellar count, city level, city style, street type, ruin height, highway levels, rail info, city-sphere data, explosion count, whether it is ocean) straight to the **server console**, not chat. On a dedicated server that takes console or log access; in singleplayer it still only goes to the game log, not the in-game chat overlay. It is the richest diagnostic the mod ships for why a city style or building did not apply. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
 ```
 /lostcities map
 ```
 
-Also console-only. Prints a 41×41-chunk ASCII map centered on you: `B` = city chunk with a building, `+` = city chunk without one (street/plaza), `.` = highway, blank = neither. Good for a quick sanity check that cities and highways are actually generating at the density you expect, without flying around. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
+Also console-only. Prints a 41×41-chunk ASCII map centered on you: `B` = city chunk with a building, `+` = city chunk without one (street/plaza), `.` = highway, blank = neither. It shows whether cities and highways generate at the expected density without flying around. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
 ## Reading the answer in chat, and asking about one file
 
@@ -103,7 +103,7 @@ rather than standing in the result. [code review](../examples/claim-tests.md#ref
 /lostcities stats
 ```
 
-Reports average/min/max city-chunk generation time in milliseconds, to chat this time. If a custom city style or a heavy palette is causing noticeable lag, this is the first thing to check. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
+Reports average/min/max city-chunk generation time in milliseconds, to chat this time, which is where lag from a custom city style or a heavy palette shows. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
 ## Finding a specific building
 
@@ -111,7 +111,7 @@ Reports average/min/max city-chunk generation time in milliseconds, to chat this
 /lostcities locate <buildingName>
 ```
 
-Spirals outward from you, up to 30 chunks, and reports the first 6 matches to chat with coordinates. Useful for confirming a rare/special building you added actually generates somewhere nearby, without a full manual search. Building names are tab-completed live from your loaded registries, so custom buildings autocomplete correctly. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
+Spirals outward from you, up to 30 chunks, and reports the first 6 matches to chat with coordinates. That confirms a rare building you added generates somewhere nearby, without a manual search. Building names are tab-completed live from your loaded registries, so custom buildings autocomplete correctly. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
 ## Placing a specific building on demand
 

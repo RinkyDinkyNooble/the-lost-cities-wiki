@@ -278,7 +278,7 @@ Read this as a list of candidates, not a stack. For each level, the generator co
 }
 ```
 
-Only two keys are required. `multisettings`, `settings`, and `parts` all fall back to working defaults, and `scattered` and `cityspheres` are simply off when absent. [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+Only two keys are required. `multisettings`, `settings`, and `parts` all fall back to working defaults, and `scattered` and `cityspheres` are off when absent. [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 
 Note `mycity:mycity`: the namespace **and** the file name. A bare `mycity` would be read as `lostcities:mycity` and silently find nothing. This is the single most common way custom content fails to load. [game test](../examples/claim-tests.md#ns-3){.v .v-g}
 
@@ -339,7 +339,7 @@ That dumps every decision the generator made for that chunk to the **server cons
 
 ## When nothing happens
 
-In the order worth checking: <!-- noclaim -->
+In order: <!-- noclaim -->
 
 1. **Did you restart?** `/reload` does not reload these files.
 2. **Are you in new chunks?** Existing ones are saved and never regenerate.

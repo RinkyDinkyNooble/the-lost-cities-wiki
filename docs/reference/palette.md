@@ -275,7 +275,7 @@ Could not find entry 'ß' in the palette for part 'mypack:my_part'!
 !!! note "Space is not hardcoded to air"
     `" "` maps to `minecraft:air` because the shipped `common` palette defines it that way, and every shipped style lists `common` first. It is not a rule in the code.
 
-    There is one genuine special case. The mod skips a column that is **entirely** spaces from top to bottom without ever looking it up. So a part made only of spaces does not crash even with no space entry, but a wall with a doorway in it does. If you write a style from scratch, either include `common` or define `" "` yourself. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
+    There is one special case. The mod skips a column that is **entirely** spaces from top to bottom without ever looking it up. So a part made only of spaces does not crash even with no space entry, but a wall with a doorway in it does. A style written from scratch needs either `common` or its own `" "` entry. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
 ## The 128-slot rule for `blocks` and `variant`
 
@@ -310,9 +310,11 @@ A weighted list, whether `blocks` here or inside a [Variant](variant.md), fills 
 
 Every block placed through a part goes through a neighbour-aware correction pass before it lands. It is the same logic Minecraft uses when a player places these blocks by hand. [game test](../examples/claim-tests.md#prt-4){.v .v-g}
 
-- **Stairs** (`minecraft:*_stairs`): the mod always recalculates the `shape` property from whatever ends up next to the block. Matching stairs on the facing side or its opposite produce an outer or inner corner, and anything else produces `straight`. **The mod discards whatever `shape=` you write in a `block` string and replaces it.** This happens on every stair placement, not occasionally. If a corner comes out wrong, the recalculated shape does not match what the surrounding geometry produces. The palette entry was not ignored.
-- **Fences, walls and similar connecting blocks**: the mod recalculates connections to neighbours the same way. This is expected and rarely surprising.
-- **Structure void blocks**: the mod places nothing, silently. [game test](../examples/claim-tests.md#prt-4){.v .v-g}
+| Block [game test](../examples/claim-tests.md#prt-4){.v .v-g} | What the pass does |
+|---|---|
+| Stairs (`minecraft:*_stairs`) | Recalculates `shape` from whatever ends up next to the block, on every placement. Matching stairs on the facing side or its opposite produce an outer or inner corner, and anything else produces `straight`. **A `shape=` written in a `block` string is discarded and replaced.** A corner that comes out wrong is the recalculated shape following the surrounding geometry, not an ignored palette entry. |
+| Fences, walls and similar connecting blocks | Recalculates their connections to neighbours the same way. |
+| Structure void | Places nothing, silently. |
 
 !!! warning "Forcing an exact stair shape needs a workaround"
     The correction pass runs only during the terrain-generation call itself. So if you need a specific corner shape that the correction will not produce, the only reliable method is to place it after generation finishes.
