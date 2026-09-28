@@ -215,6 +215,17 @@ try:
             fail("building twice changed the layout. A plot's address would then "
                  "depend on how many times somebody rebuilt, and every position "
                  "already written into the world is wrong")
+
+        print("\n" + "=" * 72)
+        print("7. here counts the plots a grown row lays out")
+        # The row was grown to 9 in case 5. Counted from the catalogue's starting
+        # size instead, the last plot said "variation 9 of 3".
+        plots.update({x["id"]: x for x in after["plots"]})
+        said = at("building/1x1/8", "here")
+        print("  " + re.sub(r"\s+", " ", said)[:160])
+        if "9 of 9" not in said:
+            fail("`here` on the ninth plot of a row grown to nine did not say "
+                 "9 of 9")
 finally:
     try:
         with Rcon(port=25575, password="lcwiki") as con:

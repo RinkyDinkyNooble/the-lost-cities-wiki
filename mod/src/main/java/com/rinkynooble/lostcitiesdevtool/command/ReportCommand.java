@@ -1,6 +1,5 @@
 package com.rinkynooble.lostcitiesdevtool.command;
 
-import com.rinkynooble.lostcitiesdevtool.LostCitiesDevTool;
 import com.rinkynooble.lostcitiesdevtool.chat.Chat;
 import com.rinkynooble.lostcitiesdevtool.chat.ProfileKeys;
 import com.rinkynooble.lostcitiesdevtool.workshop.Conditions;
@@ -578,26 +577,12 @@ public class ReportCommand {
         reportUnreadable(source, scan);
     }
 
-    /**
-     * Runs a lookup and reports what went wrong if it throws.
-     *
-     * <p>Vanilla catches a command's exception, answers "An unexpected error occurred"
-     * and puts the message in hover text that a console, an RCON client and a log line
-     * all discard. For a tool whose whole purpose is to say what failed, that is the
-     * one answer it must never give.
-     */
+    /** Runs a lookup, reporting what went wrong rather than letting it escape. */
     private static int safely(CommandSourceStack source, Runnable body) {
-        try {
+        return CommandSupport.guarded(source, "lookup", () -> {
             body.run();
             return 1;
-        } catch (Exception e) {
-            LostCitiesDevTool.LOGGER.error("lcdev lookup failed", e);
-            Chat.fail(source, "The lookup failed",
-                    e.getClass().getSimpleName()
-                            + (e.getMessage() == null ? "" : ": " + e.getMessage()),
-                    "The full trace is in the log");
-            return 0;
-        }
+        });
     }
 
     /**
@@ -730,26 +715,6 @@ public class ReportCommand {
             sb.append(' ').append(state);
         }
         return sb.toString();
-    }
-
-    /** The chunk the caller is standing in, or null with the reason already reported. */
-    private static BuildingInfo chunkAt(CommandSourceStack source) {
-        ServerLevel level = source.getLevel();
-        ChunkPos pos = new ChunkPos(net.minecraft.core.BlockPos.containing(source.getPosition()));
-        IDimensionInfo provider = Registration.LOSTCITY_FEATURE.get()
-                .getDimensionInfo((WorldGenLevel) level);
-        if (provider == null) {
-            Chat.fail(source, "No Lost Cities profile is attached to this dimension",
-                    String.valueOf(level.dimension().location()), null);
-            return null;
-        }
-        try {
-            return BuildingInfo.getBuildingInfo(
-                    new ChunkCoord(provider.getType(), pos.x, pos.z), provider);
-        } catch (Exception e) {
-            Chat.fail(source, "This chunk cannot be described", e.getMessage(), null);
-            return null;
-        }
     }
 
     /**

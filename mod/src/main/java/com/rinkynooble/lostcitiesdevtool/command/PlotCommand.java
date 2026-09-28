@@ -6,6 +6,8 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.suggestion.Suggestions;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.rinkynooble.lostcitiesdevtool.chat.Chat;
 import com.rinkynooble.lostcitiesdevtool.workshop.Boundaries;
 import com.rinkynooble.lostcitiesdevtool.workshop.Catalogue;
@@ -13,15 +15,21 @@ import com.rinkynooble.lostcitiesdevtool.workshop.Conditions;
 import com.rinkynooble.lostcitiesdevtool.workshop.Layout;
 import com.rinkynooble.lostcitiesdevtool.workshop.Settings;
 import com.rinkynooble.lostcitiesdevtool.workshop.SettingsStore;
+import com.rinkynooble.lostcitiesdevtool.workshop.Workshop;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * {@code /lcdev plot}: the settings of whatever plot you are standing on.
@@ -116,15 +124,9 @@ public class PlotCommand {
     /** The plot under the caller, reported as a failure when there is none. */
     @Nullable
     private static Layout.Plot plotAt(CommandSourceStack source) {
-        BlockPos pos = BlockPos.containing(source.getPosition());
-        Layout.Plot plot = Layout.at(Layout.plots(), pos.getX(), pos.getZ());
-        if (plot == null) {
-            Chat.fail(source, "You are not standing on a plot",
-                    pos.getX() + "," + pos.getZ(),
-                    "Every plot is chunk aligned with a chunk of walkway around it. "
-                            + "/lcdev workshop here says what is under you");
-        }
-        return plot;
+        return CommandSupport.plotUnder(source,
+                "Every plot is chunk aligned with a chunk of walkway around it. "
+                        + "/lcdev workshop here says what is under you");
     }
 
     @Nullable
@@ -168,9 +170,8 @@ public class PlotCommand {
      * <p>The other four keys take a block or a character, which the player can see
      * in front of them, so they are left alone.
      */
-    private static java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions>
-    suggestMarkValues(CommandContext<CommandSourceStack> ctx,
-                      com.mojang.brigadier.suggestion.SuggestionsBuilder builder) {
+    private static CompletableFuture<Suggestions> suggestMarkValues(
+            CommandContext<CommandSourceStack> ctx, SuggestionsBuilder builder) {
         String key = StringArgumentType.getString(ctx, "key");
         if (!"loot".equals(key) && !"mob".equals(key)) {
             return builder.buildFuture();
@@ -181,16 +182,19 @@ public class PlotCommand {
 
     private static int mark(CommandContext<CommandSourceStack> ctx) {
         CommandSourceStack source = ctx.getSource();
-        net.minecraft.server.level.ServerPlayer player;
-        try {
-            player = source.getPlayerOrException();
-        } catch (Exception e) {
-            Chat.fail(source, "Marking needs a player, because it marks what you are "
-                    + "looking at", null, "Run it in game");
+        ServerPlayer player = CommandSupport.player(source, "Marking needs a player, "
+                + "because it marks what you are looking at");
+        if (player == null) {
             return 0;
         }
-        net.minecraft.world.phys.HitResult hit = player.pick(6.0, 0.0f, false);
-        if (!(hit instanceof net.minecraft.world.phys.BlockHitResult block)) {
+        // The block looked at is in the player's own level, which is the one that
+        // has to be the workshop. Anywhere else the same x and z is no plot at all.
+        if (!player.level().dimension().equals(Workshop.DIMENSION)) {
+            CommandSupport.notInWorkshop(source);
+            return 0;
+        }
+        HitResult hit = player.pick(6.0, 0.0f, false);
+        if (!(hit instanceof BlockHitResult block)) {
             Chat.fail(source, "Nothing in reach", null,
                     "Look at the block you want to mark, within six blocks");
             return 0;
@@ -233,8 +237,7 @@ public class PlotCommand {
         }
         Chat.header(source, plot.id(), "mark");
         Chat.kv(source, "block", String.valueOf(
-                net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(
-                        player.level().getBlockState(pos).getBlock())));
+                BuiltInRegistries.BLOCK.getKey(player.level().getBlockState(pos).getBlock())));
         Chat.kv(source, "at", at + "  relative to the plot corner");
         Chat.kv(source, key, value);
         return 1;
@@ -282,11 +285,9 @@ public class PlotCommand {
 
     // -------------------------------------------------------------- suggestions
 
-    private static java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions>
-    suggestKeys(CommandContext<CommandSourceStack> ctx,
-                com.mojang.brigadier.suggestion.SuggestionsBuilder builder) {
-        BlockPos pos = BlockPos.containing(ctx.getSource().getPosition());
-        Layout.Plot plot = Layout.at(Layout.plots(), pos.getX(), pos.getZ());
+    private static CompletableFuture<Suggestions> suggestKeys(
+            CommandContext<CommandSourceStack> ctx, SuggestionsBuilder builder) {
+        Layout.Plot plot = CommandSupport.plotUnderQuietly(ctx.getSource());
         List<String> names = new ArrayList<>();
         for (Settings.Field f : Settings.fieldsFor(rowOf(plot))) {
             names.add(f.name());
@@ -294,11 +295,9 @@ public class PlotCommand {
         return SharedSuggestionProvider.suggest(names, builder);
     }
 
-    private static java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions>
-    suggestValues(CommandContext<CommandSourceStack> ctx,
-                  com.mojang.brigadier.suggestion.SuggestionsBuilder builder) {
-        BlockPos pos = BlockPos.containing(ctx.getSource().getPosition());
-        Layout.Plot plot = Layout.at(Layout.plots(), pos.getX(), pos.getZ());
+    private static CompletableFuture<Suggestions> suggestValues(
+            CommandContext<CommandSourceStack> ctx, SuggestionsBuilder builder) {
+        Layout.Plot plot = CommandSupport.plotUnderQuietly(ctx.getSource());
         Settings.Field field = Settings.field(rowOf(plot),
                 StringArgumentType.getString(ctx, "key"));
         return SharedSuggestionProvider.suggest(

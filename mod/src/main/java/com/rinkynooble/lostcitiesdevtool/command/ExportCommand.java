@@ -7,13 +7,11 @@ import com.mojang.brigadier.context.CommandContext;
 import com.rinkynooble.lostcitiesdevtool.chat.Chat;
 import com.rinkynooble.lostcitiesdevtool.workshop.Exporter;
 import com.rinkynooble.lostcitiesdevtool.workshop.Layout;
-import com.rinkynooble.lostcitiesdevtool.workshop.Workshop;
 import com.rinkynooble.lostcitiesdevtool.validate.Finding;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.server.level.ServerLevel;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.EnumSet;
 import java.util.Set;
@@ -74,26 +72,36 @@ public class ExportCommand {
         return node;
     }
 
+    /** What to do about asking for `plot` somewhere that is not one. */
+    private static final String PLOT_FIX = "`plot` exports the one you are on. Go to "
+            + "it, or leave the word off to export the whole workshop.";
+
     private static int export(CommandContext<CommandSourceStack> ctx,
                               Set<Flag> flags) {
         CommandSourceStack source = ctx.getSource();
+        return CommandSupport.guarded(source, "export", () -> export(ctx, source, flags));
+    }
+
+    private static int export(CommandContext<CommandSourceStack> ctx,
+                              CommandSourceStack source, Set<Flag> flags) {
         String name = StringArgumentType.getString(ctx, "name");
-        ServerLevel workshop = Workshop.level(source.getServer());
+        ServerLevel workshop = CommandSupport.workshop(source);
         if (workshop == null) {
-            Chat.fail(source, "The workshop dimension is not loaded",
-                    String.valueOf(Workshop.DIMENSION.location()), null);
             return 0;
         }
 
         String only = null;
         if (flags.contains(Flag.PLOT)) {
-            only = plotUnder(source);
-            if (only == null) {
-                Chat.fail(source, "You are not standing on a plot", null,
-                        "`plot` exports the one you are on. Go to it, or leave the "
-                        + "word off to export the whole workshop.");
+            Layout.Plot plot = CommandSupport.plotUnder(source, PLOT_FIX);
+            if (plot == null) {
                 return 0;
             }
+            if (plot.row() == null) {
+                Chat.fail(source, "You are not standing on a plot", "the front desk",
+                        PLOT_FIX);
+                return 0;
+            }
+            only = plot.id();
         }
 
         long started = System.currentTimeMillis();
@@ -110,8 +118,12 @@ public class ExportCommand {
         long took = System.currentTimeMillis() - started;
 
         if (result.failed()) {
+            // Errors only. The findings carry the asset check's warnings too, and
+            // counting them here numbered problems the lines below never show.
+            long errors = result.findings().stream()
+                    .filter(f -> f.severity() == Finding.Severity.ERROR).count();
             Chat.fail(source, "Nothing was written: the pack would not load",
-                    result.findings().size() + " problem(s)",
+                    errors + (errors == 1 ? " error" : " errors"),
                     "Each one below names the asset it is in");
             for (Finding f : result.findings()) {
                 if (f.severity() == Finding.Severity.ERROR) {
@@ -159,14 +171,5 @@ public class ExportCommand {
                     + "style. It will not generate anything on its own.");
         }
         return 1;
-    }
-
-    /** The plot the caller is standing on, or null for none. */
-    @Nullable
-    private static String plotUnder(CommandSourceStack source) {
-        var pos = source.getPosition();
-        Layout.Plot plot = Layout.at(Layout.plots(), (int) Math.floor(pos.x),
-                (int) Math.floor(pos.z));
-        return plot == null || plot.row() == null ? null : plot.id();
     }
 }

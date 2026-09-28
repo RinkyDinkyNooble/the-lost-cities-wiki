@@ -6,7 +6,6 @@ import com.rinkynooble.lostcitiesdevtool.chat.Chat;
 import com.rinkynooble.lostcitiesdevtool.workshop.Attribution;
 import com.rinkynooble.lostcitiesdevtool.workshop.Importer;
 import com.rinkynooble.lostcitiesdevtool.workshop.Licence;
-import com.rinkynooble.lostcitiesdevtool.workshop.Workshop;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
@@ -115,12 +114,20 @@ public class ImportCommand {
     private static int run(CommandContext<CommandSourceStack> ctx, boolean reverse,
                            boolean autoRun) {
         CommandSourceStack source = ctx.getSource();
+        // Guarded because an import walks somebody else's data and will meet shapes
+        // this code did not expect. Saying which one is the difference between a
+        // bug report and a shrug.
+        return CommandSupport.guarded(source, "import",
+                () -> run(ctx, source, reverse, autoRun));
+    }
+
+    private static int run(CommandContext<CommandSourceStack> ctx,
+                           CommandSourceStack source, boolean reverse,
+                           boolean autoRun) {
         String name = resolve(source, ResourceLocationArgument
                 .getId(ctx, "worldstyle"));
-        ServerLevel workshop = Workshop.level(source.getServer());
+        ServerLevel workshop = CommandSupport.workshop(source);
         if (workshop == null) {
-            Chat.fail(source, "The workshop dimension is not loaded",
-                    String.valueOf(Workshop.DIMENSION.location()), null);
             return 0;
         }
 
@@ -131,20 +138,6 @@ public class ImportCommand {
         } catch (IOException e) {
             Chat.fail(source, "The import could not run", name,
                     String.valueOf(e.getMessage()));
-            return 0;
-        } catch (RuntimeException e) {
-            // Brigadier turns anything unchecked into "an unexpected error occurred",
-            // which tells the person nothing and does not reach the log either. An
-            // import walks somebody else's data, so it will meet shapes this code did
-            // not expect; saying which one is the difference between a bug report and
-            // a shrug.
-            Chat.fail(source, "The import hit something it could not read",
-                    e.getClass().getSimpleName()
-                            + (e.getMessage() == null ? "" : ": " + e.getMessage()),
-                    "This is a fault in the import, not in the pack. The stack trace "
-                            + "is in the log");
-            com.rinkynooble.lostcitiesdevtool.LostCitiesDevTool.LOGGER.error(
-                    "import of {} failed", name, e);
             return 0;
         }
         long took = System.currentTimeMillis() - started;

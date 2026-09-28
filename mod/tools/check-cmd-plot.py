@@ -36,6 +36,7 @@ What it asserts, and why each is here rather than assumed:
   * **`file` names a path that is really there.** The command exists to be clicked,
     so a path that does not exist after a `set` is worse than no answer.
 """
+import atexit
 import glob
 import io
 import json
@@ -59,6 +60,8 @@ LOADER = "net/minecraftforge/forge/1.20.1-47.4.10"
 WORKSHOP = "lostcitiesdevtool:workshop"
 WORLD = os.path.join(SERVER, "world")
 PLOTS = os.path.join(WORLD, "lostcitiesdevtool", "plots.json")
+# The first buildable block, and so the height of the ground boundary line.
+BASE = -63
 SETTINGS = os.path.join(WORLD, "lostcitiesdevtool", "plots")
 
 BUILDING = "building/1x1/0"
@@ -138,8 +141,14 @@ def count_before(text, label):
     return int(found.group(1)) if found else None
 
 
-if os.path.isdir(WORLD):
-    shutil.rmtree(WORLD)
+# What case 8's `export outside plot` writes on a build that does not refuse it. A
+# leftover makes the next run answer "already there" instead of what is asked.
+STRAY_EXPORT = os.path.join(SERVER, "config", "lostcitiesdevtool", "exports",
+                            "outside")
+for path in (WORLD, STRAY_EXPORT):
+    if os.path.isdir(path):
+        shutil.rmtree(path)
+atexit.register(lambda: os.path.isdir(STRAY_EXPORT) and shutil.rmtree(STRAY_EXPORT))
 dest = rig.install(SERVER, JAR)
 print("fresh world, jar installed: %s\n" % os.path.basename(JAR))
 
@@ -298,6 +307,58 @@ try:
         if "not yet" not in empty:
             fail("a plot nothing has been set on did not say its file is not "
                  "written yet")
+
+        print("\n" + "=" * 72)
+        print("8. outside the workshop a plot command touches nothing")
+        # A plot is a place in the workshop. The same x and z anywhere else is
+        # somebody's world, and the console stands at the overworld spawn. Without
+        # the dimension check `hide` cleared a ring of blocks there from the floor
+        # of the world to the build limit, `show` built glass into it, and `set`
+        # wrote to the workshop plot sharing the coordinates. Damage first, then
+        # the wording, so one cause is named once.
+        world = "minecraft:overworld"
+        p = plots[BUILDING]
+        x0, z0 = p["chunkX"] * 16, p["chunkZ"] * 16
+        gold = (x0 - 1, 100, z0 + 3)
+        glass = (x0 - 1, BASE, z0 - 1)
+        con.command("execute in %s run forceload add %d %d %d %d"
+                    % (world, x0 - 16, z0 - 16, x0 + 31, z0 + 31))
+        con.command("execute in %s run setblock %d %d %d minecraft:gold_block"
+                    % ((world,) + gold))
+
+        def outside(rest):
+            return con.command("execute in %s positioned %d 100 %d run lcdev %s"
+                               % (world, x0 + 8, z0 + 8, rest)).rstrip()
+
+        def there(pos, block):
+            said = con.command("execute in %s if block %d %d %d %s"
+                               % ((world,) + pos + (block,)))
+            return "passed" in said
+
+        replies = {rest: outside(rest) for rest in
+                   ("plot hide", "plot show", "plot set floors 9", "workshop here",
+                    "export outside plot")}
+        for rest, said in replies.items():
+            print("  %-18s %s" % (rest, said.replace("\n", " ")[:110]))
+        kept = there(gold, "minecraft:gold_block")
+        built = there(glass, "minecraft:red_stained_glass")
+        floors = (settings_of(BUILDING) or {}).get("floors")
+        print("  overworld block on the ring kept: %s" % kept)
+        print("  glass built into the overworld:   %s" % built)
+        print("  floors on %s: %s" % (BUILDING, floors))
+        if not kept:
+            fail("`plot hide` run in the overworld cleared a block of the overworld "
+                 "that stood where the plot's walkway ring would be")
+        if built:
+            fail("`plot show` run in the overworld built boundary glass into it")
+        if floors != 3:
+            fail("`plot set` run in the overworld wrote floors %s to the workshop "
+                 "plot sharing its coordinates" % floors)
+        refused = [rest for rest, said in replies.items()
+                   if "not in the workshop" not in said]
+        if refused:
+            fail("run outside the workshop, %s did not say so"
+                 % ", ".join(refused))
 finally:
     try:
         with Rcon(port=25575, password="lcwiki") as con:

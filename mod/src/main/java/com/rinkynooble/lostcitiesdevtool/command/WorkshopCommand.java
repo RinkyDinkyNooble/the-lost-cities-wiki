@@ -101,10 +101,8 @@ public class WorkshopCommand {
     private static int clear(CommandContext<CommandSourceStack> ctx,
                              boolean confirmed, boolean skipBackup) {
         CommandSourceStack source = ctx.getSource();
-        ServerLevel workshop = Workshop.level(source.getServer());
+        ServerLevel workshop = CommandSupport.workshop(source);
         if (workshop == null) {
-            Chat.fail(source, "The workshop dimension is not loaded",
-                    String.valueOf(Workshop.DIMENSION.location()), null);
             return 0;
         }
 
@@ -181,10 +179,8 @@ public class WorkshopCommand {
      */
     private static int sync(CommandContext<CommandSourceStack> ctx) {
         CommandSourceStack source = ctx.getSource();
-        ServerLevel workshop = Workshop.level(source.getServer());
+        ServerLevel workshop = CommandSupport.workshop(source);
         if (workshop == null) {
-            Chat.fail(source, "The workshop dimension is not loaded",
-                    String.valueOf(Workshop.DIMENSION.location()), null);
             return 0;
         }
         Sync.Report report;
@@ -216,21 +212,6 @@ public class WorkshopCommand {
     // -------------------------------------------------------------------- grow
 
     /**
-     * Lay out more plots in one row, or lay out a row that has none.
-     *
-     * <p>A row's number in the catalogue is where it starts, not what it holds. Every
-     * multi-building footprint up to the <b>default</b> area size of 10 exists as a
-     * row, and the large ones are declared with no plots because painting them all
-     * would be thousands of chunks of floor for shapes most packs never use.
-     *
-     * <p>Past that default there is no row until somebody asks for one, by importing
-     * a pack that holds the footprint or by naming it here. Naming it here is the
-     * only way to build one by hand, which is what this exists for.
-     *
-     * <p>Rows only ever get longer. Shrinking one would move every plot after it and
-     * orphan whatever was built there.
-     */
-    /**
      * Say no to a row that would paint an unreasonable amount of floor.
      *
      * <p>{@code MAX_PLOTS_IN_ROW} bounds the count and says nothing about the size
@@ -254,7 +235,22 @@ public class WorkshopCommand {
         return true;
     }
 
-    private static int grow(com.mojang.brigadier.context.CommandContext<CommandSourceStack> ctx) {
+    /**
+     * Lay out more plots in one row, or lay out a row that has none.
+     *
+     * <p>A row's number in the catalogue is where it starts, not what it holds. Every
+     * multi-building footprint up to the <b>default</b> area size of 10 exists as a
+     * row, and the large ones are declared with no plots because painting them all
+     * would be thousands of chunks of floor for shapes most packs never use.
+     *
+     * <p>Past that default there is no row until somebody asks for one, by importing
+     * a pack that holds the footprint or by naming it here. Naming it here is the
+     * only way to build one by hand, which is what this exists for.
+     *
+     * <p>Rows only ever get longer. Shrinking one would move every plot after it and
+     * orphan whatever was built there.
+     */
+    private static int grow(CommandContext<CommandSourceStack> ctx) {
         CommandSourceStack source = ctx.getSource();
         // A row id has a slash in it, which a quotable string argument will not
         // take unquoted. A resource location will: every row id is a legal path.
@@ -301,10 +297,8 @@ public class WorkshopCommand {
             return 0;
         }
 
-        ServerLevel workshop = Workshop.level(source.getServer());
+        ServerLevel workshop = CommandSupport.workshop(source);
         if (workshop == null) {
-            Chat.fail(source, "The workshop dimension is not loaded",
-                    String.valueOf(Workshop.DIMENSION.location()), null);
             return 0;
         }
 
@@ -337,22 +331,15 @@ public class WorkshopCommand {
 
     // ---------------------------------------------------------------------- go
 
-    private static int go(com.mojang.brigadier.context.CommandContext<CommandSourceStack> ctx) {
+    private static int go(CommandContext<CommandSourceStack> ctx) {
         CommandSourceStack source = ctx.getSource();
-        ServerLevel workshop = Workshop.level(source.getServer());
+        ServerLevel workshop = CommandSupport.workshop(source);
         if (workshop == null) {
-            Chat.fail(source, "The workshop dimension is not loaded",
-                    String.valueOf(Workshop.DIMENSION.location()),
-                    "It ships with this mod as a built-in datapack. If it is missing, "
-                            + "the mod's own resources did not load");
             return 0;
         }
-        ServerPlayer player;
-        try {
-            player = source.getPlayerOrException();
-        } catch (Exception e) {
-            Chat.fail(source, "Only a player can be sent to the workshop", null,
-                    "Run it in game rather than from the console or RCON");
+        ServerPlayer player = CommandSupport.player(source,
+                "Only a player can be sent to the workshop");
+        if (player == null) {
             return 0;
         }
         // Only from outside. Running `go` while already in the workshop would
@@ -423,12 +410,9 @@ public class WorkshopCommand {
 
     private static int leave(CommandContext<CommandSourceStack> ctx) {
         CommandSourceStack source = ctx.getSource();
-        ServerPlayer player;
-        try {
-            player = source.getPlayerOrException();
-        } catch (Exception e) {
-            Chat.fail(source, "Only a player can be sent out of the workshop", null,
-                    "Run it in game rather than from the console or RCON");
+        ServerPlayer player = CommandSupport.player(source,
+                "Only a player can be sent out of the workshop");
+        if (player == null) {
             return 0;
         }
         if (!player.level().dimension().equals(Workshop.DIMENSION)) {
@@ -492,12 +476,10 @@ public class WorkshopCommand {
 
     // ------------------------------------------------------------------- build
 
-    private static int build(com.mojang.brigadier.context.CommandContext<CommandSourceStack> ctx) {
+    private static int build(CommandContext<CommandSourceStack> ctx) {
         CommandSourceStack source = ctx.getSource();
-        ServerLevel workshop = Workshop.level(source.getServer());
+        ServerLevel workshop = CommandSupport.workshop(source);
         if (workshop == null) {
-            Chat.fail(source, "The workshop dimension is not loaded",
-                    String.valueOf(Workshop.DIMENSION.location()), null);
             return 0;
         }
         if (Catalogue.rows().isEmpty()) {
@@ -530,7 +512,7 @@ public class WorkshopCommand {
 
     // -------------------------------------------------------------------- rows
 
-    private static int rows(com.mojang.brigadier.context.CommandContext<CommandSourceStack> ctx) {
+    private static int rows(CommandContext<CommandSourceStack> ctx) {
         CommandSourceStack source = ctx.getSource();
         List<Catalogue.Row> all = Catalogue.rows();
         if (all.isEmpty()) {
@@ -608,8 +590,12 @@ public class WorkshopCommand {
 
     // -------------------------------------------------------------------- here
 
-    private static int here(com.mojang.brigadier.context.CommandContext<CommandSourceStack> ctx) {
+    private static int here(CommandContext<CommandSourceStack> ctx) {
         CommandSourceStack source = ctx.getSource();
+        if (!CommandSupport.inWorkshop(source)) {
+            CommandSupport.notInWorkshop(source);
+            return 0;
+        }
         BlockPos pos = BlockPos.containing(source.getPosition());
         Layout.Plot plot = Layout.at(Layout.plots(), pos.getX(), pos.getZ());
         if (plot == null) {
@@ -633,7 +619,9 @@ public class WorkshopCommand {
         }
 
         Chat.kv(source, "key", row.key());
-        Chat.kv(source, "variation", (plot.index() + 1) + " of " + row.plots());
+        // Of the plots laid out, not of the catalogue's starting count: a grown row
+        // said "5 of 3", and a row registered for a footprint said "1 of 0".
+        Chat.kv(source, "variation", (plot.index() + 1) + " of " + Layout.plotsIn(row));
         switch (row.kind()) {
             case SINGLE -> Chat.kv(source, "variations allowed", "one, and only one. "
                     + "The codec takes a string, so a list is a load error");
