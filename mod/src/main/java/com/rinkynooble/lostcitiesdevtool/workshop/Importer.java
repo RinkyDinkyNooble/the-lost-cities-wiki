@@ -804,19 +804,7 @@ public final class Importer {
         // What is standing there, not only what the last settings claimed. A plot
         // may hold blocks and no settings at all, and pasting into one without
         // clearing it first builds the new asset inside the old one.
-        int top = Boundaries.topOf(level, plot, old);
-        BlockState air = Blocks.AIR.defaultBlockState();
-        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
-        for (int y = Boundaries.BASE; y < top; y++) {
-            for (int x = plot.blockMinX(); x <= plot.blockMaxX(); x++) {
-                for (int z = plot.blockMinZ(); z <= plot.blockMaxZ(); z++) {
-                    pos.set(x, y, z);
-                    if (!level.getBlockState(pos).isAir()) {
-                        level.setBlock(pos, air, 2);
-                    }
-                }
-            }
-        }
+        PlotVolume.clear(level, plot, Boundaries.topOf(level, plot, old));
     }
 
     /**

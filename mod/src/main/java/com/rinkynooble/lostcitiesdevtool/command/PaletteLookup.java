@@ -7,12 +7,16 @@ import mcjty.lostcities.worldgen.lost.cityassets.BuildingPart;
 import mcjty.lostcities.worldgen.lost.cityassets.CompiledPalette;
 import mcjty.lostcities.worldgen.lost.cityassets.Palette;
 import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
 
+import java.lang.ref.WeakReference;
+
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
@@ -61,8 +65,34 @@ public final class PaletteLookup {
     private PaletteLookup() {
     }
 
+    /**
+     * The last scan, and the registries it was taken from, weakly.
+     *
+     * <p>Tab completion for {@code /lcdev in} asks for these ids on every keystroke,
+     * and a scan builds every palette, part and building the world has. The asset
+     * registries are datapack registries, fixed for the life of a world, which a
+     * {@code /reload} does not replace, so the answer can only change when the
+     * registries do, and they are what the cache is keyed on.
+     */
+    private static volatile WeakReference<RegistryAccess> scannedFor =
+            new WeakReference<>(null);
+    @Nullable
+    private static volatile Scan scanned;
+
     /** Every palette in the world's assets, named, with the failures kept. */
     public static Scan scan(ServerLevel level) {
+        RegistryAccess registries = level.registryAccess();
+        Scan have = scanned;
+        if (have != null && scannedFor.get() == registries) {
+            return have;
+        }
+        Scan built = build(level);
+        scanned = built;
+        scannedFor = new WeakReference<>(registries);
+        return built;
+    }
+
+    private static Scan build(ServerLevel level) {
         List<Source> sources = new ArrayList<>();
         List<Unreadable> unreadable = new ArrayList<>();
 
@@ -81,7 +111,7 @@ public final class PaletteLookup {
 
         sources.sort(Comparator.comparing((Source s) -> s.kind())
                 .thenComparing(s -> s.id().toString()));
-        return new Scan(sources, unreadable);
+        return new Scan(List.copyOf(sources), List.copyOf(unreadable));
     }
 
     /** Ids only, for tab completion. A broken asset is simply not offered. */

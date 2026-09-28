@@ -2,17 +2,15 @@ package com.rinkynooble.lostcitiesdevtool.workshop;
 
 import com.google.gson.JsonObject;
 import com.rinkynooble.lostcitiesdevtool.validate.Finding;
-import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Emptying the workshop, and knowing what that would cost first.
@@ -61,7 +59,8 @@ public final class Wipe {
                 continue;
             }
             JsonObject settings = SettingsStore.load(server, plot.id());
-            long solid = solidIn(level, plot, Boundaries.topOf(level, plot, settings));
+            long solid = PlotVolume.count(level, plot,
+                    Boundaries.topOf(level, plot, settings));
             // Settings or blocks, either on its own. A plot whose settings were
             // deleted while its blocks stayed is exactly the state this has to be
             // able to see, because it is the state a wipe used to leave behind.
@@ -94,7 +93,8 @@ public final class Wipe {
             }
             JsonObject settings = SettingsStore.load(server, plot.id());
             boolean had = !settings.keySet().isEmpty();
-            int removed = clear(level, plot, Boundaries.topOf(level, plot, settings));
+            int removed = PlotVolume.clear(level, plot,
+                    Boundaries.topOf(level, plot, settings));
             if (!had && removed == 0) {
                 continue;
             }
@@ -105,12 +105,12 @@ public final class Wipe {
         }
         // Rows an import grew go back to their catalogue size. Leaving them long
         // would keep painting floors for plots nothing is built on.
-        Layout.setGrown(java.util.Map.of());
+        Layout.setGrown(Map.of());
         // And footprints an import made room for go with them. Nothing is built on
         // them once the workshop is empty, so nothing can be stranded by their
         // leaving, and keeping them would let dead bands pile up across every
         // import and wipe this world ever sees.
-        Catalogue.setExtraMultis(java.util.List.of());
+        Catalogue.setExtraMultis(List.of());
         // The statements imported assets brought with them go with the assets. The
         // backup was written before any of this, so it still carries them.
         Attribution.forget(server);
@@ -141,39 +141,4 @@ public final class Wipe {
         return root;
     }
 
-    /** Solid blocks standing on one plot, from its floor up to {@code top}. */
-    private static long solidIn(ServerLevel level, Layout.Plot plot, int top) {
-        long count = 0;
-        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
-        for (int y = Boundaries.BASE; y < top; y++) {
-            for (int x = plot.blockMinX(); x <= plot.blockMaxX(); x++) {
-                for (int z = plot.blockMinZ(); z <= plot.blockMaxZ(); z++) {
-                    pos.set(x, y, z);
-                    if (!level.getBlockState(pos).isAir()) {
-                        count++;
-                    }
-                }
-            }
-        }
-        return count;
-    }
-
-    /** @return how many blocks were removed */
-    private static int clear(ServerLevel level, Layout.Plot plot, int top) {
-        BlockState air = Blocks.AIR.defaultBlockState();
-        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
-        int removed = 0;
-        for (int y = Boundaries.BASE; y < top; y++) {
-            for (int x = plot.blockMinX(); x <= plot.blockMaxX(); x++) {
-                for (int z = plot.blockMinZ(); z <= plot.blockMaxZ(); z++) {
-                    pos.set(x, y, z);
-                    if (!level.getBlockState(pos).isAir()) {
-                        level.setBlock(pos, air, 2);
-                        removed++;
-                    }
-                }
-            }
-        }
-        return removed;
-    }
 }

@@ -686,7 +686,7 @@ public final class Exporter {
                 StringBuilder row = new StringBuilder(16);
                 for (int x = 0; x < 16; x++) {
                     char c = characterAt(x0 + x, baseY + y, z0 + z,
-                            dx * 16 + x, baseY + y, dz * 16 + z, rules, sink);
+                            dx * 16 + x, dz * 16 + z, rules, sink);
                     row.append(c);
                     if (c != PaletteLedger.AIR) {
                         seen.merge(c, 1, Integer::sum);
@@ -736,40 +736,69 @@ public final class Exporter {
     }
 
     /** The character for one block, assigning one where the cell is new. */
-    private char characterAt(int wx, int wy, int wz, int lx, int ly, int lz,
+    private char characterAt(int wx, int wy, int wz, int lx, int lz,
                              Rules rules, Map<String, JsonObject> sink) {
-        JsonObject marks = rules.marks();
-        JsonObject conversions = rules.conversions();
-        // ly is the world height the mark was recorded against, not the layer index.
-        BlockState state = level.getBlockState(new BlockPos(wx, wy, wz));
+        cursor.set(wx, wy, wz);
+        BlockState state = level.getBlockState(cursor);
         if (state.isAir() || state.is(Blocks.STRUCTURE_VOID)) {
             // Lost Cities has no "leave this alone" character: every position in a
             // slice places something. A structure void therefore becomes air, which
             // is the closest thing the format has.
             return PaletteLedger.AIR;
         }
-        String block = PaletteLedger.describe(state);
-        String converted = conversions.has(block)
-                ? conversions.get(block).getAsString()
-                : conversions.has(idOf(state))
-                        ? conversions.get(idOf(state)).getAsString() : block;
+        // Everything below runs once per block of every plot, so each piece of
+        // work is done only where it can matter: a table asked only when it holds
+        // something, a block entity looked for only where the block has one.
+        String block = describe(state);
+        JsonObject conversions = rules.conversions();
+        if (conversions.size() > 0) {
+            JsonElement to = conversions.get(block);
+            if (to == null) {
+                to = conversions.get(idOf(state));
+            }
+            if (to != null) {
+                block = to.getAsString();
+            }
+        }
 
         JsonObject mark = null;
-        String at = lx + "," + (wy - Boundaries.BASE) + "," + lz;
-        if (marks.has(at) && marks.get(at).isJsonObject()) {
-            mark = marks.getAsJsonObject(at);
+        JsonObject marks = rules.marks();
+        if (marks.size() > 0) {
+            // The height the mark was recorded against, not the layer index.
+            JsonElement m = marks.get(lx + "," + (wy - Boundaries.BASE) + "," + lz);
+            if (m != null && m.isJsonObject()) {
+                mark = m.getAsJsonObject();
+            }
         }
 
         // A block carrying NBT is a different cell from the same block without it.
         // A command block is the clearest case: the block is nothing on its own and
         // the command is the whole asset, so reading only the state would export a
         // pack whose command blocks are empty.
-        JsonObject tag = noTags ? null : rules.tags().apply(tagAt(wx, wy, wz));
-        if (tag != null) {
-            mark = mark == null ? new JsonObject() : mark.deepCopy();
-            mark.add("tag", tag);
+        if (!noTags && state.hasBlockEntity()) {
+            JsonObject tag = rules.tags().apply(tagAt(cursor));
+            if (tag != null) {
+                mark = mark == null ? new JsonObject() : mark.deepCopy();
+                mark.add("tag", tag);
+            }
         }
-        return cell(converted, mark, wx + "," + wy + "," + wz, sink);
+        char c = cell(block, mark, sink);
+        if (c == 0) {
+            outOfCharacters(wx + "," + wy + "," + wz);
+            return PaletteLedger.AIR;
+        }
+        return c;
+    }
+
+    /**
+     * A block state as text, worked out once per state.
+     *
+     * <p>States are shared instances, so an identity map answers this in one lookup,
+     * where describing one builds a string from the registry and every property. A
+     * workshop repeats a few hundred states across hundreds of thousands of blocks.
+     */
+    private String describe(BlockState state) {
+        return described.computeIfAbsent(state, PaletteLedger::describe);
     }
 
     /**
@@ -780,8 +809,8 @@ public final class Exporter {
      * describes a block wherever it lands rather than one at a coordinate.
      */
     @Nullable
-    private JsonObject tagAt(int x, int y, int z) {
-        BlockEntity entity = level.getBlockEntity(new BlockPos(x, y, z));
+    private JsonObject tagAt(BlockPos pos) {
+        BlockEntity entity = level.getBlockEntity(pos);
         if (entity == null) {
             return null;
         }
@@ -803,31 +832,12 @@ public final class Exporter {
      * palette entry is that pair: the same block with a loot table and without one
      * are two entries and two characters.
      */
-    private char cell(String block, @Nullable JsonObject mark, String where,
+    private char cell(String block, @Nullable JsonObject mark,
                       Map<String, JsonObject> sink) {
-        String key = block + (mark == null ? "" : " " + mark);
+        String key = mark == null ? block : block + " " + mark;
         char c = ledger.characterFor(key);
         if (c == 0) {
-            // An error rather than a warning, because the alternative was writing
-            // the block out as air. That ships a pack with holes in its buildings
-            // and says so in one line among the other warnings, which is the
-            // quietest way this compiler could lose somebody's work.
-            //
-            // The pool holds about forty thousand characters and Minecraft ships
-            // around twenty six thousand block states, so reaching this needs a cell
-            // count no build produces. It is kept because the alternative is writing
-            // air for a character that does not exist, and because a cell is a block
-            // together with its marks and its kept NBT, which has no fixed ceiling.
-            faults.add(Finding.error("palette", 0,
-                    "ran out of palette characters at " + where,
-                    "The pool holds " + ledger.capacity() + " and this world has "
-                            + "spent all of them. The ledger keeps every character it "
-                            + "has ever handed out and never reclaims one, so the "
-                            + "count is every distinct block, mark and tag combination "
-                            + "this world has exported, not what is standing now. "
-                            + "Delete lostcitiesdevtool/palette-ledger.json beside the "
-                            + "world to start the lettering over"));
-            return PaletteLedger.AIR;
+            return 0;
         }
         if (!sink.containsKey(key)) {
             JsonObject entry = new JsonObject();
@@ -858,7 +868,35 @@ public final class Exporter {
         if (value.length() <= 1) {
             return value;
         }
-        return String.valueOf(cell(value, null, where, sink));
+        char c = cell(value, null, sink);
+        if (c == 0) {
+            outOfCharacters(where);
+            return String.valueOf(PaletteLedger.AIR);
+        }
+        return String.valueOf(c);
+    }
+
+    /**
+     * The pool is spent. An error rather than a warning, because the alternative was
+     * writing the block out as air, which ships a pack with holes in its buildings
+     * and says so in one line among the other warnings: the quietest way this
+     * compiler could lose somebody's work.
+     *
+     * <p>The pool holds about forty thousand characters and Minecraft ships around
+     * twenty six thousand block states, so reaching this needs a cell count no build
+     * produces. It is kept because a cell is a block together with its marks and its
+     * kept NBT, which has no fixed ceiling.
+     */
+    private void outOfCharacters(String where) {
+        faults.add(Finding.error("palette", 0,
+                "ran out of palette characters at " + where,
+                "The pool holds " + ledger.capacity() + " and this world has "
+                        + "spent all of them. The ledger keeps every character it "
+                        + "has ever handed out and never reclaims one, so the "
+                        + "count is every distinct block, mark and tag combination "
+                        + "this world has exported, not what is standing now. "
+                        + "Delete lostcitiesdevtool/palette-ledger.json beside the "
+                        + "world to start the lettering over"));
     }
 
     /** Where this plot's name goes: a selector, a street shape, or the world style. */
@@ -1186,6 +1224,7 @@ public final class Exporter {
         for (Map.Entry<String, JsonObject> e : assets.entrySet()) {
             String kind = e.getKey().substring(0, e.getKey().indexOf('/'));
             String text = json(e.getValue());
+            texts.put(e.getKey(), text);
             try {
                 out.addAll(AssetValidator.validate(e.getKey() + ".json", kind,
                         e.getValue(), text));
@@ -1240,7 +1279,10 @@ public final class Exporter {
         for (Map.Entry<String, JsonObject> e : assets.entrySet()) {
             Path file = data.resolve(e.getKey() + ext);
             Files.createDirectories(file.getParent());
-            Files.writeString(file, json(e.getValue()), StandardCharsets.UTF_8);
+            // The text the check read, since nothing changes an asset in between.
+            String text = texts.get(e.getKey());
+            Files.writeString(file, text != null ? text : json(e.getValue()),
+                    StandardCharsets.UTF_8);
         }
 
         // What the authors of the imported assets said about them, carried rather
@@ -1328,9 +1370,12 @@ public final class Exporter {
         return String.valueOf(BuiltInRegistries.BLOCK.getKey(state.getBlock()));
     }
 
+    /** Built once. A Gson builds its adapters on creation, and this ran per asset. */
+    private static final Gson PRETTY = new GsonBuilder().setPrettyPrinting()
+            .disableHtmlEscaping().create();
+
     private static String json(JsonElement e) {
-        return new GsonBuilder().setPrettyPrinting().disableHtmlEscaping()
-                .create().toJson(e) + "\n";
+        return PRETTY.toJson(e) + "\n";
     }
 
     private JsonObject merged(String key, JsonObject from) {

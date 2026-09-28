@@ -163,6 +163,7 @@ public final class Layout {
 
     public static void grow(String rowId, int plots) {
         GROWN.merge(rowId, plots, Math::max);
+        grownVersion++;
     }
 
     public static Map<String, Integer> grown() {
@@ -172,7 +173,18 @@ public final class Layout {
     public static void setGrown(Map<String, Integer> sizes) {
         GROWN.clear();
         GROWN.putAll(sizes);
+        grownVersion++;
     }
+
+    /** Bumped on every change to {@link #GROWN}, so a cached layout knows it is stale. */
+    private static volatile int grownVersion;
+
+    /** A layout, and the rows and sizes it was laid out from. */
+    private record Laid(List<Catalogue.Row> rows, int version, List<Plot> plots) {
+    }
+
+    @Nullable
+    private static volatile Laid laid;
 
     /**
      * Every plot, in a fixed order.
@@ -180,8 +192,26 @@ public final class Layout {
      * <p>The order is what makes the colouring deterministic, so the same catalogue
      * always produces the same world and two people comparing screenshots are
      * looking at the same thing.
+     *
+     * <p><b>Laid out once per change.</b> The colouring compares every plot with
+     * every plot before it, and this was asked for fourteen places over, twice per
+     * keystroke by the plot commands' tab completion. The answer changes only when
+     * the catalogue's rows or a row's size does, and both are checked by identity
+     * and by a counter. The list is shared, so it cannot be changed.
      */
     public static List<Plot> plots() {
+        List<Catalogue.Row> rows = Catalogue.rows();
+        int version = grownVersion;
+        Laid have = laid;
+        if (have != null && have.rows() == rows && have.version() == version) {
+            return have.plots();
+        }
+        List<Plot> plots = List.copyOf(layOut(rows));
+        laid = new Laid(rows, version, plots);
+        return plots;
+    }
+
+    private static List<Plot> layOut(List<Catalogue.Row> rows) {
         List<Plot> out = new ArrayList<>();
         out.add(new Plot(CORE_ID, 0, 0, 1, 1, null, 0, 0));
 
@@ -189,7 +219,7 @@ public final class Layout {
             // Rows stack northward. `southEdge` is the chunk Z of the row's south
             // side; the row occupies height chunks north of it.
             int southEdge = 0;
-            for (Catalogue.Row row : Catalogue.rows()) {
+            for (Catalogue.Row row : rows) {
                 if (row.area() != area) {
                     continue;
                 }
