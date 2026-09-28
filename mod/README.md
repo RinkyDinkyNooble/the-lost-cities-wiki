@@ -513,6 +513,7 @@ published results were produced on.
 
 | Check | What has to hold |
 |---|---|
+| `mod/tools/check-rig.py` | `testrig/rig.py` answers `list` and `doctor`, the checks' version comes from `"checks"` in `versions.json`, and an install replaces another Lost Cities jar left in the rig with that version's. No server, seconds |
 | `mod/tools/check-validator.py` | Every asset-check rule says the right thing, says nothing about a sound asset, and never throws on a malformed one; a range is read the way Lost Cities splits it, every height between a building's bounds is checked, and a level test of the wrong type is reported. No server, under a second |
 | `mod/tools/check-mixin-targets.py` | Every mixin injection point resolves in every supported Lost Cities version, by exact descriptor and by call count inside its target method. Counting is the point: two injections are `@ModifyArg` on the only `nextInt(int, int)` call in a method, and a second call would attach the fix to the wrong argument without any error. 7.4.12 is the control column. No server, seconds |
 | `mod/tools/check-mixin-applied.py` | Every server side mixin reached its target on a running server. `check-mixin-targets` says an injection point exists in a jar; this says the mixin got to it. Boots twice, on a spheres landscape and on an ordinary city, because a spheres world never loads `LostCityTerrainFeature` and a city world never loads `LostCitySphereFeature` |

@@ -46,7 +46,6 @@ rather than tidied away.
 
     python mod/tools/check-mixin-applied.py
 """
-import glob
 import json
 import os
 import re
@@ -59,11 +58,12 @@ sys.path.insert(0, "testrig")
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 from rcon import Rcon  # noqa: E402
 import rig  # noqa: E402
+from rig import fail, failures  # noqa: E402
 
-SERVER = "testrig/servers/forge-1.20.1-47.4.10"
-JAR = sorted(glob.glob("mod/build/libs/lostcities_devtool-*.jar"))[-1]
-JAVA = os.path.abspath("testrig/java/17/bin/java.exe")
-LOADER = "net/minecraftforge/forge/1.20.1-47.4.10"
+SERVER = rig.SERVER
+JAR = rig.jar()
+JAVA = rig.java()
+LOADER = rig.LOADER
 WORLD = os.path.join(SERVER, "world")
 EXPORT = os.path.join(SERVER, ".mixin.out", "class")
 CITY = "lostcities:lostcity"
@@ -99,13 +99,6 @@ CLIENT_ONLY = ["GuiLCConfigAccessor", "LostCitySetupMixin"]
 # inherits everything it does not state, so this is one key.
 PROFILES = ["spheres", "devtoolcheck"]
 WRITTEN = {"devtoolcheck": {"cityChance": 1.0}}
-
-failures = []
-
-
-def fail(msg):
-    failures.append(msg)
-    print("  FAIL " + msg)
 
 
 def write_profile(name):

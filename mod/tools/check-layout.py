@@ -23,6 +23,8 @@ import sys
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.join(REPO, "testrig"))
+import rig  # noqa: E402
 TOOLS = os.path.join(REPO, "mod", "tools")
 SRC = os.path.join(REPO, "mod", "src", "main", "java")
 OUT = os.path.join(REPO, "mod", "build", "layout-probe")
@@ -35,24 +37,6 @@ SOURCES = [
                  "Layout.java"),
     os.path.join(TOOLS, "LayoutProbe.java"),
 ]
-
-
-def jdk(tool):
-    """A JDK, from the rig, then JAVA_HOME, then the path."""
-    rig = os.path.join(REPO, "testrig", "java", "17", "bin", tool + ".exe")
-    if os.path.isfile(rig):
-        return rig
-    home = os.environ.get("JAVA_HOME")
-    if home:
-        for name in (tool + ".exe", tool):
-            candidate = os.path.join(home, "bin", name)
-            if os.path.isfile(candidate):
-                return candidate
-    for base in (r"C:\Program Files\Eclipse Adoptium", r"C:\Program Files\Java"):
-        for candidate in sorted(glob.glob(os.path.join(base, "*", "bin",
-                                                       tool + ".exe"))):
-            return candidate
-    return tool
 
 
 def jar(*fragments):
@@ -74,7 +58,7 @@ classpath = os.pathsep.join([
 ])
 
 os.makedirs(OUT, exist_ok=True)
-compiled = subprocess.run([jdk("javac"), "-nowarn", "-cp", classpath,
+compiled = subprocess.run([rig.jdk("javac"), "-nowarn", "-cp", classpath,
                            "-d", OUT] + SOURCES,
                           capture_output=True, text=True)
 if compiled.returncode != 0:
@@ -82,7 +66,7 @@ if compiled.returncode != 0:
     raise SystemExit("the layout did not compile")
 
 # The catalogue is read off the classpath, so the resources directory joins it.
-run = subprocess.run([jdk("java"), "-cp",
+run = subprocess.run([rig.jdk("java"), "-cp",
                       os.pathsep.join([OUT, RES, classpath]), "LayoutProbe"],
                      capture_output=True, text=True, encoding="utf-8",
                      errors="replace")

@@ -32,26 +32,21 @@ What it asserts:
     namespace, which is the format's rule and not this mod's.
 """
 import atexit
-import glob
 import io
 import json
 import os
 import re
 import shutil
-import subprocess
 import sys
-import threading
-import time
 
 sys.path.insert(0, "testrig")
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 from rcon import Rcon  # noqa: E402
 import rig  # noqa: E402
+from rig import fail, failures  # noqa: E402
 
-SERVER = "testrig/servers/forge-1.20.1-47.4.10"
-JAR = sorted(glob.glob("mod/build/libs/lostcities_devtool-*.jar"))[-1]
-JAVA = os.path.abspath("testrig/java/17/bin/java.exe")
-LOADER = "net/minecraftforge/forge/1.20.1-47.4.10"
+SERVER = rig.SERVER
+JAR = rig.jar()
 WORKSHOP = "lostcitiesdevtool:workshop"
 WORLD = os.path.join(SERVER, "world")
 PLOTS = os.path.join(WORLD, "lostcitiesdevtool", "plots.json")
@@ -65,8 +60,6 @@ STRAYS = [os.path.join(TOOLDIR, n) for n in ("data", "profile", "pack.mcmeta")]
 BASE = -63
 NS = "iopack"
 
-failures = []
-
 
 def tidy():
     for path in STRAYS + [os.path.dirname(SENTINEL)]:
@@ -77,33 +70,6 @@ def tidy():
 
 
 atexit.register(tidy)
-
-
-def fail(msg):
-    failures.append(msg)
-    print("  FAIL " + msg)
-
-
-def boot():
-    args = "@" + os.path.join("libraries", LOADER, "win_args.txt")
-    proc = subprocess.Popen([JAVA, "@user_jvm_args.txt", args, "nogui"],
-                            cwd=SERVER, stdout=subprocess.PIPE,
-                            stderr=subprocess.STDOUT, text=True,
-                            encoding="utf-8", errors="replace")
-    deadline = time.time() + 300
-    tail = []
-    while time.time() < deadline:
-        line = proc.stdout.readline()
-        if not line:
-            print("\n".join(tail[-20:]))
-            raise SystemExit("server exited during startup")
-        tail.append(line.rstrip())
-        if 'For help, type "help"' in line or re.search(r"Done \(.*\)!", line):
-            threading.Thread(target=lambda: [None for _ in
-                                             iter(proc.stdout.readline, "")],
-                             daemon=True).start()
-            return proc
-    raise SystemExit("server did not start")
 
 
 def solid(ch):
@@ -188,7 +154,7 @@ write_pack(os.path.join(WORLD, "datapacks", "iopack"))
 print("fresh world, jar installed, a pack whose palette carries an armed command")
 print("using %s\n" % os.path.basename(JAR))
 
-proc = boot()
+proc, _ = rig.boot()
 print("server up\n")
 try:
     with Rcon(port=25575, password="lcwiki") as con:

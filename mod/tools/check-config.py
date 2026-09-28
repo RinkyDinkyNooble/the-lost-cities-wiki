@@ -30,26 +30,22 @@ classes they patch. `catchSphereFeatureErrors` needs a sphere landscape with a f
 pack, which is its own fixture.
 """
 import atexit
-import glob
 import io
 import json
 import os
 import re
 import shutil
-import subprocess
 import sys
-import threading
 import time
 
 sys.path.insert(0, "testrig")
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 from rcon import Rcon  # noqa: E402
 import rig  # noqa: E402
+from rig import fail, failures  # noqa: E402
 
-SERVER = "testrig/servers/forge-1.20.1-47.4.10"
-JAR = sorted(glob.glob("mod/build/libs/lostcities_devtool-*.jar"))[-1]
-JAVA = os.path.abspath("testrig/java/17/bin/java.exe")
-LOADER = "net/minecraftforge/forge/1.20.1-47.4.10"
+SERVER = rig.SERVER
+JAR = rig.jar()
 CITY = "lostcities:lostcity"
 WORLD = os.path.join(SERVER, "world")
 LC_CONFIG = os.path.join(SERVER, "config", "lostcities")
@@ -87,13 +83,6 @@ DEFAULTS = {
     },
 }
 
-failures = []
-
-
-def fail(msg):
-    failures.append(msg)
-    print("  FAIL " + msg)
-
 
 def write_config(**overrides):
     """The mod's config, at its defaults except for what is named."""
@@ -105,41 +94,6 @@ def write_config(**overrides):
             out.append("\t%s = %s" % (key, "true" if on else "false"))
     io.open(MOD_CONFIG, "w", encoding="utf-8", newline="\n").write(
         "\n".join(out) + "\n")
-
-
-def boot(must_start=True):
-    """Boot, and hand back the log as well as the process.
-
-    `must_start` is False where a refusal is the point. Without
-    `acceptCommentsAndTrailingCommas` a commented asset does not merely go unread,
-    it stops the server: the registry loader raises and the process exits. That is
-    the documented behaviour, so the check has to be able to assert it rather than
-    fall over on it.
-    """
-    args = "@" + os.path.join("libraries", LOADER, "win_args.txt")
-    proc = subprocess.Popen([JAVA, "@user_jvm_args.txt", args, "nogui"],
-                            cwd=SERVER, stdout=subprocess.PIPE,
-                            stderr=subprocess.STDOUT, text=True,
-                            encoding="utf-8", errors="replace")
-    deadline = time.time() + 300
-    tail = []
-    while time.time() < deadline:
-        line = proc.stdout.readline()
-        if not line:
-            if not must_start:
-                return None, tail
-            print("\n".join(tail[-20:]))
-            raise SystemExit("server exited during startup")
-        tail.append(line.rstrip())
-        if 'For help, type "help"' in line or re.search(r"Done \(.*\)!", line):
-            threading.Thread(
-                target=lambda: [tail.append(ln.rstrip())
-                                for ln in iter(proc.stdout.readline, "")],
-                daemon=True).start()
-            return proc, tail
-    if must_start:
-        raise SystemExit("server did not start")
-    return None, tail
 
 
 def stop(proc):
@@ -270,7 +224,7 @@ def generated(style=None, block=None, wait=240, **toggles):
     """
     install(style)
     write_config(**toggles)
-    proc, log = boot()
+    proc, log = rig.boot()
     try:
         with Rcon(port=25575, password="lcwiki") as con:
             con.command("execute in %s run forceload add 112 112 175 175" % CITY)
@@ -370,7 +324,7 @@ def with_broken_asset(reload=False, **toggles):
         io.open(os.path.join(lc, kind, name + ".json"), "w", encoding="utf-8",
                 newline="\n").write(json.dumps(body, indent=2))
     write_config(**toggles)
-    proc, log = boot()
+    proc, log = rig.boot()
     if reload:
         io.open(os.path.join(lc, "conditions", "unreadable.json"), "w",
                 encoding="utf-8", newline="\n").write(
@@ -430,7 +384,7 @@ def with_asset(name, text, must_start=True, kind="buildings", **toggles):
     io.open(os.path.join(folder, name), "w", encoding="utf-8",
             newline="\n").write(text)
     write_config(**toggles)
-    proc, log = boot(must_start)
+    proc, log = rig.boot(must_start)
     if proc is None:
         return None, "\n".join(log)
     try:
@@ -502,7 +456,7 @@ def with_json5_style(**toggles):
     io.open(os.path.join(folder, "styled.json5"), "w", encoding="utf-8",
             newline="\n").write(STYLED)
     write_config(**toggles)
-    proc, log = boot()
+    proc, log = rig.boot()
     try:
         with Rcon(port=25575, password="lcwiki") as con:
             con.command("execute in %s run forceload add 112 112 175 175" % CITY)
@@ -546,7 +500,7 @@ print("9. a fresh config file's comments say what the defaults are")
 install()
 if os.path.isfile(MOD_CONFIG):
     os.remove(MOD_CONFIG)
-proc, log = boot()
+proc, log = rig.boot()
 stop(proc)
 fresh = (io.open(MOD_CONFIG, encoding="utf-8").read()
          if os.path.isfile(MOD_CONFIG) else "")
@@ -584,7 +538,7 @@ for pack, name, ext, block in (
             newline="\n").write(json.dumps(
                 {"palette": [{"char": "Q", "block": block}]}, indent=2))
 write_config()
-proc, log = boot()
+proc, log = rig.boot()
 try:
     with Rcon(port=25575, password="lcwiki") as con:
         across = con.command("lcdev in prec:order char Q")

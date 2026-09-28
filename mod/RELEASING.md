@@ -57,6 +57,7 @@ and uploading.
 
 ```bash
 cd ../..
+python mod/tools/check-rig.py
 python mod/tools/check-mixin-targets.py
 python mod/tools/check-mixin-applied.py
 python mod/tools/check-validator.py
@@ -91,7 +92,7 @@ python mod/tools/check-palette-pool.py
 python mod/tools/check-config.py
 ```
 
-There are 32. Six need no server and finish in about a second each:
+There are 33. Seven need no server and finish in seconds each: `check-rig`,
 `check-mixin-targets`, `check-validator`, `check-layout`, `check-tags`,
 `check-licence-text` and `check-profile-order`. The other 26 boot at least one
 apiece; most take about thirty seconds, `check-config` takes several minutes
@@ -101,6 +102,8 @@ time: two servers cannot share the rig.
 **Read the exit code, not the tail.** Every one of them exits non-zero on failure,
 and piping through `tail` reports `tail`'s status, which is always 0.
 
+- [ ] `check-rig`, the rig's command line answers, and the checks boot the Lost
+      Cities version `versions.json` names under `"checks"`
 - [ ] `check-mixin-targets`, every injection point resolves in every supported Lost
       Cities version, by exact descriptor and by call count inside its method. Reads
       the jars, needs no server, and is the check that says whether the declared

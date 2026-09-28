@@ -29,6 +29,8 @@ import sys
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.join(REPO, "testrig"))
+import rig  # noqa: E402
 TOOLS = os.path.join(REPO, "mod", "tools")
 SRC = os.path.join(REPO, "mod", "src", "main", "java", "com", "rinkynooble",
                    "lostcitiesdevtool")
@@ -37,11 +39,6 @@ SOURCES = [os.path.join(SRC, "client", "ProfileOrder.java"),
            os.path.join(TOOLS, "ProfileOrderProbe.java")]
 
 failures = []
-
-
-def jdk(tool):
-    rig = os.path.join(REPO, "testrig", "java", "17", "bin", tool + ".exe")
-    return rig if os.path.isfile(rig) else tool
 
 
 def jar(*fragments):
@@ -59,13 +56,13 @@ print("=" * 72)
 print("1. the order, and a step back that undoes a step forward")
 classpath = jar("com.google.code.findbugs", "jsr305", "*", "*", "jsr305-*.jar")
 os.makedirs(OUT, exist_ok=True)
-compiled = subprocess.run([jdk("javac"), "-nowarn", "-cp", classpath, "-d", OUT]
+compiled = subprocess.run([rig.jdk("javac"), "-nowarn", "-cp", classpath, "-d", OUT]
                           + SOURCES, capture_output=True, text=True)
 if compiled.returncode != 0:
     print(compiled.stdout + compiled.stderr)
     failures.append("ProfileOrder did not compile")
 else:
-    run = subprocess.run([jdk("java"), "-cp", OUT + os.pathsep + classpath,
+    run = subprocess.run([rig.jdk("java"), "-cp", OUT + os.pathsep + classpath,
                           "ProfileOrderProbe"], capture_output=True, text=True,
                          encoding="utf-8", errors="replace")
     print(run.stdout + run.stderr, end="")

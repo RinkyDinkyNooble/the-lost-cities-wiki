@@ -16,8 +16,13 @@
   "version did not compile in is never scanned, so the pack silently looks empty.",
   "Nothing else is adapted: an undeclared key is the thing under test.",
   "",
-  "To stop the rig printing download links, delete the 'url' fields."
+  "To stop the rig printing download links, delete the 'url' fields.",
+  "",
+  "'checks' is the version the DevTool's own checks under mod/tools run on. They",
+  "boot its server with its Java and put its Lost Cities jar in the mods folder,",
+  "so moving the checks to another version is this one line."
  ],
+ "checks": "7.5.4",
  "rcon": {
   "port": 25575,
   "password": "lcwiki"

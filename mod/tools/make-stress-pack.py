@@ -30,29 +30,25 @@ from past the old pool, generates a city, and counts *those* blocks in the world
 character Lost Cities could not read would leave them missing.
 """
 import atexit
-import glob
 import io
 import json
 import os
 import re
 import shutil
-import subprocess
 import sys
-import threading
 import time
 
 sys.path.insert(0, "testrig")
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 from rcon import Rcon  # noqa: E402
 import rig  # noqa: E402
+from rig import fail, failures  # noqa: E402
 
 sys.path.insert(0, "mod/tools")
 from palettechars import OLD_POOL, unsafe  # noqa: E402
 
-SERVER = "testrig/servers/forge-1.20.1-47.4.10"
-JAR = sorted(glob.glob("mod/build/libs/lostcities_devtool-*.jar"))[-1]
-JAVA = os.path.abspath("testrig/java/17/bin/java.exe")
-LOADER = "net/minecraftforge/forge/1.20.1-47.4.10"
+SERVER = rig.SERVER
+JAR = rig.jar()
 WORKSHOP = "lostcitiesdevtool:workshop"
 CITY = "lostcities:lostcity"
 WORLD = os.path.join(SERVER, "world")
@@ -228,14 +224,6 @@ PLAIN = tuple(
        "mangrove_roots", "sculk", "bamboo_mosaic"])
 
 
-failures = []
-
-
-def fail(msg):
-    failures.append(msg)
-    print("  FAIL " + msg)
-
-
 def states():
     """Every distinct block state this places, in a fixed order."""
     out = []
@@ -281,28 +269,6 @@ ALL = states()
 def block_of(state):
     """The block id inside a state string, for counting one in a generated world."""
     return state.split("[")[0]
-
-
-def boot():
-    args = "@" + os.path.join("libraries", LOADER, "win_args.txt")
-    proc = subprocess.Popen([JAVA, "@user_jvm_args.txt", args, "nogui"],
-                            cwd=SERVER, stdout=subprocess.PIPE,
-                            stderr=subprocess.STDOUT, text=True,
-                            encoding="utf-8", errors="replace")
-    deadline = time.time() + 300
-    tail = []
-    while time.time() < deadline:
-        line = proc.stdout.readline()
-        if not line:
-            print("\n".join(tail[-25:]))
-            raise SystemExit("server exited during startup")
-        tail.append(line.rstrip())
-        if 'For help, type "help"' in line or re.search(r"Done \(.*\)!", line):
-            threading.Thread(target=lambda: [None for _ in
-                                             iter(proc.stdout.readline, "")],
-                             daemon=True).start()
-            return proc, tail
-    raise SystemExit("server did not start")
 
 
 def stop(proc):
@@ -366,7 +332,7 @@ for path in (WORLD, EXPORTS):
 dest = rig.install(SERVER, JAR)
 print("fresh world, jar installed: %s\n" % os.path.basename(JAR))
 
-proc, log = boot()
+proc, log = rig.boot()
 print("server up\n")
 try:
     with Rcon(port=25575, password="lcwiki") as con:
@@ -540,7 +506,7 @@ else:
             encoding="utf-8", newline="\n").write(
         '[profiles]\n\tdimensionsWithProfiles = ["%s=%s"]\n' % (CITY, PACK))
 
-    proc, log = boot()
+    proc, log = rig.boot()
     complaints = [ln for ln in log
                   if re.search(r"error|fail|could not|invalid|exception", ln, re.I)]
     ours = [ln for ln in complaints if NS in ln or PACK in ln]

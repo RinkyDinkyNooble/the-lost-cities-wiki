@@ -245,7 +245,7 @@ tidied packs up to suit each version would agree with itself and prove nothing.
 
 ```
 testrig/
-  rig.py            the only entry point
+  rig.py            the only entry point, and what the DevTool's checks import
   versions.json     everything that differs between versions
   rcon.py           minimal RCON client, no dependencies
   adapters/
@@ -260,3 +260,17 @@ testrig/
 `downloads/`, `java/` and `servers/` are gitignored. Nothing in them is ours to
 redistribute: the mod is McJty's, the loaders are Forge's and NeoForge's, and the
 runtimes are Adoptium's.
+
+## The DevTool's checks
+
+The checks under `mod/tools` boot the server of the version `versions.json` names
+under `"checks"`, with that version's Java, and put that version's Lost Cities jar
+in its `mods` folder before each boot. The claim tests share the server and leave
+their own version there, so this is what keeps a check from testing the wrong one.
+
+| Moving the checks to | Edit |
+|---|---|
+| Another Lost Cities version on the same server | `"checks"` |
+| Another loader or Minecraft version | `"checks"`, once that version has a `servers` entry and is installed |
+
+`doctor <version>` says whether the version the checks name is ready.

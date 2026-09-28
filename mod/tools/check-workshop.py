@@ -33,28 +33,23 @@ walkway look unrelated, which is every plot in every row. The first version of t
 script had the same bug as the code it was checking, so it passed while the colouring
 was giving all 125 plots the same colour.
 """
-import glob
 import io
 import json
 import os
 import re
 import shutil
-import subprocess
 import sys
-import threading
-import time
 
 sys.path.insert(0, "testrig")
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 from rcon import Rcon  # noqa: E402
 import rig  # noqa: E402
+from rig import fail, failures  # noqa: E402
 
-SERVER = "testrig/servers/forge-1.20.1-47.4.10"
+SERVER = rig.SERVER
 # Whichever jar the build produced. Naming it in full meant every version
 # bump silently broke all four checks at once.
-JAR = sorted(glob.glob("mod/build/libs/lostcities_devtool-*.jar"))[-1]
-JAVA = os.path.abspath("testrig/java/17/bin/java.exe")
-LOADER = "net/minecraftforge/forge/1.20.1-47.4.10"
+JAR = rig.jar()
 DIM = "lostcitiesdevtool:workshop"
 PLOTS = os.path.join(SERVER, "world", "lostcitiesdevtool", "plots.json")
 SETTINGS = os.path.join(SERVER, "world", "lostcitiesdevtool", "plots")
@@ -138,28 +133,6 @@ def keys_of(con, dim, x, y, z):
     return out
 
 
-def boot():
-    args = "@" + os.path.join("libraries", LOADER, "win_args.txt")
-    proc = subprocess.Popen([JAVA, "@user_jvm_args.txt", args, "nogui"],
-                            cwd=SERVER, stdout=subprocess.PIPE,
-                            stderr=subprocess.STDOUT, text=True,
-                            encoding="utf-8", errors="replace")
-    deadline = time.time() + 300
-    lines = []
-    while time.time() < deadline:
-        line = proc.stdout.readline()
-        if not line:
-            print("\n".join(lines[-25:]))
-            raise SystemExit("server exited during startup")
-        lines.append(line.rstrip())
-        if 'For help, type "help"' in line or re.search(r"Done \(.*\)!", line):
-            threading.Thread(target=lambda: [None for _ in
-                                             iter(proc.stdout.readline, "")],
-                             daemon=True).start()
-            return proc
-    raise SystemExit("server did not start")
-
-
 def touching(a, b):
     """Two plots share a view when their footprints, grown by the walkway, overlap."""
     return (a["chunkX"] - 1 <= b["chunkX"] + b["width"]
@@ -175,9 +148,8 @@ dest = rig.install(SERVER, JAR)
 print("fresh world, jar installed\n")
 
 proc = None
-failures = []
 try:
-    proc = boot()
+    proc, _ = rig.boot()
     print("server up\n")
     with Rcon(port=25575, password="lcwiki") as con:
         for cmd in ("lcdev workshop rows", "lcdev workshop build"):
