@@ -1670,6 +1670,29 @@ On 7.5.4, a world style holding a list under `monorails.both` booted cleanly, as
 first row says it should. There is no world test on 1.21: that row is read from the
 DataFixerUpper and Lost Cities jars only.
 
+#### BHV-9 A level test of the wrong type is no test on 1.20.1 and refused on 1.21 { #bhv-9 }
+
+**Code review.** `PartRef`, a building's part reference, and `ConditionPart`, a
+Condition entry, declare every test as an optional field in 7.4.12: `top`, `ground`,
+`cellar`, `isbuilding` and `issphere` as `Codec.BOOL.optionalFieldOf`, `floor`,
+`chunkx` and `chunkz` as `Codec.INT.optionalFieldOf`, `range` as
+`Codec.STRING.optionalFieldOf`. `mod-keys.json` records the same fields as optional
+in 9.5.1 and 10.0.1. So the table under [BHV-8](#bhv-8) decides what a value of the
+wrong type does: on 1.20.1 the test is absent, and from 1.21 the decode fails.
+
+What counts as the wrong type is `JsonOps` in DataFixerUpper 6.0.8, read in the
+rig's jar:
+
+| Field | Reads | Wrong type |
+|---|---|---|
+| `Codec.BOOL` | `true` and `false`, and a number as true when `Number.byteValue()` is not zero | a string, a list, an object |
+| `Codec.INT` | a number, and `true` and `false` as 1 and 0 | a string, a list, an object |
+| `Codec.STRING` | a string | anything else |
+
+`JsonOps` parses a string as a number only in its compressed form, which datapack
+loading does not use. No world test: read from the 7.4.12 jar and the
+DataFixerUpper jars behind BHV-8.
+
 ### Whole-page entries
 
 Some claims are made the same way on many pages. Rather than repeat the evidence,

@@ -17,9 +17,9 @@ of this wiki apply. Every number comes from the jar itself; the method is in
 | You are on [code review](../examples/claim-tests.md#key-1){.v .v-c} | Read |
 |---|---|
 | 7.4.12, Minecraft 1.20.1 | This wiki, as written. It is the documented version. |
-| 7.5.0 or later on Minecraft 1.20.1 | This wiki, plus [What changed in 7.5](7-5.md). Read that page first. |
+| 7.5.0 or later on Minecraft 1.20.1 | This wiki, plus [What changed in 7.5](7-5.md). |
 | 8.4.1 or later on Minecraft 1.21 or later | This wiki, plus [What changed in 7.5](7-5.md), plus [The NeoForge line](neoforge.md). Coming from 8.2.2, clear `selectedProfile` first or the server will not boot. |
-| 8.2.2 on Minecraft 1.21 | This wiki. Ignore the 7.5 page. It is 7.4-era code on a 1.21 loader, so read [Traps specific to one version](#traps-specific-to-one-version) too. |
+| 8.2.2 on Minecraft 1.21 | This wiki, and [Traps specific to one version](#traps-specific-to-one-version). The 7.5 page does not apply: 8.2.2 is 7.4-era code on a 1.21 loader. |
 | 5.3.29 through 6.2.3 | Most of this wiki. Some keys do not exist yet, and on four of these versions predefined cities never generate. See [Traps specific to one version](#traps-specific-to-one-version). |
 | Anything before 5.3.29 | None of the reference section. That era has its own: [The File-Asset Era](../file-era/index.md), read out of the 1.12.2 jar and run on its own rig. [The file-asset era](legacy.md) is the quick answer to which era you are in. |
 
@@ -77,7 +77,7 @@ The bold row is the version this wiki documents. <!-- noclaim -->
 !!! warning "A higher mod version does not always mean a newer feature set"
     8.2.2 has a higher mod version than 7.5.1 and does **not** have the hierarchical
     road system 7.5.1 has. The 1.20 line and the 1.21 line advanced in parallel, so
-    compare the asset system column rather than the version number. [code review](../examples/claim-tests.md#key-1){.v .v-c}
+    the asset system column says more than the version number. [code review](../examples/claim-tests.md#key-1){.v .v-c}
 
 ## Traps specific to one version
 
@@ -98,8 +98,8 @@ and nothing is logged. [game test](../examples/claim-tests.md#ver-5){.v .v-g} [c
 6.2.2, for Minecraft 1.19, has the loader. 6.2.3, for Minecraft 1.19.4, does not, so
 this does not improve monotonically with the version number. [code review](../examples/claim-tests.md#ver-5){.v .v-c}
 
-On a version in the top row, place buildings through a [city style](../reference/citystyle.md)
-selector instead. That path works: on 6.0.3 a fully namespaced building reached the
+On a version in the top row, a building placed through a [city style](../reference/citystyle.md)
+selector works instead: on 6.0.3 a fully namespaced building reached the
 world 6 times in a 6 by 6 chunk grid, 4496 blocks, with no failed chunks. [game test](../examples/claim-tests.md#ver-8){.v .v-g}
 
 ### The predefined city folder is spelled three different ways
@@ -157,8 +157,8 @@ write a fresh one. A new install writes `""` and never sees this. [game test](..
 | Predefined city folder | `predefinedcities` | `predefinedcities` | **`predefinedcites`** | `predefinedcities` |
 | Catch around chunk generation | 1 | 6 | 1 | 6 |
 
-The 7.5 changes reached the 1.21 line at **8.4.1**, not at 8.2.2. Read
-[What changed in 7.5](7-5.md) for 8.4.1 and later, and not for 8.2.2. Every column
+The 7.5 changes reached the 1.21 line at **8.4.1**, not at 8.2.2, so
+[What changed in 7.5](7-5.md) applies to 8.4.1 and later and not to 8.2.2. Every column
 here was run rather than inferred. [code review](../examples/claim-tests.md#ver-7){.v .v-c} [game test](../examples/claim-tests.md#ver-11){.v .v-g}
 
 ## Loader

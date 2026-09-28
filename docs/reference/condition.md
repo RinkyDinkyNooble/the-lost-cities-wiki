@@ -52,6 +52,8 @@ A Condition entry and a Building part entry accept the same 13 test keys. [code 
 
 Every key is optional. [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 
+A test written with the wrong type, such as `"top": "yes"`, counts as absent on Minecraft 1.20.1 and fails the datapack load from 1.21. See [Building](building.md#part-references) for what each type reads. [code review](../examples/claim-tests.md#bhv-9){.v .v-c}
+
 **Setting several keys on one entry means all of them must pass.** The mod chains tests with a logical AND and never with an OR, so "either A or B" takes two separate entries. [game test](../examples/claim-tests.md#cnd-1){.v .v-g}
 
 An entry with no test keys always matches. That is the standard way to write a fallback. An unconditioned entry guarantees that something always matches, which is what prevents the [missing-part failure](building.md#floor-coverage-the-most-common-failure) on a building. [code review](../examples/claim-tests.md#ref-2){.v .v-c}

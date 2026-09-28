@@ -142,6 +142,6 @@ are recorded there, so a number on this page can be re-derived rather than trust
 python testrig/extract-keys.py
 ```
 
-The counts here were lower before that script existed. Three codec types register
-their fields through a helper rather than through `fieldOf`, and reading only
-`fieldOf` missed all three. [code review](../examples/claim-tests.md#ek-4){.v .v-c} [code review](../examples/claim-tests.md#key-1){.v .v-c}
+Three codec types register their fields through a helper rather than through
+`fieldOf`, so a count reading only `fieldOf` misses all three. The script reads the
+helper too. [code review](../examples/claim-tests.md#ek-4){.v .v-c} [code review](../examples/claim-tests.md#key-1){.v .v-c}

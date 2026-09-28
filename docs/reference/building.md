@@ -246,6 +246,9 @@ Each entry in `parts` is a part name plus any of **13** optional test keys. They
 
     The accepted shape also moved. 7.5.1 takes a list or a string, 8.2.2 takes only a string, and 7.4.12 accepted an object and silently did nothing with it. A bare string is the only form every version accepts. [game test](../examples/claim-tests.md#ek-5){.v .v-g}
 
+!!! warning "A test of the wrong type is no test on 1.20.1, and a load error from 1.21"
+    Every test key is an optional field of the type in the table. On Minecraft 1.20.1 a value the field cannot read counts as absent, with nothing logged, so `"top": "yes"` is no test at all and the entry matches every level, roofs included. A `bool` key does read a number, as true when its value as a byte is not zero, and an `int` key reads `true` and `false` as 1 and 0. A string, a list or an object is the wrong type for both, and anything but a string is the wrong type for `range`. From Minecraft 1.21 the same value fails the datapack load instead. [code review](../examples/claim-tests.md#bhv-9){.v .v-c}
+
 ```json
 { "part": "apartment_floor", "floor": 2 }
 { "part": "apartment_mid",   "range": "9,12" }
