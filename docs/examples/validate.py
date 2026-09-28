@@ -7,6 +7,7 @@ the datapack is wrong or the wiki page it came from is wrong. Usage:
     python docs/examples/validate.py docs/examples/first-city
 """
 import json
+import re
 import sys
 import unicodedata
 from pathlib import Path
@@ -119,35 +120,100 @@ CONDITION_KEYS = {"top", "ground", "cellar", "isbuilding", "issphere", "floor",
 LEVEL_KEYS = {"top", "ground", "cellar", "floor", "range"}
 
 
-def parse_range(where: str, text: str):
-    """condition.md: split on commas, read the first two as ints, discard the rest."""
-    pieces = str(text).split(",")
-    try:
-        return int(pieces[0]), int(pieces[1])
-    except (ValueError, IndexError):
-        err(where, f"range {text!r} does not parse; the mod throws "
-                   f"'Bad range specification: {text}!'")
+# Integer.parseInt: an optional sign and digits, with no space either side.
+INTEGER = re.compile(r"[+-]?\d+")
+
+# The default profile's buildingMaxCellars, which decides the cellar count of a
+# building that declares no cellar bounds.
+DEFAULT_MAX_CELLARS = 3
+
+
+def range_pieces(text: str) -> list[str]:
+    """The pieces between commas with the empty ones dropped.
+
+    ConditionContext splits with StringUtils.split(text, ','), in the 7.4.12 and
+    7.5.4 jars alike, so "0,,2" is the range 0 to 2 and not an error.
+    """
+    return [p for p in str(text).split(",") if p]
+
+
+def parse_range(text: str):
+    """condition.md: the first two pieces read as integers exactly as written.
+
+    None where the mod throws 'Bad range specification'. Integer.parseInt does not
+    trim, so "0, 2" throws, where Python's int() would have read it. A third number
+    is read past silently, so it does not count against the range here.
+    """
+    pieces = range_pieces(text)
+    if len(pieces) < 2 or not all(INTEGER.fullmatch(p) for p in pieces[:2]):
         return None
+    return int(pieces[0]), int(pieces[1])
+
+
+# Every level test is an optional field, and the codec library Minecraft 1.20.1
+# ships reads a value it cannot parse as absent. What it can parse follows JsonOps:
+# a boolean test also takes a number, true when its byte value is not zero; a number
+# test takes a boolean as 1 or 0; `range` takes only a string. Anything else is no
+# test at all, so `"top": "yes"` places a part on every level.
+
+def as_bool(value):
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, float)):
+        return (int(value) & 0xFF) != 0
+    return None
+
+
+def as_int(value):
+    if isinstance(value, bool):
+        return int(value)
+    if isinstance(value, (int, float)):
+        return int(value)
+    return None
 
 
 def matches_level(ref: dict, level: int, top_index: int) -> bool:
     """Whether one part reference matches a level. Tests chain with AND, never OR."""
-    for key, want in ref.items():
-        if key not in LEVEL_KEYS:
-            continue
-        if key == "ground" and (level == 0) != want:
-            return False
-        if key == "top" and (level >= top_index) != want:
-            return False
-        if key == "cellar" and (level < 0) != want:
-            return False
-        if key == "floor" and level != want:
-            return False
-        if key == "range":
-            bounds = parse_range("", str(want))
-            if bounds is None or not (bounds[0] <= level <= bounds[1]):
-                return False
+    ground = as_bool(ref.get("ground"))
+    if ground is not None and (level == 0) != ground:
+        return False
+    top = as_bool(ref.get("top"))
+    if top is not None and (level >= top_index) != top:
+        return False
+    cellar = as_bool(ref.get("cellar"))
+    if cellar is not None and (level < 0) != cellar:
+        return False
+    floor = as_int(ref.get("floor"))
+    if floor is not None and level != floor:
+        return False
+    if isinstance(ref.get("range"), str):
+        bounds = parse_range(ref["range"])
+        return bounds is not None and bounds[0] <= level <= bounds[1]
     return True
+
+
+def check_level_tests(where: str, ref: dict, reported: set[str]) -> None:
+    """A level test the codec cannot read, and a range that throws or misleads."""
+    for key in ("ground", "top", "cellar", "floor"):
+        read = as_int if key == "floor" else as_bool
+        if key in ref and key not in reported and read(ref[key]) is None:
+            reported.add(key)
+            err(where, f"'{key}' is written as {json.dumps(ref[key])}, which is not "
+                       f"{'a number' if key == 'floor' else 'true or false'}. The mod "
+                       f"reads it as no test, so the part is placed as if '{key}' "
+                       "were not there")
+    if "range" not in ref:
+        return
+    text = ref["range"]
+    if not isinstance(text, str):
+        err(where, f"'range' is written as {json.dumps(text)}, which is not text. The "
+                   "mod reads it as no range, so the part applies at every level")
+    elif parse_range(text) is None:
+        err(where, f"range {text!r} does not parse; the mod throws "
+                   f"'Bad range specification: {text}!'")
+    elif len(range_pieces(text)) > 2:
+        warn(where, f"range {text!r} has more than two numbers. The mod reads the "
+                    "first two and discards the rest silently")
 
 
 def check_building(path: Path, data) -> None:
@@ -163,9 +229,9 @@ def check_building(path: Path, data) -> None:
         if key in data and not (lo <= data[key] <= hi):
             err(path.name, f"{key}={data[key]} outside the {lo}-{hi} window")
     dead_keys_seen: set[str] = set()
+    wrong_types_seen: set[str] = set()
     for ref in parts:
-        if "range" in ref:
-            parse_range(path.name, str(ref["range"]))
+        check_level_tests(path.name, ref, wrong_types_seen)
         # A building's floor loop passes "<none>" as the current part, and the
         # belowpart predicate reads the current part rather than the one below,
         # so neither key can ever match from here.
@@ -192,24 +258,46 @@ def check_building(path: Path, data) -> None:
                        "level index; add a fallback entry with no conditions")
         return
 
-    # maxfloors is a min() and minfloors a max() applied after it, so the highest
-    # level this building can reach is the larger of the two. Same for cellars.
-    top = max(data.get("maxfloors", -1), data.get("minfloors", -1))
-    if top < 0:
+    # The profile rolls a height and the building's bounds clamp it: maxfloors is a
+    # min() and minfloors a max() applied after it. So the tallest the building
+    # can be is the larger of the two, and every height from the lower bound up to
+    # that is reachable, not only the tallest. Same for cellars, where an undeclared
+    # bound leaves the default profile's.
+    top_to = max(data.get("maxfloors", -1), data.get("minfloors", -1))
+    if top_to < 0:
         err(path.name, "no unconditioned part reference, and no 'maxfloors', so the "
                        "profile decides the height and will eventually roll past "
                        "whatever the conditions cover")
         return
-    deepest = max(data.get("maxcellars", 0), data.get("mincellars", 0), 0)
+    top_from = min(data["minfloors"], top_to) if "minfloors" in data else 0
+    declared = "maxcellars" in data or "mincellars" in data
+    deep_to = (max(data.get("maxcellars", -1), data.get("mincellars", -1))
+               if declared else DEFAULT_MAX_CELLARS)
+    deep_from = min(data["mincellars"], deep_to) if "mincellars" in data else 0
 
-    uncovered = [lvl for lvl in range(-deepest, top + 1)
-                 if not any(matches_level(p, lvl, top) for p in parts)]
-    if uncovered:
-        err(path.name, f"levels {uncovered} match no part. Levels run from "
-                       f"-{deepest} to {top} INCLUSIVE, so 'maxfloors': {top} is a "
-                       f"{top + 1}-storey building. Generation throws "
-                       "'Misconfiguration! Floor were generated for a building "
-                       "where no part condition matches!'")
+    # Tallest first, so a building failing at its full height is reported as such.
+    for deepest in range(deep_from, deep_to + 1):
+        for top in range(top_to, top_from - 1, -1):
+            uncovered = [lvl for lvl in range(-deepest, top + 1)
+                         if not any(matches_level(p, lvl, top) for p in parts)]
+            if not uncovered:
+                continue
+            if top == top_to:
+                at = (f"Levels run from -{deepest} to {top} INCLUSIVE, so "
+                      f"'maxfloors': {top} is a {top + 1}-storey building.")
+            else:
+                at = (f"It can generate {top + 1} storey{'s' if top else ''} tall "
+                      f"with {deepest} cellar{'' if deepest == 1 else 's'}, not only "
+                      "at its full height, and at that height these levels match "
+                      "nothing.")
+            if deepest and not declared:
+                at += (" It declares no cellar bounds, so the profile decides how "
+                       "many, and the default profile allows up to "
+                       f"{DEFAULT_MAX_CELLARS}.")
+            err(path.name, f"levels {uncovered} match no part. {at} Generation "
+                           "throws 'Misconfiguration! Floor were generated for a "
+                           "building where no part condition matches!'")
+            return
 
 
 def check_stuff(path: Path, data) -> None:
