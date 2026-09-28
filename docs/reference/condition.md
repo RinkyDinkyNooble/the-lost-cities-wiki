@@ -52,7 +52,7 @@ A Condition entry and a Building part entry accept the same 13 test keys. [code 
 
 Every key is optional. [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 
-**Setting several keys on one entry means all of them must pass.** The mod chains tests with a logical AND and never with an OR. To express "either A or B", write two separate entries. [game test](../examples/claim-tests.md#cnd-1){.v .v-g}
+**Setting several keys on one entry means all of them must pass.** The mod chains tests with a logical AND and never with an OR, so "either A or B" takes two separate entries. [game test](../examples/claim-tests.md#cnd-1){.v .v-g}
 
 An entry with no test keys always matches. That is the standard way to write a fallback. An unconditioned entry guarantees that something always matches, which is what prevents the [missing-part failure](building.md#floor-coverage-the-most-common-failure) on a building. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
@@ -129,7 +129,7 @@ Both ends are included, so this matches floor indices 9, 10, 11 and 12. Negative
     The last row is the dangerous one. A third number produces no error and no log line, and the floor range you get is not the one you wrote. [game test](../examples/claim-tests.md#cnd-3){.v .v-g}
 
 !!! note "`l1` and `l2` are not something you type"
-    The names `l1` and `l2` appear only in the mod's error message, `Bad range specification: <l1>,<l2>!`, where they stand in for the two numbers. Write real integers.
+    The names `l1` and `l2` appear only in the mod's error message, `Bad range specification: <l1>,<l2>!`, where they stand in for the two numbers.
 
 ## Example
 

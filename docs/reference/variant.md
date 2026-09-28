@@ -33,10 +33,10 @@ That gives mostly plain stone bricks, with the occasional cracked or mossy one. 
 
 ## Why a variant beats an inline `blocks` list
 
-Reuse. Ten palettes can name `stonebrick` instead of repeating the same weighted list ten times, and changing the variant changes all ten. <!-- noclaim -->
+Ten palettes can name `stonebrick` instead of repeating the same weighted list ten times, and changing the variant changes all ten. <!-- noclaim -->
 
 !!! warning "A `variant` name that does not resolve throws"
-    `CompiledPalette` throws `Invalid palette entry for '<char>'!` when the named variant is missing. The character, not the variant, is what the message names, so the file to look at is the palette rather than the variant. Check the namespace as well as the spelling. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
+    `CompiledPalette` throws `Invalid palette entry for '<char>'!` when the named variant is missing. The character, not the variant, is what the message names, so the file to look at is the palette rather than the variant. A wrong namespace fails the same way as a misspelling. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
 !!! danger "The weights are slots, not odds"
     A variant's `random` numbers fill a 128-entry table. Once the table is full the remaining entries are unreachable, and nothing is logged. The 1000 above is not a probability, it is "take every slot the first two did not". [game test](../examples/claim-tests.md#pal-3){.v .v-g}

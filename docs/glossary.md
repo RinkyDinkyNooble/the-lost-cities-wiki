@@ -4,7 +4,7 @@ claims: verified
 
 # Glossary
 
-Quick definitions for terms used across this wiki. Click here from any page, then go back. <!-- noclaim -->
+Definitions for terms used across this wiki. <!-- noclaim -->
 
 Datapack
 :   A folder or zip of JSON files that adds or changes game content without any code. Minecraft loads these itself. Lost Cities content is written as datapack JSON. <!-- noclaim -->
@@ -55,7 +55,7 @@ Matcher
 :   A small filter object built from `if_all`, `if_any` and `excluding`, used wherever the mod limits something to certain biomes or blocks. See [Matchers](concepts/matchers.md). [game test](examples/claim-tests.md#mat-1){.v .v-g}
 
 Codec
-:   The mod's internal parsing logic for a JSON file type. Nothing you need to touch, mentioned because it is where this wiki's key tables come from. [code review](examples/claim-tests.md#ref-1){.v .v-c}
+:   The mod's internal parsing logic for a JSON file type, and where this wiki's key tables come from. [code review](examples/claim-tests.md#ref-1){.v .v-c}
 
 Forge
 :   The mod loader this wiki's target version, 7.4.12, runs on. Lost Cities moved to NeoForge at 8.x, and both lines are covered here. See [Versions](versions/index.md). [code review](examples/claim-tests.md#key-1){.v .v-c}

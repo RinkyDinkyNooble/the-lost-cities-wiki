@@ -11,7 +11,7 @@ claims: verified
     Every key on this page arrived in 6.2.2. On 5.3.29, 6.0.3, 6.1.6 or 6.2.3 the mod does not know the stuff object at all. See [Key availability](../versions/key-availability.md). [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 
 !!! tip "`column` is a palette character, not a block"
-    It is the thing that gets placed, taken as the first character of the string and resolved through the building's merged palette. The mod's own files use `"column": "{"` and `"column": "\\"`, which read as nonsense until you know that. [game test](../examples/claim-tests.md#stf-1){.v .v-g} [code review](../examples/claim-tests.md#stf-1){.v .v-c}
+    It is the thing that gets placed, taken as the first character of the string and resolved through the building's merged palette. The mod's own files use `"column": "{"` and `"column": "\\"`, which only make sense as palette characters. [game test](../examples/claim-tests.md#stf-1){.v .v-g} [code review](../examples/claim-tests.md#stf-1){.v .v-c}
 
 ## Keys
 
@@ -30,7 +30,7 @@ claims: verified
 | `buildings` | no | | Restricts placement to specific buildings. A resource-location matcher, which does **not** take `if_all`. See [Matchers](../concepts/matchers.md#not-every-matcher-takes-all-three-keys) |
 
 !!! danger "Equal `mincount` and `maxcount` crash world generation"
-    The count is `random(maxcount - mincount) + mincount`, and the random call needs a **positive** bound. `"mincount": 2, "maxcount": 2` therefore does not mean "always place 2": it throws `bound must be positive` during generation. Write `"mincount": 2, "maxcount": 3` for that. Reversed values throw for the same reason. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
+    The count is `random(maxcount - mincount) + mincount`, and the random call needs a **positive** bound. `"mincount": 2, "maxcount": 2` therefore does not mean "always place 2": it throws `bound must be positive` during generation. Always 2 is written `"mincount": 2, "maxcount": 3`. Reversed values throw for the same reason. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
     The count is computed before any attempt runs, so a high `attempts` value is no protection. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 

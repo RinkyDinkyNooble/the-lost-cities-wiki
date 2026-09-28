@@ -9,7 +9,7 @@ claims: verified
 
 The rest of this wiki documents the datapack system, which arrived in 5.3.29. On an earlier build none of those files are ever read. These four pages cover what the system was instead. [code review](../examples/claim-tests.md#f12-1){.v .v-c}
 
-!!! success "Read from the jar, and now run"
+!!! success "Read from the jar, and run"
     These pages are written against `lostcities-1.12-2.0.22.jar`, the newest build for Minecraft 1.12.2, on Forge 14.23.5.2859 with a portable Java 8. A `userassets.json` holding a palette, parts, buildings, a city style, a world style and a pinned city generated all of it, so the loading path and the asset format are tested rather than only read. What each individual key does to a world mostly is not. [game test](../examples/claim-tests.md#f12-9){.v .v-g}
 
 ## Which versions
@@ -55,7 +55,7 @@ The concepts survived the move almost intact. A building still stacks parts, a p
 Five datapack types have no file-era equivalent: `variant`, `scattered`, `stuff`, and the separate predefined city and sphere registries. Predefined placements do exist here, as the `city` and `sphere` types, but as asset types among the rest rather than registries of their own. [code review](../examples/claim-tests.md#f12-2){.v .v-c}
 
 !!! danger "Block names are pre-flattening"
-    A file-era palette writes `minecraft:rail@1`, not `minecraft:rail[shape=...]`. The `@` carries the old metadata value. Copying such a palette into a modern version breaks it, and not gently: the whole palette fails to build rather than that one entry. See [Known Issues](../troubleshooting/known-issues.md#a-shipped-palette-carries-a-112-block-id-and-cannot-be-built), where a leftover of exactly this kind still ships in 7.4.12. [code review](../examples/claim-tests.md#f12-7){.v .v-c} [game test](../examples/claim-tests.md#prf-1){.v .v-g}
+    A file-era palette writes `minecraft:rail@1`, not `minecraft:rail[shape=...]`. The `@` carries the old metadata value. Copying such a palette into a modern version breaks the whole palette, not only that one entry. See [Known Issues](../troubleshooting/known-issues.md#a-shipped-palette-carries-a-112-block-id-and-cannot-be-built), where a leftover of exactly this kind still ships in 7.4.12. [code review](../examples/claim-tests.md#f12-7){.v .v-c} [game test](../examples/claim-tests.md#prf-1){.v .v-g}
 
 ## Which pages here apply to you
 

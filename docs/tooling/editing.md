@@ -5,7 +5,7 @@ status: in-progress
 
 # Editing & Tooling
 
-!!! info "There is now a fourth route"
+!!! info "A fourth route: the DevTool's workshop"
     [The Lost Cities - DevTool](lcdev.md) adds a workshop dimension: build in it, run one command, and it writes a whole datapack. It goes the other way too, pasting a loaded pack back into the world to edit. It is covered on [The DevTool Commands](lcdev.md) rather than here, because none of it is Lost Cities behaviour. <!-- noclaim -->
 
 Four ways to author parts, in rough order of how much hand-editing each involves: <!-- noclaim -->
@@ -17,7 +17,7 @@ Four ways to author parts, in rough order of how much hand-editing each involves
 | **Build normally, then convert** | large or detailed structures, reusing existing builds | needs an external tool |
 | **[The DevTool's workshop](lcdev.md)** | a whole pack at once, and opening a pack you already have | a second mod, and it targets one Lost Cities version at a time |
 
-Whichever you use, **keep the JSON as your source of truth.** Every in-game path exports to JSON eventually, and the export is lossy in one specific way documented below. <!-- noclaim -->
+**The JSON is the source of truth whichever route is used.** Every in-game path exports to JSON eventually, and the export is lossy in one specific way documented below. <!-- noclaim -->
 
 ## In-game edit mode
 
@@ -35,7 +35,7 @@ Set `editMode: true` in your [profile](../reference/profile.md)'s `lostcity` sec
 !!! warning "It has to be set before the world is created"
     Turning `editMode` on for an existing world does not work retroactively. Edit mode makes the generator record which part it placed at which position as it generates; a world built without it has no such record, and every editor command below will refuse with *"Could not find a part to edit in this chunk!"*
 
-    Make a separate throwaway world for editing. That is the intended workflow, not a limitation to route around. <!-- noclaim -->
+    Editing therefore takes a world created for it. <!-- noclaim -->
 
 ### The commands
 

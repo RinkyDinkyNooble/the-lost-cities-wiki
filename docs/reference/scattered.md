@@ -53,7 +53,7 @@ This asset defines the **structure** and nothing else. Where and how often it sp
 | `maxheightdiff` | no | blocks, 0 or more | Rejects the spot when the highest terrain minus the lowest across the **whole footprint** exceeds this. The flatness filter |
 | `biomes` | no | | A standard [Matcher](../concepts/matchers.md) |
 
-!!! example "The shipped list, which is a good template"
+!!! example "The shipped list"
     ```json title="worldstyles/standard.json, scattered.list"
     [
       { "name": "radiotower", "weight": 15, "maxheightdiff": 3,

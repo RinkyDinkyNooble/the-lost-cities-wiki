@@ -31,7 +31,7 @@ That is the opposite of how a nested list usually reads. The outer list is not a
 The mod's own `center.json` follows this. Its entries are `center00`, `center01`, `center10` and `center11`, which is `center<x><z>`. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
 !!! warning "Getting the order wrong produces a scrambled building, with no error"
-    Nothing checks the grid against the parts it names. Lay the list out as rows running east and the north-east and south-west chunks swap places: the building generates, no message appears, and the halves do not line up. [game test](../examples/claim-tests.md#cty-1){.v .v-g}
+    Nothing checks the grid against the parts it names. A list laid out as rows running east swaps the north-east and south-west chunks: the building generates, no message appears, and the halves do not line up. [game test](../examples/claim-tests.md#cty-1){.v .v-g}
 
 ## Example
 
