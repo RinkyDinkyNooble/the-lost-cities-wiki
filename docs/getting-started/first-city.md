@@ -78,7 +78,9 @@ Greek letters on purpose. Your palette is merged with the mod's, collisions sile
 
 ## 2. The part
 
-A part is one chunk footprint, one floor tall: **16 wide, 16 deep, 6 layers**. `slices` runs bottom to top. Every row must be exactly 16 characters. A space is air. [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+A part is one chunk footprint, one floor tall: **16 wide, 16 deep, 6 layers**. `slices` runs bottom to top. A space is air. [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+
+The mod joins each layer's rows into one string and reads it 16 characters to a row, so what has to be right is the layer's total of 256. Writing every row as exactly 16 characters is how to keep that total right and still read the grid. [game test](../examples/claim-tests.md#prt-1){.v .v-g}
 
 This is the whole file, exactly as it ships in [the example bundle](../examples/index.md). Nothing is left out, because the row lengths are the part of this you most need to see. <!-- noclaim -->
 

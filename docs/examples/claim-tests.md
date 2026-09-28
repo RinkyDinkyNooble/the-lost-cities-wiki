@@ -1653,6 +1653,23 @@ defines. Seven characters are free across every palette the mod ships:
 The failure mode is worth the space: nothing errors, nothing is logged, and the
 only symptom is that the wrong blocks appear somewhere in the world.
 
+#### BHV-8 A list under a monorail key is dropped on 1.20.1 and refused on 1.21 { #bhv-8 }
+
+**Code review, and one run.** `MonorailParts` declares `both`, `vertical` and
+`station` as `Codec.STRING.optionalFieldOf(key, default)` in 7.4.12, 7.5.4, 9.5.1
+and 10.0.1 alike, with the defaults `monorails_both`, `monorails_vertical` and
+`monorails_station`. What a list there does is decided by the codec library each
+Minecraft version ships, not by Lost Cities:
+
+| Minecraft | DataFixerUpper | A value the field cannot parse |
+|---|---|---|
+| 1.20.1, Lost Cities 7.x | 6.0.8 | `OptionalFieldCodec.decode` answers with an empty result, so the default part is used and nothing is logged |
+| 1.21 and later, Lost Cities 8.x on | 8.0.16 and 9.0.19 | `optionalFieldOf` is strict and fails the decode; only the separate `lenientOptionalFieldOf` keeps the older behaviour, and Lost Cities does not use it |
+
+On 7.5.4, a world style holding a list under `monorails.both` booted cleanly, as the
+first row says it should. There is no world test on 1.21: that row is read from the
+DataFixerUpper and Lost Cities jars only.
+
 ### Whole-page entries
 
 Some claims are made the same way on many pages. Rather than repeat the evidence,

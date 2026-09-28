@@ -31,7 +31,7 @@ The single most common assumption is that each street shape is locked to exactly
 | Railways | **Yes**, list or single string | Uniform random |
 | Monorails | **No**, single string only | n/a |
 
-Passing a list to a monorail key is a datapack load error, not a silent fallback. [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+A list under a monorail key is not a longer row. On 1.20.1 it is read as no value, and the mod's own default part, such as `monorails_both`, takes its place without a word. From 1.21 the same list fails the datapack load. [code review](../examples/claim-tests.md#bhv-8){.v .v-c}
 
 !!! note "There is no weighting"
     Unlike [building selectors](../reference/citystyle.md) or [Conditions](../reference/condition.md), these lists have no `factor` key. Every entry in the list is equally likely. If you want one variant to be rare, you cannot express that here, list it once among many common ones, or use a [Variant](../reference/variant.md) inside the palette instead (see [below](#varying-the-material-instead-of-the-part)).
