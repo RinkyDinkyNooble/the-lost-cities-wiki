@@ -1,6 +1,6 @@
 package com.rinkynooble.lostcitiesdevtool.mixin;
 
-import com.rinkynooble.lostcitiesdevtool.Config;
+import com.rinkynooble.lostcitiesdevtool.platform.Config;
 import mcjty.lostcities.worldgen.LostCityTerrainFeature;
 import mcjty.lostcities.worldgen.lost.BuildingInfo.StreetType;
 import org.spongepowered.asm.mixin.Mixin;

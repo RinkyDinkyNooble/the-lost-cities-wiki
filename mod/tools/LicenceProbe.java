@@ -1,4 +1,4 @@
-import com.rinkynooble.lostcitiesdevtool.workshop.Licence;
+import com.rinkynooble.lostcitiesdevtool.core.Licence;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

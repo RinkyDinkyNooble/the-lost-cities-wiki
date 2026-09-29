@@ -1,7 +1,7 @@
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.rinkynooble.lostcitiesdevtool.validate.AssetValidator;
-import com.rinkynooble.lostcitiesdevtool.validate.Finding;
+import com.rinkynooble.lostcitiesdevtool.core.AssetValidator;
+import com.rinkynooble.lostcitiesdevtool.core.Finding;
 
 import java.util.ArrayList;
 import java.util.List;

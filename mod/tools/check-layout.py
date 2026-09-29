@@ -31,9 +31,9 @@ OUT = os.path.join(REPO, "mod", "build", "layout-probe")
 RES = os.path.join(REPO, "mod", "src", "main", "resources")
 
 SOURCES = [
-    os.path.join(SRC, "com", "rinkynooble", "lostcitiesdevtool", "workshop",
+    os.path.join(SRC, "com", "rinkynooble", "lostcitiesdevtool", "core",
                  "Catalogue.java"),
-    os.path.join(SRC, "com", "rinkynooble", "lostcitiesdevtool", "workshop",
+    os.path.join(SRC, "com", "rinkynooble", "lostcitiesdevtool", "core",
                  "Layout.java"),
     os.path.join(TOOLS, "LayoutProbe.java"),
 ]

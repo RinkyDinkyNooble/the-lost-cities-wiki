@@ -1,6 +1,7 @@
 package com.rinkynooble.lostcitiesdevtool.mixin;
 
-import com.rinkynooble.lostcitiesdevtool.Config;
+import com.rinkynooble.lostcitiesdevtool.core.Json5Text;
+import com.rinkynooble.lostcitiesdevtool.platform.Config;
 import com.rinkynooble.lostcitiesdevtool.json5.Json5;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
@@ -65,7 +66,7 @@ public abstract class FileToIdConverterMixin {
             // Comments are the reason to write one, and its name is what asks for
             // them. It is presented under its .json name, which is what the id is
             // derived from.
-            boolean five = location.getPath().endsWith(Json5.EXT_JSON5);
+            boolean five = location.getPath().endsWith(Json5Text.EXT_JSON5);
             relaxed.put(five ? Json5.asJson(location) : location,
                     five || comments ? Json5.wrap(resource) : resource);
         });

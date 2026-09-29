@@ -1,7 +1,7 @@
 package com.rinkynooble.lostcitiesdevtool.mixin;
 
-import com.rinkynooble.lostcitiesdevtool.Config;
-import com.rinkynooble.lostcitiesdevtool.json5.Json5;
+import com.rinkynooble.lostcitiesdevtool.core.Json5Text;
+import com.rinkynooble.lostcitiesdevtool.platform.Config;
 import com.rinkynooble.lostcitiesdevtool.json5.Json5Overrides;
 import mcjty.lostcities.config.ProfileSetup;
 import org.apache.commons.io.FileUtils;
@@ -52,23 +52,23 @@ public abstract class ProfileSetupMixin {
             return json;
         }
         File[] json5 = directory.listFiles(
-                (dir, name) -> name.endsWith(Json5.EXT_JSON5));
+                (dir, name) -> name.endsWith(Json5Text.EXT_JSON5));
         if (json5 == null || json5.length == 0) {
             return json;
         }
 
         Set<String> shadowing = new LinkedHashSet<>();
         for (File file : json5) {
-            shadowing.add(Json5.baseName(file.getName()));
+            shadowing.add(Json5Text.baseName(file.getName()));
         }
 
         List<File> chosen = new ArrayList<>(List.of(json5));
         List<String> overridden = new ArrayList<>();
         if (json != null) {
             for (File file : json) {
-                if (shadowing.contains(Json5.baseName(file.getName()))) {
+                if (shadowing.contains(Json5Text.baseName(file.getName()))) {
                     overridden.add("config/lostcities/profiles/"
-                            + Json5.baseName(file.getName()) + Json5.EXT_JSON5);
+                            + Json5Text.baseName(file.getName()) + Json5Text.EXT_JSON5);
                 } else {
                     chosen.add(file);
                 }
@@ -88,9 +88,9 @@ public abstract class ProfileSetupMixin {
     private static String lostcitiesdevtool$relaxProfile(File file, String charset)
             throws IOException {
         String raw = FileUtils.readFileToString(file, charset);
-        boolean json5 = file.getName().endsWith(Json5.EXT_JSON5);
+        boolean json5 = file.getName().endsWith(Json5Text.EXT_JSON5);
         if (json5 || Config.on(Config.INSTANCE.acceptCommentsAndTrailingCommas, true)) {
-            return Json5.sanitise(raw);
+            return Json5Text.sanitise(raw);
         }
         return raw;
     }

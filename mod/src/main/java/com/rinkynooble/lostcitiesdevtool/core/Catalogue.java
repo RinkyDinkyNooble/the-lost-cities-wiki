@@ -1,4 +1,4 @@
-package com.rinkynooble.lostcitiesdevtool.workshop;
+package com.rinkynooble.lostcitiesdevtool.core;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

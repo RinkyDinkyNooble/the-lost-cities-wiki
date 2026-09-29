@@ -1,7 +1,8 @@
-package com.rinkynooble.lostcitiesdevtool.client;
+package com.rinkynooble.lostcitiesdevtool.platform;
 
-import com.rinkynooble.lostcitiesdevtool.Config;
-import com.rinkynooble.lostcitiesdevtool.LostCitiesDevTool;
+import com.rinkynooble.lostcitiesdevtool.client.ProfileListAccess;
+import com.rinkynooble.lostcitiesdevtool.client.Profiles;
+import com.rinkynooble.lostcitiesdevtool.core.ProfileOrder;
 import com.rinkynooble.lostcitiesdevtool.mixin.GuiLCConfigAccessor;
 import mcjty.lostcities.gui.GuiLCConfig;
 import mcjty.lostcities.gui.LostCitySetup;

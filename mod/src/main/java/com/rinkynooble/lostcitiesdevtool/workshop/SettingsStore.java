@@ -4,8 +4,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
+import com.rinkynooble.lostcitiesdevtool.core.Catalogue;
+import com.rinkynooble.lostcitiesdevtool.core.Json5Text;
 import com.rinkynooble.lostcitiesdevtool.core.Json;
-import com.rinkynooble.lostcitiesdevtool.json5.Json5;
+import com.rinkynooble.lostcitiesdevtool.core.Settings;
 import net.minecraft.server.MinecraftServer;
 
 import javax.annotation.Nullable;
@@ -73,7 +75,7 @@ public final class SettingsStore {
         }
         String text = Files.readString(path, StandardCharsets.UTF_8);
         try {
-            JsonElement parsed = JsonParser.parseString(Json5.sanitise(text));
+            JsonElement parsed = JsonParser.parseString(Json5Text.sanitise(text));
             if (!parsed.isJsonObject()) {
                 throw new IOException("the file holds "
                         + (parsed.isJsonArray() ? "a list" : "a value")

@@ -35,7 +35,7 @@ TOOLS = os.path.join(REPO, "mod", "tools")
 SRC = os.path.join(REPO, "mod", "src", "main", "java", "com", "rinkynooble",
                    "lostcitiesdevtool")
 OUT = os.path.join(REPO, "mod", "build", "profile-order-probe")
-SOURCES = [os.path.join(SRC, "client", "ProfileOrder.java"),
+SOURCES = [os.path.join(SRC, "core", "ProfileOrder.java"),
            os.path.join(TOOLS, "ProfileOrderProbe.java")]
 
 failures = []
@@ -85,7 +85,7 @@ wiring = [
      "the Customize repair builds its list through Profiles"),
     ("mixin/LostCitySetupMixin.java", "implements ProfileListAccess",
      "the repair hands the live list to the right click"),
-    ("client/ClientEvents.java", "lostcitiesdevtool$profiles()",
+    ("platform/ClientEvents.java", "lostcitiesdevtool$profiles()",
      "the right click steps through the live list"),
 ]
 for where, needle, what in wiring:

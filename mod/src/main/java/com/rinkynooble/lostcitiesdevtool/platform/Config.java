@@ -1,4 +1,4 @@
-package com.rinkynooble.lostcitiesdevtool;
+package com.rinkynooble.lostcitiesdevtool.platform;
 
 import net.minecraftforge.common.ForgeConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;

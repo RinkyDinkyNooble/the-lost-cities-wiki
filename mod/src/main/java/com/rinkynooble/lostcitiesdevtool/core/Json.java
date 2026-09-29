@@ -18,7 +18,8 @@ import java.util.List;
  * Condition are all written by hand, so a word where a number belongs is the ordinary
  * case, and one bad value must not cost the rest of the file. Gson converts where it
  * can: a number reads as its text, {@code "5"} as 5 and 5.7 as 5 for a whole number,
- * and any text or number other than {@code true} as false.
+ * and any number, or any text other than {@code true} in any case ({@code "TRUE"}
+ * reads true), as false.
  *
  * <p>Where a wrong type has to be reported rather than read past, the caller asks for
  * the element itself: the load check does, and so does the export for the settings it
@@ -30,7 +31,10 @@ import java.util.List;
  */
 public final class Json {
 
-    /** Indented, for a file a person reads. */
+    /**
+     * Indented, for a file a person reads. Built once, because one export writes
+     * hundreds of assets.
+     */
     public static final Gson PRETTY = new GsonBuilder().setPrettyPrinting()
             .disableHtmlEscaping().create();
 

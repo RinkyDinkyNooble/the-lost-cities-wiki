@@ -1,4 +1,4 @@
-package com.rinkynooble.lostcitiesdevtool;
+package com.rinkynooble.lostcitiesdevtool.platform;
 
 import com.mojang.logging.LogUtils;
 import net.minecraftforge.fml.common.Mod;

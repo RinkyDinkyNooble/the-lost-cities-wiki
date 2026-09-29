@@ -2,9 +2,12 @@ package com.rinkynooble.lostcitiesdevtool.validate;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.rinkynooble.lostcitiesdevtool.Config;
+import com.rinkynooble.lostcitiesdevtool.core.AssetValidator;
+import com.rinkynooble.lostcitiesdevtool.core.Finding;
+import com.rinkynooble.lostcitiesdevtool.core.Json5Text;
+import com.rinkynooble.lostcitiesdevtool.platform.Config;
 import com.rinkynooble.lostcitiesdevtool.json5.Json5;
-import com.rinkynooble.lostcitiesdevtool.LostCitiesDevTool;
+import com.rinkynooble.lostcitiesdevtool.platform.LostCitiesDevTool;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -54,7 +57,7 @@ public class ValidationListener extends SimplePreparableReloadListener<List<Find
             // the loader applies, so a shadowed file is not reported for faults
             // nothing will ever hit.
             Map<ResourceLocation, Resource> json = manager.listResources(folder,
-                    loc -> loc.getPath().endsWith(Json5.EXT_JSON));
+                    loc -> loc.getPath().endsWith(Json5Text.EXT_JSON));
             Map<ResourceLocation, Resource> chosen = json5
                     ? Json5.merge(manager, folder, json).files() : json;
             for (Map.Entry<ResourceLocation, Resource> entry : chosen.entrySet()) {
@@ -85,9 +88,9 @@ public class ValidationListener extends SimplePreparableReloadListener<List<Find
             // Parse the relaxed form, since that is what the loader will see. Blanking
             // preserves offsets, so a line number found here still matches the file on
             // disk, comments and all.
-            boolean relax = id.getPath().endsWith(Json5.EXT_JSON5)
+            boolean relax = id.getPath().endsWith(Json5Text.EXT_JSON5)
                     || Config.on(Config.INSTANCE.acceptCommentsAndTrailingCommas, true);
-            String forParsing = relax ? Json5.sanitise(raw) : raw;
+            String forParsing = relax ? Json5Text.sanitise(raw) : raw;
             json = JsonParser.parseString(forParsing).getAsJsonObject();
         } catch (Exception e) {
             // The registry loader reports this too, but without saying which rule of

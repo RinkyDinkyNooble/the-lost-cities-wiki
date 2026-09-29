@@ -3,7 +3,7 @@ package com.rinkynooble.lostcitiesdevtool.chat;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.rinkynooble.lostcitiesdevtool.LostCitiesDevTool;
+import com.rinkynooble.lostcitiesdevtool.platform.LostCitiesDevTool;
 
 import javax.annotation.Nullable;
 import java.io.InputStream;

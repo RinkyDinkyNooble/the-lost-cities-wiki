@@ -1,9 +1,8 @@
-package com.rinkynooble.lostcitiesdevtool.validate;
+package com.rinkynooble.lostcitiesdevtool.core;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.rinkynooble.lostcitiesdevtool.workshop.Levels;
 
 import javax.annotation.Nullable;
 

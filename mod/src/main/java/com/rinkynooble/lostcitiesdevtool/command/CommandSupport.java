@@ -1,8 +1,8 @@
 package com.rinkynooble.lostcitiesdevtool.command;
 
-import com.rinkynooble.lostcitiesdevtool.LostCitiesDevTool;
+import com.rinkynooble.lostcitiesdevtool.platform.LostCitiesDevTool;
 import com.rinkynooble.lostcitiesdevtool.chat.Chat;
-import com.rinkynooble.lostcitiesdevtool.workshop.Layout;
+import com.rinkynooble.lostcitiesdevtool.core.Layout;
 import com.rinkynooble.lostcitiesdevtool.workshop.Workshop;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;

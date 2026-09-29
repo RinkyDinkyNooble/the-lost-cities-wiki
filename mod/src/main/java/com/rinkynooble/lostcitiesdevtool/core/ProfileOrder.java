@@ -1,4 +1,4 @@
-package com.rinkynooble.lostcitiesdevtool.client;
+package com.rinkynooble.lostcitiesdevtool.core;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;

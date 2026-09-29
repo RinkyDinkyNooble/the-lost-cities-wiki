@@ -1,4 +1,4 @@
-package com.rinkynooble.lostcitiesdevtool;
+package com.rinkynooble.lostcitiesdevtool.platform;
 
 import com.rinkynooble.lostcitiesdevtool.json5.Json5Listener;
 import com.rinkynooble.lostcitiesdevtool.json5.Json5Overrides;

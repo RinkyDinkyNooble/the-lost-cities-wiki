@@ -1,7 +1,9 @@
 package com.rinkynooble.lostcitiesdevtool.workshop;
 
 import com.google.gson.JsonObject;
-import com.rinkynooble.lostcitiesdevtool.validate.Finding;
+import com.rinkynooble.lostcitiesdevtool.core.Catalogue;
+import com.rinkynooble.lostcitiesdevtool.core.Finding;
+import com.rinkynooble.lostcitiesdevtool.core.Layout;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 

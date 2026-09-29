@@ -1,7 +1,7 @@
 package com.rinkynooble.lostcitiesdevtool.mixin;
 
-import com.rinkynooble.lostcitiesdevtool.Config;
-import com.rinkynooble.lostcitiesdevtool.LostCitiesDevTool;
+import com.rinkynooble.lostcitiesdevtool.platform.Config;
+import com.rinkynooble.lostcitiesdevtool.platform.LostCitiesDevTool;
 import com.rinkynooble.lostcitiesdevtool.diagnostics.FaultReport;
 import com.rinkynooble.lostcitiesdevtool.diagnostics.LastFault;
 import mcjty.lostcities.worldgen.ErrorLogger;

@@ -1,4 +1,4 @@
-import com.rinkynooble.lostcitiesdevtool.client.ProfileOrder;
+import com.rinkynooble.lostcitiesdevtool.core.ProfileOrder;
 
 import java.util.ArrayList;
 import java.util.Arrays;

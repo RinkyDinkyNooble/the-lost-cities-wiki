@@ -1,5 +1,5 @@
-import com.rinkynooble.lostcitiesdevtool.workshop.Catalogue;
-import com.rinkynooble.lostcitiesdevtool.workshop.Layout;
+import com.rinkynooble.lostcitiesdevtool.core.Catalogue;
+import com.rinkynooble.lostcitiesdevtool.core.Layout;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

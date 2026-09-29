@@ -2,8 +2,11 @@ package com.rinkynooble.lostcitiesdevtool.workshop;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.rinkynooble.lostcitiesdevtool.LostCitiesDevTool;
+import com.rinkynooble.lostcitiesdevtool.core.Catalogue;
+import com.rinkynooble.lostcitiesdevtool.core.Layout;
+import com.rinkynooble.lostcitiesdevtool.platform.LostCitiesDevTool;
 import com.rinkynooble.lostcitiesdevtool.core.Json;
+import com.rinkynooble.lostcitiesdevtool.platform.Versions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;

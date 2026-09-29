@@ -31,11 +31,11 @@ SRC = os.path.join(REPO, "mod", "src", "main", "java")
 OUT = os.path.join(REPO, "mod", "build", "validator-probe")
 
 SOURCES = [
-    os.path.join(SRC, "com", "rinkynooble", "lostcitiesdevtool", "validate",
+    os.path.join(SRC, "com", "rinkynooble", "lostcitiesdevtool", "core",
                  "AssetValidator.java"),
-    os.path.join(SRC, "com", "rinkynooble", "lostcitiesdevtool", "validate",
+    os.path.join(SRC, "com", "rinkynooble", "lostcitiesdevtool", "core",
                  "Finding.java"),
-    os.path.join(SRC, "com", "rinkynooble", "lostcitiesdevtool", "workshop",
+    os.path.join(SRC, "com", "rinkynooble", "lostcitiesdevtool", "core",
                  "Levels.java"),
     os.path.join(TOOLS, "ValidatorProbe.java"),
 ]

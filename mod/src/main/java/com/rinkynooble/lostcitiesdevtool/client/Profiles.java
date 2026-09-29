@@ -1,5 +1,6 @@
 package com.rinkynooble.lostcitiesdevtool.client;
 
+import com.rinkynooble.lostcitiesdevtool.core.ProfileOrder;
 import mcjty.lostcities.config.LostCityProfile;
 import mcjty.lostcities.config.ProfileSetup;
 

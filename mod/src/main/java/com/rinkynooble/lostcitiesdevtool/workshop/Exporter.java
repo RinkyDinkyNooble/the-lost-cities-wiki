@@ -5,10 +5,16 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.JsonOps;
 import com.rinkynooble.lostcitiesdevtool.chat.ProfileKeys;
+import com.rinkynooble.lostcitiesdevtool.core.Catalogue;
+import com.rinkynooble.lostcitiesdevtool.core.Json5Text;
 import com.rinkynooble.lostcitiesdevtool.core.Json;
-import com.rinkynooble.lostcitiesdevtool.json5.Json5;
-import com.rinkynooble.lostcitiesdevtool.validate.AssetValidator;
-import com.rinkynooble.lostcitiesdevtool.validate.Finding;
+import com.rinkynooble.lostcitiesdevtool.core.Layout;
+import com.rinkynooble.lostcitiesdevtool.core.Levels;
+import com.rinkynooble.lostcitiesdevtool.core.Licence;
+import com.rinkynooble.lostcitiesdevtool.core.Settings;
+import com.rinkynooble.lostcitiesdevtool.core.TagFilter;
+import com.rinkynooble.lostcitiesdevtool.core.AssetValidator;
+import com.rinkynooble.lostcitiesdevtool.core.Finding;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -1259,7 +1265,7 @@ public final class Exporter {
             warnings.add(format + " is not a format this writes. Use json or json5. "
                     + "Written as json.");
         }
-        String ext = json5 ? Json5.EXT_JSON5 : Json5.EXT_JSON;
+        String ext = json5 ? Json5Text.EXT_JSON5 : Json5Text.EXT_JSON;
 
         Path data = root.resolve("data").resolve(namespace).resolve("lostcities");
         for (Map.Entry<String, JsonObject> e : assets.entrySet()) {

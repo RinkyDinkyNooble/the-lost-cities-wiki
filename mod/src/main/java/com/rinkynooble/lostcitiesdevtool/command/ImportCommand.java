@@ -5,7 +5,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.rinkynooble.lostcitiesdevtool.chat.Chat;
 import com.rinkynooble.lostcitiesdevtool.workshop.Attribution;
 import com.rinkynooble.lostcitiesdevtool.workshop.Importer;
-import com.rinkynooble.lostcitiesdevtool.workshop.Licence;
+import com.rinkynooble.lostcitiesdevtool.core.Licence;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;

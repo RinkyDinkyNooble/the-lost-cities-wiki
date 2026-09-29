@@ -1,7 +1,7 @@
 package com.rinkynooble.lostcitiesdevtool.mixin;
 
-import com.rinkynooble.lostcitiesdevtool.Config;
-import com.rinkynooble.lostcitiesdevtool.LostCitiesDevTool;
+import com.rinkynooble.lostcitiesdevtool.platform.Config;
+import com.rinkynooble.lostcitiesdevtool.platform.LostCitiesDevTool;
 import mcjty.lostcities.worldgen.LostCitySphereFeature;
 import mcjty.lostcities.worldgen.LostCityTerrainFeature;
 import mcjty.lostcities.worldgen.gen.Spheres;

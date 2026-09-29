@@ -1,6 +1,6 @@
 package com.rinkynooble.lostcitiesdevtool.diagnostics;
 
-import com.rinkynooble.lostcitiesdevtool.LostCitiesDevTool;
+import com.rinkynooble.lostcitiesdevtool.platform.LostCitiesDevTool;
 import mcjty.lostcities.varia.ChunkCoord;
 import mcjty.lostcities.worldgen.IDimensionInfo;
 import mcjty.lostcities.worldgen.lost.BuildingInfo;

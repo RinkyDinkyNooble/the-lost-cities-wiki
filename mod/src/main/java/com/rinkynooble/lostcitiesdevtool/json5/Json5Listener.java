@@ -1,7 +1,8 @@
 package com.rinkynooble.lostcitiesdevtool.json5;
 
-import com.rinkynooble.lostcitiesdevtool.Config;
-import com.rinkynooble.lostcitiesdevtool.LostCitiesDevTool;
+import com.rinkynooble.lostcitiesdevtool.core.Json5Text;
+import com.rinkynooble.lostcitiesdevtool.platform.Config;
+import com.rinkynooble.lostcitiesdevtool.platform.LostCitiesDevTool;
 import com.rinkynooble.lostcitiesdevtool.chat.Chat;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -37,13 +38,13 @@ public class Json5Listener extends SimplePreparableReloadListener<List<String>> 
         // telling somebody to delete one of those is telling them to edit a pack
         // that is not theirs.
         Map<ResourceLocation, Resource> json = manager.listResources(
-                "lostcities", path -> path.getPath().endsWith(Json5.EXT_JSON));
+                "lostcities", path -> path.getPath().endsWith(Json5Text.EXT_JSON));
         for (ResourceLocation shadowed : Json5.merge(manager, "lostcities", json)
                 .shadowed()) {
             String path = shadowed.getPath();
             overrides.add(shadowed.getNamespace() + ":"
-                    + path.substring(0, path.length() - Json5.EXT_JSON.length())
-                    + Json5.EXT_JSON5);
+                    + path.substring(0, path.length() - Json5Text.EXT_JSON.length())
+                    + Json5Text.EXT_JSON5);
         }
         return overrides;
     }

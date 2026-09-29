@@ -1,4 +1,4 @@
-package com.rinkynooble.lostcitiesdevtool;
+package com.rinkynooble.lostcitiesdevtool.platform;
 
 import com.rinkynooble.lostcitiesdevtool.command.ExportCommand;
 import com.rinkynooble.lostcitiesdevtool.command.ImportCommand;

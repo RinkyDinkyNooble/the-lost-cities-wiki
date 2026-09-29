@@ -1,6 +1,7 @@
 package com.rinkynooble.lostcitiesdevtool.workshop;
 
-import com.rinkynooble.lostcitiesdevtool.LostCitiesDevTool;
+import com.rinkynooble.lostcitiesdevtool.core.Licence;
+import com.rinkynooble.lostcitiesdevtool.platform.LostCitiesDevTool;
 import com.rinkynooble.lostcitiesdevtool.mixin.PathPackResourcesAccessor;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;

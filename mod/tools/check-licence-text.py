@@ -42,7 +42,7 @@ SRC = os.path.join(REPO, "mod", "src", "main", "java")
 OUT = os.path.join(REPO, "mod", "build", "licence-probe")
 RES = os.path.join(REPO, "mod", "src", "main", "resources")
 
-LICENCE = os.path.join(SRC, "com", "rinkynooble", "lostcitiesdevtool", "workshop",
+LICENCE = os.path.join(SRC, "com", "rinkynooble", "lostcitiesdevtool", "core",
                        "Licence.java")
 CHAT = os.path.join(SRC, "com", "rinkynooble", "lostcitiesdevtool", "chat",
                     "Chat.java")

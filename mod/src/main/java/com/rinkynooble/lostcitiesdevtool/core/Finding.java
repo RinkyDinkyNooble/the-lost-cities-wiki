@@ -1,4 +1,4 @@
-package com.rinkynooble.lostcitiesdevtool.validate;
+package com.rinkynooble.lostcitiesdevtool.core;
 
 import java.util.List;
 

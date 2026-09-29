@@ -4,7 +4,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.rinkynooble.lostcitiesdevtool.LostCitiesDevTool;
+import com.rinkynooble.lostcitiesdevtool.core.Json5Text;
+import com.rinkynooble.lostcitiesdevtool.platform.LostCitiesDevTool;
 import com.rinkynooble.lostcitiesdevtool.json5.Json5;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -98,7 +99,7 @@ public final class Assets {
         String root = ROOT.substring(0, ROOT.length() - 1);
         Map<ResourceLocation, Resource> found = Json5.merge(manager, root,
                 manager.listResources(root,
-                        id -> id.getPath().endsWith(Json5.EXT_JSON))).files();
+                        id -> id.getPath().endsWith(Json5Text.EXT_JSON))).files();
         for (Map.Entry<ResourceLocation, Resource> e : found.entrySet()) {
             ResourceLocation id = e.getKey();
             String path = id.getPath();
@@ -131,7 +132,7 @@ public final class Assets {
     private static JsonObject read(Resource resource, ResourceLocation id) {
         try (InputStream in = resource.open()) {
             String text = new String(in.readAllBytes(), StandardCharsets.UTF_8);
-            JsonElement parsed = JsonParser.parseString(Json5.sanitise(text));
+            JsonElement parsed = JsonParser.parseString(Json5Text.sanitise(text));
             return parsed.isJsonObject() ? parsed.getAsJsonObject() : null;
         } catch (Exception e) {
             LostCitiesDevTool.LOGGER.warn("could not read {}: {}", id, e.toString());

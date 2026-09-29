@@ -1,5 +1,6 @@
-package com.rinkynooble.lostcitiesdevtool.workshop;
+package com.rinkynooble.lostcitiesdevtool.platform;
 
+import com.rinkynooble.lostcitiesdevtool.core.Catalogue;
 import net.minecraftforge.fml.ModList;
 
 import javax.annotation.Nullable;
