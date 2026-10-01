@@ -1,6 +1,6 @@
 # 3.1.2-7.5
 
-For The Lost Cities 7.5.1 to 7.5.5, on Minecraft 1.20.1 and Forge 47+.
+For The Lost Cities 7.5.1 to 7.5.6, on Minecraft 1.20.1 and Forge 47+.
 
 Everything since `3.1.1-7.5`. A review of the whole mod: bug fixes, one of them data
 loss, faster export and completion, and no new features.
@@ -8,7 +8,7 @@ loss, faster export and completion, and no new features.
 | Your Lost Cities | Download |
 |---|---|
 | 7.4.12 | `3.0.0` |
-| 7.5.1, 7.5.2, 7.5.3, 7.5.4, 7.5.5 | `3.1.2-7.5` |
+| 7.5.1, 7.5.2, 7.5.3, 7.5.4, 7.5.5, 7.5.6 | `3.1.2-7.5` |
 
 ## Fixed: data loss
 
@@ -63,3 +63,10 @@ Measured against 3.1.1 on the same server, idle before each timing.
 | Workshop layout, per keystroke | 0.5 ms | 0.2 ms |
 
 The last two grow with the pack, which is why they were worth doing at this size.
+
+## Supported range
+
+Now 7.5.1 through 7.5.6, closed at the top. 7.5.6 changes 39 classes and adds 9, all
+chunk and highway planning. Every mixin injection point holds on it by exact
+descriptor and call count, every Lost Cities call this mod makes is still there, it
+declares no key the reference lacks, and the full check suite passes against it.

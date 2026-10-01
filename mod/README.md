@@ -15,7 +15,7 @@ The build plan, including everything not yet written, is in [PLAN.md](PLAN.md).
 |---|---|
 | Minecraft | 1.20.1 |
 | Forge | 47.4.10 |
-| The Lost Cities | 7.5.1 to 7.5.5, a hard dependency |
+| The Lost Cities | 7.5.1 to 7.5.6, a hard dependency |
 
 The Lost Cities version range is deliberately narrow. A mixin is bound to the shape
 of the code it patches, so each target version needs its own verification pass.
@@ -29,13 +29,15 @@ from the target jar, and the lines do not declare the same keys: 131 profile key
 
 The range was established rather than assumed. Every injection point was compared by
 exact descriptor, and every redirected call counted inside its target method, across
-7.4.12, 7.5.1, 7.5.2, 7.5.3, 7.5.4 and 7.5.5, with 7.4.12 as the control column.
+7.4.12, 7.5.1, 7.5.2, 7.5.3, 7.5.4, 7.5.5 and 7.5.6, with 7.4.12 as the control column.
 7.5.1, 7.5.2 and 7.5.3 hold the same 327 classes and the same 160 profile keys. 7.5.4
 adds three GUI classes and `railwayLevelOffset`. 7.5.5 changes 45 classes and adds
-one. None of them touches anything patched here.
+one. 7.5.6 changes 39 and adds 9, all chunk and highway planning, with no new key.
+None of them touches anything patched here, and every Lost Cities call this mod makes
+is still present in 7.5.6.
 
 **The key reference is generated from 7.5.4, and 7.5.5 declares more than it.** The
-mixins are verified on 7.5.5 and the mod runs there, but six keys 7.5.5 added are
+mixins are verified on 7.5.5 and 7.5.6 and the mod runs on both, but six keys 7.5.5 added are
 unknown to this build: `railwaySpacingNorthSouth` and `railwaySpacingEastWest` on the
 profile, and `bridgesupport`, `bridgesupportpart`, `highwaysupport` and
 `highwaysupportpart` on the world and city styles. `/lcdev key` does not describe the

@@ -45,7 +45,8 @@ JARS = [("7.4.12", "lostcities-1.20-7.4.12.zip"),
         ("7.5.2", "lostcities-1.20-7.5.2.zip"),
         ("7.5.3", "lostcities-1.20-7.5.3.zip"),
         ("7.5.4", "lostcities-1.20-7.5.4.zip"),
-        ("7.5.5", "lostcities-1.20-7.5.5.zip")]
+        ("7.5.5", "lostcities-1.20-7.5.5.zip"),
+        ("7.5.6", "lostcities-1.20-7.5.6.jar")]
 
 # 7.4.12 is the only version where the two place mixins target `place` itself. The
 # 7.5 line moved both bodies into a lambda, so the expected shape differs by line and

@@ -22,7 +22,7 @@
   "boot its server with its Java and put its Lost Cities jar in the mods folder,",
   "so moving the checks to another version is this one line."
  ],
- "checks": "7.5.4",
+ "checks": "7.5.6",
  "rcon": {
   "port": 25575,
   "password": "lcwiki"
@@ -215,6 +215,23 @@
     "front_chance"
    ],
    "note": "Hierarchical roads, and a building's refpalette is resolved even when no part needs it. Adds three GUI classes and the railwayLevelOffset profile key over 7.5.1, and changes nothing the DevTool patches."
+  },
+  "7.5.6": {
+   "server": "forge-1.20.1-47.4.10",
+   "mod_jar": "lostcities-1.20-7.5.6.jar",
+   "adapter": "modern",
+   "registries": {
+    "predefined_city": "predefinedcities"
+   },
+   "capabilities": [
+    "predefined_city",
+    "predefined_sphere",
+    "stuff",
+    "scattered",
+    "override_floors",
+    "front_chance"
+   ],
+   "note": "Chunk and highway planning per chunk and across threads. Changes 39 classes and adds 9 over 7.5.5; no new key and nothing the DevTool patches."
   },
   "8.2.2": {
    "server": "neoforge-21.0.167",

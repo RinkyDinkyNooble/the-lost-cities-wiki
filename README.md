@@ -37,7 +37,7 @@ Two optional fixes, both off by default, correct bugs traced here: `belowpart` r
 the wrong part, and the `full` street shape never being selected.
 
 Built for Minecraft 1.20.1, in two files: one for Lost Cities 7.4.12 and one for 7.5.1
-through 7.5.5. See [mod/README.md](mod/README.md) for every setting, the evidence behind
+through 7.5.6. See [mod/README.md](mod/README.md) for every setting, the evidence behind
 it, and why the two lines cannot share a jar.
 
 Every claim carries one of three labels, and every page says which:
