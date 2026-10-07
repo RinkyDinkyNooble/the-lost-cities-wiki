@@ -71,6 +71,7 @@
     "primaryRoadSpacingX": 8,
     "primaryRoadSpacingZ": 8,
     "railwayDungeonChance": 0.01,
+    "railwayLevelOffset": 0,
     "railwayStationsEnabled": true,
     "railwaySurfaceStationsEnabled": true,
     "railwaysCanEnd": false,
