@@ -11,8 +11,8 @@ Not affiliated with or endorsed by McJty. The Lost Cities is his work, and he an
 Read these first. They are the authoritative sources:
 
 - [mcjty.eu/docs/mods/lost-cities](https://mcjty.eu/docs/mods/lost-cities), the general documentation
-- [asset-datapack page](https://www.mcjty.eu/docs/mods/lost-cities/asset-datapack), on the datapack asset system
-- [`asset_structure.md`](https://github.com/McJtyMods/LostCities/blob/1.20/docs/asset_structure.md), a key-by-key reference
+- [asset system](https://mcjty.eu/docs/mods/lost-cities/asset_structure), a key-by-key reference for 1.20.1 and newer
+- [profile options](https://mcjty.eu/docs/mods/lost-cities/profile_options), every profile option
 
 ## What this adds
 
