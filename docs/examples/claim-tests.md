@@ -963,6 +963,25 @@ comes from the profile instead of from the building, and the building is taller.
 This is the clearest demonstration of why KEY-2 matters. Nothing fails, nothing is
 logged, and the building is half again as tall as the pack intended.
 
+#### KEY-5 Eight keys the 7.5.1 counts do not include { #key-5 }
+
+**Code review.** Each name was searched for in the classes and data files of every
+jar from 7.4.12 to 7.5.6; the first version holding it is the "From" column.
+
+| Key | First jar | Where it is read |
+|---|---|---|
+| `forcedair` | 7.5.1 | `LostCityTerrainFeature` asks the part for `getMetaBoolean("forcedair")`; `ILostCities.META_FORCEDAIR` names it. The 7.5.1 jar is stamped 2026-08-08 |
+| `railwayLevelOffset` | 7.5.4 | `LostCityProfile`: `getInt`, range -8 to 2, field initialised to 0 |
+| `railwaySpacingNorthSouth`, `railwaySpacingEastWest` | 7.5.5 | `LostCityProfile`: `getInt`, range 4 to 128, fields initialised to 10; an odd value reaches `throw new IllegalArgumentException("Railway spacing must be an even number from 4 through 128 chunks")` |
+| `bridgesupport`, `bridgesupportpart` | 7.5.5 | Declared by `CityStyleRE` and `WorldStyleRE` |
+| `highwaysupport`, `highwaysupportpart` | 7.5.5 | Declared by `WorldStyleRE` |
+
+The ranges, defaults and the even-number rule are read from the 7.5.5 bytecode. What
+each key does to the world, and the precedence between the support keys, is taken
+from the Lost Cities documentation on mcjty.eu (`profile_options` and
+`asset_structure`) and matches where each is read; none was run on the rig.
+`bridgeSupports` and `highwaySupports` are profile keys in 7.4.12 and every 7.5 jar.
+
 #### VER-4 The predefined city registry is spelled three different ways { #ver-4 }
 
 **Code review.** `CustomRegistries` builds the registry key that decides the

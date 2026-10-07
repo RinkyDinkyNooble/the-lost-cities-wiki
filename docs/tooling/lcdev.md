@@ -3,7 +3,7 @@
 Every `/lcdev` command, what each argument means, and what it does to your world.
 
 !!! note "This page documents the companion mod, not Lost Cities"
-    `/lcdev` comes from [The Lost Cities - DevTool](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/releases/latest), described here as of **3.0.0**. Lost Cities' own commands are on [Testing and Debugging Commands](commands.md). Nothing here is a claim about Lost Cities' behaviour, so it carries no verification chips: it describes a tool this wiki ships.
+    `/lcdev` comes from [The Lost Cities - DevTool](https://github.com/RinkyDinkyNooble/the-lost-cities-wiki/releases/latest), described here as of **3.1.2-7.5**, the file for Lost Cities 7.5.1 to 7.5.6. 3.0.0, the file for 7.4.12, is no longer updated. Lost Cities' own commands are on [Testing and Debugging Commands](commands.md). Nothing here is a claim about Lost Cities' behaviour, so it carries no verification chips: it describes a tool this wiki ships.
 
 ## Everything at a glance
 
@@ -251,6 +251,9 @@ Rows an import grew go back to their catalogue size.
 
 ## Settings on a plot
 
+Every `plot` command, `mark` and `export <name> plot` acts on the plot under you in
+the workshop dimension, and refuses anywhere else.
+
 `/lcdev plot keys` is the one to remember: it lists every setting **that plot**
 accepts with an explanation of each, and the list differs by plot. A street plot has
 no `factor`, because the codec behind it picks uniform random and has nowhere to put
@@ -388,7 +391,9 @@ its own palette entry. Accepts `damaged`, `torch`, `variant`, `loot`, `mob` and
 
 Writes a complete datapack to `config/lostcitiesdevtool/exports/<name>/`, with the
 profile beside it rather than inside it, because a profile is config and not
-datapack.
+datapack. The name has to be one folder directly inside `exports/` and may not start
+with a dot. A settings value the export cannot read, such as `"factor": "lots"`, stops
+the export with the plot and the key named.
 
 | Flag | Meaning |
 |---|---|
