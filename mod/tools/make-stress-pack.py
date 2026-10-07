@@ -4,7 +4,7 @@
     python mod/tools/make-stress-pack.py
 
 Needs the wiki's test rig, the same way the server checks do. Leaves the finished
-pack in `research/stress-pack/` ready to drop into a world's `datapacks` folder.
+pack in `mod/build/stress-pack/` ready to drop into a world's `datapacks` folder.
 
 **What this is for.** The palette pool used to hold 120 characters, and a user hit
 the end of it with two ordinary buildings. The pool now runs through the plane, so
@@ -56,7 +56,7 @@ PLOTS = os.path.join(WORLD, "lostcitiesdevtool", "plots.json")
 EXPORTS = os.path.join(SERVER, "config", "lostcitiesdevtool", "exports")
 LC_CONFIG = os.path.join(SERVER, "config", "lostcities")
 KEPT_CONFIG = LC_CONFIG + ".kept"
-OUT = os.path.join("research", "stress-pack")
+OUT = os.path.join("mod", "build", "stress-pack")
 PACK = "stresspack"
 NS = "stresspack"
 PLOT = "building/1x1/0"

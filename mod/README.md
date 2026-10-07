@@ -7,8 +7,6 @@ and can optionally repair behaviour traced to a bug.
 It adds no blocks, no items and no generation of its own. Removing it leaves every
 world it touched loadable by vanilla Lost Cities.
 
-The build plan, including everything not yet written, is in [PLAN.md](PLAN.md).
-
 ## Requirements
 
 | | |
@@ -557,13 +555,13 @@ The round trip is the one that stops the two halves drifting apart. The other th
 can each pass while the exporter and the importer disagree about the format, because
 both were written from the same reading of it.
 
-Every feature in [PLAN.md](PLAN.md) names the test that proves it.
+`RELEASING.md` lists every check and runs them in order.
 
 ### Tools that are not checks
 
 | File | What it does |
 |---|---|
-| `mod/tools/make-stress-pack.py` | Writes a pack whose one building holds 158 distinct block states, 40 of them lettered past the 120 characters the pool used to hold, then generates a city from it and requires the blocks with those characters to be standing in it. Leaves the pack in `research/stress-pack/` |
+| `mod/tools/make-stress-pack.py` | Writes a pack whose one building holds 158 distinct block states, 40 of them lettered past the 120 characters the pool used to hold, then generates a city from it and requires the blocks with those characters to be standing in it. Leaves the pack in `mod/build/stress-pack/` |
 | `mod/tools/palettechars.py` | What a palette character may be, judged from what Lost Cities does with one. Shared by the two above so a rule cannot be fixed in one and not the other |
 | `mod/tools/extract-catalogue.py`, `mod/tools/extract-profile-keys.py` | Read the target version's own jar rather than restating it here |
 

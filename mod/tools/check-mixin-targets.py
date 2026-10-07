@@ -37,15 +37,16 @@ sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 HERE = os.path.dirname(os.path.abspath(__file__))
 MOD = os.path.dirname(HERE)
 REPO = os.path.dirname(MOD)
-MODS = os.path.join(REPO, "research", "mods")
+# The rig's download folder, where every check finds the Lost Cities jars.
+MODS = os.path.join(REPO, "testrig", "downloads")
 
 # The control comes first. Everything is compared against it.
-JARS = [("7.4.12", "lostcities-1.20-7.4.12.zip"),
-        ("7.5.1", "lostcities-1.20-7.5.1.zip"),
-        ("7.5.2", "lostcities-1.20-7.5.2.zip"),
-        ("7.5.3", "lostcities-1.20-7.5.3.zip"),
-        ("7.5.4", "lostcities-1.20-7.5.4.zip"),
-        ("7.5.5", "lostcities-1.20-7.5.5.zip"),
+JARS = [("7.4.12", "lostcities-1.20-7.4.12.jar"),
+        ("7.5.1", "lostcities-1.20-7.5.1.jar"),
+        ("7.5.2", "lostcities-1.20-7.5.2.jar"),
+        ("7.5.3", "lostcities-1.20-7.5.3.jar"),
+        ("7.5.4", "lostcities-1.20-7.5.4.jar"),
+        ("7.5.5", "lostcities-1.20-7.5.5.jar"),
         ("7.5.6", "lostcities-1.20-7.5.6.jar")]
 
 # 7.4.12 is the only version where the two place mixins target `place` itself. The
@@ -182,8 +183,9 @@ def main():
     for version, jarname in JARS:
         jar = os.path.join(MODS, jarname)
         if not os.path.isfile(jar):
-            raise SystemExit("no %s. The Lost Cities jars are not ours to ship and "
-                             "research/ is gitignored." % jar)
+            raise SystemExit("no %s. The Lost Cities jars are not ours to ship; "
+                             "download each from CurseForge into testrig/downloads/."
+                             % jar)
 
         for cls, row_label, spec, invokes in TARGETS:
             short = cls.split(".")[-1]
