@@ -83,13 +83,16 @@ Two rules follow from that, and this site is written to both: <!-- noclaim -->
 
 ## The mod's own documentation
 
-Read it alongside this site. There are three places, and they are not the same: <!-- noclaim -->
+Read it alongside this site. Since August 2026 all of it is on mcjty.eu, including
+the reference that used to live in the mod's GitHub repository: <!-- noclaim -->
 
-| Source | What it is <!-- noclaim --> |
+| Page | What it is <!-- noclaim --> |
 |---|---|
-| [mcjty.eu/docs/mods/lost-cities](https://mcjty.eu/docs/mods/lost-cities) | The general mod documentation. |
-| [mcjty.eu asset-datapack page](https://www.mcjty.eu/docs/mods/lost-cities/asset-datapack) | The deeper page on the datapack asset system. |
-| [`docs/asset_structure.md` on GitHub](https://github.com/McJtyMods/LostCities/blob/1.20/docs/asset_structure.md) | A newer and much longer reference covering the datapack assets key by key. |
+| [Lost Cities](https://mcjty.eu/docs/mods/lost-cities) | Setup, and an index of the pages by Minecraft version. |
+| [Asset system](https://mcjty.eu/docs/mods/lost-cities/asset_structure) | The datapack assets key by key, for 1.20.1 and newer. |
+| [City generation](https://mcjty.eu/docs/mods/lost-cities/city_generation) | How chunks, streets, buildings, multibuildings and highways are chosen. |
+| [Profile options](https://mcjty.eu/docs/mods/lost-cities/profile_options) | Every profile option, and the in-game profile editor. |
+| [Asset DataPack System](https://mcjty.eu/docs/mods/lost-cities/asset-datapack) | Marked upstream as older, from the 1.18.2 era. |
 
 Those are the authoritative sources. This site adds depth on top of them and shows
 its working: each behaviour claim names the version it was checked against, and
