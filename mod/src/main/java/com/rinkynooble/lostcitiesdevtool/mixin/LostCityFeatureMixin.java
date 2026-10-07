@@ -80,7 +80,7 @@ public abstract class LostCityFeatureMixin {
     private static void lostcitiesdevtool$report(int chunkX, int chunkZ, IDimensionInfo provider) {
         Throwable fault = LastFault.take();
 
-        if (!Config.INSTANCE.detailedFaultReports.get()) {
+        if (!Config.detailedFaultReports()) {
             ErrorLogger.logChunkInfo(chunkX, chunkZ, provider);
             return;
         }

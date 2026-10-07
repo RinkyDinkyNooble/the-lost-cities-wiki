@@ -63,7 +63,7 @@ public abstract class BuildingInfoMixin {
                     target = "Ljava/util/Random;nextInt(II)I"),
             index = 1)
     private int lostcitiesdevtool$reachFullStreet(int bound) {
-        if (!Config.INSTANCE.fixFullStreetShape.get()) {
+        if (!Config.fixFullStreetShape()) {
             return bound;
         }
         // Restore the one the subtraction removed, and keep PARK excluded.
@@ -79,7 +79,7 @@ public abstract class BuildingInfoMixin {
                     target = "Ljava/lang/RuntimeException;<init>(Ljava/lang/String;)V"),
             index = 0)
     private String lostcitiesdevtool$nameTheBuilding(String message) {
-        if (!Config.INSTANCE.detailedFaultReports.get()) {
+        if (!Config.detailedFaultReports()) {
             return message;
         }
         BuildingInfo self = (BuildingInfo) (Object) this;

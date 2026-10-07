@@ -51,7 +51,7 @@ public abstract class LostCitySetupMixin implements ProfileListAccess {
 
     @Inject(method = "customize()V", remap = false, at = @At("HEAD"))
     private void lostcitiesdevtool$ensureProfiles(CallbackInfo ci) {
-        if (!Config.INSTANCE.fixCustomizeCrash.get() || profiles != null) {
+        if (!Config.fixCustomizeCrash() || profiles != null) {
             return;
         }
         // A list customize can add to, which the one Profiles returns may not be.

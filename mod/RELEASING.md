@@ -58,6 +58,7 @@ and uploading.
 ```bash
 cd ../..
 python mod/tools/check-rig.py
+python mod/tools/check-core.py
 python mod/tools/check-mixin-targets.py
 python mod/tools/check-mixin-applied.py
 python mod/tools/check-validator.py
@@ -92,8 +93,8 @@ python mod/tools/check-palette-pool.py
 python mod/tools/check-config.py
 ```
 
-There are 33. Seven need no server and finish in seconds each: `check-rig`,
-`check-mixin-targets`, `check-validator`, `check-layout`, `check-tags`,
+There are 34. Eight need no server and finish in seconds each: `check-rig`,
+`check-core`, `check-mixin-targets`, `check-validator`, `check-layout`, `check-tags`,
 `check-licence-text` and `check-profile-order`. The other 26 boot at least one
 apiece; most take about thirty seconds, `check-config` takes several minutes
 because it boots ten times, and a few boot two or three times. Run them one at a
@@ -137,6 +138,7 @@ and piping through `tail` reports `tail`'s status, which is always 0.
 - [ ] `check-layout`, growing a row moves nothing that already existed
 - [ ] `check-part-reuse`, identical levels share one part file
 - [ ] `check-tags`, a keep-list and a drop-list mean opposite things
+- [ ] `check-core`, `core/` compiles with no Minecraft, loader or Lost Cities on the classpath
 - [ ] `check-tag-export`, tagkeys reaches the export and notags turns it off
 - [ ] `check-conversions`, a narrower scope wins and adds to the wider
 - [ ] `check-export-plot`, one plot exports as a fragment with no world style

@@ -74,7 +74,7 @@ public class ServerEvents {
      */
     @SubscribeEvent
     public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
-        if (!Config.on(Config.INSTANCE.warnOnJson5Override, true)) {
+        if (!Config.warnOnJson5Override()) {
             return;
         }
         List<String> overrides = Json5Overrides.all();

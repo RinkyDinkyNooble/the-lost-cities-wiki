@@ -44,7 +44,7 @@ public abstract class LostCityTerrainFeatureMixin {
                     target = "Ljava/util/Random;nextInt(II)I"),
             index = 1)
     private int lostcitiesdevtool$reachFullStreet(int bound) {
-        if (!Config.INSTANCE.fixFullStreetShape.get()) {
+        if (!Config.fixFullStreetShape()) {
             return bound;
         }
         return FULL_STREET_BOUND;

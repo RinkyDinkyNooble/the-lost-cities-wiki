@@ -46,8 +46,8 @@ public abstract class FileToIdConverterMixin {
             ResourceManager manager,
             CallbackInfoReturnable<Map<ResourceLocation, Resource>> cir) {
 
-        boolean comments = Config.on(Config.INSTANCE.acceptCommentsAndTrailingCommas, true);
-        boolean extension = Config.on(Config.INSTANCE.acceptJson5Extension, true);
+        boolean comments = Config.acceptCommentsAndTrailingCommas();
+        boolean extension = Config.acceptJson5Extension();
         if (!comments && !extension) {
             return;
         }

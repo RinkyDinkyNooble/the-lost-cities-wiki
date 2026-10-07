@@ -22,10 +22,10 @@ public class ModEvents {
 
     @SubscribeEvent
     public static void onCommonSetup(FMLCommonSetupEvent event) {
-        // Read directly rather than through `Config.on`, deliberately. Common setup
-        // runs after the config file, so a user's `false` can actually turn this off
-        // here, where the early callers in Json5Listener have to assume the default.
-        if (!Config.INSTANCE.warnOnJson5Override.get()) {
+        // Common setup runs after the config file is read, so a user's `false` turns
+        // this off here, where the early callers in Json5Listener still see the
+        // default.
+        if (!Config.warnOnJson5Override()) {
             return;
         }
         List<String> profiles = Json5Overrides.profiles();

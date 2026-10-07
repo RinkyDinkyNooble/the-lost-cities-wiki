@@ -61,7 +61,7 @@ public class ClientEvents {
      */
     @SubscribeEvent
     public static void onMouseButtonPressed(ScreenEvent.MouseButtonPressed.Pre event) {
-        if (!Config.INSTANCE.rightClickCyclesProfilesBack.get()) {
+        if (!Config.rightClickCyclesProfilesBack()) {
             return;
         }
         if (event.getButton() != RIGHT_BUTTON) {
@@ -93,7 +93,7 @@ public class ClientEvents {
 
     @SubscribeEvent
     public static void onScreenRender(ScreenEvent.Render.Pre event) {
-        if (!Config.INSTANCE.anchorCitiesButton.get()) {
+        if (!Config.anchorCitiesButton()) {
             return;
         }
         Screen screen = event.getScreen();

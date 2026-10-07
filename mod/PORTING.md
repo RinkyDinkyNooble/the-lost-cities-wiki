@@ -7,8 +7,8 @@ touch the source, and where it does not.
 
 | Package | Depends on | On a port |
 |---|---|---|
-| `core` | Java, Gson, jsr305, slf4j | Moves unchanged. No `net.minecraft`, no loader, no Lost Cities import |
-| `platform` | Forge | Rewritten per loader: the `@Mod` entry, config spec, event wiring, version reads |
+| `core` | Java, Gson, jsr305, slf4j | Moves unchanged. No `net.minecraft`, no loader, no Lost Cities import; `tools/check-core.py` compiles it alone |
+| `platform` | Forge | Rewritten per loader: the `@Mod` entry, config spec, event wiring, version reads. Callers read settings through `Config`'s static getters, so a new config type stays here |
 | `mixin` | Lost Cities and Minecraft internals | Re-targeted per Lost Cities version. Run `tools/check-mixin-targets.py` first |
 | `json5` | Minecraft resources | Follows Minecraft's resource API. The text rules are `core/Json5Text` |
 | `workshop`, `validate`, `command`, `chat`, `client`, `diagnostics` | Minecraft and Lost Cities API | Follows the API; the logic they share with no game type is in `core` |

@@ -45,11 +45,11 @@ public class ValidationListener extends SimplePreparableReloadListener<List<Find
     @Override
     protected List<Finding> prepare(ResourceManager manager, ProfilerFiller profiler) {
         List<Finding> findings = new ArrayList<>();
-        if (!Config.INSTANCE.validateOnLoad.get()) {
+        if (!Config.validateOnLoad()) {
             return findings;
         }
 
-        boolean json5 = Config.on(Config.INSTANCE.acceptJson5Extension, true);
+        boolean json5 = Config.acceptJson5Extension();
         for (String kind : KINDS) {
             String folder = "lostcities/" + kind;
             // Keyed by the name on disk rather than the name the loader sees, so a
@@ -89,7 +89,7 @@ public class ValidationListener extends SimplePreparableReloadListener<List<Find
             // preserves offsets, so a line number found here still matches the file on
             // disk, comments and all.
             boolean relax = id.getPath().endsWith(Json5Text.EXT_JSON5)
-                    || Config.on(Config.INSTANCE.acceptCommentsAndTrailingCommas, true);
+                    || Config.acceptCommentsAndTrailingCommas();
             String forParsing = relax ? Json5Text.sanitise(raw) : raw;
             json = JsonParser.parseString(forParsing).getAsJsonObject();
         } catch (Exception e) {
@@ -110,7 +110,7 @@ public class ValidationListener extends SimplePreparableReloadListener<List<Find
     protected void apply(List<Finding> findings, ResourceManager manager,
                          ProfilerFiller profiler) {
         if (findings.isEmpty()) {
-            if (Config.INSTANCE.validateOnLoad.get()) {
+            if (Config.validateOnLoad()) {
                 LostCitiesDevTool.LOGGER.info(
                         "Lost Cities assets checked, nothing to report");
             }

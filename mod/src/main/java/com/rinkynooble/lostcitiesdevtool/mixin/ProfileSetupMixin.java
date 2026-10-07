@@ -48,7 +48,7 @@ public abstract class ProfileSetupMixin {
     private static File[] lostcitiesdevtool$listJson5Profiles(File directory,
                                                               FilenameFilter filter) {
         File[] json = directory.listFiles(filter);
-        if (!Config.on(Config.INSTANCE.acceptJson5Extension, true)) {
+        if (!Config.acceptJson5Extension()) {
             return json;
         }
         File[] json5 = directory.listFiles(
@@ -89,7 +89,7 @@ public abstract class ProfileSetupMixin {
             throws IOException {
         String raw = FileUtils.readFileToString(file, charset);
         boolean json5 = file.getName().endsWith(Json5Text.EXT_JSON5);
-        if (json5 || Config.on(Config.INSTANCE.acceptCommentsAndTrailingCommas, true)) {
+        if (json5 || Config.acceptCommentsAndTrailingCommas()) {
             return Json5Text.sanitise(raw);
         }
         return raw;

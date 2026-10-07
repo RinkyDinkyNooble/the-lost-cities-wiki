@@ -9,48 +9,52 @@ import org.apache.commons.lang3.tuple.Pair;
  * <p>{@code diagnostics} only changes what is reported, so every toggle in it
  * defaults to on. {@code repairs} changes what generates, so every toggle in it
  * defaults to off and has to be chosen deliberately.
+ *
+ * <p>Read through the static getters only. The fields are Forge's config type, so
+ * keeping them private keeps that type in {@code platform/}: a port to another
+ * loader rewrites this class and leaves every caller alone.
  */
 public class Config {
 
     public static final ForgeConfigSpec SPEC;
-    public static final Config INSTANCE;
+    private static final Config INSTANCE;
 
     // -- diagnostics, on by default -------------------------------------------
 
     /** Feature 1.1. Wraps the sphere feature in the catch the terrain feature has. */
-    public final ForgeConfigSpec.BooleanValue catchSphereFeatureErrors;
+    private final ForgeConfigSpec.BooleanValue catchSphereFeatureErrors;
 
     /** Features 1.2 and 1.3. A fuller report beside each caught generation fault. */
-    public final ForgeConfigSpec.BooleanValue detailedFaultReports;
+    private final ForgeConfigSpec.BooleanValue detailedFaultReports;
 
     /** Feature 1.4. Check every asset file when datapacks load. */
-    public final ForgeConfigSpec.BooleanValue validateOnLoad;
+    private final ForgeConfigSpec.BooleanValue validateOnLoad;
 
     /** Feature 2.1. Comments and trailing commas in Lost Cities asset files. */
-    public final ForgeConfigSpec.BooleanValue acceptCommentsAndTrailingCommas;
+    private final ForgeConfigSpec.BooleanValue acceptCommentsAndTrailingCommas;
 
     /** Feature 2.2. A Lost Cities asset or profile may be named .json5. */
-    public final ForgeConfigSpec.BooleanValue acceptJson5Extension;
+    private final ForgeConfigSpec.BooleanValue acceptJson5Extension;
 
     /** Feature 2.2. Report a .json that a .json5 of the same name is shadowing. */
-    public final ForgeConfigSpec.BooleanValue warnOnJson5Override;
+    private final ForgeConfigSpec.BooleanValue warnOnJson5Override;
 
     // -- repairs, off by default ----------------------------------------------
 
     /** Repair 3.1. Makes belowpart test the part below rather than the current one. */
-    public final ForgeConfigSpec.BooleanValue fixBelowPart;
+    private final ForgeConfigSpec.BooleanValue fixBelowPart;
 
     /** Repair 3.2. Makes the 'full' street shape reachable. */
-    public final ForgeConfigSpec.BooleanValue fixFullStreetShape;
+    private final ForgeConfigSpec.BooleanValue fixFullStreetShape;
 
     /** Repair 4.1. Keeps the Cities button anchored after a resize. Client only. */
-    public final ForgeConfigSpec.BooleanValue anchorCitiesButton;
+    private final ForgeConfigSpec.BooleanValue anchorCitiesButton;
 
     /** Repair 4.4. Stops the Customize button crashing after leaving a world. */
-    public final ForgeConfigSpec.BooleanValue fixCustomizeCrash;
+    private final ForgeConfigSpec.BooleanValue fixCustomizeCrash;
 
     /** Feature 4.2. Right-click the profile button to cycle backwards. Client only. */
-    public final ForgeConfigSpec.BooleanValue rightClickCyclesProfilesBack;
+    private final ForgeConfigSpec.BooleanValue rightClickCyclesProfilesBack;
 
     static {
         Pair<Config, ForgeConfigSpec> pair =
@@ -60,15 +64,59 @@ public class Config {
     }
 
     /**
-     * A toggle's value, or {@code fallback} if the file has not been read yet.
+     * A toggle's value, or its default if the file has not been read yet.
      *
      * <p>Lost Cities reads {@code config/lostcities/profiles} from its own
      * constructor, which runs before any mod's config is loaded, and asking a
-     * {@code ConfigValue} for its value before then throws. Every caller passes the
-     * toggle's own default, so the untimed pass behaves as a fresh install does.
+     * {@code ConfigValue} for its value before then throws. The default makes that
+     * early pass behave as a fresh install does.
      */
-    public static boolean on(ForgeConfigSpec.BooleanValue value, boolean fallback) {
-        return SPEC.isLoaded() ? value.get() : fallback;
+    private static boolean read(ForgeConfigSpec.BooleanValue value) {
+        return SPEC.isLoaded() ? value.get() : value.getDefault();
+    }
+
+    public static boolean catchSphereFeatureErrors() {
+        return read(INSTANCE.catchSphereFeatureErrors);
+    }
+
+    public static boolean detailedFaultReports() {
+        return read(INSTANCE.detailedFaultReports);
+    }
+
+    public static boolean validateOnLoad() {
+        return read(INSTANCE.validateOnLoad);
+    }
+
+    public static boolean acceptCommentsAndTrailingCommas() {
+        return read(INSTANCE.acceptCommentsAndTrailingCommas);
+    }
+
+    public static boolean acceptJson5Extension() {
+        return read(INSTANCE.acceptJson5Extension);
+    }
+
+    public static boolean warnOnJson5Override() {
+        return read(INSTANCE.warnOnJson5Override);
+    }
+
+    public static boolean fixBelowPart() {
+        return read(INSTANCE.fixBelowPart);
+    }
+
+    public static boolean fixFullStreetShape() {
+        return read(INSTANCE.fixFullStreetShape);
+    }
+
+    public static boolean anchorCitiesButton() {
+        return read(INSTANCE.anchorCitiesButton);
+    }
+
+    public static boolean fixCustomizeCrash() {
+        return read(INSTANCE.fixCustomizeCrash);
+    }
+
+    public static boolean rightClickCyclesProfilesBack() {
+        return read(INSTANCE.rightClickCyclesProfilesBack);
     }
 
     private Config(ForgeConfigSpec.Builder builder) {

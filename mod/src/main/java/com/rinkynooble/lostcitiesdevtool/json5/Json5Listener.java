@@ -30,7 +30,7 @@ public class Json5Listener extends SimplePreparableReloadListener<List<String>> 
     @Override
     protected List<String> prepare(ResourceManager manager, ProfilerFiller profiler) {
         List<String> overrides = new ArrayList<>();
-        if (!Config.on(Config.INSTANCE.acceptJson5Extension, true)) {
+        if (!Config.acceptJson5Extension()) {
             return overrides;
         }
         // Only the pairs where the .json5 is the one read. A .json in a later pack
@@ -53,7 +53,7 @@ public class Json5Listener extends SimplePreparableReloadListener<List<String>> 
     protected void apply(List<String> overrides, ResourceManager manager,
                          ProfilerFiller profiler) {
         Json5Overrides.setAssets(overrides);
-        if (overrides.isEmpty() || !Config.on(Config.INSTANCE.warnOnJson5Override, true)) {
+        if (overrides.isEmpty() || !Config.warnOnJson5Override()) {
             return;
         }
         LostCitiesDevTool.LOGGER.warn(describe(overrides));

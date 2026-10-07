@@ -48,7 +48,7 @@ public abstract class ConditionContextMixin {
                     target = "Lmcjty/lostcities/worldgen/lost/cityassets/ConditionContext;"
                             + "getPart()Ljava/lang/String;"))
     private static String lostcitiesdevtool$readBelowPart(ConditionContext context) {
-        if (!Config.INSTANCE.fixBelowPart.get()) {
+        if (!Config.fixBelowPart()) {
             return context.getPart();
         }
         return ((ConditionContextAccessor) context).lostcitiesdevtool$belowPart();

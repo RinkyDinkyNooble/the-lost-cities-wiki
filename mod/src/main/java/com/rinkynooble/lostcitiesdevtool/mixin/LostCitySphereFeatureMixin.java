@@ -79,7 +79,7 @@ public abstract class LostCitySphereFeatureMixin {
     private static void lostcitiesdevtool$guardSphereGeneration(
             LostCityTerrainFeature feature, WorldGenRegion region, ChunkAccess chunk) {
 
-        if (!Config.INSTANCE.catchSphereFeatureErrors.get()) {
+        if (!Config.catchSphereFeatureErrors()) {
             Spheres.generateSpheres(feature, region, chunk);
             return;
         }
