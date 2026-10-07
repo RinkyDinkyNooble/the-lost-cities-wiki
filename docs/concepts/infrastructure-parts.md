@@ -31,12 +31,12 @@ The single most common assumption is that each street shape is locked to exactly
 | Railways | **Yes**, list or single string | Uniform random |
 | Monorails | **No**, single string only | n/a |
 
-Passing a list to a monorail key is a datapack load error, not a silent fallback. [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+A list under a monorail key is not a longer row. On 1.20.1 it is read as no value, and the mod's own default part, such as `monorails_both`, takes its place without a word. From 1.21 the same list fails the datapack load. [code review](../examples/claim-tests.md#bhv-8){.v .v-c}
 
 !!! note "There is no weighting"
-    Unlike [building selectors](../reference/citystyle.md) or [Conditions](../reference/condition.md), these lists have no `factor` key. Every entry in the list is equally likely. If you want one variant to be rare, you cannot express that here, list it once among many common ones, or use a [Variant](../reference/variant.md) inside the palette instead (see [below](#varying-the-material-instead-of-the-part)).
+    Unlike [building selectors](../reference/citystyle.md) or [Conditions](../reference/condition.md), these lists have no `factor` key. Every entry in the list is equally likely, so the only way to make one variant rare here is to list it once among many common ones. A [Variant](../reference/variant.md) inside the palette weights blocks instead (see [below](#varying-the-material-instead-of-the-part)).
 
-Adjacent chunks roll independently, with no attempt to match neighbours. Two touching straight-street chunks can and often will pick different variants, so **variants need to line up seamlessly at chunk edges** or the seams will be obvious. Do not count on predicting which variant a given chunk gets before you visit it; once a chunk is generated it is saved, so it will not change afterward. [game test](../examples/claim-tests.md#cty-2){.v .v-g}
+Adjacent chunks roll independently, with no attempt to match neighbours. Two touching straight-street chunks can and often will pick different variants, so **variants have to line up at chunk edges** or the seams show. Which variant a chunk gets is not known until it generates, and once generated the chunk is saved and does not change. [game test](../examples/claim-tests.md#cty-2){.v .v-g}
 
 ## Where each override goes
 
@@ -202,20 +202,20 @@ A surface station gets one extra step. The mod flips a fair coin between the `st
 
 ## Rules your custom parts must follow
 
-!!! danger "A typo in a part name fails in two very different ways"
+!!! danger "A typo in a part name fails in two different ways"
     | Category | If the named part does not exist |
     |---|---|
-    | **Streets** | The mod logs a warning, and **that chunk simply gets no street layer**. There is no crash and no fallback, just a gap in the road. In a list of 3 where one name is wrong, roughly 1 in 3 of those street chunks silently comes out broken. |
+    | **Streets** | The mod logs a warning, and **that chunk gets no street layer**: no crash and no fallback, only a gap in the road. In a list of 3 where one name is wrong, roughly 1 in 3 of those street chunks silently comes out broken. |
     | **Highways, railways, monorails** | The mod throws and world generation stops. Loud, but at least obvious. |
 
-    There is never a fallback to the default part name. Check your spelling, and remember that a bare name means `lostcities:<name>`, so your own parts need your namespace. See [Namespaces](../getting-started/namespaces.md). [game test](../examples/claim-tests.md#cty-9){.v .v-g}
+    There is never a fallback to the default part name. A bare name means `lostcities:<name>`, so a part in your own namespace has to be named with it. See [Namespaces](../getting-started/namespaces.md). [game test](../examples/claim-tests.md#cty-9){.v .v-g}
 
 !!! warning "The silent warn-and-skip is wider than streets"
     Streets are the most visible case. The mod uses the same warn-and-skip lookup for every one of these:
 
     fountains, parks, stairs, rail dungeons, building fronts, and a city sphere's `centerpart`. [game test](../examples/claim-tests.md#cty-7){.v .v-g}
 
-    A wrong name in any of them produces `Cannot find '<name>' in minecraft:root!` as a log **warning** and then nothing at that spot. If a park or a fountain never appears and no error is raised, check the log before you check your selectors. [game test](../examples/claim-tests.md#cty-6){.v .v-g}
+    A wrong name in any of them produces `Cannot find '<name>' in minecraft:root!` as a log **warning** and then nothing at that spot. A park or a fountain that never appears, with no error raised, has left that warning in the log. [game test](../examples/claim-tests.md#cty-6){.v .v-g}
 
 **An infrastructure part must be exactly 16×16.** A street, highway, railway or monorail part fills its whole chunk, so anything else leaves gaps or corrupts. Larger than 16 is the dangerous case: a write past column 15 wraps back into the same chunk instead of spilling into the next one. All 32 default infrastructure parts are 16×16. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
@@ -229,7 +229,7 @@ For streets, the character that matters is the city style's `street`. Its `stree
 
 ## Varying the material instead of the part
 
-If the goal is "my streets look too repetitive," authoring several near-identical parts is usually the harder path. The [Style](../reference/style.md) and [Variant](../reference/variant.md) systems already randomize *blocks* underneath a single part: <!-- noclaim -->
+Streets that look too repetitive do not need several near-identical parts. The [Style](../reference/style.md) and [Variant](../reference/variant.md) systems already randomize *blocks* underneath a single part: <!-- noclaim -->
 
 ```json title="variants/blackstone.json (shipped with the mod)"
 {
@@ -241,16 +241,16 @@ If the goal is "my streets look too repetitive," authoring several near-identica
 }
 ```
 
-That gives per-block variation with weighting, which flat part lists cannot do, and it costs one file instead of several parts. Use part lists when the *shape* differs (a roundabout, a collapsed section, a checkpoint), and variants when only the *material* differs. [game test](../examples/claim-tests.md#pal-3){.v .v-g}
+That gives per-block variation with weighting, which flat part lists cannot do, and it costs one file instead of several parts. A part list is for a *shape* that differs (a roundabout, a collapsed section, a checkpoint), and a variant for a *material* that differs. [game test](../examples/claim-tests.md#pal-3){.v .v-g}
 
 !!! note "The mod ships zero examples of the list form"
-    None of the built-in world styles or city styles override these part names at all, they all run on exactly one variant per slot. The feature is real and present in the code, it just has no demonstration in the default content, which is why it is widely assumed not to exist.
+    None of the built-in world styles or city styles override these part names: each runs on exactly one variant per slot. The feature is in the code and nowhere in the default content.
 
 ## An inheritance trap for street parts
 
 City style `inherit` handles `streetblocks.parts` as one unit: writing **any** `parts` block at all, even a partial one, stops the parent's `parts` from being inherited. Keys you did not list fall back to the hardcoded defaults, not to the parent's overrides. [game test](../examples/claim-tests.md#cty-3){.v .v-g}
 
-If a parent city style overrides `full` and `bend`, and your child overrides only `full`, the child's `bend` reverts to the built-in `street_bend`, it does not keep the parent's. Restate every key you want to keep. See [City Style: Inheritance](../reference/citystyle.md#inheritance). [game test](../examples/claim-tests.md#cty-3){.v .v-g}
+If a parent city style overrides `full` and `bend`, and your child overrides only `full`, the child's `bend` reverts to the built-in `street_bend` rather than keeping the parent's. A child keeps a parent's street part only by restating it. See [City Style: Inheritance](../reference/citystyle.md#inheritance). [game test](../examples/claim-tests.md#cty-3){.v .v-g}
 
 ## See also
 

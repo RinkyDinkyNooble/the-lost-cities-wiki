@@ -66,8 +66,8 @@ the author's name attached to it. So the message names **both** places it looked
 says how to proceed: copyright is automatic, so treat the work as all rights reserved
 unless the author says otherwise, and ask before redistributing.
 
-Naming both paths is the part that earns its place. Where somebody does have a licence
-and it is not being found, that line is the only thing that says why.
+Naming both paths matters where somebody does have a licence and it is not being
+found: that line is the only thing that says why.
 
 !!! note "Importing the mod's own pack reports nothing found"
     `/lcdev import lostcities:standard` is what everybody runs first, and it reports
@@ -89,7 +89,7 @@ not ship with the credit stripped out.
 exactly the moment attribution should follow: lifting one building out of somebody's
 pack.
 
-Three things about how that works are worth knowing.
+Three details of how that works:
 
 | | |
 |---|---|

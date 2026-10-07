@@ -58,9 +58,17 @@ FOLDER_TYPE = {
 
 
 def richest_version(data):
-    """The version declaring the most keys. A key absent there is not a key."""
-    return max(data["versions"],
-               key=lambda v: sum(len(x) for x in data["versions"][v]["codec"].values()))
+    """The version declaring the most keys. A key absent there is not a key.
+
+    Codec and profile keys both count. Counting the codec alone picked the first of
+    several versions tied on it, and so measured profile coverage against a version
+    missing a profile key a later one of them declares.
+    """
+    def keys(v):
+        version = data["versions"][v]
+        return (sum(len(x) for x in version["codec"].values())
+                + len(version.get("profile", {})))
+    return max(data["versions"], key=keys)
 
 
 def walk_keys(node, out):
@@ -205,7 +213,9 @@ def main():
         print("\nEvery key the codecs and the profile declare appears in an "
               "example, apart from the %d client-only keys, which a headless "
               "server cannot show." % len(prof_client))
-    return 0
+    # The CI step runs this without --missing and reads the exit code. Returning 0
+    # whatever was found made the step one that could not fail.
+    return 1 if (missing_names or prof_missing or own_gaps) else 0
 
 
 if __name__ == "__main__":

@@ -22,7 +22,7 @@ For a single chunk, roughly in this order: [code review](../examples/claim-tests
 6. **Damage, ruins and debris.** See [Damage, Ruins & Explosions](damage-and-ruins.md). This step runs against the fully placed chunk.
 7. **Flush to the world**, then a last pass adds vine overgrowth and anything else deferred by a tick. [code review](../examples/claim-tests.md#pipe-1){.v .v-c}
 
-Because step 6 runs last, ruin and explosion damage can never influence which part, floor or building variant was selected. That decision is long finished by the time anything breaks. A rare, expensive loot-tier part can roll, generate in full, and then get partially blown up by an explosion in the same chunk. Expected, not a bug in either system. [code review](../examples/claim-tests.md#pipe-1){.v .v-c}
+Because step 6 runs last, ruin and explosion damage can never influence which part, floor or building variant was selected. That decision is long finished by the time anything breaks. A rare, expensive loot-tier part can roll, generate in full, and then get partially blown up by an explosion in the same chunk. That is expected, and not a bug in either system. [code review](../examples/claim-tests.md#pipe-1){.v .v-c}
 
 ### Inside step 2, for a city chunk
 
@@ -35,7 +35,7 @@ generateBuilding -> generateStreet -> generateRuins -> highway levels
 
 Ruins therefore happen **inside step 2**, not in step 6 with the explosions. Everything after `generateRuins` in that list lands on an already-ruined building and is not itself ruined: street decorations, highways, rubble and stuff objects all survive intact. [code review](../examples/claim-tests.md#pipe-2){.v .v-c}
 
-Explosion damage in step 6 is the opposite. It runs after all of the above and damages whatever it finds. That is the real difference between the two systems, and the reason to keep them apart in your head even though they are usually described together. [code review](../examples/claim-tests.md#pipe-2){.v .v-c}
+Explosion damage in step 6 is the opposite. It runs after all of the above and damages whatever it finds. That is the difference between the two systems, which are usually described together. [code review](../examples/claim-tests.md#pipe-2){.v .v-c}
 
 ## From a part's characters to placed blocks
 

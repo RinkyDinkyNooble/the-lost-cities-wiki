@@ -34,7 +34,7 @@ In either mode, being near spawn can scale the effective city factor down throug
 
 ### Blending city styles at the edges
 
-`cityStyleThreshold` and `cityStyleAlternative` let a city's outer, weaker-factor edge use a **different, usually sparser** city style than its dense core. One city, two looks, and a transition from downtown to outskirts instead of a hard edge. Leaving `cityStyleThreshold` at its default of `-1` disables this and uses one style throughout. [code review](../examples/claim-tests.md#city-2){.v .v-c}
+`cityStyleThreshold` and `cityStyleAlternative` let a city's outer, weaker-factor edge use a **different, usually sparser** city style than its dense core. One city gets two looks, with a transition from downtown to outskirts instead of a hard edge. Leaving `cityStyleThreshold` at its default of `-1` disables this and uses one style throughout. [code review](../examples/claim-tests.md#city-2){.v .v-c}
 
 ## City level: terrain height decides building scale
 

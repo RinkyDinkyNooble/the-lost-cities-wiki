@@ -245,8 +245,8 @@ Fog and horizon, applied only for a player who also has the mod. [game test](../
 | Dimension wiring | `additionalDimensions`, `<numeric id>:<profile>` | `dimensionsWithProfiles`, `<dimension id>=<profile>` |
 [game test](../examples/claim-tests.md#f12-8){.v .v-g}
 
-Key names overlap heavily between the eras and the file holding them does not, so
-treat a matching name as worth checking rather than as a guarantee. [code review](../examples/claim-tests.md#f12-8){.v .v-c}
+Key names overlap heavily between the eras and the file holding them does not, so a
+matching name is a coincidence, not a guarantee. [code review](../examples/claim-tests.md#f12-8){.v .v-c}
 
 ## See also
 

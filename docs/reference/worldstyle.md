@@ -21,7 +21,7 @@ claims: verified
 
 | Key | Required | Meaning [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|---|
-| `outsidestyle` | **yes** | The name of a [Style](style.md) used for terrain outside cities. Any chunk that is not a city chunk compiles its palette from this style, so a character your pack uses **outside** a building has to be defined here as well as in the city style's `style`. A city sphere's shell is the case that catches people: it is drawn on non-city chunks, and a shell character missing from the outside style takes the **server** down with a bare null pointer during feature placement. [game test](../examples/claim-tests.md#bhv-5){.v .v-g} |
+| `outsidestyle` | **yes** | The name of a [Style](style.md) used for terrain outside cities. Any chunk that is not a city chunk compiles its palette from this style, so a character your pack uses **outside** a building has to be defined here as well as in the city style's `style`. A city sphere's shell is drawn on non-city chunks, so a shell character missing from the outside style takes the **server** down with a bare null pointer during feature placement. [game test](../examples/claim-tests.md#bhv-5){.v .v-g} |
 | `citystyles` | **yes** | A list of `{factor, citystyle, biomes}` entries. Weighted, optionally biome-limited picks of which [City Style](citystyle.md) to use. An entry whose `biomes` matcher rejects the chunk is not a candidate there, so a style can be confined to a biome without touching any other file. [game test](../examples/claim-tests.md#mat-1){.v .v-g} |
 | `multisettings` | no | Multi-building placement tuning. See [below](#multisettings). |
 | `settings` | no | `railwayavoidance`, `railpartheight6`, and the four vine block states. See [below](#settings). |

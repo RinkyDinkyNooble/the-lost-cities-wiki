@@ -5,7 +5,7 @@ claims: verified
 # Damage, Ruins & Explosions
 
 !!! info "You do not need this page to build a custom city"
-    Everything required to author content lives in [Reference](../reference/profile.md) and [Concepts](../concepts/matchers.md). This page covers the mechanism behind keys you are already setting on the Profile page, for tuning them with intent rather than by trial and error. <!-- noclaim -->
+    Everything required to author content lives in [Reference](../reference/profile.md) and [Concepts](../concepts/matchers.md). This page covers the mechanism behind keys set on the Profile page. <!-- noclaim -->
 
 !!! tip "TL;DR"
     Each chunk independently rolls for explosions, then breaks blocks around each centre. `notbreakable`-tagged blocks never break and `easybreakable`-tagged ones break more easily. Ruins are a separate destruction pass on top of a fully placed building. Both run after part selection has finished. [code review](../examples/claim-tests.md#dmg-1){.v .v-c} [code review](../examples/claim-tests.md#pipe-2){.v .v-c}
@@ -30,7 +30,7 @@ Whether a block breaks under nearby damage is not a flat roll. Block identity ma
 When a block does break, the palette entry's `damaged` key decides what it becomes: rubble, a broken variant, or whatever else was authored there. A character with no `damaged` value breaks to air. [game test](../examples/claim-tests.md#pal-13){.v .v-g}
 
 !!! warning "`damaged` covers the rubble band, not the ruined section"
-    Measured rather than assumed, and narrower than this page once claimed. See [Palette Reference](../reference/palette.md). [game test](../examples/claim-tests.md#pal-13){.v .v-g}
+    Measured on the rig. [Palette Reference](../reference/palette.md) has the band it covers. [game test](../examples/claim-tests.md#pal-13){.v .v-g}
 
 ## Debris spreads into neighbouring chunks
 

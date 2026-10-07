@@ -54,14 +54,13 @@ A chunk compiles its palette from one or the other, never from both, so a charac
 defined in only one of them resolves in half the world and is undefined in the rest. [game test](../examples/claim-tests.md#bhv-5){.v .v-g}
 
 !!! danger "A city sphere's shell is drawn on non-city chunks"
-    Which makes it the case that catches people out. The shell character comes from
-    the city style, and it is placed on chunks that resolve against the **outside**
+    The shell character comes from the city style, and it is placed on chunks that resolve against the **outside**
     style. Define it only in the city style's `style` and the lookup returns null,
     and the sphere feature has no null check: the **server** goes down with a bare
     `NullPointerException` during feature placement, naming no file, no part and no
     character. [game test](../examples/claim-tests.md#bhv-5){.v .v-g}
 
-    A pack that uses its own characters anywhere outside a building wants the same
+    A pack that uses its own characters anywhere outside a building needs the same
     palette layered into both styles. [game test](../examples/claim-tests.md#bhv-5){.v .v-g}
 
 ## When the roll happens

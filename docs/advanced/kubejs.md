@@ -8,7 +8,7 @@ claims: verified
     This page covers loading Lost Cities assets through KubeJS instead of a datapack folder. Scripted generation and calling commands from generated content are not covered. <!-- noclaim -->
 
 !!! tip "TL;DR"
-    Lost Cities content is loaded through Minecraft's normal datapack registry system, and KubeJS merges anything under `kubejs/data/` into that same system. Drop your Lost Cities JSON there, no scripting, no separate datapack folder to manage. [code review](../examples/claim-tests.md#kjs-1){.v .v-c} [game test](../examples/claim-tests.md#kjs-2){.v .v-g}
+    Lost Cities content is loaded through Minecraft's normal datapack registry system, and KubeJS merges anything under `kubejs/data/` into that same system. Lost Cities JSON placed there loads with no scripting and no separate datapack folder. [code review](../examples/claim-tests.md#kjs-1){.v .v-c} [game test](../examples/claim-tests.md#kjs-2){.v .v-g}
 
 ## Why this works
 
@@ -20,7 +20,7 @@ KubeJS's `data` folder is one such source, and it needs no separate datapack zip
 kubejs/data/<namespace>/lostcities/worldstyles/mystyle.json
 ```
 
-Same file, same content, same rules as writing it directly into a datapack. [game test](../examples/claim-tests.md#kjs-2){.v .v-g}
+It is the same file under the same rules as in a datapack. [game test](../examples/claim-tests.md#kjs-2){.v .v-g}
 
 ## The namespace is the folder you choose
 

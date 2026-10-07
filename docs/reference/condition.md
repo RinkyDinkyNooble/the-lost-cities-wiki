@@ -52,7 +52,9 @@ A Condition entry and a Building part entry accept the same 13 test keys. [code 
 
 Every key is optional. [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 
-**Setting several keys on one entry means all of them must pass.** The mod chains tests with a logical AND and never with an OR. To express "either A or B", write two separate entries. [game test](../examples/claim-tests.md#cnd-1){.v .v-g}
+A test written with the wrong type, such as `"top": "yes"`, counts as absent on Minecraft 1.20.1 and fails the datapack load from 1.21. See [Building](building.md#part-references) for what each type reads. [code review](../examples/claim-tests.md#bhv-9){.v .v-c}
+
+**Setting several keys on one entry means all of them must pass.** The mod chains tests with a logical AND and never with an OR, so "either A or B" takes two separate entries. [game test](../examples/claim-tests.md#cnd-1){.v .v-g}
 
 An entry with no test keys always matches. That is the standard way to write a fallback. An unconditioned entry guarantees that something always matches, which is what prevents the [missing-part failure](building.md#floor-coverage-the-most-common-failure) on a building. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
@@ -64,8 +66,7 @@ An entry with no test keys always matches. That is the standard way to write a f
     mod builds for `belowpart` calls `getPart()`, which is the same method the
     `inpart` predicate calls. The two tests are identical.
 
-    So `belowpart` is not a weaker version of what this page used to describe. It is
-    `inpart` under a second name. [game test](../examples/claim-tests.md#cnd-4){.v .v-g} [code review](../examples/claim-tests.md#ref-2){.v .v-c}
+    So `belowpart` is `inpart` under a second name. [game test](../examples/claim-tests.md#cnd-4){.v .v-g} [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
     Present in **7.4.12, 7.5.1, 8.4.1, 9.5.1 and 10.0.1**. Version 8.2.2 does not
     declare the key at all, which is the only release where writing it is an error
@@ -93,10 +94,10 @@ part to use, so there is no current part yet. [code review](../examples/claim-te
 literal `<none>`.** Any entry carrying one is dead, and if the floors it was meant
 to cover have no other entry, every chunk holding that building fails. [game test](../examples/claim-tests.md#cnd-5){.v .v-g}
 
-Use `floor`, `range`, `ground` and `top` to select parts by height. They are the
+`floor`, `range`, `ground` and `top` select parts by height, and they are the
 only level tests that work in a building. [game test](../examples/claim-tests.md#cnd-1){.v .v-g}
 
-`inpart` is genuinely useful in a Condition reached from a palette, which is where
+`inpart` does work in a Condition reached from a palette, which is where
 the mod's own content uses this family of keys. Confirmed in game on 7.4.12: a
 palette `loot` key pointing at a Condition whose only matching entry was gated
 `inpart` resolved to that entry's table, so the real part name does reach it. [game test](../examples/claim-tests.md#cnd-6){.v .v-g}
@@ -130,7 +131,7 @@ Both ends are included, so this matches floor indices 9, 10, 11 and 12. Negative
     The last row is the dangerous one. A third number produces no error and no log line, and the floor range you get is not the one you wrote. [game test](../examples/claim-tests.md#cnd-3){.v .v-g}
 
 !!! note "`l1` and `l2` are not something you type"
-    The names `l1` and `l2` appear only in the mod's error message, `Bad range specification: <l1>,<l2>!`, where they stand in for the two numbers. Write real integers.
+    The names `l1` and `l2` appear only in the mod's error message, `Bad range specification: <l1>,<l2>!`, where they stand in for the two numbers.
 
 ## Example
 

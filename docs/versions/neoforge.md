@@ -21,10 +21,9 @@ does not say. <!-- noclaim -->
     key names, types, defaults, minimums and maximums, and datapack codec keys with
     their required or optional status. Those are machine-compared and identical. [code review](../examples/claim-tests.md#key-1){.v .v-c}
 
-    Runtime behaviour on the NeoForge line **has** now been run on all four
-    versions: 8.2.2 and 8.4.1 on Minecraft 1.21, 9.5.1 on Minecraft 1.21.11, and
-    10.0.1 on Minecraft 26.1.2. Nothing on this page is inferred from a key set any
-    more. 8.4.1, 9.5.1 and 10.0.1 match the Forge line at the same feature level
+    Runtime behaviour on the NeoForge line has been run on all four versions: 8.2.2
+    and 8.4.1 on Minecraft 1.21, 9.5.1 on Minecraft 1.21.11, and 10.0.1 on Minecraft
+    26.1.2, so nothing on this page is inferred from a key set. 8.4.1, 9.5.1 and 10.0.1 match the Forge line at the same feature level
     with the counts identical. 8.2.2 matches 7.4.12 rather than 7.5.1. [game test](../examples/claim-tests.md#neo-1){.v .v-g} [game test](../examples/claim-tests.md#ver-7){.v .v-g} [game test](../examples/claim-tests.md#ver-11){.v .v-g}
 
 ## The versions
@@ -38,10 +37,10 @@ does not say. <!-- noclaim -->
 
 ## 8.4.1 and later match 7.5.1 exactly
 
-On 8.4.1, 9.5.1 or 10.0.1 the mod's configuration surface is identical to 7.5.1 on
-Minecraft 1.20.1. [code review](../examples/claim-tests.md#key-1){.v .v-c}
+The configuration surface of 8.4.1, 9.5.1 and 10.0.1 is identical to the one 7.5.1
+has on Minecraft 1.20.1. [code review](../examples/claim-tests.md#key-1){.v .v-c}
 
-Compared by extracting every key from each jar and diffing the complete sets. The
+The comparison extracts every key from each jar and diffs the complete sets. The
 extraction is `docs/examples/mod-keys.json` and the comparison runs on every build,
 so this claim fails the CI gate if it stops being true. [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 
@@ -51,8 +50,8 @@ so this claim fails the CI gate if it stops being true. [code review](../example
 | Datapack keys | The same 268 keys, each required or optional in the same way |
 [code review](../examples/claim-tests.md#key-1){.v .v-c}
 
-Read this wiki, then [What changed in 7.5](7-5.md), and the picture is complete.
-The hierarchical road system and its 29 profile keys are declared the same way
+This wiki and [What changed in 7.5](7-5.md) together cover these versions. The
+hierarchical road system and its 29 profile keys are declared the same way
 here. [code review](../examples/claim-tests.md#key-1){.v .v-c} [game test](../examples/claim-tests.md#neo-1){.v .v-g}
 
 ### The one internal rename
@@ -101,7 +100,7 @@ above. Three of the four differences from 7.4.12 are one missing key each. [game
 
 The two count changes each trace to one key 8.2.2 does not declare, `overrideFloors`
 and `frontchance`. Both are ignored rather than rejected, so the pack loads and
-quietly does something else. [game test](../examples/claim-tests.md#ver-9){.v .v-g}
+silently does something else. [game test](../examples/claim-tests.md#ver-9){.v .v-g}
 
 Scattered buildings are a different matter: every key the pack uses is declared on
 8.2.2, and it still places nothing. 8.2.2 generates them from
@@ -158,8 +157,8 @@ on all of them. [game test](../examples/claim-tests.md#ver-11){.v .v-g}
 !!! warning "A datapack written against this wiki loads on 8.2.2 and does less"
     23 of the keys this wiki documents do not exist there. They are **ignored**
     rather than rejected, so the pack loads, no message appears, and the behaviour
-    those keys asked for never happens. Move to 8.4.1 or later, or check each key
-    against the list below. [game test](../examples/claim-tests.md#key-2){.v .v-g} [code review](../examples/claim-tests.md#key-1){.v .v-c}
+    those keys asked for never happens. 8.4.1 and later declare them; on 8.2.2 each
+    key has to be checked against the list below. [game test](../examples/claim-tests.md#key-2){.v .v-g} [code review](../examples/claim-tests.md#key-1){.v .v-c}
 
 Datapack keys present in 7.4.12 and absent in 8.2.2: <!-- noclaim -->
 
@@ -204,20 +203,19 @@ to find it by name. [code review](../examples/claim-tests.md#key-1){.v .v-c}
     8.2.2 and 8.4.1 carry the same `1.21` label and the same NeoForge requirement,
     `[21.0,)`. They disagree about this folder: 8.2.2 uses the plural form and 8.4.1
     the singular. Minecraft adopted the singular in a later 1.21 release, so 8.4.1
-    targets that release or newer whatever its label says. Check the CurseForge
-    listing before assuming either runs on your exact version. [code review](../examples/claim-tests.md#key-1){.v .v-c}
+    targets that release or newer whatever its label says. Neither label settles
+    which exact release a jar runs on. [code review](../examples/claim-tests.md#key-1){.v .v-c}
 
 The path to the mod's **own** assets is unaffected and stays
 `data/<namespace>/lostcities/<type>/<name>.json` on every version in the datapack
 era. [code review](../examples/claim-tests.md#key-1){.v .v-c}
 
-## Blocks, not keys, are the real upgrade risk
+## Blocks, not keys, are the upgrade risk
 
 The asset format stopped changing after 7.5.1. Minecraft did not. A palette naming
 a block that was renamed or removed between Minecraft 1.20.1 and Minecraft 26.1
 fails on the newer version even though the file is structurally valid. [code review](../examples/claim-tests.md#key-1){.v .v-c}
 
-That failure is not gentle. A block name the game cannot resolve takes the **whole
-palette** down, not the one entry, which is the same mechanism as the `@meta`
-suffix bug. Check palettes against the target Minecraft version before assuming a
-datapack carries over. [game test](../examples/claim-tests.md#prf-1){.v .v-g}
+A block name the game cannot resolve takes the **whole palette** down, not the one
+entry, which is the same mechanism as the `@meta` suffix bug. A datapack carries
+over only once its palettes hold up against the target Minecraft version. [game test](../examples/claim-tests.md#prf-1){.v .v-g}

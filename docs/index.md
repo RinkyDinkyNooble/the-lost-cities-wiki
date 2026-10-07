@@ -21,11 +21,11 @@ Anyone building a custom city for their own modpack or server. You do not need J
 
 ## Scope
 
-Pages are written against Lost Cities **7.4.12** for **Minecraft 1.20.1** on Forge, and most claims were read out of that version's own code and shipped content. A growing number have also been run in a world, and those are listed on [Claim Tests](examples/claim-tests.md). [code review](examples/claim-tests.md#ref-2){.v .v-c}
+Pages are written against Lost Cities **7.4.12** for **Minecraft 1.20.1** on Forge, and most claims were read out of that version's own code and shipped content. Those also run in a world are listed on [Claim Tests](examples/claim-tests.md). [code review](examples/claim-tests.md#ref-2){.v .v-c}
 
 The claim-test pack written for 7.4.12 also passes unchanged on **7.5.1**, so the two share the same datapack behaviour even though 7.5 changed where cities put things. [game test](examples/claim-tests.md#ver-1){.v .v-g}
 
-The NeoForge line is no longer inferred. Every version below has been booted on the [test rig](examples/claim-tests.md#how-a-game-test-on-this-page-is-run) and had its blocks read back out of the world, so a version-specific statement here rests on a run rather than on a key set. [game test](examples/claim-tests.md#neo-1){.v .v-g}
+Every version below, the NeoForge line included, has been booted on the [test rig](examples/claim-tests.md#how-a-game-test-on-this-page-is-run) and had its blocks read back out of the world, so a version-specific statement here rests on a run rather than on a key set. [game test](examples/claim-tests.md#neo-1){.v .v-g}
 
 | Target | State |
 |---|---|
@@ -49,7 +49,7 @@ a link to the evidence in [the claim register](examples/claim-tests.md#the-claim
 |---|---|
 | [game test](examples/claim-tests.md#ref-1){.v .v-g} | Run on a headless Forge server against a named pack, with the blocks read back out of the world. The strongest evidence here |
 | [code review](examples/claim-tests.md#ref-2){.v .v-c} | Read out of the compiled jar of the named version, with the class and method named |
-| [unverified](examples/claim-tests.md#ref-3){.v .v-u} | Neither. Not a synonym for false, and not a synonym for unknown: it is a statement about the evidence |
+| [unverified](examples/claim-tests.md#ref-3){.v .v-u} | Neither has been done. The chip rates the evidence, so it says nothing either way about whether the statement is true |
 
 A claim may be both game tested and code reviewed. It may not be unverified and
 anything else at once. **The mod's own documentation and the official wiki count as
@@ -83,13 +83,16 @@ Two rules follow from that, and this site is written to both: <!-- noclaim -->
 
 ## The mod's own documentation
 
-Read it alongside this site. There are three places, and they are not the same: <!-- noclaim -->
+Read it alongside this site. Since August 2026 all of it is on mcjty.eu, including
+the reference that used to live in the mod's GitHub repository: <!-- noclaim -->
 
-| Source | What it is <!-- noclaim --> |
+| Page | What it is <!-- noclaim --> |
 |---|---|
-| [mcjty.eu/docs/mods/lost-cities](https://mcjty.eu/docs/mods/lost-cities) | The general mod documentation. |
-| [mcjty.eu asset-datapack page](https://www.mcjty.eu/docs/mods/lost-cities/asset-datapack) | The deeper page on the datapack asset system. |
-| [`docs/asset_structure.md` on GitHub](https://github.com/McJtyMods/LostCities/blob/1.20/docs/asset_structure.md) | A newer and much longer reference covering the datapack assets key by key. |
+| [Lost Cities](https://mcjty.eu/docs/mods/lost-cities) | Setup, and an index of the pages by Minecraft version. |
+| [Asset system](https://mcjty.eu/docs/mods/lost-cities/asset_structure) | The datapack assets key by key, for 1.20.1 and newer. |
+| [City generation](https://mcjty.eu/docs/mods/lost-cities/city_generation) | How chunks, streets, buildings, multibuildings and highways are chosen. |
+| [Profile options](https://mcjty.eu/docs/mods/lost-cities/profile_options) | Every profile option, and the in-game profile editor. |
+| [Asset DataPack System](https://mcjty.eu/docs/mods/lost-cities/asset-datapack) | Marked upstream as older, from the 1.18.2 era. |
 
 Those are the authoritative sources. This site adds depth on top of them and shows
 its working: each behaviour claim names the version it was checked against, and

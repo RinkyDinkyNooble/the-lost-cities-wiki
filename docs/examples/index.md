@@ -117,8 +117,9 @@ What it catches in a datapack, and where each rule is documented: <!-- noclaim -
 | Parts are 16×16, every row exactly `xsize` **UTF-16 units** long | [Part](../reference/part.md#the-shape-of-slices) |
 | `meta`, not `metadata` | [Part](../reference/part.md#meta) |
 | Buildings have `filler` | [Building](../reference/building.md#filler-what-it-is-and-why-it-is-required) |
-| Every level from `-cellars` to `maxfloors` matches a part | [Building](../reference/building.md#floor-coverage-the-most-common-failure) |
+| Every level from `-cellars` to the top matches a part, at every height the bounds allow | [Building](../reference/building.md#floor-coverage-the-most-common-failure) |
 | `range` parses as two integers | [Condition](../reference/condition.md#writing-range) |
+| A level test holds the type its key reads | [Building](../reference/building.md#part-references) |
 | `inpart` and `belowpart` are not used in a building's `parts` | [Condition](../reference/condition.md#belowpart-and-inpart-in-a-building) |
 | Floor and cellar bounds inside their windows | [Building](../reference/building.md) |
 | `filler` and `rubble` resolve in the **building's** palette | [Building](../reference/building.md#filler-what-it-is-and-why-it-is-required) |

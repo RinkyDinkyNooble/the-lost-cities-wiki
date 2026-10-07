@@ -1,14 +1,11 @@
 ---
 claims: verified
----
-
----
 status: in-progress
 ---
 
 # Editing & Tooling
 
-!!! info "There is now a fourth route"
+!!! info "A fourth route: the DevTool's workshop"
     [The Lost Cities - DevTool](lcdev.md) adds a workshop dimension: build in it, run one command, and it writes a whole datapack. It goes the other way too, pasting a loaded pack back into the world to edit. It is covered on [The DevTool Commands](lcdev.md) rather than here, because none of it is Lost Cities behaviour. <!-- noclaim -->
 
 Four ways to author parts, in rough order of how much hand-editing each involves: <!-- noclaim -->
@@ -20,7 +17,7 @@ Four ways to author parts, in rough order of how much hand-editing each involves
 | **Build normally, then convert** | large or detailed structures, reusing existing builds | needs an external tool |
 | **[The DevTool's workshop](lcdev.md)** | a whole pack at once, and opening a pack you already have | a second mod, and it targets one Lost Cities version at a time |
 
-Whichever you use, **keep the JSON as your source of truth.** Every in-game path exports to JSON eventually, and the export is lossy in one specific way documented below. <!-- noclaim -->
+**The JSON is the source of truth whichever route is used.** Every in-game path exports to JSON eventually, and the export is lossy in one specific way documented below. <!-- noclaim -->
 
 ## In-game edit mode
 
@@ -38,7 +35,7 @@ Set `editMode: true` in your [profile](../reference/profile.md)'s `lostcity` sec
 !!! warning "It has to be set before the world is created"
     Turning `editMode` on for an existing world does not work retroactively. Edit mode makes the generator record which part it placed at which position as it generates; a world built without it has no such record, and every editor command below will refuse with *"Could not find a part to edit in this chunk!"*
 
-    Make a separate throwaway world for editing. That is the intended workflow, not a limitation to route around. <!-- noclaim -->
+    Editing therefore takes a world created for it. <!-- noclaim -->
 
 ### The commands
 
@@ -62,33 +59,33 @@ Both `editpart` and `resumeedit` find the part by looking at your Y position: th
 
     `resumeedit` re-attaches to the same part and leaves the world exactly as it is. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-    **Use `resumeedit` unless you specifically want to throw your changes away and start from the saved file.** <!-- noclaim -->
+    **Of the two, only `editpart` throws the changes away and starts again from the saved file.** <!-- noclaim -->
 
 !!! danger "The editing session lives in server memory only"
     It is a map keyed by player UUID, held in RAM. It is not written to disk and does not survive a server restart, a world reload, or a crash. Restarting means re-running `resumeedit` to re-attach, and if you had been editing without exporting, the world still has your blocks but the mod no longer knows they belong to a part.
 
-    **Export early and often.** `exportpart` is the only thing that makes work durable. <!-- noclaim -->
+    **`exportpart` is the only thing that makes work durable.** <!-- noclaim -->
 
 !!! danger "Export collapses two characters that map to the same block"
     `exportpart` works backwards from block states to characters using a reverse lookup, one block state to one character. If your palette deliberately maps two different characters to the same block, for example one plain and one carrying a `loot` table, a `mob`, or an NBT `tag`, the export cannot tell them apart and picks one.
 
-    You lose the distinction silently, and the exported part looks correct. If your part depends on such a pair, re-apply it to the exported JSON by hand, or do not round-trip that part through the editor at all. [code review](../examples/claim-tests.md#exp-1){.v .v-c}
+    The distinction is lost silently, and the exported part looks correct. A part that depends on such a pair has to have it re-applied to the exported JSON by hand, or stay out of the editor. [code review](../examples/claim-tests.md#exp-1){.v .v-c}
 
-### What export actually produces
+### What export produces
 
 `exportpart <file>` writes UTF-8 JSON to the given filename in the server's working directory, containing: [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
 - `exportedpart`, the part itself, ready to drop into `parts/`
 - `missingpalette`, only when it found block states not in the palette, listing them as ready-made palette entries with auto-assigned characters [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-That second key is genuinely useful: it means you can build with any blocks you like and the export tells you exactly what palette entries you still need. Characters are assigned from ASCII first, then Greek, then Cyrillic, skipping anything already taken. Same pool documented at [Which characters to actually pick](../reference/palette.md#which-characters-to-pick). [code review](../examples/claim-tests.md#ref-2){.v .v-c}
+With that second key, a part can be built from any blocks and the export lists the palette entries still missing. Characters are assigned from ASCII first, then Greek, then Cyrillic, skipping anything already taken, which is the pool documented at [Which characters to pick](../reference/palette.md#which-characters-to-pick). [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
 The output is not a drop-in file: you still need to move `exportedpart` into `data/<namespace>/lostcities/parts/<name>.json` and merge `missingpalette` into a real palette. <!-- noclaim -->
 
 ## Building normally, then converting
 
 !!! warning "The mod cannot read a schematic, a structure block file, or an `.nbt`"
-    There is no import command and no import path. The mod reads part JSON and nothing else. If you have a build you want to turn into a part, nothing you do can involve handing Lost Cities the file: [code review](../examples/claim-tests.md#ref-2){.v .v-c}
+    There is no import command and no import path. The mod reads part JSON and nothing else, so a build becomes a part in one of two ways, and neither hands Lost Cities the file: [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
     1. **`/lostcities exportpart`**, which reads the blocks already in the world and writes part JSON for you. This is the only conversion the mod itself performs, and it needs a world created with `editMode: true`. It is covered above.
     2. **An external converter**, which reads your schematic and writes the JSON. Nothing about that path involves the mod. [code review](../examples/claim-tests.md#ref-2){.v .v-c}

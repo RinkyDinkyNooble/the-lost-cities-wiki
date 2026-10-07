@@ -46,7 +46,7 @@ writes tens of thousands of blocks, and reads and writes files beside your world
 
 ## On a server
 
-Safe to use, with three things worth knowing.
+Safe to use, with three caveats.
 
 | | |
 |---|---|
@@ -160,7 +160,7 @@ Two rows behave differently on purpose:
 
 | Row | Behaviour | Why |
 |---|---|---|
-| The three `monorail/` rows | Stay at one plot, and `grow` refuses | Their codec takes a single name, so a list there is a load error rather than a longer row |
+| The three `monorail/` rows | Stay at one plot, and `grow` refuses | Their codec takes a single name. A list there is not a longer row: Lost Cities reads it as no value and uses its own default part |
 | `multibuilding/` above 3x3 | Declared with no plots until grown | A row reserves its band whether or not it holds plots, so growing one moves nothing that already exists. What an empty row does not have is a painted floor, and laying out every footprint up to 10x10 would paint several thousand chunks of it for shapes most packs never use |
 
 ### Settings files the catalogue cannot see
@@ -195,7 +195,7 @@ everywhere and complained about by nothing, so it gives a one-storey building an
 error. Sync finds it inside a chunk or level scope as well as beside them.
 
 A monorail row stays at one plot however many files name it, since a list where the
-codec takes a single name is a load error rather than a longer row. No row grows past
+codec takes a single name is dropped for the default part rather than read as a longer row. No row grows past
 512 plots either way, so a stray `building/1x1/99999.json5` reports the file instead of
 laying out a hundred thousand plots and painting a floor for each.
 
@@ -221,7 +221,7 @@ throws.
 ### Starting again
 
 An import fills the plots its pack needs and leaves every other plot alone, because
-somebody may have built on those by hand. That has a consequence worth knowing:
+somebody may have built on those by hand. That has a consequence:
 **importing a second city on top of a first leaves the first one's plots where they
 were**, so the workshop holds both and an export writes both into one pack. The
 import counts those plots and says so.

@@ -15,8 +15,8 @@ claims: verified
     it, and then never read the registry. Every pinned building and street is absent
     and nothing is logged. A deliberately invalid value in the file still stops the
     server from booting, so the file being accepted proves nothing about it being
-    used. Place buildings through a [city style](citystyle.md) selector on those
-    versions instead. [game test](../examples/claim-tests.md#ver-5){.v .v-g} [code review](../examples/claim-tests.md#ver-5){.v .v-c}
+    used. On those versions a building is placed through a [city style](citystyle.md)
+    selector instead. [game test](../examples/claim-tests.md#ver-5){.v .v-g} [code review](../examples/claim-tests.md#ver-5){.v .v-c}
 
 The folder names carry no underscore, and the city folder is spelled differently on
 different versions: <!-- noclaim -->
@@ -68,7 +68,7 @@ Pinning a city is not a hint. The chunk you name becomes a city centre outright.
 
 | Normally decided by | Inside a predefined city |
 |---|---|
-| `cityChance` | Ignored. The centre chunk is a city centre even at `cityChance: 0.0`, which is the cleanest way to get exactly one city in a world [game test](../examples/claim-tests.md#pre-2){.v .v-g} |
+| `cityChance` | Ignored. The centre chunk is a city centre even at `cityChance: 0.0`, which gives a world exactly one city [game test](../examples/claim-tests.md#pre-2){.v .v-g} |
 | The city radius roll | Fixed to `radius` [code review](../examples/claim-tests.md#ref-2){.v .v-c} |
 | The [World Style](worldstyle.md)'s weighted city style pick | Fixed to `citystyle` [code review](../examples/claim-tests.md#ref-2){.v .v-c} |
 | `buildingchance`, per chunk | Ignored on any chunk holding a pinned building or a pinned street [game test](../examples/claim-tests.md#pre-1){.v .v-g} |
@@ -76,7 +76,7 @@ Pinning a city is not a hint. The chunk you name becomes a city centre outright.
 !!! danger "At `cityChance: 0.0`, an unpinned chunk inside the radius is not a city chunk"
     The radius bounds the city, and on its own it does not make the chunks inside it part of one. With `cityChance` at `0.0` and nothing else pinned, the chunk beside a pinned building reported `is city: false` and generated as open ground, so the building had no street next to it and no [front](citystyle.md#what-a-building-front-is) was ever drawn. [game test](../examples/claim-tests.md#frt-2){.v .v-g}
 
-    Pin the streets you want, as the `streets` list above does, and those chunks become city. This is worth ruling out first when a feature that needs a street neighbour appears to do nothing. [game test](../examples/claim-tests.md#frt-2){.v .v-g}
+    A pinned street, as in the `streets` list above, makes its chunk city. A feature that needs a street neighbour and appears to do nothing can be this. [game test](../examples/claim-tests.md#frt-2){.v .v-g}
 
 ## Predefined Sphere
 
@@ -87,7 +87,7 @@ Pinning a city is not a hint. The chunk you name becomes a city centre outright.
 | `centerx` / `centerz` | **yes** | The sphere centre, in blocks |
 | `radius` | **yes** | The sphere radius |
 
-Every key on a predefined sphere is required, and there are no optional ones. [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+Every key on a predefined sphere is required. [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 
 A sphere pinned at `centerx: 136`, `centerz: 136` with `radius: 40` built its dome exactly there: 513 glass blocks in the centre chunk, where the shell only crosses above and below, 1093 in the chunk just inside the western edge where it stands almost vertical, and none in the chunk beginning at `136 + 40`. [game test](../examples/claim-tests.md#sph-1){.v .v-g}
 
@@ -115,7 +115,7 @@ A sphere pinned at `centerx: 136`, `centerz: 136` with `radius: 40` built its do
 
 The city covers world chunks 0 to 16 on both axes. `town_hall` lands on chunk 8, 8, that is block 128, 128. `office` lands on chunk 10, 8, that is block 160, 128. The street sits between them on chunk 9, 8. [game test](../examples/claim-tests.md#pre-1){.v .v-g}
 
-!!! danger "Pin to the dimension the profile is actually driving"
+!!! danger "The pinned dimension has to be the one the profile drives"
     Choosing a profile with the **Cities** button makes the **overworld** the Lost Cities world, while `dimensionsWithProfiles` wires `lostcities:lostcity`. A city pinned to the wrong one of those appears not to generate at all, with nothing logged. The shipped example packs pin to both. [game test](../examples/claim-tests.md#cfg-5){.v .v-g}
 
 !!! note "`onlyPredefined` turns off random spheres"

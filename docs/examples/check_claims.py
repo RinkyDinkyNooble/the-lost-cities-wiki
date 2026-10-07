@@ -46,6 +46,19 @@ def err(where: str, msg: str) -> None:
     errors.append(f"{where}: {msg}")
 
 
+# Front matter is front matter only at the top of a page. Further down, the same
+# lines render as a rule and a heading reading "key: value". `claims: verified`,
+# prepended above a page's own `status:` block, put a heading saying
+# "status: in-progress" on three pages that way and took their nav icon with it.
+FRONT_MATTER_BLOCK = re.compile(r"^---\n(?:[A-Za-z_][\w-]*:.*\n)+---$", re.M)
+
+
+def stray_front_matter(text: str) -> list[int]:
+    """The line of each front matter block that is not at the top of the page."""
+    return [text.count("\n", 0, m.start()) + 1
+            for m in FRONT_MATTER_BLOCK.finditer(text) if m.start() != 0]
+
+
 def front_matter(text: str) -> dict:
     if not text.startswith("---\n"):
         return {}
@@ -248,6 +261,10 @@ def main() -> int:
             continue
         text = path.read_text(encoding="utf-8")
         total += 1
+        for line in stray_front_matter(text):
+            err(f"{path.relative_to(DOCS).as_posix()}:{line}",
+                "a second front matter block, which renders as a heading. Move its "
+                "keys into the block at the top of the page")
         if front_matter(text).get("claims") == "verified":
             opted.append(path)
 

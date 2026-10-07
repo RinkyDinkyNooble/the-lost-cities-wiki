@@ -78,7 +78,9 @@ Greek letters on purpose. Your palette is merged with the mod's, collisions sile
 
 ## 2. The part
 
-A part is one chunk footprint, one floor tall: **16 wide, 16 deep, 6 layers**. `slices` runs bottom to top. Every row must be exactly 16 characters. A space is air. [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+A part is one chunk footprint, one floor tall: **16 wide, 16 deep, 6 layers**. `slices` runs bottom to top. A space is air. [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+
+The mod joins each layer's rows into one string and reads it 16 characters to a row, so what has to be right is the layer's total of 256. Writing every row as exactly 16 characters is how to keep that total right and still read the grid. [game test](../examples/claim-tests.md#prt-1){.v .v-g}
 
 This is the whole file, exactly as it ships in [the example bundle](../examples/index.md). Nothing is left out, because the row lengths are the part of this you most need to see. <!-- noclaim -->
 
@@ -276,7 +278,7 @@ Read this as a list of candidates, not a stack. For each level, the generator co
 }
 ```
 
-Only two keys are required. `multisettings`, `settings`, and `parts` all fall back to working defaults, and `scattered` and `cityspheres` are simply off when absent. [code review](../examples/claim-tests.md#ref-1){.v .v-c}
+Only two keys are required. `multisettings`, `settings`, and `parts` all fall back to working defaults, and `scattered` and `cityspheres` are off when absent. [code review](../examples/claim-tests.md#ref-1){.v .v-c}
 
 Note `mycity:mycity`: the namespace **and** the file name. A bare `mycity` would be read as `lostcities:mycity` and silently find nothing. This is the single most common way custom content fails to load. [game test](../examples/claim-tests.md#ns-3){.v .v-g}
 
@@ -337,7 +339,7 @@ That dumps every decision the generator made for that chunk to the **server cons
 
 ## When nothing happens
 
-In the order worth checking: <!-- noclaim -->
+In order: <!-- noclaim -->
 
 1. **Did you restart?** `/reload` does not reload these files.
 2. **Are you in new chunks?** Existing ones are saved and never regenerate.

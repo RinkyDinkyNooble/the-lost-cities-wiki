@@ -1653,6 +1653,46 @@ defines. Seven characters are free across every palette the mod ships:
 The failure mode is worth the space: nothing errors, nothing is logged, and the
 only symptom is that the wrong blocks appear somewhere in the world.
 
+#### BHV-8 A list under a monorail key is dropped on 1.20.1 and refused on 1.21 { #bhv-8 }
+
+**Code review, and one run.** `MonorailParts` declares `both`, `vertical` and
+`station` as `Codec.STRING.optionalFieldOf(key, default)` in 7.4.12, 7.5.4, 9.5.1
+and 10.0.1 alike, with the defaults `monorails_both`, `monorails_vertical` and
+`monorails_station`. What a list there does is decided by the codec library each
+Minecraft version ships, not by Lost Cities:
+
+| Minecraft | DataFixerUpper | A value the field cannot parse |
+|---|---|---|
+| 1.20.1, Lost Cities 7.x | 6.0.8 | `OptionalFieldCodec.decode` answers with an empty result, so the default part is used and nothing is logged |
+| 1.21 and later, Lost Cities 8.x on | 8.0.16 and 9.0.19 | `optionalFieldOf` is strict and fails the decode; only the separate `lenientOptionalFieldOf` keeps the older behaviour, and Lost Cities does not use it |
+
+On 7.5.4, a world style holding a list under `monorails.both` booted cleanly, as the
+first row says it should. There is no world test on 1.21: that row is read from the
+DataFixerUpper and Lost Cities jars only.
+
+#### BHV-9 A level test of the wrong type is no test on 1.20.1 and refused on 1.21 { #bhv-9 }
+
+**Code review.** `PartRef`, a building's part reference, and `ConditionPart`, a
+Condition entry, declare every test as an optional field in 7.4.12: `top`, `ground`,
+`cellar`, `isbuilding` and `issphere` as `Codec.BOOL.optionalFieldOf`, `floor`,
+`chunkx` and `chunkz` as `Codec.INT.optionalFieldOf`, `range` as
+`Codec.STRING.optionalFieldOf`. `mod-keys.json` records the same fields as optional
+in 9.5.1 and 10.0.1. So the table under [BHV-8](#bhv-8) decides what a value of the
+wrong type does: on 1.20.1 the test is absent, and from 1.21 the decode fails.
+
+What counts as the wrong type is `JsonOps` in DataFixerUpper 6.0.8, read in the
+rig's jar:
+
+| Field | Reads | Wrong type |
+|---|---|---|
+| `Codec.BOOL` | `true` and `false`, and a number as true when `Number.byteValue()` is not zero | a string, a list, an object |
+| `Codec.INT` | a number, and `true` and `false` as 1 and 0 | a string, a list, an object |
+| `Codec.STRING` | a string | anything else |
+
+`JsonOps` parses a string as a number only in its compressed form, which datapack
+loading does not use. No world test: read from the 7.4.12 jar and the
+DataFixerUpper jars behind BHV-8.
+
 ### Whole-page entries
 
 Some claims are made the same way on many pages. Rather than repeat the evidence,

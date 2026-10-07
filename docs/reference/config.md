@@ -5,7 +5,7 @@ claims: verified
 # Configuration Reference
 
 !!! tip "TL;DR"
-    Lost Cities settings live in three places, and the file everyone reaches for first holds only three keys. Eleven more sit in a **per-world** file inside the save. Both use a section called `[profiles]`, whatever the comment above it says. [game test](../examples/claim-tests.md#cfg-1){.v .v-g} [code review](../examples/claim-tests.md#cfg-1){.v .v-c}
+    Lost Cities settings live in three places, and `common.toml` holds only three keys. Eleven more sit in a **per-world** file inside the save. Both use a section called `[profiles]`, whatever the comment above it says. [game test](../examples/claim-tests.md#cfg-1){.v .v-g} [code review](../examples/claim-tests.md#cfg-1){.v .v-c}
 
 ## The three places
 
@@ -16,7 +16,7 @@ claims: verified
 | `config/lostcities/profiles/<name>.json` | The whole install | Profiles, rewritten on every launch |
 [game test](../examples/claim-tests.md#cfg-1){.v .v-g} [code review](../examples/claim-tests.md#cfg-1){.v .v-c}
 
-A setting edited in the wrong one of these does nothing and says nothing. `avoidVillages` in `common.toml` is ignored, because that key belongs to the world file, and Forge has no opinion about keys it was not expecting. [code review](../examples/claim-tests.md#cfg-1){.v .v-c}
+A setting edited in the wrong one of these does nothing and says nothing. `avoidVillages` in `common.toml` is ignored, because that key belongs to the world file, and Forge ignores a key its spec does not declare. [code review](../examples/claim-tests.md#cfg-1){.v .v-c}
 
 !!! danger "The section is `[profiles]` in both files"
     Every key in both `.toml` files sits under `[profiles]`. The line above it reads `#General settings`, which is a **comment**, not a section name. [game test](../examples/claim-tests.md#cfg-2){.v .v-g} [code review](../examples/claim-tests.md#cfg-2){.v .v-c}
@@ -83,7 +83,7 @@ This file is written into the **save**, at `<world>/serverconfig/lostcities-serv
 
 ## The profiles folder
 
-`config/lostcities/profiles/` is not a folder you own. On every launch the mod builds its standard profiles in code, **writes every one of them to disk**, and only then reads the folder back. [code review](../examples/claim-tests.md#cfg-7){.v .v-c}
+`config/lostcities/profiles/` belongs to the mod. On every launch the mod builds its standard profiles in code, **writes every one of them to disk**, and only then reads the folder back. [code review](../examples/claim-tests.md#cfg-7){.v .v-c}
 
 | Question | Answer |
 |---|---|
@@ -93,7 +93,7 @@ This file is written into the **save**, at `<world>/serverconfig/lostcities-serv
 | Are my own profiles safe? | Yes. The write loop only touches profiles the mod itself defines |
 [code review](../examples/claim-tests.md#cfg-7){.v .v-c}
 
-To change a default, copy it to a new name and edit the copy. That is what the `__readonly__` note in each shipped file is telling you, and it is accurate: those files really are read-only in effect. <!-- noclaim -->
+A default is changed by copying it to a new name and editing the copy. That is what the `__readonly__` note in each shipped file says, and the note is accurate: those files are read-only in effect. <!-- noclaim -->
 
 !!! danger "One unreadable file drops every profile after it"
     `readProfiles` walks the folder and reads each `.json` in turn. Its `IOException` handler ends in `return` rather than `continue`, so the first file it cannot read stops the scan, and every profile the scan had not reached yet is never registered. [code review](../examples/claim-tests.md#prf-5){.v .v-c}
@@ -101,7 +101,7 @@ To change a default, copy it to a new name and edit the copy. That is what the `
     Which profiles vanish depends on directory order, so the symptom is a profile that exists on disk, is spelled correctly, and is not offered or found. Nothing names the file that stopped the scan. [code review](../examples/claim-tests.md#prf-5){.v .v-c}
 
 !!! warning "A key in the wrong section is never read"
-    Both `.toml` files and the profile JSON are read by section. A key placed under the wrong heading is not reported, it is simply not found, and the setting keeps its default. See the `[profiles]` note above. [code review](../examples/claim-tests.md#prf-7){.v .v-c}
+    Both `.toml` files and the profile JSON are read by section. A key placed under the wrong heading is not reported: it is not found, and the setting keeps its default. See the `[profiles]` note above. [code review](../examples/claim-tests.md#prf-7){.v .v-c}
 
 ### `__readonly__`
 

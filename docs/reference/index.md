@@ -22,7 +22,7 @@ The Profile sits outside the datapack system and names a world style. The six da
 | 5 | [Building Part](part.md) | `parts/` | The block grid itself, 16 by 16 by 6 |
 | 6 | [Palette](palette.md) | `palettes/` | What each character means |
 
-Break a link in that chain and the failure throws rather than passing quietly, though where it surfaces depends on which link broke. [Namespaces](../getting-started/namespaces.md#what-a-reference-into-the-wrong-namespace-actually-does) has the three cases. [game test](../examples/claim-tests.md#ns-4){.v .v-g}
+Break a link in that chain and the failure throws rather than passing silently, though where it surfaces depends on which link broke. [Namespaces](../getting-started/namespaces.md#what-a-reference-into-the-wrong-namespace-actually-does) has the three cases. [game test](../examples/claim-tests.md#ns-4){.v .v-g}
 
 ## When a key appears to do nothing
 
@@ -30,7 +30,7 @@ Break a link in that chain and the failure throws rather than passing quietly, t
 
 ## Supporting types
 
-Optional, and worth reaching for once the chain above works. <!-- noclaim -->
+Optional, and each one builds on the chain above. <!-- noclaim -->
 
 | Page [code review](../examples/claim-tests.md#ref-1){.v .v-c} | Folder | What it is for |
 |---|---|---|
@@ -52,11 +52,11 @@ Each page opens with a TL;DR, then a key table, then the behaviour the keys alon
 
     [`validate.py`](../examples/index.md#validatepy) checks the rules that can be checked outside the game. <!-- noclaim -->
 
-Three pages carry most of the traps and are worth reading before writing anything: <!-- noclaim -->
+Three pages carry most of the traps: <!-- noclaim -->
 
 - [Palette](palette.md#the-128-slot-rule-for-blocks-and-variant), for the 128-slot rule and what a `char` may legally be [game test](../examples/claim-tests.md#pal-3){.v .v-g}
 - [Building](building.md#floor-coverage-the-most-common-failure), for the floor-coverage failure [game test](../examples/claim-tests.md#bld-4){.v .v-g}
-- [City Style](citystyle.md#inheritance), for inheritance being additive in a way that surprises nearly everyone [game test](../examples/claim-tests.md#cty-5){.v .v-g}
+- [City Style](citystyle.md#inheritance), for inheritance being additive, `[]` included [game test](../examples/claim-tests.md#cty-5){.v .v-g}
 
 ## See also
 

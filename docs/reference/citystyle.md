@@ -79,7 +79,7 @@ claims: verified
     10.0.1, so this is not version specific. [code review](../examples/claim-tests.md#key-1){.v .v-c}
 
 !!! warning "None of these numbers are validated"
-    Nothing validates a number in an asset JSON, exactly as in the [Profile](profile.md). A `buildingchance` of `4.0` loads and simply means always. The ranges this page mentions are the windows the mod is built around, not checks it performs.
+    Nothing validates a number in an asset JSON, exactly as in the [Profile](profile.md). A `buildingchance` of `4.0` loads and means always. The ranges this page mentions are the windows the mod is built around, not checks it performs.
 
 !!! warning "Three `streetblocks` keys parse and then do nothing"
     `width`, `streetbase` and `streetvariant` all load, all inherit, and are all readable by a companion mod through `ILostCityCityStyle`. **No generation code reads any of them.**
@@ -95,7 +95,7 @@ claims: verified
 
     All three look load-bearing because the mod's own content sets them. `citystyle_config` exists solely to set `width`, and both `citystyle_common` and `citystyle_border` set `streetbase` and `streetvariant`. Setting them changes nothing about how a street generates. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-    If you want to change what a street is made of, edit the palette characters the street **part** uses, or point `streetblocks.parts` at your own part. See [Streets, Highways, Rails and Monorails](../concepts/infrastructure-parts.md). <!-- noclaim -->
+    What a street is made of comes from the palette characters its street **part** uses, and a different part is named through `streetblocks.parts`. See [Streets, Highways, Rails and Monorails](../concepts/infrastructure-parts.md). <!-- noclaim -->
 
 !!! danger "`streetblocks.parts.full` is a fourth dead key"
     It loads, it inherits, and the street type it belongs to is never assigned. The
@@ -107,7 +107,7 @@ claims: verified
     [Streets, Highways, Rails and Monorails](../concepts/infrastructure-parts.md#streets). [game test](../examples/claim-tests.md#cty-4){.v .v-g}
 
 !!! warning "The naming is not consistent"
-    Six of these keys use a `...blocks` suffix: `generalblocks`, `corridorblocks`, `parkblocks`, `railblocks`, `sphereblocks` and `streetblocks`. One uses a `...settings` suffix: `buildingsettings`. That is genuinely how the mod names them. Copy the exact key. Do not guess from the pattern.
+    Six of these keys use a `...blocks` suffix: `generalblocks`, `corridorblocks`, `parkblocks`, `railblocks`, `sphereblocks` and `streetblocks`. One uses a `...settings` suffix: `buildingsettings`. The mod names them that way, so a key guessed from the pattern is a key nothing reads.
 
 !!! note "`railmain` resolves once per chunk, not once per block"
     If `railmain` points at a weighted [Palette](palette.md) entry, that is a `variant` or a `blocks` list rather than a fixed `block`, the mod picks one result and reuses it for the whole rail-bed strip in that chunk. It does not re-roll per block.
@@ -175,11 +175,11 @@ The three fatal ones reach a lookup that refuses a null name. [code review](../e
 
     So `bridgeChance: 0` does **not** protect an empty `bridges` list. Setting the chance to zero and the list to `[]` still fails every building chunk. Confirmed in game: 1842 failed chunks in one session, with `bridgeChance` at `0.0`. [game test](../examples/claim-tests.md#cty-6){.v .v-g}
 
-    If you do not want bridges, leave the list populated and set the chance to `0`. Do not empty the list. <!-- noclaim -->
+    No bridges means a chance of `0` with the list left populated. An empty list is the crash above. <!-- noclaim -->
 
 `fountains` is the opposite case: the mod tests `fountainChance` before it looks anything up, so a zero chance means the selector is never consulted. `parks` is looked up unconditionally, like bridges, but survives it because parks use the safe lookup. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-!!! warning "Remember that inheritance is additive, so `[]` may not mean empty"
+!!! warning "Inheritance is additive, so `[]` may not mean empty"
     Writing `"buildings": []` in a style that inherits from `citystyle_common` does not give you an empty list. You inherit the parent's 8 entries and add nothing. The crash above only happens when the **merged** list is empty, which means you either inherited nothing or inherited from a style that has none.
 
 ## What a building front is
@@ -259,16 +259,16 @@ If your three entries name buildings the parent also names, those buildings appe
 
 The child's pool is `house` at 5.0, `house` at 1.0, and `tower` at 1.0. So `house` carries an effective weight of 6.0 against `tower`'s 1.0, not 5 to 1. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-**If you need a genuinely different building list, do not inherit from a style that has one.** Inherit from a minimal base, or from nothing, and declare the full list yourself. <!-- noclaim -->
+**A style that inherits a building list can add to it but not shrink it.** A different list comes from inheriting a minimal base, or nothing, and declaring the whole list. <!-- noclaim -->
 
 !!! warning "`streetblocks.parts` is the exception, and it is all or nothing"
     Every other nested key merges key by key, so setting `streetblocks.border` alone keeps the parent's `streetblocks.wall`.
 
-    **`streetblocks.parts` does not work that way.** Writing any `parts` block at all, even one holding a single key, discards the parent's entire `parts` block. Every key you did not restate falls back to the mod's built-in default, not to the parent's value. Restate every key you want to keep. [game test](../examples/claim-tests.md#cty-3){.v .v-g}
+    **`streetblocks.parts` does not work that way.** Writing any `parts` block at all, even one holding a single key, discards the parent's entire `parts` block. Every key not restated falls back to the mod's built-in default, not to the parent's value, so a key is kept only by restating it. [game test](../examples/claim-tests.md#cty-3){.v .v-g}
 
 ## How the shipped city styles are organised
 
-The five city styles the mod ships are worth reading before you write your own, because the layering is deliberate. <!-- noclaim -->
+The five city styles the mod ships are layered on purpose: <!-- noclaim -->
 
 ```
 citystyle_config          only { "streetblocks": { "width": 8 } }

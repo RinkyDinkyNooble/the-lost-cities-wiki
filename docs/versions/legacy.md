@@ -8,10 +8,9 @@ Mod versions 1.0.1 through 5.0.4 do not read datapacks. Nothing in this wiki's
 reference section applies to them, because those pages describe datapack codecs that
 do not exist there. [code review](../examples/claim-tests.md#key-1){.v .v-c}
 
-**That era has its own section now.** [The File-Asset Era](../file-era/index.md)
+**That era has its own section.** [The File-Asset Era](../file-era/index.md)
 covers the ten asset types, the shape of a file, and how to add your own content,
-read out of the 1.12.2 jar. This page stays as the quick answer to which era you are
-in. [code review](../examples/claim-tests.md#f12-2){.v .v-c}
+read out of the 1.12.2 jar. This page is the quick answer to which era you are in. [code review](../examples/claim-tests.md#f12-2){.v .v-c}
 
 ## Which versions
 
@@ -75,7 +74,7 @@ them, and its syntax, does not. [code review](../examples/claim-tests.md#key-1){
 
 ## If you are on one of these versions
 
-Two options, and neither one is bad. <!-- noclaim -->
+Two options: <!-- noclaim -->
 
 | Option | What it costs [code review](../examples/claim-tests.md#f12-2){.v .v-c} |
 |---|---|

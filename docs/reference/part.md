@@ -11,7 +11,7 @@ claims: verified
 
 | Key | Required | Meaning [code review](../examples/claim-tests.md#ref-1){.v .v-c} |
 |---|---|---|
-| `xsize` / `zsize` | **yes** | The footprint size in blocks. Use `16` and `16`. See the warning below. |
+| `xsize` / `zsize` | **yes** | The footprint size in blocks, normally `16` and `16`. See the warning below. |
 | `slices` | **yes** | The list of layers, bottom to top. Each layer is a list of row strings. |
 | `refpalette` | no | The name of a shared palette. |
 | `palette` | no | An embedded palette, used instead of `refpalette`. It is a whole palette asset, so the entry list nests under a second `palette` key. See below. |
@@ -72,18 +72,18 @@ That is one layer: a hollow 4 by 4 box made of whatever block `α` maps to. <!--
 !!! warning "A footprint larger than 16 loads, then generates wrong"
     A part declaring `xsize: 32` loads without complaint and then generates incorrectly. A write past column 15 wraps back into the same chunk instead of continuing into the next one, so an oversized part silently overwrites its own first columns. There is no error and nothing in the log.
 
-    To cover a larger area use a [Multi-Building](multibuilding.md), which is the supported way to span several chunks. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
+    A larger area takes a [Multi-Building](multibuilding.md), the supported way to span several chunks. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
 !!! note "Smaller than 16 is legal, and the mod relies on it"
-    The mod iterates each part over its **own** `xsize`, `zsize` and slice count, so a part smaller than the chunk simply writes a smaller area. It is not corrupted, and it is not unsupported.
+    The mod iterates each part over its **own** `xsize`, `zsize` and slice count, so a part smaller than the chunk writes a smaller area, and is neither corrupted nor unsupported.
 
     The mod's own [building fronts](citystyle.md#front-parts-are-deliberately-not-16-by-16) are 2 by 16 and 3 by 16 strips, placed along one edge of a street chunk and rotated for each of the four sides. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
-    The rule that matters is: **never exceed 16**, and match the footprint to the job. A part used where a full chunk is expected, such as a building floor or a street, should be 16 by 16, or it will cover only part of the chunk and leave the rest as it was. [game test](../examples/claim-tests.md#prt-2){.v .v-g}
+    **Nothing may exceed 16.** A part used where a full chunk is expected, such as a building floor or a street, covers only part of the chunk unless it is 16 by 16, and leaves the rest as it was. [game test](../examples/claim-tests.md#prt-2){.v .v-g}
 
 ## Slices, floors and height
 
-Each floor of a building occupies **6 blocks** of vertical space, and the mod stacks parts at 6-block intervals. A part with more than 6 slices has its upper slices overwritten by the floor above. A part with fewer leaves a gap. Match your slice count to 6. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
+Each floor of a building occupies **6 blocks** of vertical space, and the mod stacks parts at 6-block intervals. A part with more than 6 slices has its upper slices overwritten by the floor above. A part with fewer leaves a gap. Six fill a floor exactly. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
 ## `meta`
 
@@ -105,7 +105,7 @@ Each entry is a `key` plus exactly one typed value: `boolean`, `char`, `string`,
 Where a highway or bridge crosses open space, the mod drops pillars of this character downward. It stops at the first non-empty block, or after 40 blocks, whichever comes first. The profile's `highwaySupports` and `bridgeSupports` suppress the pillars entirely. All 8 shipped highway and bridge parts use `v`. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
 !!! danger "An undefined `support` character fails the chunk"
-    The mod throws `Cannot find support block '<char>' for highway part '<name>'!` when `support` names a character no palette in scope defines. Define the character, or remove the `support` meta. Omitting `support` is safe, and gives you a highway with nothing holding it up.
+    The mod throws `Cannot find support block '<char>' for highway part '<name>'!` when `support` names a character no palette in scope defines. Omitting `support` is safe, and gives a highway with nothing holding it up.
 
 ### `z1` and `z2`
 
@@ -126,7 +126,7 @@ These mark where the staircase meets the chunk edge, so the street border in the
 { "meta": [ { "key": "dontconnect", "boolean": true } ] }
 ```
 
-Set this on a floor part to suppress doorways between it and the neighbouring chunks, in both directions. All 14 shipped `shopping*` parts use it. They are interior mall sections, and they should connect only through their own openings rather than have generic doorways punched through them. [game test](../examples/claim-tests.md#bld-6){.v .v-g}
+On a floor part this suppresses doorways between it and the neighbouring chunks, in both directions. All 14 shipped `shopping*` parts use it. They are interior mall sections, which connect only through their own openings. [game test](../examples/claim-tests.md#bld-6){.v .v-g}
 
 ### `nowater`
 
@@ -140,7 +140,7 @@ This is the per-part equivalent of the profile's `avoidFoliage`, without the cos
 
 ### Any other key
 
-Any other key parses, is stored, and nothing in 7.4.12 reads it. A companion mod can read it, so it is a reasonable place to keep your own data. Do not expect the mod to act on it. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
+Any other key parses, is stored, and nothing in 7.4.12 reads it. A companion mod can read it, so it holds data of your own that Lost Cities never acts on. [code review](../examples/claim-tests.md#ref-2){.v .v-c}
 
 !!! note "Two of the five value types are never read either"
     The codec accepts `boolean`, `char`, `string`, `integer` and `float`, but the mod only ever reads three of them. The five real keys use `char` (`support`), `integer` (`z1`, `z2`) and `boolean` (`dontconnect`, `nowater`).

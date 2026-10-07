@@ -8,8 +8,8 @@ Most keys are independent. The ones on this page are not: setting one correctly
 still produces nothing, because a second key elsewhere overrides it, gates it, or
 is applied after it. <!-- noclaim -->
 
-Every entry names the version it was checked against and how. These are the cases
-behind most reports of a setting that "does nothing". <!-- noclaim -->
+Every entry names the version it was checked against and how, and each is a way for
+a setting to "do nothing". <!-- noclaim -->
 
 ## One key silently defeats another
 
@@ -106,7 +106,7 @@ every version. [game test](../examples/claim-tests.md#mat-2){.v .v-g}
 | Result | The character is defined where a building stands and undefined everywhere else. A city sphere's shell is drawn on non-city chunks, so a shell character defined only in the city style's style resolves to null and the **server** stops, uncaught, naming nothing. |
 | Checked | Run in a world, 7.4.12 |
 
-Layer the same palette into both styles. See [Style](style.md#two-styles-are-in-play-and-which-one-applies-depends-on-the-chunk). [game test](../examples/claim-tests.md#bhv-5){.v .v-g}
+The fix is the same palette layered into both styles. See [Style](style.md#two-styles-are-in-play-and-which-one-applies-depends-on-the-chunk). [game test](../examples/claim-tests.md#bhv-5){.v .v-g}
 
 ### `preventruins` is on the pinned building, not the Building asset
 
@@ -204,8 +204,9 @@ is set, because the floor loop has no current part yet and passes the literal
 `<none>`. `belowpart` additionally tests the current part rather than the one below
 it in every version that declares the key. [game test](../examples/claim-tests.md#cnd-5){.v .v-g}
 
-Both work in a Condition reached from a palette's `loot` or `mob`, where the part is
-real. Checked in a world on 7.4.12. See
+In a Condition reached from a palette's `loot` or `mob` the part is real, so `inpart`
+works there, and `belowpart` reads that same current part. Checked in a world on
+7.4.12. See
 [Condition](condition.md#belowpart-and-inpart-in-a-building). [game test](../examples/claim-tests.md#cnd-6){.v .v-g}
 
 ## See also
